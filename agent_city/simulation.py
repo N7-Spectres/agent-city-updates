@@ -86,6 +86,24 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
                     "label": f"Extract {amount:g} units of {dep['material']}.",
                 })
 
+        # Face-to-face conversation is possible only with a co-located citizen who is also free.
+        if energy >= 5:
+            others = conn.execute(
+                """
+                SELECT id, name
+                FROM citizens
+                WHERE location_id = ? AND id != ? AND active_job_id IS NULL
+                ORDER BY rowid
+                """,
+                (location_id, citizen_id),
+            ).fetchall()
+            for other in others:
+                actions.append({
+                    "action": "talk",
+                    "target": other["id"],
+                    "label": f"Talk face-to-face with {other['name']} here at {c['location']}.",
+                })
+
         actions.append({"action": "wait", "target": location_id, "label": "Remain where you are and observe for a while."})
         return actions
 
@@ -140,6 +158,19 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             detail = f"extract:{target}"
             activity = f"Extracting {material}"
 
+        elif action == "talk":
+            target_citizen = conn.execute("SELECT * FROM citizens WHERE id = ?", (target,)).fetchone()
+            if (
+                not target_citizen
+                or target_citizen["location_id"] != c["location_id"]
+                or target_citizen["active_job_id"] is not None
+            ):
+                return False, "That citizen is no longer available for a face-to-face conversation here."
+            duration = 20
+            conn.execute("UPDATE citizens SET energy = MAX(0, energy - 1) WHERE id IN (?, ?)", (citizen_id, target))
+            detail = f"talk:{target}"
+            activity = f"Talking with {target_citizen['name']}"
+
         elif action == "deposit_cargo":
             duration = 20
             detail = "deposit"
@@ -173,6 +204,16 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             """,
             (job_id, activity, now, citizen_id),
         )
+
+        if action == "talk":
+            conn.execute(
+                """
+                UPDATE citizens
+                SET active_job_id = ?, current_activity = ?, last_planned_minute = ?
+                WHERE id = ?
+                """,
+                (job_id, f"Talking with {c['name']}", now, target),
+            )
 
         reason_note = f" Reason: {intent_reason}" if intent_reason else ""
         add_history(conn, now, "activity", f"{c['name']} began: {activity}.{reason_note}")
@@ -218,7 +259,14 @@ def complete_due_jobs(now: int) -> None:
                 ).fetchall()
                 if undiscovered:
                     dep = undiscovered[0]
-                    conn.execute("UPDATE deposits SET discovered = 1 WHERE id = ?", (dep["id"],))
+                    conn.execute(
+                        """
+                        UPDATE deposits
+                        SET discovered = 1, discoverer_id = ?, discovered_minute = ?
+                        WHERE id = ?
+                        """,
+                        (c["id"], now, dep["id"]),
+                    )
                     message = f"{c['name']} surveyed {loc_name} and confirmed a deposit of {dep['material']}."
                 else:
                     message = f"{c['name']} completed a survey of {loc_name}; no new deposit was confirmed."
@@ -242,6 +290,20 @@ def complete_due_jobs(now: int) -> None:
                 else:
                     message = f"{c['name']}'s extraction attempt produced no usable material."
                 conn.execute("UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?", (c["id"],))
+
+            elif action == "talk":
+                target_id = job["target"]
+                target_citizen = conn.execute("SELECT name FROM citizens WHERE id = ?", (target_id,)).fetchone()
+                conn.execute(
+                    """
+                    UPDATE citizens
+                    SET current_activity = 'Available', active_job_id = NULL
+                    WHERE id IN (?, ?) AND active_job_id = ?
+                    """,
+                    (c["id"], target_id, job["id"]),
+                )
+                target_name = target_citizen["name"] if target_citizen else target_id
+                message = f"{c['name']} and {target_name} finished talking at {c['location']}."
 
             elif action == "deposit_cargo":
                 cargo = conn.execute(
