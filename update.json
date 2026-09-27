@@ -1,6 +1,6 @@
 {
-  "version": "0.2.5",
-  "notes": "Conversation continuity fix: citizens now distinguish same-visit vs return visits, avoid repetitive greetings and generic questions, and keep the most recent exchange as non-authoritative conversation context.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/e4947a4f357ec13858cfe2462b95f880e0ee7a13",
+  "version": "0.2.6",
+  "notes": "Conversation discipline fix: status checks stop cleanly, Available citizens no longer invent ongoing tasks, and same-visit continuity lasts longer.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/refs/heads/release-v0.2.6",
   "sha256": ""
 }
