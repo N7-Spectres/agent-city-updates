@@ -241,9 +241,9 @@ async def talk(req: TalkRequest):
 
     if last_exchange:
         recent_gap = max(0, state["sim_minute"] - int(last_exchange["sim_minute"]))
-        if recent_gap <= 30:
+        if recent_gap <= 90:
             conversation_phase = "same ongoing visit"
-        elif recent_gap <= 240:
+        elif recent_gap <= 360:
             conversation_phase = "recent return visit"
         else:
             conversation_phase = "returning visitor after some time"
@@ -312,7 +312,10 @@ The previous citizen reply above is conversational context only, NOT authoritati
 Use it to avoid repeating the same greeting, question, or answer structure.
 If this is the same ongoing visit, do not greet the visitor again unless the visitor explicitly greets you again.
 If nothing has materially changed since your last answer, say so briefly instead of restating the same information in different words.
-Do not ask the visitor the same generic question repeatedly (for example, "How are you?" / "How have you been?") unless it is genuinely relevant.
+For status-check questions such as "anything new?", answer the status check directly and stop; do not automatically add a reciprocal social question.
+Do not ask the visitor the same generic question repeatedly (for example, "How are you?" / "How have you been?" / "Anything new on your end?") unless the visitor's message genuinely calls for it.
+If your current activity is "Available", describe yourself as available or idle at your current location. Do not reinterpret "Available" as gathering data, checking systems, organizing supplies, inspecting equipment, or doing another task.
+Do not say you are "still" doing an activity unless that exact activity appears in CONFIRMED CURRENT FACTS or YOUR CONFIRMED PERSONAL ACTIVITY HISTORY.
 
 STRICT REALITY RULES:
 1. Only the confirmed current facts, confirmed personal activity history, and current recorded intent above are authoritative.
