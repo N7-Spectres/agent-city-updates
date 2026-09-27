@@ -30,6 +30,9 @@ const els = {
   chatForm: document.getElementById("chat-form"),
   chatInput: document.getElementById("chat-input"),
   sendButton: document.getElementById("send-button"),
+  leaveVisit: document.getElementById("leave-visit"),
+  previousVisits: document.getElementById("previous-visits"),
+  visitHistoryPanel: document.getElementById("visit-history-panel"),
   detailDrawer: document.getElementById("detail-drawer"),
   detailEyebrow: document.getElementById("detail-eyebrow"),
   detailTitle: document.getElementById("detail-title"),
@@ -61,10 +64,23 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+let restoredVisit = false;
+
 async function loadState() {
   const response = await fetch("/api/state");
   state = await response.json();
   render();
+
+  if (!restoredVisit) {
+    restoredVisit = true;
+    const savedVisitor = localStorage.getItem("agentCityVisitor");
+    if (savedVisitor) els.visitorName.value = savedVisitor;
+
+    const savedCitizen = localStorage.getItem("agentCitySelectedCitizen");
+    if (savedCitizen && state.citizens.some(c => c.id === savedCitizen)) {
+      await selectCitizen(savedCitizen, { restore: true });
+    }
+  }
 }
 
 function inventoryFor(citizenId) {
@@ -266,18 +282,144 @@ window.focusLocation = function(id) {
   renderMap();
 };
 
-window.selectCitizen = function(id) {
+function renderVisitConversation(data) {
+  els.chatLog.innerHTML = "";
+  els.visitHistoryPanel.classList.add("hidden");
+  els.visitHistoryPanel.innerHTML = "";
+
+  const summary = String(data.visit?.summary || "").trim();
+  if (summary) {
+    const banner = document.createElement("div");
+    banner.className = "visit-summary";
+    banner.innerHTML = `<strong>Earlier this visit, summarized</strong><p>${escapeHtml(summary)}</p>`;
+    els.chatLog.appendChild(banner);
+  } else if (data.has_earlier) {
+    const banner = document.createElement("div");
+    banner.className = "visit-summary muted";
+    banner.textContent = "Earlier exchanges in this visit are archived locally.";
+    els.chatLog.appendChild(banner);
+  }
+
+  if (!data.messages.length) {
+    const empty = document.createElement("div");
+    empty.className = "muted";
+    empty.textContent = `You are visiting ${data.citizen.name} at ${data.citizen.location}.`;
+    els.chatLog.appendChild(empty);
+  } else {
+    for (const row of data.messages) {
+      appendChat(data.visitor, row.visitor_text, "visitor", false);
+      appendChat(data.citizen.name, row.citizen_text, "citizen", false);
+    }
+  }
+
+  els.chatLog.scrollTop = els.chatLog.scrollHeight;
+}
+
+async function loadCurrentVisit(id) {
+  const visitor = els.visitorName.value.trim() || "Visitor";
+  localStorage.setItem("agentCityVisitor", visitor);
+  const response = await fetch(`/api/visit/${encodeURIComponent(id)}?visitor=${encodeURIComponent(visitor)}`);
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.detail || "Could not load visit.");
+  renderVisitConversation(data);
+  els.previousVisits.hidden = !data.previous_visits?.length;
+  return data;
+}
+
+window.selectCitizen = async function(id, options = {}) {
   selectedCitizen = id;
   const c = state.citizens.find(x => x.id === id);
+  if (!c) return;
+
   focusedLocation = c.location_id;
+  localStorage.setItem("agentCitySelectedCitizen", id);
+  localStorage.setItem("agentCityVisitor", els.visitorName.value.trim() || "Visitor");
+
   els.selectedTitle.textContent = c.name;
   els.selectedLabel.textContent = `Talking with ${c.name}`;
-  els.chatInput.disabled = false;
-  els.sendButton.disabled = false;
-  els.chatLog.innerHTML = `<div class="muted">You are visiting ${escapeHtml(c.name)} at ${escapeHtml(c.location)}.</div>`;
-  els.chatInput.focus();
+  els.chatInput.disabled = true;
+  els.sendButton.disabled = true;
+  els.leaveVisit.hidden = false;
+  els.previousVisits.hidden = true;
+  els.chatLog.innerHTML = `<div class="muted">Loading your visit with ${escapeHtml(c.name)}…</div>`;
   render();
+
+  try {
+    await loadCurrentVisit(id);
+    els.chatInput.disabled = false;
+    els.sendButton.disabled = false;
+    if (!options.restore) els.chatInput.focus();
+  } catch (error) {
+    els.chatLog.innerHTML = `<div class="chat-message system"><strong>System</strong><p>${escapeHtml(error.message)}</p></div>`;
+  }
 };
+
+function clearVisitSelection(message = "Choose a citizen on the left or on the map, then start a conversation.") {
+  selectedCitizen = null;
+  localStorage.removeItem("agentCitySelectedCitizen");
+  els.selectedTitle.textContent = "Conversation";
+  els.selectedLabel.textContent = "Select a citizen.";
+  els.chatInput.value = "";
+  els.chatInput.disabled = true;
+  els.sendButton.disabled = true;
+  els.leaveVisit.hidden = true;
+  els.previousVisits.hidden = true;
+  els.visitHistoryPanel.classList.add("hidden");
+  els.visitHistoryPanel.innerHTML = "";
+  els.chatLog.innerHTML = `<div class="muted">${escapeHtml(message)}</div>`;
+  render();
+}
+
+els.leaveVisit.addEventListener("click", async () => {
+  if (!selectedCitizen) return;
+  const visitor = els.visitorName.value.trim() || "Visitor";
+  els.leaveVisit.disabled = true;
+  try {
+    const response = await fetch(`/api/visit/${encodeURIComponent(selectedCitizen)}/leave`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ visitor }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Could not end visit.");
+    clearVisitSelection("Visit ended. Choose someone when you want to visit again.");
+  } catch (error) {
+    appendChat("System", error.message, "system");
+  } finally {
+    els.leaveVisit.disabled = false;
+  }
+});
+
+els.previousVisits.addEventListener("click", async () => {
+  if (!selectedCitizen) return;
+  const visitor = els.visitorName.value.trim() || "Visitor";
+  try {
+    const response = await fetch(`/api/visits/${encodeURIComponent(selectedCitizen)}?visitor=${encodeURIComponent(visitor)}`);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Could not load previous visits.");
+
+    if (!data.visits.length) {
+      els.visitHistoryPanel.innerHTML = `<div class="muted">No previous visits yet.</div>`;
+    } else {
+      els.visitHistoryPanel.innerHTML = data.visits.map(v => `
+        <div class="previous-visit-card">
+          <strong>${formatMinute(v.started_minute)}${v.ended_minute ? ` → ${formatMinute(v.ended_minute)}` : ""}</strong>
+          <p>${escapeHtml(v.summary || "Full transcript archived locally; no compact summary was created for this older visit.")}</p>
+        </div>
+      `).join("");
+    }
+    els.visitHistoryPanel.classList.toggle("hidden");
+  } catch (error) {
+    appendChat("System", error.message, "system");
+  }
+});
+
+els.visitorName.addEventListener("change", async () => {
+  const visitor = els.visitorName.value.trim() || "Visitor";
+  els.visitorName.value = visitor;
+  localStorage.setItem("agentCityVisitor", visitor);
+  if (selectedCitizen) await selectCitizen(selectedCitizen, { restore: true });
+});
 
 els.toggleRegion.addEventListener("click", () => openDrawer === "region" ? closeDrawer() : openDrawerView("region", "Known region", "REGION"));
 els.toggleResources.addEventListener("click", () => openDrawer === "resources" ? closeDrawer() : openDrawerView("resources", "Seed Site stores", "STORES"));
@@ -329,15 +471,15 @@ els.chatForm.addEventListener("submit", async (event) => {
   }
 });
 
-function appendChat(name, message, cls) {
-  const empty = els.chatLog.querySelector(".muted");
+function appendChat(name, message, cls, scroll = true) {
+  const empty = els.chatLog.querySelector(":scope > .muted");
   if (empty && els.chatLog.children.length === 1) empty.remove();
 
   const item = document.createElement("div");
   item.className = `chat-message ${cls}`;
   item.innerHTML = `<strong>${escapeHtml(name)}</strong><p>${escapeHtml(message)}</p>`;
   els.chatLog.appendChild(item);
-  els.chatLog.scrollTop = els.chatLog.scrollHeight;
+  if (scroll) els.chatLog.scrollTop = els.chatLog.scrollHeight;
 }
 
 async function checkOllama() {
