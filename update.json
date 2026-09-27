@@ -1,6 +1,6 @@
 {
-  "version": "0.2.4",
-  "notes": "UI refresh: citizens on the left, a larger world view in the center with live citizen dots, chat on the right, and Region/Stores/Structures/History/Updates moved into a cleaner detail drawer.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/refs/heads/main",
-  "sha256": ""
+  "version": "0.2.5",
+  "notes": "Conversation continuity fix: citizens now distinguish same-visit vs return visits, avoid repetitive greetings and generic questions, and keep the most recent exchange as non-authoritative conversation context.",
+  "package_url": "https://raw.githubusercontent.com/N7-Spectres/agent-city-updates/main/releases/Agent_City_v0.2.5_Conversation_Continuity.zip",
+  "sha256": "6f427c001b0c812f3fbfd327b36fd72301edb78f209553261227c422767dee39"
 }
