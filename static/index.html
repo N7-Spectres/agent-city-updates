@@ -85,13 +85,19 @@
           <div class="eyebrow">VISIT</div>
           <h2 id="selected-title">Conversation</h2>
         </div>
-        <span id="selected-label" class="muted">Select a citizen.</span>
+        <div class="visit-panel-controls">
+          <span id="selected-label" class="muted">Select a citizen.</span>
+          <button id="previous-visits" class="visit-small-button" hidden>Previous visits</button>
+          <button id="leave-visit" class="visit-small-button" hidden>Leave visit</button>
+        </div>
       </div>
 
       <label>
         Visitor name
         <input id="visitor-name" value="N7" maxlength="40" />
       </label>
+
+      <div id="visit-history-panel" class="visit-history-panel hidden"></div>
 
       <div id="chat-log" class="chat-log">
         <div class="muted">Choose a citizen on the left or on the map, then start a conversation.</div>
