@@ -1,0 +1,6 @@
+{
+  "version": "0.2.3",
+  "notes": "Built-in updater infrastructure for Agent City. This is the baseline release used to configure future one-click updates.",
+  "package_url": "https://raw.githubusercontent.com/N7-Spectres/agent-city-updates/main/releases/Agent_City_v0.2.3_Built_In_Updater.zip",
+  "sha256": "16d37cd7ac545f4d575d504659137544b6f094a7d87c0f29351408edd1853587"
+}
