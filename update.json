@@ -1,6 +1,6 @@
 {
-  "version": "0.2.3",
-  "notes": "Built-in updater infrastructure for Agent City. This is the baseline release used to configure future one-click updates.",
-  "package_url": "https://raw.githubusercontent.com/N7-Spectres/agent-city-updates/main/releases/Agent_City_v0.2.3_Built_In_Updater.zip",
-  "sha256": "16d37cd7ac545f4d575d504659137544b6f094a7d87c0f29351408edd1853587"
+  "version": "0.2.4",
+  "notes": "UI refresh: citizens on the left, a larger world view in the center with live citizen dots, chat on the right, and Region/Stores/Structures/History/Updates moved into a cleaner detail drawer.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/refs/heads/main",
+  "sha256": ""
 }
