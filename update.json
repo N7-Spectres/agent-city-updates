@@ -1,6 +1,0 @@
-{
-  "version": "0.2.4",
-  "notes": "UI refresh: citizens on the left, a larger world view in the center with live citizen dots, chat on the right, and Region/Stores/Structures/History/Updates moved into a cleaner detail drawer.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/refs/heads/main",
-  "sha256": ""
-}
