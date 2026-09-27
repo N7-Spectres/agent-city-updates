@@ -656,3 +656,79 @@ input:focus, textarea:focus { border-color: var(--accent); }
 
   .chat-message p { font-size: 15px; }
 }
+
+
+.visit-panel-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  max-width: 58%;
+}
+
+.visit-small-button {
+  padding: 7px 10px;
+  font-size: 12px;
+}
+
+.visit-summary {
+  border: 1px solid rgba(213,166,91,.28);
+  background: rgba(213,166,91,.07);
+  border-radius: 12px;
+  padding: 11px 12px;
+  margin-bottom: 16px;
+}
+
+.visit-summary strong {
+  display: block;
+  color: var(--accent);
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.visit-summary p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.visit-history-panel {
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  background: #0f141a;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.previous-visit-card {
+  padding: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.previous-visit-card:last-child {
+  border-bottom: 0;
+}
+
+.previous-visit-card strong {
+  display: block;
+  color: var(--accent);
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.previous-visit-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .visit-panel-controls {
+    max-width: 100%;
+    justify-content: flex-start;
+  }
+}
