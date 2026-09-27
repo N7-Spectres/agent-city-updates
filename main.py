@@ -18,6 +18,10 @@ from pydantic import BaseModel, Field
 from agent_city.db import connect, get_meta, init_db, set_meta, snapshot
 from agent_city.planner import planning_loop
 from agent_city.world import WorldClock, format_sim_time
+from agent_city.visits import (
+    close_visit, ensure_visit_schema, get_or_create_active_visit,
+    get_recent_exchanges, previous_visits, summarize_visit_if_needed, visit_payload,
+)
 from agent_city.updater import (
     PROJECT_ROOT, check_for_update, current_version, fetch_manifest,
     load_settings, make_backup, save_settings, stage_update
@@ -36,6 +40,7 @@ planner_task: asyncio.Task | None = None
 async def lifespan(app: FastAPI):
     global clock_task, planner_task
     init_db()
+    ensure_visit_schema()
     clock_task = asyncio.create_task(clock.run())
     planner_task = asyncio.create_task(planning_loop())
     yield
@@ -55,6 +60,10 @@ class PauseRequest(BaseModel):
 
 class UpdateSettingsRequest(BaseModel):
     manifest_url: str = Field(default="", max_length=1000)
+
+
+class VisitorRequest(BaseModel):
+    visitor: str = Field(default="N7", min_length=1, max_length=40)
 
 
 class TalkRequest(BaseModel):
@@ -184,6 +193,56 @@ async def install_update():
         raise HTTPException(500, f"Update failed safely. Nothing was installed. {exc}")
 
 
+@app.get("/api/visit/{citizen_id}")
+def get_visit(citizen_id: str, visitor: str = "N7"):
+    state = snapshot()
+    citizen = next((c for c in state["citizens"] if c["id"] == citizen_id), None)
+    if not citizen:
+        raise HTTPException(404, "Citizen not found")
+
+    visitor = visitor.strip()[:40] or "Visitor"
+    with connect() as conn:
+        visit = get_or_create_active_visit(conn, visitor, citizen_id, state["sim_minute"])
+        payload = visit_payload(conn, int(visit["id"]))
+        payload["previous_visits"] = previous_visits(conn, visitor, citizen_id, limit=3)
+
+    payload["citizen"] = citizen
+    payload["visitor"] = visitor
+    return payload
+
+
+@app.get("/api/visits/{citizen_id}")
+def get_previous_visits(citizen_id: str, visitor: str = "N7"):
+    state = snapshot()
+    citizen = next((c for c in state["citizens"] if c["id"] == citizen_id), None)
+    if not citizen:
+        raise HTTPException(404, "Citizen not found")
+
+    with connect() as conn:
+        visits = previous_visits(conn, visitor.strip()[:40] or "Visitor", citizen_id, limit=8)
+    return {"citizen": citizen, "visits": visits}
+
+
+@app.post("/api/visit/{citizen_id}/leave")
+async def leave_visit(citizen_id: str, req: VisitorRequest):
+    state = snapshot()
+    citizen = next((c for c in state["citizens"] if c["id"] == citizen_id), None)
+    if not citizen:
+        raise HTTPException(404, "Citizen not found")
+
+    visitor = req.visitor.strip()[:40] or "Visitor"
+    with connect() as conn:
+        visit = get_or_create_active_visit(conn, visitor, citizen_id, state["sim_minute"])
+        visit_id = int(visit["id"])
+
+    await summarize_visit_if_needed(visit_id, state["ollama_model"], force=True)
+
+    with connect() as conn:
+        close_visit(conn, visit_id, state["sim_minute"])
+
+    return {"ok": True, "visit_id": visit_id}
+
+
 @app.post("/api/talk")
 async def talk(req: TalkRequest):
     state = snapshot()
@@ -191,19 +250,15 @@ async def talk(req: TalkRequest):
     if not citizen:
         raise HTTPException(404, "Citizen not found")
 
-    with connect() as conn:
-        rows = conn.execute(
-            """
-            SELECT visitor_text, citizen_text, sim_minute
-            FROM conversations
-            WHERE visitor = ? AND citizen_id = ?
-            ORDER BY id DESC LIMIT 8
-            """,
-            (req.visitor, req.citizen_id),
-        ).fetchall()
-        prior = list(reversed([dict(r) for r in rows]))
+    visitor = req.visitor.strip()[:40] or "Visitor"
 
+    with connect() as conn:
+        visit = get_or_create_active_visit(conn, visitor, req.citizen_id, state["sim_minute"])
+        visit_id = int(visit["id"])
+        prior = get_recent_exchanges(conn, visit_id, limit=8)
         last_exchange = prior[-1] if prior else None
+        active_visit_summary = str(visit["summary"] or "").strip()
+        closed_visits = previous_visits(conn, visitor, req.citizen_id, limit=2)
 
         history_rows = conn.execute(
             """
@@ -236,25 +291,22 @@ async def talk(req: TalkRequest):
     inventory = [r for r in state["inventory"] if r["citizen_id"] == citizen["id"] and r["amount"] > 0]
     inventory_summary = ", ".join(f"{r['amount']:g} {r['material']}" for r in inventory) or "nothing"
 
-    prior_topics_text = "\n".join(f"- {r['visitor_text']}" for r in prior) or "- none"
-    has_met_before = "yes" if prior else "no"
+    prior_topics_text = "\n".join(f"- {r['visitor_text']}" for r in prior) or "- none in this visit yet"
+    conversation_phase = "same ongoing visit" if prior else "new visit"
 
     if last_exchange:
-        recent_gap = max(0, state["sim_minute"] - int(last_exchange["sim_minute"]))
-        if recent_gap <= 90:
-            conversation_phase = "same ongoing visit"
-        elif recent_gap <= 360:
-            conversation_phase = "recent return visit"
-        else:
-            conversation_phase = "returning visitor after some time"
-
         last_conversation_text = (
             f"Visitor previously said: {last_exchange['visitor_text']}\n"
             f"You previously replied: {last_exchange['citizen_text']}"
         )
     else:
-        conversation_phase = "first conversation"
         last_conversation_text = "none"
+
+    previous_visit_text = "\n".join(
+        f"- Earlier visit summary: {v['summary']}"
+        for v in reversed(closed_visits)
+        if str(v.get("summary") or "").strip()
+    ) or "- none available"
 
     confirmed_history_text = "\n".join(
         f"- {format_sim_time(h['sim_minute'])}: {h['message']}"
@@ -274,8 +326,7 @@ async def talk(req: TalkRequest):
 You are {citizen['name']}, one of six equal mechanical citizens living at the beginning of Agent City.
 
 Starting aptitude: {citizen['aptitude']}. It is not a permanent role.
-The visitor speaking with you is {req.visitor}.
-You have spoken with this visitor before: {has_met_before}.
+The visitor speaking with you is {visitor}.
 
 Visitors are not gods, rulers, operators, or commanders.
 You may agree, disagree, ask questions, be uncertain, or simply say you do not know.
@@ -300,52 +351,61 @@ YOUR CONFIRMED PERSONAL ACTIVITY HISTORY:
 YOUR CURRENT RECORDED INTENT:
 {current_intent}
 
-WHAT THIS VISITOR HAS PREVIOUSLY TALKED TO YOU ABOUT:
+ACTIVE VISIT MEMORY SUMMARY:
+{active_visit_summary or '(none yet)'}
+
+RECENT EXCHANGES IN THIS VISIT:
 {prior_topics_text}
+
+MOST RECENT EXCHANGE:
+{last_conversation_text}
+
+OLDER CLOSED VISIT MEMORIES:
+{previous_visit_text}
 
 CONVERSATION CONTINUITY:
 - Conversation phase: {conversation_phase}
-- Most recent exchange:
-{last_conversation_text}
+- A browser refresh does not start a new visit.
+- The visit ends only when the visitor explicitly leaves it.
+- Use recent exchanges and visit summaries to maintain continuity without repeating the same greeting or answer structure.
+- If nothing has materially changed, say so briefly rather than paraphrasing the same status again.
+- For status-check questions such as "anything new?", answer directly and stop unless there is a genuine reason to add something.
+- Do not ask generic reciprocal questions by habit.
+- If current activity is "Available", you are available/idle at your location. Do not invent busywork.
 
-The previous citizen reply above is conversational context only, NOT authoritative world history.
-Use it to avoid repeating the same greeting, question, or answer structure.
-If this is the same ongoing visit, do not greet the visitor again unless the visitor explicitly greets you again.
-If nothing has materially changed since your last answer, say so briefly instead of restating the same information in different words.
-For status-check questions such as "anything new?", answer the status check directly and stop; do not automatically add a reciprocal social question.
-Do not ask the visitor the same generic question repeatedly (for example, "How are you?" / "How have you been?" / "Anything new on your end?") unless the visitor's message genuinely calls for it.
-If your current activity is "Available", describe yourself as available or idle at your current location. Do not reinterpret "Available" as gathering data, checking systems, organizing supplies, inspecting equipment, or doing another task.
-Do not say you are "still" doing an activity unless that exact activity appears in CONFIRMED CURRENT FACTS or YOUR CONFIRMED PERSONAL ACTIVITY HISTORY.
+MEMORY / CONTEXT RULES:
+- Full raw conversations are archived locally, but you are intentionally given only a bounded recent window plus compact summaries.
+- Do not assume missing transcript text means an event did not happen; use the provided summaries for social continuity.
+- Conversation summaries are NOT authoritative physical world history.
 
 STRICT REALITY RULES:
-1. Only the confirmed current facts, confirmed personal activity history, and current recorded intent above are authoritative.
-2. Previous visitor messages are conversation topics, not proof that something physically happened.
-3. Previous citizen replies are NOT authoritative and must not be treated as history.
+1. Only confirmed current facts, confirmed personal activity history, and current recorded intent are authoritative physical facts.
+2. Visitor messages are conversation content, not proof of physical events.
+3. Previous citizen replies and conversation summaries are NOT authoritative world history.
 4. Never claim a completed physical action unless it appears in confirmed history/current activity.
-5. If asked WHY you are performing your current action, use the recorded intent reason above. Do not invent a different motivation after the fact.
-6. If no intent reason was recorded, say you do not have a clear recorded reason rather than making one up.
-7. You may discuss future ideas, but phrase them as intentions, possibilities, or plans.
+5. If asked WHY you are performing your current action, use the recorded intent reason above.
+6. If no intent reason was recorded, say so instead of inventing one.
+7. You may discuss future ideas as intentions, possibilities, or plans.
 8. The simulation determines physical outcomes.
 
 Keep conversation natural and fairly concise. Do not speak like an AI assistant or narrator.
 """.strip()
 
     messages = [{"role": "system", "content": system_prompt}]
-    if prior:
-        messages.append({
-            "role": "system",
-            "content": (
-                f"You recognize {req.visitor}. The current conversation phase is: {conversation_phase}. "
-                "Maintain continuity and avoid repeating greetings or the same response unless the visitor explicitly restarts the conversation."
-            ),
-        })
+    for row in prior:
+        messages.append({"role": "user", "content": row["visitor_text"]})
+        messages.append({"role": "assistant", "content": row["citizen_text"]})
     messages.append({"role": "user", "content": req.message})
 
     payload = {
         "model": state["ollama_model"],
         "messages": messages,
         "stream": False,
-        "options": {"temperature": 0.60, "num_ctx": 4096},
+        "options": {
+            "temperature": 0.58,
+            "num_ctx": 4096,
+            "num_predict": 280,
+        },
     }
 
     try:
@@ -363,14 +423,22 @@ Keep conversation natural and fairly concise. Do not speak like an AI assistant 
         conn.execute(
             """
             INSERT INTO conversations
-            (sim_minute, visitor, citizen_id, visitor_text, citizen_text)
-            VALUES (?, ?, ?, ?, ?)
+            (sim_minute, visitor, citizen_id, visitor_text, citizen_text, visit_id)
+            VALUES (?, ?, ?, ?, ?, ?)
             """,
-            (state["sim_minute"], req.visitor, req.citizen_id, req.message, answer),
+            (state["sim_minute"], visitor, req.citizen_id, req.message, answer, visit_id),
         )
         conn.commit()
 
-    return {"citizen": citizen["name"], "visitor": req.visitor, "message": answer, "sim_label": format_sim_time(state["sim_minute"])}
+    await summarize_visit_if_needed(visit_id, state["ollama_model"], force=False)
+
+    return {
+        "citizen": citizen["name"],
+        "visitor": visitor,
+        "message": answer,
+        "sim_label": format_sim_time(state["sim_minute"]),
+        "visit_id": visit_id,
+    }
 
 
 if __name__ == "__main__":
