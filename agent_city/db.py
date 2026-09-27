@@ -165,6 +165,20 @@ def init_db() -> None:
                 status TEXT NOT NULL DEFAULT 'active',
                 detail TEXT
             );
+
+            CREATE TABLE IF NOT EXISTS citizen_conversations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                sim_minute INTEGER NOT NULL,
+                location_id TEXT NOT NULL,
+                initiator_id TEXT NOT NULL,
+                target_id TEXT NOT NULL,
+                initiator_text TEXT NOT NULL,
+                target_text TEXT NOT NULL,
+                summary TEXT NOT NULL
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_citizen_conversations_people
+            ON citizen_conversations(initiator_id, target_id, id);
             """
         )
 
@@ -172,6 +186,8 @@ def init_db() -> None:
         add_column_if_missing(conn, "citizens", "last_planned_minute INTEGER NOT NULL DEFAULT 0", "last_planned_minute")
         add_column_if_missing(conn, "citizens", "active_job_id INTEGER", "active_job_id")
         add_column_if_missing(conn, "jobs", "intent_reason TEXT", "intent_reason")
+        add_column_if_missing(conn, "deposits", "discoverer_id TEXT", "discoverer_id")
+        add_column_if_missing(conn, "deposits", "discovered_minute INTEGER", "discovered_minute")
 
         if get_meta(conn, "initialized") is None:
             set_meta(conn, "initialized", "true")
@@ -235,6 +251,25 @@ def init_db() -> None:
             add_history(conn, current, "system", "Agent City action layer activated.")
             set_meta(conn, "v0_2_migrated", "true")
 
+        # Backfill who personally discovered already-known deposits when old survey jobs exist.
+        for dep in conn.execute(
+            "SELECT id, location_id FROM deposits WHERE discovered = 1 AND discoverer_id IS NULL"
+        ).fetchall():
+            survey = conn.execute(
+                """
+                SELECT citizen_id, end_minute
+                FROM jobs
+                WHERE action = 'survey' AND target = ? AND status = 'complete'
+                ORDER BY end_minute DESC, id DESC LIMIT 1
+                """,
+                (dep["location_id"],),
+            ).fetchone()
+            if survey:
+                conn.execute(
+                    "UPDATE deposits SET discoverer_id = ?, discovered_minute = COALESCE(discovered_minute, ?) WHERE id = ?",
+                    (survey["citizen_id"], int(survey["end_minute"]), dep["id"]),
+                )
+
         conn.commit()
 
 
@@ -270,6 +305,11 @@ def snapshot() -> dict[str, Any]:
         deposits = [dict(r) for r in conn.execute("SELECT * FROM deposits ORDER BY location_id, material")]
         inventory = [dict(r) for r in conn.execute("SELECT * FROM citizen_inventory WHERE amount > 0 ORDER BY citizen_id, material")]
         jobs = [dict(r) for r in conn.execute("SELECT * FROM jobs WHERE status = 'active' ORDER BY id")]
+        citizen_conversations = [
+            dict(r) for r in conn.execute(
+                "SELECT * FROM citizen_conversations ORDER BY id DESC LIMIT 30"
+            )
+        ]
 
         return {
             "sim_minute": int(get_meta(conn, "sim_minute") or "360"),
@@ -284,4 +324,5 @@ def snapshot() -> dict[str, Any]:
             "deposits": deposits,
             "inventory": inventory,
             "jobs": jobs,
+            "citizen_conversations": citizen_conversations,
         }
