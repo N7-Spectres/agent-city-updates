@@ -16,7 +16,7 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-- [Assets & Interface] finish Stage 2 continuous local map/shared-action UI using final Simulation + Communication contracts
+- [Assets & Interface] Stage 2 final implementation still required: continuous local map, shared-action UI, observation uncertainty, Stage 2 Assets smoke
 
 ### WAITING
 
