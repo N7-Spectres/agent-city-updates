@@ -55,7 +55,11 @@ def recent_dialogues_for(citizen_id: str, limit: int = 6) -> list[dict[str, Any]
     with connect() as conn:
         rows = conn.execute(
             """
-            SELECT cc.*, li.name AS location_name,
+            SELECT cc.*,
+                   'citizen_conversation' AS source_type,
+                   cc.id AS source_id,
+                   cc.id AS transfer_event_id,
+                   li.name AS location_name,
                    ci.name AS initiator_name, ct.name AS target_name
             FROM citizen_conversations cc
             JOIN locations li ON li.id = cc.location_id
@@ -114,56 +118,173 @@ def record_dialogue(
     initiator_text: str,
     target_text: str,
     summary: str,
-) -> None:
+    source_job_id: int | None = None,
+) -> int | None:
+    """
+    Persist one real face-to-face exchange.
+
+    When source_job_id is supplied, the conversation is committed only while the
+    matching physical talk job is still active and both participants are still
+    bound to it at the same location. The source job is unique, making retries
+    idempotent instead of duplicating a transfer record.
+    """
+    initiator_text = str(initiator_text or "").strip()
+    target_text = str(target_text or "").strip()
+    summary = str(summary or "").strip()
+    if not initiator_text or not target_text or not summary:
+        return None
+
+    inserted = False
     with connect() as conn:
-        cur = conn.execute(
-            """
-            INSERT INTO citizen_conversations
-            (sim_minute, location_id, initiator_id, target_id, initiator_text, target_text, summary)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                sim_minute,
-                location_id,
-                initiator_id,
-                target_id,
-                initiator_text[:1400],
-                target_text[:1400],
-                summary[:1200],
-            ),
-        )
-        conversation_id = int(cur.lastrowid)
-        initiator = conn.execute("SELECT name FROM citizens WHERE id = ?", (initiator_id,)).fetchone()
-        target = conn.execute("SELECT name FROM citizens WHERE id = ?", (target_id,)).fetchone()
-        loc = conn.execute("SELECT name FROM locations WHERE id = ?", (location_id,)).fetchone()
-        if initiator and target and loc:
-            add_history(
-                conn,
-                sim_minute,
-                "conversation",
-                f"{initiator['name']} and {target['name']} talked at {loc['name']}.",
+        if source_job_id is not None:
+            existing = conn.execute(
+                "SELECT id FROM citizen_conversations WHERE source_job_id = ?",
+                (source_job_id,),
+            ).fetchone()
+            if existing:
+                conversation_id = int(existing["id"])
+            else:
+                job = conn.execute(
+                    "SELECT * FROM jobs WHERE id = ?",
+                    (source_job_id,),
+                ).fetchone()
+                initiator = conn.execute(
+                    "SELECT * FROM citizens WHERE id = ?",
+                    (initiator_id,),
+                ).fetchone()
+                target = conn.execute(
+                    "SELECT * FROM citizens WHERE id = ?",
+                    (target_id,),
+                ).fetchone()
+
+                if (
+                    not job
+                    or job["action"] != "talk"
+                    or job["status"] != "active"
+                    or str(job["citizen_id"]) != initiator_id
+                    or str(job["target"]) != target_id
+                    or not initiator
+                    or not target
+                    or initiator["location_id"] != target["location_id"]
+                    or int(initiator["active_job_id"] or 0) != source_job_id
+                    or int(target["active_job_id"] or 0) != source_job_id
+                ):
+                    return None
+
+                location_id = str(initiator["location_id"])
+                sim_minute = int(job["start_minute"])
+
+                cur = conn.execute(
+                    """
+                    INSERT OR IGNORE INTO citizen_conversations
+                    (sim_minute, location_id, initiator_id, target_id,
+                     initiator_text, target_text, summary, source_job_id)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        sim_minute,
+                        location_id,
+                        initiator_id,
+                        target_id,
+                        initiator_text[:1400],
+                        target_text[:1400],
+                        summary[:1200],
+                        source_job_id,
+                    ),
+                )
+                if cur.rowcount:
+                    conversation_id = int(cur.lastrowid)
+                    inserted = True
+                else:
+                    existing = conn.execute(
+                        "SELECT id FROM citizen_conversations WHERE source_job_id = ?",
+                        (source_job_id,),
+                    ).fetchone()
+                    if not existing:
+                        return None
+                    conversation_id = int(existing["id"])
+        else:
+            cur = conn.execute(
+                """
+                INSERT INTO citizen_conversations
+                (sim_minute, location_id, initiator_id, target_id,
+                 initiator_text, target_text, summary)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    sim_minute,
+                    location_id,
+                    initiator_id,
+                    target_id,
+                    initiator_text[:1400],
+                    target_text[:1400],
+                    summary[:1200],
+                ),
             )
+            conversation_id = int(cur.lastrowid)
+            inserted = True
+
+        if inserted:
+            initiator = conn.execute(
+                "SELECT name FROM citizens WHERE id = ?",
+                (initiator_id,),
+            ).fetchone()
+            target = conn.execute(
+                "SELECT name FROM citizens WHERE id = ?",
+                (target_id,),
+            ).fetchone()
+            loc = conn.execute(
+                "SELECT name FROM locations WHERE id = ?",
+                (location_id,),
+            ).fetchone()
+            if initiator and target and loc:
+                add_history(
+                    conn,
+                    sim_minute,
+                    "conversation",
+                    f"{initiator['name']} and {target['name']} talked at {loc['name']}.",
+                )
         conn.commit()
 
-    record_conversation_memory(conversation_id)
+    # Memory is a derived projection of the durable conversation record. A
+    # projection failure must never erase or invalidate the actual exchange.
+    try:
+        record_conversation_memory(conversation_id)
+    except Exception:
+        pass
 
+    return conversation_id
 
 async def generate_dialogue(
     initiator_id: str,
     target_id: str,
     reason: str | None,
     model: str,
+    source_job_id: int,
 ) -> dict[str, str]:
     """Generate one short, grounded, face-to-face exchange and persist it."""
     with connect() as conn:
         initiator = conn.execute("SELECT * FROM citizens WHERE id = ?", (initiator_id,)).fetchone()
         target = conn.execute("SELECT * FROM citizens WHERE id = ?", (target_id,)).fetchone()
-        now = int(get_meta(conn, "sim_minute") or "360")
+        job = conn.execute("SELECT * FROM jobs WHERE id = ?", (source_job_id,)).fetchone()
 
         if not initiator or not target:
             raise ValueError("Citizen record missing")
-        if initiator["location_id"] != target["location_id"]:
-            raise ValueError("Citizens are not physically co-located")
+        if (
+            not job
+            or job["action"] != "talk"
+            or job["status"] != "active"
+            or str(job["citizen_id"]) != initiator_id
+            or str(job["target"]) != target_id
+        ):
+            raise ValueError("Talk job is not active or no longer matches these participants")
+        if (
+            initiator["location_id"] != target["location_id"]
+            or int(initiator["active_job_id"] or 0) != source_job_id
+            or int(target["active_job_id"] or 0) != source_job_id
+        ):
+            raise ValueError("Citizens are no longer in the same active face-to-face talk")
+        now = int(job["start_minute"])
         location_id = initiator["location_id"]
         location = conn.execute("SELECT * FROM locations WHERE id = ?", (location_id,)).fetchone()
 
@@ -202,12 +323,6 @@ Return JSON only:
 }
 """.strip()
 
-    fallback = {
-        "initiator_text": f"{target['name']}, do you have a moment?",
-        "target_text": "Yes. I'm listening.",
-        "summary": f"{initiator['name']} initiated a brief face-to-face conversation with {target['name']}; no detailed exchange was recorded.",
-    }
-
     try:
         async with httpx.AsyncClient(timeout=120.0) as client:
             response = await client.post(
@@ -233,15 +348,18 @@ Return JSON only:
             )
             response.raise_for_status()
             data = json.loads(response.json()["message"]["content"])
-            result = {
-                "initiator_text": str(data.get("initiator_text") or "").strip() or fallback["initiator_text"],
-                "target_text": str(data.get("target_text") or "").strip() or fallback["target_text"],
-                "summary": str(data.get("summary") or "").strip() or fallback["summary"],
-            }
-    except Exception:
-        result = fallback
+    except Exception as exc:
+        raise RuntimeError("Citizen dialogue generation failed; no exchange was recorded.") from exc
 
-    record_dialogue(
+    result = {
+        "initiator_text": str(data.get("initiator_text") or "").strip(),
+        "target_text": str(data.get("target_text") or "").strip(),
+        "summary": str(data.get("summary") or "").strip(),
+    }
+    if not result["initiator_text"] or not result["target_text"] or not result["summary"]:
+        raise RuntimeError("Citizen dialogue generation returned an incomplete exchange; nothing was recorded.")
+
+    conversation_id = record_dialogue(
         now,
         location_id,
         initiator_id,
@@ -249,5 +367,11 @@ Return JSON only:
         result["initiator_text"],
         result["target_text"],
         result["summary"],
+        source_job_id=source_job_id,
     )
+    if conversation_id is None:
+        raise RuntimeError("Talk was invalidated before the generated exchange could be committed.")
+
+    result["conversation_id"] = str(conversation_id)
+    result["source_job_id"] = str(source_job_id)
     return result
