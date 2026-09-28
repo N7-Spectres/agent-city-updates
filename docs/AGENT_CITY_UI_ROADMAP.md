@@ -579,3 +579,25 @@ Do not sacrifice simulation integrity, persistence, grounding, or citizen contin
 A simple visual representation of a real event is always better than a beautiful animation of something that did not actually happen.
 
 When the citizens surprise us, treat the surprise as test data. Strengthen the systems underneath it rather than scripting the outcome.
+
+
+### v0.8 Asset Pipeline Foundations
+
+Begin laying the local visual-generation substrate for the later 3D world without making asset generation authoritative over simulation.
+
+Direction:
+- add a persistent local asset-job queue keyed to validated physical objects/projects
+- store a structured visual/geometry specification derived only from authoritative Simulation state
+- add a local Asset Worker process that can pick up queued jobs while Agent City runs
+- start with deterministic procedural/modular geometry rather than requiring AI-generated meshes
+- allow Blender/headless or another local generator to emit reusable runtime assets such as GLB when appropriate
+- asset generation runs asynchronously and may use real fabrication/construction time as a natural processing window
+- simulation completion must never wait on a visual asset; use a safe fallback representation until the asset is ready
+- failed/slow asset generation cannot change physical reality
+- future local LLM assistance may translate validated functional designs into constrained visual recipes, but may not invent capability/materials/components
+- preserve provenance from physical object/project ID → visual specification → generated asset
+- this is foundation work, not yet full autonomous 3D world generation
+
+Core rule:
+
+> **Simulation defines the object. Assets renders the object.**
