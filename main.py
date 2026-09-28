@@ -17,7 +17,7 @@ from pydantic import BaseModel, Field
 
 from agent_city.db import connect, get_meta, init_db, set_meta, snapshot
 from agent_city.comms import known_deposits_for, recent_dialogues_for, visible_citizens
-from agent_city.knowledge import ensure_information_schema, knowledge_context_for, knowledge_payload
+from agent_city.provenance import ensure_information_schema, knowledge_context_for, knowledge_payload
 from agent_city.planner import planning_loop
 from agent_city.memory import ensure_memory_schema, social_context_for
 from agent_city.world import WorldClock, format_sim_time
