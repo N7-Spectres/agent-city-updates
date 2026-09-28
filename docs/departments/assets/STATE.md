@@ -3,7 +3,7 @@
 _Last updated: 2026-09-28_
 _Current shipped release: v0.5.0_
 _Current department branch: `assets/v0.6-knowledge-ui`_
-_Current branch head: `280417e7361d888c7bd740c80f436493a13d85a1`_
+_Current branch head: `8a1c7e12a6727da7d05403b9a2ae553ccc4f1dea`_
 _Current review surface: draft PR #3_
 
 ## Mission
@@ -87,7 +87,7 @@ Static verification on `assets/v0.6-knowledge-ui`:
 - zero missing referenced IDs
 - zero duplicate IDs
 - JavaScript parses successfully
-- branch is 4 commits ahead / 0 behind the shipped v0.5.0 base
+- branch is 6 commits ahead / 0 behind the shipped v0.5.0 base
 - changed runtime files are only:
   - `static/index.html`
   - `static/app.js`
@@ -112,19 +112,19 @@ Requested:
 - display-safe provenance/source/age fields
 - distinction between direct observation/discovery and communicated claim
 
-### Memory & Social
+### Memory & Social — Consumed
 
-Requested:
-- bounded per-citizen known-fact read model
-- location/material/research/process knowledge
-- source/time/verification metadata
-- no global omniscient encyclopedia
+Memory delivered `memory/v0.6-location-knowledge`.
 
-All three requests are recorded directly in the owning department INBOX files.
+Assets now consumes:
+- `GET /api/knowledge/citizens/{citizen_id}`
+- `GET /api/knowledge/locations/{location_id}`
+
+Citizen knowledge stays bounded per citizen. Location notebook knowledge remains partitioned by citizen instead of being merged into a shared truth view. Verification/source/channel/time metadata is preserved when displayed.
 
 ## Current Status
 
-Assets & Interface is **WAITING** on those v0.6 contracts.
+Assets & Interface is **WAITING** only on Simulation and Communication v0.6 contracts.
 
 Draft PR #3 contains the independent information-architecture work and should not be treated as the complete v0.6 UI until the safe knowledge models are consumed.
 
