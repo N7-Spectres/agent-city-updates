@@ -58,3 +58,10 @@ Assets implementation is complete. Remaining work is coordinator/runtime validat
 ## Current Blockers
 
 _None within Assets._ The department branch is ready for coordinator integration and runtime smoke testing.
+
+
+## Next Owner
+
+**Coordinator / Integration**
+
+There is no remaining Assets implementation task before v0.5 assembly. Any new Assets work should come from coordinator smoke-test findings or a new inbox request.
