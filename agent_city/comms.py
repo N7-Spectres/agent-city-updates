@@ -14,6 +14,7 @@ from .grounding import (
 )
 from .provenance import knowledge_context_for, record_face_to_face_claims
 from .memory import record_conversation_memory, social_context_for
+from .personality import personality_context, dialogue_style_rules
 from .talk_diagnostics import record_talk_diagnostic
 from .world import format_sim_time
 
@@ -116,6 +117,8 @@ def _citizen_private_context(citizen_id: str) -> str:
     return f"""
 Name: {c['name']}
 Aptitude: {c['aptitude']}
+Personality and voice:
+{personality_context(dict(c))}
 Location: {c['location']}
 Current activity: {c['current_activity']}
 Energy: {c['energy']:.0f}%
@@ -714,12 +717,16 @@ Why the initiator chose to speak:
 
 {grounding_policy_text(visitor_facing=False)}
 
+{dialogue_style_rules()}
+
 INFORMATION RULES:
 - A citizen may state their OWN current status, plans, personal discoveries, or things they actually heard in prior conversations.
 - They may directly observe the other citizen because they are at the same location.
 - They do NOT know current remote status unless that information actually reached them.
 - Do not invent completed work, discoveries, resources, remote events, or communication technology.
 - Keep it natural and brief: one statement from the initiator and one response from the target.
+- Let each citizen sound recognizably different. Do not flatten both voices into the same operational-assistant tone.
+- Personality may influence preference and wording, but never creates authority, rank, command rights, or extra knowledge.
 - An invented explanation, material property, terrain detail, weather effect, economic value, tool, or capability is not allowed just because it would make the conversation more colorful.
 
 Return JSON only:
