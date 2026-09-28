@@ -32,8 +32,9 @@ _None._
 
 ### DONE
 
-- [Coordinator] v0.8.3 Citizen Personality + Natural Dialogue published from `e4d216b133a18dc4c68e1bba1ceb0457e952efb6`; final CI `36478041248` passed the complete matrix including `tests/smoke_v083_personality.py`
-- [Communication & Perception] six distinct citizen personality/voice profiles + natural-speech surface integrated with no authority weighting
+- [Coordinator] v0.8.4 Conversation Summary Truth published from `ff78aab0e85331238eb67c989952a72499d1ed78`; final CI `36487822361` passed the complete matrix including `tests/smoke_v084_summary_truth.py`
+- [Communication & Perception] citizen conversation summaries now preserve report/intention vs physical verification boundaries
+- [Coordinator] v0.8.3 Citizen Personality + Natural Dialogue published from `e4d216b133a18dc4c68e1bba1ceb0457e952efb6`
 - [Coordinator] v0.8.2 Live State Readability published from `9a11b2bc21ba2338d6b231924036bf6d5935475c`
 - [Coordinator] v0.8.1 Citizen Visual Assets + Map Readability published from `fa27c942d08a9a97a2dbca5e86ab77dc7b9b7cc0`
 - [Coordinator] v0.8.0 Living World published from `a870982ba947fcc5af08ca190de396ae4308b645`
@@ -458,5 +459,22 @@ Shipped:
 - natural dialogue rules hide planner/scheduler/API vocabulary from ordinary speech
 - visitor dialogue and citizen-to-citizen dialogue both consume the personality layer
 - planner sees personality only as a soft bias and remains bound by legal actions, provenance, survival, and Simulation reality
+
+No Simulation or Memory authority changed.
+
+
+## v0.8.4 Release Result
+
+Published runtime:
+- branch: `release-v0.8.4`
+- immutable commit: `ff78aab0e85331238eb67c989952a72499d1ed78`
+- final GitHub Actions run: `36487822361`
+- result: **PASS**
+
+Shipped:
+- claim-safe citizen conversation summaries
+- deterministic guard against unsupported verification verbs in raw social summaries
+- one retry when the model upgrades a claim; safe fallback on final failure
+- intent remains intent until Simulation records the physical event
 
 No Simulation or Memory authority changed.
