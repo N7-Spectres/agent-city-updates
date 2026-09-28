@@ -6,6 +6,7 @@ from typing import Any
 
 from .db import add_history, connect, get_meta, set_meta
 from .knowledge import citizen_knows_property, record_discovery
+from .spatial import query_hidden_world, record_validated_observation
 from .talk_diagnostics import concise_failure_code_from_conn
 
 BASE_CARRY_CAPACITY = 20.0
@@ -456,6 +457,74 @@ def _record_maintenance_event(
         (event_id, job_id),
     )
     return event_id
+
+
+def query_spatial_truth(x_m: float, y_m: float) -> dict[str, Any]:
+    """
+    Simulation-only hidden query contract.
+
+    Callers must never pass this raw payload directly to citizen/UI surfaces.
+    Use a validated observation or another Simulation-owned transition instead.
+    """
+    with connect() as conn:
+        payload = query_hidden_world(conn, x_m, y_m)
+        conn.commit()
+        return payload
+
+
+def record_local_spatial_observation(
+    citizen_id: str,
+    x_m: float,
+    y_m: float,
+    *,
+    observed_minute: int | None = None,
+    source_job_id: int | None = None,
+    max_range_m: float = 2.0,
+    observation_kind: str = "field_observation",
+    radius_m: float = 1.0,
+) -> tuple[bool, int | None, str]:
+    """
+    Minimal Stage-1 action contract for future surveys/scanners/shared exploration.
+
+    The caller supplies an already-validated physical range appropriate to the
+    future action/tool. This function still enforces the observer's real position
+    and persists only the safe observation, never the raw seed/chunk truth.
+    """
+    with connect() as conn:
+        citizen = conn.execute(
+            """
+            SELECT id, name, position_x_m, position_y_m
+            FROM citizens
+            WHERE id = ?
+            """,
+            (citizen_id,),
+        ).fetchone()
+        if not citizen:
+            return False, None, "Citizen not found."
+
+        cx = float(citizen["position_x_m"] or 0.0)
+        cy = float(citizen["position_y_m"] or 0.0)
+        distance = math.hypot(float(x_m) - cx, float(y_m) - cy)
+        if distance > max(0.1, float(max_range_m)):
+            return False, None, "Observation point is outside the validated physical range."
+
+        now = (
+            int(observed_minute)
+            if observed_minute is not None
+            else int(get_meta(conn, "sim_minute") or "360")
+        )
+        observation_id = record_validated_observation(
+            conn,
+            observer_id=citizen_id,
+            x_m=float(x_m),
+            y_m=float(y_m),
+            observed_minute=now,
+            source_job_id=source_job_id,
+            observation_kind=observation_kind,
+            radius_m=radius_m,
+        )
+        conn.commit()
+        return True, observation_id, "Validated spatial observation recorded."
 
 
 def location_name(conn, location_id: str) -> str:
@@ -1445,13 +1514,26 @@ def complete_due_jobs(now: int) -> None:
             elif action == "travel":
                 target = job["target"]
                 name = location_name(conn, target)
+                target_loc = conn.execute(
+                    "SELECT x_m, y_m FROM locations WHERE id = ?",
+                    (target,),
+                ).fetchone()
                 conn.execute(
                     """
                     UPDATE citizens
-                    SET location_id = ?, location = ?, current_activity = 'Available', active_job_id = NULL
+                    SET location_id = ?, location = ?,
+                        position_x_m = COALESCE(?, position_x_m),
+                        position_y_m = COALESCE(?, position_y_m),
+                        current_activity = 'Available', active_job_id = NULL
                     WHERE id = ?
                     """,
-                    (target, name, c["id"]),
+                    (
+                        target,
+                        name,
+                        target_loc["x_m"] if target_loc else None,
+                        target_loc["y_m"] if target_loc else None,
+                        c["id"],
+                    ),
                 )
                 message = f"{c['name']} arrived at {name}."
 
