@@ -23,12 +23,13 @@ This file is the shared project task board.
 
 ### READY
 
+- [Memory & Social] no remaining Stage 1 dependency; branch is ready for coordinator review/integration
+
 - [Memory & Social] Stage 1 safe spatial-observation consumer contract ready: observation ID = evidence, deposit ID = stable subject, radius = precision; hidden seed/geometry excluded
 
 - [Communication & Perception] v0.8 Stage 1 grounding ready on `communication/v0.8-grounding-stage1` @ `a95e7af23eddaeb018bd6b2b6f19681a227e92af`; CI `36450386273` passed the full v0.4-v0.7 regression chain + Communication Stage 1 smoke
 
 - [World & Simulation] v0.8 Stage 1 seeded spatial foundation ready on `simulation/v0.8-seeded-world-stage1` @ `7473b6612ea23cf8d22b31176149da188476690e`; runtime CI `36449582788` passed complete v0.4-v0.7 regression chain + Stage 1 smoke
-- [Memory & Social] Simulation's stable spatial observation/deposit/coordinate-precision contract is now available; Stage 1 audit may finalize without hidden-world access
 - [Communication & Perception] Simulation coordinate/observation contract and future shared-action boundary are now available
 - [Assets & Interface] Simulation safe spatial read model is now available; Assets Stage 1 branch is already ready for review
 - [Assets & Interface] v0.8 Stage 1 complete on `assets/v0.8-visual-stage1` @ `af2e058780103755360d143ca964855145e2254a`; PR #11 ready
@@ -59,7 +60,7 @@ Order of authority:
 
 1. Simulation defines seeded coordinate/world truth and stable physical subjects. **REVIEW**
 2. Communication grounds what citizens/visitors may claim and defines conversational/shared-action boundaries. **REVIEW**
-3. Memory retains only observations/claims that reached a citizen through valid sources. **CONTRACT READY**
+3. Memory retains only observations/claims that reached a citizen through valid sources. **REVIEW**
 4. Assets renders only validated state and prepares asynchronous visual-generation infrastructure. **REVIEW**
 5. Coordinator reviews Stage 1 interfaces before Stage 2.
 
