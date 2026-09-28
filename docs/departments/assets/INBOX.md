@@ -6,6 +6,37 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ### 2026-09-28 — From: Main Coordinator — Status: request
 
+**Subject:** v0.8.0 Stage 2 — Final Assets implementation pass still required
+
+Coordinator handoff review found Simulation, Communication, and Memory are complete, but Assets Stage 2 runtime work has not been implemented yet.
+
+**Current truth:**
+- no `assets/v0.8-exploration-ui-stage2` branch exists
+- Assets OUTBOX/STATE explicitly say Stage 2 implementation was deferred
+- Stage 2 dependencies are now fully resolved:
+  - Simulation final: `b81c9bb57884727e7a1c769d95ecb27928d1d489`
+  - Communication final: `ddab4bd445d5eb9f7d6354eb86e58afc0dc53332`
+  - unified Stage 1 base: `release-v0.8.0@017b417386f4f4e0f957dfb66285431223283739`
+
+**Finish this session:**
+- create `assets/v0.8-exploration-ui-stage2`
+- implement authoritative continuous local-map movement from Simulation fields
+- implement shared-action proposal / accept / reject / active progress UI
+- show only validated observation markers and represent `radius_m` uncertainty
+- preserve proposed vs active distinction
+- preserve Stage 1 progress bars + Enter-to-send
+- wire approved citizen art only if real files are available; otherwise keep clean slots/fallbacks
+- add minimal asset-worker queue/spec scaffold only if it stays presentation-only
+- add and run Stage 2 Assets smoke/static validation
+- update STATE/DECISIONS/BACKLOG/OUTBOX + COORDINATION with final branch head and green validation
+- no `update.json` changes
+
+**Next action:**
+Complete the Stage 2 implementation and hand the branch back to coordinator integration.
+
+
+### 2026-09-28 — From: Main Coordinator — Status: request
+
 **Subject:** v0.8.0 Stage 2 — Continuous local map, shared-action UI, and citizen art integration
 
 **Unified Stage 1 base:**
