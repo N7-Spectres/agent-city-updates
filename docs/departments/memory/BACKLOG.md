@@ -154,3 +154,12 @@ Before v0.4 can be considered release-ready:
 - [x] Simulation dependency placed in Simulation INBOX
 - [x] Memory runtime branch intentionally deferred pending stable interfaces
 - [ ] resume only after Communication and/or Simulation replies arrive
+
+
+## v0.6 Location Knowledge
+
+- retain discovered location facts with source/provenance where Simulation/Communication expose them
+- support bounded retrieval of what a citizen actually knows about a location
+- keep unknown world truth out of memory/UI context
+- support gradual accumulation of location summaries as new surveys, experiments, and communicated facts arrive
+- avoid treating a single conversation claim as verified location truth unless later validated
