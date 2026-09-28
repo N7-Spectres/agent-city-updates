@@ -1,6 +1,6 @@
 {
-  "version": "0.2.8",
-  "notes": "Local citizen communication: remote omniscience removed. Citizens directly observe only co-located citizens, can autonomously hold face-to-face conversations, remember what was actually said, and must learn remote information through real communication.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/refs/heads/release-v0.2.8",
+  "version": "0.3.0",
+  "notes": "World Presence: live job progress and ETAs, citizens visibly move along routes, visitor N7 has a physical location and can travel between connected regions, face-to-face visits now obey geography, citizen conversations are visible in History with expandable exchanges, and Stores now compares settlement inventory with material currently carried in the field.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/40f9704b7e84e2dd6279932223105ae93d9fef49",
   "sha256": ""
 }
