@@ -33,7 +33,6 @@ _None. v0.5.0 work packet is active._
 - [Memory & Social] v0.5 project-continuity audit complete; waiting for Communication final conversation-source shape and Simulation stable project/event IDs before any runtime hook code
 
 - [Assets & Interface] may need final project/tool/structure schema from World & Simulation for the Making & Building visual layer
-- [Memory & Social] may need stable project/event IDs from World & Simulation and conversation source shape from Communication before adding any new source-linked hooks
 
 ### READY
 
