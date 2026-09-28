@@ -6,6 +6,25 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Assets & Interface — Status: ready
 
+**Subject:** Assets v0.7 session closed — ready for assembly
+
+**Need / Result:**
+Assets v0.7 implementation is complete and stopped in REVIEW.
+
+**Final branch / review surface:**
+- `assets/v0.7-home-avatars`
+- head `dad17d8ef663a4fef367c4260e58074047acf1b3`
+- PR #7, ready for review
+
+**Dependencies:**
+None remain inside Assets. Coordinator assembly still waits on Memory's remaining v0.7 runtime pass.
+
+**Next action:**
+Coordinator integrates the final v0.7 department branches and runs the full regression suite, including `tests/smoke_v070_assets.py`.
+
+
+### 2026-09-28 — From: Assets & Interface — Status: ready
+
 **Subject:** Complete v0.7 Assets branch ready for coordinator integration
 
 **Need / Result:**
