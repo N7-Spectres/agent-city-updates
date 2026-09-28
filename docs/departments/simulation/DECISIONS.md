@@ -475,3 +475,20 @@ Coordinator integration must preserve the v0.7 maintenance model as one physical
 - `maintenance_events.id` remains the stable completed-maintenance anchor
 - routine wear does not become one durable event per tiny decrement
 - all v0.6 hidden-truth/provenance/knowledge boundaries remain unchanged
+
+
+## Render Representation vs Physical Quantity
+
+Simulation quantity and render representation are separate concerns.
+
+For fungible bulk materials, Simulation stores the authoritative quantity while Assets may aggregate many units into one representative visual bundle, pile, stack, or storage-fullness state.
+
+Examples:
+- 20 logs in Simulation do not require 20 individual log meshes
+- 10 Plant Fiber may render as one bundle
+- materials deposited into storage normally stop existing as loose world visuals while remaining fully present in authoritative storage inventory
+- withdrawing or staging material may create a representative visible object again
+
+Unique tools, machines, crafted equipment, and other identity-bearing objects should generally retain individual visual identity.
+
+Rendering must never alter quantity or physical truth. Asset instancing/aggregation is a presentation optimization only.
