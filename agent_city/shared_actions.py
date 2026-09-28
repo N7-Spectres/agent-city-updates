@@ -313,19 +313,32 @@ def simulation_propose_shared_activity(
 
 
 def simulation_accept_shared_activity(activity_id: int, visitor: str) -> dict[str, Any]:
+    """
+    Execute Simulation's two-step explicit visitor transition:
+
+    1) accept canonical proposal (still no movement)
+    2) start canonical shared activity (creates real citizen job)
+
+    Communication exposes this behind one explicit visitor accept/start UI action,
+    while preserving Simulation's internal acceptance-vs-start distinction.
+    """
     try:
-        from .exploration import accept_shared_activity, shared_activity_payload
+        from .exploration import (
+            accept_shared_activity,
+            shared_activity_payload,
+            start_shared_activity,
+        )
     except Exception:
         return {
             "available": False,
             "ok": False,
-            "reason": "Simulation shared-activity acceptance lifecycle is unavailable.",
+            "reason": "Simulation shared-activity acceptance/start lifecycle is unavailable.",
         }
 
     with connect() as conn:
         now = int(get_meta(conn, "sim_minute") or "360")
         try:
-            ok, job_id, message = accept_shared_activity(
+            accepted, _, accept_message = accept_shared_activity(
                 conn,
                 int(activity_id),
                 visitor,
@@ -335,24 +348,50 @@ def simulation_accept_shared_activity(activity_id: int, visitor: str) -> dict[st
             return {
                 "available": True,
                 "ok": False,
-                "reason": f"Simulation shared-activity start failed: {type(exc).__name__}.",
+                "reason": f"Simulation shared-activity acceptance failed: {type(exc).__name__}.",
             }
-        if not ok:
+
+        if not accepted:
             return {
                 "available": True,
                 "ok": False,
-                "reason": str(message or "Simulation rejected the accepted shared activity."),
+                "reason": str(accept_message or "Simulation rejected the shared-activity acceptance."),
             }
+
+        try:
+            started, job_id, start_message = start_shared_activity(
+                conn,
+                int(activity_id),
+                visitor,
+                now=now,
+            )
+        except Exception as exc:
+            return {
+                "available": True,
+                "ok": False,
+                "reason": f"Simulation shared-activity start failed after acceptance: {type(exc).__name__}.",
+            }
+
+        if not started or job_id is None:
+            return {
+                "available": True,
+                "ok": False,
+                "reason": str(
+                    start_message
+                    or "Simulation accepted the proposal but did not start a physical shared activity."
+                ),
+            }
+
         conn.commit()
         payload = shared_activity_payload(conn, int(activity_id), now)
 
     safe = _safe_simulation_payload(payload) or {}
-    if safe.get("action_id") is None and job_id is not None:
+    if safe.get("action_id") is None:
         safe["action_id"] = str(job_id)
     return {
         "available": True,
         "ok": True,
-        "reason": str(message or ""),
+        "reason": str(start_message or "Shared activity physically started."),
         "payload": safe,
     }
 
@@ -379,60 +418,42 @@ def simulation_cancel_shared_activity(
     reason: str,
 ) -> dict[str, Any]:
     """
-    Ask Simulation to cancel/reject an unstarted canonical proposal.
+    Synchronize Communication rejection/expiry with Simulation's canonical
+    pre-start rejection transition.
 
-    Communication never mutates Simulation's shared_activities table directly.
-    Until Simulation exposes this primitive, rejection/expiry fails closed.
+    Simulation permits rejection only for proposed/accepted activities and
+    guarantees no job, movement, or observation is created by rejection.
     """
     try:
-        from . import exploration
+        from .exploration import reject_shared_activity
     except Exception:
         return {
             "available": False,
             "ok": False,
-            "reason": "Simulation shared-activity cancellation is unavailable.",
-        }
-
-    cancel = getattr(exploration, "cancel_shared_activity", None)
-    if not callable(cancel):
-        return {
-            "available": False,
-            "ok": False,
-            "reason": "Simulation shared-activity cancellation is unavailable.",
+            "reason": "Simulation shared-activity rejection is unavailable.",
         }
 
     with connect() as conn:
         now = int(get_meta(conn, "sim_minute") or "360")
         try:
-            raw = cancel(
+            ok, message = reject_shared_activity(
                 conn,
                 int(activity_id),
                 visitor,
                 now=now,
-                reason=reason,
             )
         except Exception as exc:
             return {
                 "available": True,
                 "ok": False,
-                "reason": f"Simulation shared-activity cancellation failed: {type(exc).__name__}.",
+                "reason": f"Simulation shared-activity rejection failed: {type(exc).__name__}.",
             }
-
-        if isinstance(raw, tuple):
-            ok = bool(raw[0]) if raw else False
-            message = str(raw[1] if len(raw) > 1 else "")
-        elif isinstance(raw, dict):
-            ok = bool(raw.get("ok"))
-            message = str(raw.get("message") or raw.get("reason") or "")
-        else:
-            ok = bool(raw)
-            message = ""
 
         if not ok:
             return {
                 "available": True,
                 "ok": False,
-                "reason": message or "Simulation refused to cancel the shared activity proposal.",
+                "reason": str(message or "Simulation refused to reject the shared activity."),
             }
 
         conn.commit()
@@ -440,7 +461,8 @@ def simulation_cancel_shared_activity(
     return {
         "available": True,
         "ok": True,
-        "reason": message or "Simulation cancelled the shared activity proposal.",
+        "reason": str(message or "Simulation rejected the shared activity before physical start."),
+        "requested_reason": reason,
     }
 
 
