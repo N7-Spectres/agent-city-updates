@@ -69,3 +69,16 @@ Cross-department integration remaining:
 - how should hidden deposit richness map to finite extractable quantity without leaking reserve estimates?
 - when is the legacy route network ready to become fully coordinate-native?
 - should visitor-only local walking exist, and if so how is intent exposed without a direct-control feel?
+
+
+## Stage 2 Integration Gate
+
+Before additional Simulation feature work:
+
+1. Communication consumes the final reject/start/status contract.
+2. Assets finishes the Stage 2 map/shared-action presentation.
+3. Coordinator assembles Simulation + Communication + Memory + Assets.
+4. Run the full v0.4-v0.7 regression matrix, all Stage 1 smokes, and all Stage 2 department smokes.
+5. Any merge conflict affecting movement authority, hidden/public boundaries, shared-action lifecycle, proximity rules, or evidence identity returns to World & Simulation.
+
+Until then, Stage 2 Simulation is feature-complete for this work session.
