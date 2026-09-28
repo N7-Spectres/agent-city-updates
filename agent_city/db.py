@@ -179,6 +179,15 @@ def init_db() -> None:
 
             CREATE INDEX IF NOT EXISTS idx_citizen_conversations_people
             ON citizen_conversations(initiator_id, target_id, id);
+
+            CREATE TABLE IF NOT EXISTS visitor_presence (
+                visitor TEXT PRIMARY KEY,
+                location_id TEXT NOT NULL DEFAULT 'seed_site',
+                from_location_id TEXT,
+                to_location_id TEXT,
+                travel_start_minute INTEGER,
+                travel_end_minute INTEGER
+            );
             """
         )
 
@@ -305,9 +314,20 @@ def snapshot() -> dict[str, Any]:
         deposits = [dict(r) for r in conn.execute("SELECT * FROM deposits ORDER BY location_id, material")]
         inventory = [dict(r) for r in conn.execute("SELECT * FROM citizen_inventory WHERE amount > 0 ORDER BY citizen_id, material")]
         jobs = [dict(r) for r in conn.execute("SELECT * FROM jobs WHERE status = 'active' ORDER BY id")]
+        routes = [dict(r) for r in conn.execute("SELECT * FROM routes ORDER BY a, b")]
         citizen_conversations = [
             dict(r) for r in conn.execute(
-                "SELECT * FROM citizen_conversations ORDER BY id DESC LIMIT 30"
+                """
+                SELECT cc.*,
+                       ci.name AS initiator_name,
+                       ct.name AS target_name,
+                       l.name AS location_name
+                FROM citizen_conversations cc
+                JOIN citizens ci ON ci.id = cc.initiator_id
+                JOIN citizens ct ON ct.id = cc.target_id
+                JOIN locations l ON l.id = cc.location_id
+                ORDER BY cc.id DESC LIMIT 30
+                """
             )
         ]
 
@@ -324,5 +344,6 @@ def snapshot() -> dict[str, Any]:
             "deposits": deposits,
             "inventory": inventory,
             "jobs": jobs,
+            "routes": routes,
             "citizen_conversations": citizen_conversations,
         }
