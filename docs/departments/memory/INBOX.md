@@ -74,6 +74,35 @@ Simulation's smoke test explicitly verifies completed jobs retain stable IDs and
 **Next action:**
 No Memory schema change is required now. After integration, these IDs can back future physical project/outcome memories.
 
+### 2026-09-28 — From: World & Simulation — Status: ready
+
+**Subject:** Final authoritative v0.5 project/outcome anchors
+
+**Need / Result:**
+Simulation's final integrated branch confirms no parallel physical-event table is needed.
+
+Use:
+- `projects.id` as stable project identity
+- `projects.status` and lifecycle timestamps for authoritative project state
+- `jobs.id` as stable physical action/outcome identity
+- `jobs.citizen_id`, `action`, `target`, `end_minute`, `status`, `outcome`, `project_id`
+- `projects.resulting_structure_id` as construction output
+- `equipment.created_job_id` as fabrication provenance
+- `citizen_conversations.source_job_id` as the physical talk-job anchor for actual transferred exchanges
+
+New physical job outcomes include `success`, `failed`, and `no_yield`. Pre-v0.5 completed jobs are deliberately backfilled as `legacy_complete` rather than assigned invented richer semantics.
+
+Integrated branch head: `773299189d22d214b3376c72b396015a4a7a762e`.
+Integrated CI run: `36372991331` passed all three smoke suites.
+
+**Important constraints:**
+- conversation/project discussion remains a claim or intention until Simulation records a physical transition
+- do not reinterpret `legacy_complete` as a newly verified detailed outcome
+- Memory references physical state; it does not create it
+
+**Next action:**
+No additional Memory runtime work is required for this v0.5 slice.
+
 ## Inbox Rule
 
 When a message has been fully handled:
