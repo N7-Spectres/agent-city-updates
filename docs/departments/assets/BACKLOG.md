@@ -74,3 +74,16 @@ _None._
 
 Next owner:
 **Coordinator / v0.8.1 Release**
+
+
+## Session Closed — v0.8.1
+
+No open Assets implementation task remains in this session.
+
+Resume only for:
+- coordinator review feedback on PR #19,
+- a visual regression found during final release validation,
+- or a new milestone/work packet.
+
+Current next owner:
+**Coordinator / v0.8.1 Release**
