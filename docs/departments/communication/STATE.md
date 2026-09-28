@@ -673,3 +673,154 @@ Resume only if:
 4. a new Communication milestone is routed.
 
 Before resuming, read `COORDINATION.md`, `communication/INBOX.md`, then this file.
+
+## v0.8 Stage 2 — Shared-Action Proposal Bridge
+
+**Branch:** `communication/v0.8-shared-actions-stage2`  
+**Unified Stage 1 base:** `017b417386f4f4e0f957dfb66285431223283739`  
+**Branch head:** `7f40053233d0408b315ed6e9840267650503b63b`  
+**Final green CI:** `36456134638`
+
+### Purpose
+
+Face-to-face visitor dialogue may now create a structured shared-action proposal without turning chat into physical authority.
+
+The chain is explicit:
+
+1. durable visitor/citizen exchange exists
+2. Communication recognizes a mutually proposed explicit local movement
+3. Communication derives only the visitor's explicit meter/cardinal relative intent
+4. Simulation validates and persists canonical `shared_activities.id`
+5. Communication exposes a pending proposal object
+6. visitor explicitly accepts
+7. Simulation revalidates and creates the real `jobs.id`
+8. only then may dialogue/UI say movement started
+9. Simulation completion supplies `spatial_observations.id` and physical outcome
+
+### Explicit target parsing
+
+Communication parses only explicit local meter + cardinal-direction language, for example:
+
+- "walk five meters east"
+- "move 2 m north and 3 meters west"
+
+Communication does **not** convert:
+
+- "over there"
+- pointing gestures
+- "this way"
+- vague landmark prose
+
+into coordinates.
+
+The LLM is used only as a boolean classifier for whether the durable exchange mutually proposes the already parsed request. It does not invent target coordinates, tools, or action type.
+
+### Canonical identity chain
+
+- `conversations.id` — durable visitor/citizen exchange source
+- `shared_action_proposals.id` — Communication intent/UI projection
+- `shared_activities.id` — canonical Simulation shared-activity identity
+- `shared_activities.citizen_job_id / jobs.id` — real active movement job after acceptance
+- `shared_activities.observation_id / spatial_observations.id` — validated completion evidence
+
+Proposal and physical event IDs are intentionally distinct.
+
+### Communication proposal read model
+
+New table:
+
+`shared_action_proposals`
+
+Safe fields include:
+
+- visitor / citizen
+- visit ID
+- source exchange ID
+- action kind / label / objective
+- safe target frame/x/y
+- requested tool ID
+- proposal status
+- acceptance availability
+- canonical Simulation activity ID
+- active Simulation job ID
+- Simulation status/progress/start/end
+- observation IDs
+- safe outcome
+
+### Visitor API
+
+Visit responses now include bounded proposal state.
+
+Communication endpoints:
+
+- `GET /api/visit/{citizen_id}/shared-actions`
+- `GET /api/shared-actions/{proposal_id}`
+- `POST /api/shared-actions/{proposal_id}/accept`
+- `POST /api/shared-actions/{proposal_id}/reject`
+
+`POST /api/talk` may return:
+
+- `exchange_id`
+- `shared_action_proposal` object or null
+
+### Dialogue status grounding
+
+Visitor chat receives:
+
+- available shared-activity guidance
+- current proposal/activity status
+
+Language rules:
+
+- `proposed` is not physically started
+- acceptance without a real Simulation job is not physically started
+- `started` requires real `jobs.id`
+- `completed` requires Simulation completion
+- observation/result claims require Simulation observation evidence
+
+### Simulation integration
+
+Communication is aligned directly to:
+
+- `agent_city.exploration.propose_shared_activity`
+- `agent_city.exploration.accept_shared_activity`
+- `agent_city.exploration.shared_activity_payload`
+
+Communication never mutates:
+
+- participant coordinates
+- Simulation jobs
+- canonical `shared_activities`
+- observations
+
+### Remaining blocker: canonical proposal cancellation
+
+Simulation currently lacks a cancellation/rejection primitive for an unstarted canonical `shared_activities.status='proposed'` row.
+
+Communication therefore fails closed:
+
+- it does not mark a proposal rejected/expired if Simulation still reports the canonical proposal as proposed
+- visitor rejection/leave needs Simulation to cancel the canonical row first
+
+Requested Simulation primitive:
+
+`cancel_shared_activity(conn, activity_id, visitor, now=..., reason=...)`
+
+This blocker affects reject/expiry finalization only. Proposal creation, explicit acceptance, active status/progress, completion and observation linking are implemented/tested.
+
+### Validation
+
+GitHub Actions `36456134638` passed:
+
+- Python compile
+- all v0.4-v0.7 regression suites
+- all unified v0.8 Stage 1 Simulation/Communication/Memory/Assets smokes
+- `tests/smoke_v080_communication_stage2.py`
+
+Temporary CI workflow was removed after the green run.
+
+## Current Stage 2 Status
+
+Communication proposal/start/status implementation is ready.
+
+Communication remains **WAITING** only on Simulation's canonical proposal-cancellation primitive before reject/expiry can be considered fully integrated.
