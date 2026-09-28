@@ -640,3 +640,36 @@ Temporary branch CI was removed after the green run.
 The independent Communication grounding/shared-action-boundary slice is complete and ready for coordinator review.
 
 Stage 1 does **not** implement real shared visitor movement or scanning. That remains correctly deferred to Simulation-owned Stage 2 actions.
+
+## v0.8 Stage 1 Session Close — 2026-09-28
+
+Communication v0.8 Stage 1 is closed for this session.
+
+Final implementation:
+- branch: `communication/v0.8-grounding-stage1`
+- head: `a95e7af23eddaeb018bd6b2b6f19681a227e92af`
+- final green CI: `36450386273`
+
+Completed:
+- grounded visitor RP in explicit evidence status
+- separated known fact, current observation, reported claim, hypothesis/proposal, and validated capability/action
+- prevented unsupported confident material/property/value/terrain/weather/capability claims
+- derived capability language from real operational runtime equipment/structures/processes/legal actions
+- explicitly excluded concept-art/visual equipment from runtime capability
+- removed remote live Seed Site inventory leakage
+- grounded planner reasons and autonomous citizen dialogue
+- consumed only safe Stage 1 meter coordinates and validated `spatial_observations`
+- documented future visitor-linked shared physical action boundary
+- aligned the contract to Simulation's final `seed_site_local` Stage 1 substrate
+- routed the Stage 2 action-lifecycle dependency to World & Simulation
+- moved Communication to REVIEW in `COORDINATION.md`
+
+No Communication-owned Stage 1 implementation remains.
+
+Resume only if:
+1. coordinator reports an integration conflict,
+2. Stage 2 is authorized and Simulation delivers visitor-linked action lifecycle fields,
+3. Assets/Memory need clarification on grounding/provenance semantics, or
+4. a new Communication milestone is routed.
+
+Before resuming, read `COORDINATION.md`, `communication/INBOX.md`, then this file.
