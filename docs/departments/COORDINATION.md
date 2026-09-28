@@ -21,7 +21,6 @@ Departments should read this file at the beginning of a work session in addition
 ### ACTIVE
 
 - [Memory & Social] Lead v0.4.0 relationship-memory architecture and implementation
-- [Assets & Interface] v0.4 Control Room + map readability pass
 
 ### STANDBY
 
@@ -39,6 +38,7 @@ Departments should read this file at the beginning of a work session in addition
 ### REVIEW
 
 - [Communication & Perception] Planner anti-omniscience patch + v0.4 provenance contract
+- [Assets & Interface] v0.4 Control Room + map readability pass on `assets-v0.4-control-room`; static checks passed, runtime UI test required
 
 ### DONE
 
