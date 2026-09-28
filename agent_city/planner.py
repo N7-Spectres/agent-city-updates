@@ -111,6 +111,7 @@ async def choose_action(citizen: dict[str, Any], state: dict[str, Any]) -> dict[
             {"role": "user", "content": citizen_context(citizen, state, actions)},
         ],
         "stream": False,
+        "think": False,
         "format": "json",
         "options": {
             "temperature": 0.55,
