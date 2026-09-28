@@ -386,11 +386,11 @@ Shipped direction:
 
 Shipped result: Agent City now separates hidden world truth from citizen knowledge, preserves provenance and uncertainty, and presents Home/Citizens/Locations/Records as distinct information surfaces. Location and citizen sheets can grow over time without exposing undiscovered world data.
 
-### v0.7.0 — Maintenance, Consequences & Home Polish
+### Shipped milestone — v0.7.0 Maintenance, Consequences & Home Polish
 
 Mechanical life gains deeper physical consequences while the Home screen becomes easier to live with over long sessions.
 
-Planned direction:
+Shipped direction:
 
 #### Maintenance / consequences
 - component wear
@@ -431,6 +431,8 @@ Planned direction:
 Routine maintenance should remain mostly autonomous. Interesting failures and shortages should create decisions rather than repetitive chores.
 
 Goal: survival and upkeep should matter, and Home should remain readable as the civilization and its history grow.
+
+Shipped result: v0.7.0 adds real mechanical wear/service consequences, bounded maintenance memory, more reliable durable citizen conversations, scalable Home rails/search/Recent Activity, and the first lightweight avatar framework. The assembled release passed the complete v0.4-v0.7 smoke chain.
 
 ### v0.8.0 — Living World
 
