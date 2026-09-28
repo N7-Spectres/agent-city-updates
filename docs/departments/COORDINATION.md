@@ -17,15 +17,16 @@ This file is the shared project task board.
 ### ACTIVE
 
 - [World & Simulation] v0.8 Stage 2: continuous local movement/exploration + visitor-linked shared physical activity
-- [Communication & Perception] v0.8 Stage 2: structured shared-action proposals/status grounded in Simulation
 - [Assets & Interface] v0.8 Stage 2: continuous local map, explicit shared-action acceptance UI, citizen art/runtime integration, worker scaffold
 
 ### WAITING
 
-- [Communication & Perception] final shared-action lifecycle fields from World & Simulation for real proposal/start/status wiring
+- [Communication & Perception] Stage 2 proposal/start/status bridge is green; reject/expiry finalization waits only on Simulation canonical `shared_activities` cancellation/rejection primitive
 - [Assets & Interface] final continuous-movement/shared-action read model from Simulation and proposal API from Communication
 
 ### READY
+
+- [Communication & Perception] Stage 2 proposal/start/status bridge ready on `communication/v0.8-shared-actions-stage2` @ `7f40053233d0408b315ed6e9840267650503b63b`; CI `36456134638` passed unified Stage 1 regressions + Communication Stage 2 smoke
 
 - [Memory & Social] no remaining Stage 2 department dependency; ready for coordinator assembly
 
@@ -222,3 +223,26 @@ Coordinator integration must preserve:
 14. Memory and Communication both modify `main.py`; merge resolution must preserve both Communication shared-action lifecycle context and Memory retained/shared-exploration context.
 15. Preserve `tests/smoke_v080_memory_stage2.py` in the assembled Stage 2 regression suite.
 16. Never expose `planet_seed`, hidden generated-deposit geometry/richness, or infer exploration from chat.
+
+## Communication v0.8 Stage 2 Contract Locks
+
+Coordinator integration must preserve:
+
+1. `conversations.id` is the durable social exchange source.
+2. `shared_action_proposals.id` is Communication intent/UI projection, not physical truth.
+3. `shared_activities.id` is the canonical Simulation shared-activity identity.
+4. `jobs.id` is the real active physical movement job after explicit acceptance.
+5. `spatial_observations.id` is validated exploration evidence at completion.
+6. Communication derives candidate local targets only from explicit meter + cardinal visitor language.
+7. Pointing, "over there", "this way", concept art, and hidden world truth do not become coordinates.
+8. Simulation validates/persists the canonical proposal before Communication exposes a structured proposal.
+9. Proposal state does not mean movement started.
+10. Explicit visitor acceptance must succeed through Simulation and return a real job before dialogue/UI says started.
+11. Completed exploration language requires Simulation completion and evidence IDs.
+12. Communication never mutates participant coordinates, Simulation jobs, canonical activities, or observations.
+13. Reject/expiry may not diverge from Simulation canonical proposal state; cancellation must be Simulation-owned.
+14. Preserve Stage 1 grounding, v0.7 raw-exchange-first reliability, remote-store privacy, and all provenance boundaries.
+15. Preserve `tests/smoke_v080_communication_stage2.py` in assembled Stage 2 regression testing.
+
+Current remaining dependency:
+- Simulation adds a narrow cancellation/rejection primitive for unstarted canonical `shared_activities.status='proposed'` rows.
