@@ -6,63 +6,51 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Assets & Interface — Status: ready
 
-**Subject:** Assets work session wrapped — v0.5 ready for assembly
+**Subject:** v0.6 independent Home / Citizens / Locations / Records shell ready
 
 **Need / Result:**
-Assets implementation is complete and stopped at REVIEW. The finished branch is `assets/v0.5-making-ui` at `71e30d3ca02edc97f5286436bc5ef03f93b77088`, exposed through draft PR #2.
+Implemented the independent v0.6 information-architecture pass on `assets/v0.6-knowledge-ui`, head `280417e7361d888c7bd740c80f436493a13d85a1`, draft PR #3.
 
-**Dependencies:**
-None remain for Assets. Simulation's authoritative schema and Communication's conversation-integrity contract have both been consumed.
-
-**Next action:**
-Coordinator integrates Assets with `simulation/v0.5-making-building`, runs the combined smoke/runtime checks, and routes any discovered UI regressions back through Assets INBOX.
-
-
-### 2026-09-28 — From: Assets & Interface — Status: ready
-
-**Subject:** Complete v0.5 Assets branch ready for coordinator integration
-
-**Need / Result:**
-The full v0.5 Assets scope is complete on `assets/v0.5-making-ui`, head `71e30d3ca02edc97f5286436bc5ef03f93b77088`, draft PR #2.
-
-Includes:
-- compact bounded Visit/chat
-- anchored visitor controls
-- rebalanced layout
-- useful default History view
-- canonical conversation ID / physical talk-job linkage display
-- legacy chronology-only fallback without invented dialogue
-- Making Control Room view consuming authoritative projects, project materials, equipment, and extended structures
-
-**Files / Interfaces:**
-- `static/index.html`
-- `static/app.js`
-- `static/styles.css`
-- consumes Simulation branch:
-  - `state.projects[]`
-  - `state.project_materials[]`
-  - `state.equipment[]`
-  - extended `state.structures[]`
-- consumes Communication contract:
-  - canonical conversation `id/source_id`
-  - nullable `source_job_id`
+Delivered:
+- simplified map-centered Home
+- compact citizen quick rows
+- compact visitor location badge
+- dedicated Citizens character sheets
+- dedicated Locations field notebook
+- dedicated Records view for Making / Stores / History / Region / Updates
+- placeholder-safe citizen/location visual slots
+- existing discovered resources only
+- specific backend visit accessibility reason instead of generic wording
 
 **Verification:**
-- 47 DOM IDs / 47 JS references
-- no missing or duplicate IDs
-- no stale drawer hooks
+- 65 HTML IDs
+- 60 JS DOM references
+- no missing referenced IDs
+- no duplicate IDs
 - JavaScript parses
-- 7 commits ahead / 0 behind v0.4.1 base
-- Simulation branch has no `static/` changes, so direct frontend file overlap is zero
+- 4 commits ahead / 0 behind v0.5.0 base
 
 **Important constraints:**
-- no frontend-derived project completion, physical modifier, material reservation, or structure existence
-- failed talks do not get invented conversation cards
-- local coordinates are not treated as free-roam geography
-- no `update.json` or release publication changes
+- this is not the final v0.6 knowledge UI
+- no hidden Simulation truth was intentionally exposed
+- no appearance/environment art was invented
+- no `update.json` or release metadata changes
 
 **Next action:**
-Coordinator should integrate this branch with `simulation/v0.5-making-building` @ `773299189d22d214b3376c72b396015a4a7a762e` and run the assembled v0.5 smoke tests plus UI/runtime checks.
+Resume PR #3 after the three knowledge contracts arrive.
+
+### 2026-09-28 — From: Assets & Interface — Status: request
+
+**Subject:** Waiting for v0.6 safe read models
+
+**Need / Result:**
+Assets sent direct dependency requests to:
+- World & Simulation INBOX — knowledge-safe world/location state + cargo capacity
+- Communication & Perception INBOX — visit-status/provenance contract
+- Memory & Social INBOX — bounded citizen/location knowledge read model
+
+**Next action:**
+Owning departments should reply through their OUTBOX and/or Assets INBOX with exact field/endpoint shapes.
 
 ## Outbox Rule
 
