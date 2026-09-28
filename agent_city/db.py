@@ -120,6 +120,8 @@ def init_db() -> None:
                 energy REAL NOT NULL DEFAULT 100,
                 integrity REAL NOT NULL DEFAULT 100,
                 joint_wear REAL NOT NULL DEFAULT 0,
+                battery_health REAL NOT NULL DEFAULT 100,
+                last_service_minute INTEGER,
                 location TEXT NOT NULL DEFAULT 'Seed Site',
                 current_activity TEXT NOT NULL DEFAULT 'Orienting at Seed Site'
             );
@@ -133,7 +135,9 @@ def init_db() -> None:
                 y_km REAL,
                 kind TEXT NOT NULL DEFAULT 'structure',
                 provides_charging INTEGER NOT NULL DEFAULT 0,
-                project_id INTEGER
+                project_id INTEGER,
+                last_service_minute INTEGER,
+                use_count INTEGER NOT NULL DEFAULT 0
             );
 
             CREATE TABLE IF NOT EXISTS resources (
@@ -200,7 +204,9 @@ def init_db() -> None:
                 extraction_speed_multiplier REAL NOT NULL DEFAULT 1.0,
                 cargo_bonus REAL NOT NULL DEFAULT 0,
                 created_job_id INTEGER,
-                created_minute INTEGER NOT NULL
+                created_minute INTEGER NOT NULL,
+                last_service_minute INTEGER,
+                use_count INTEGER NOT NULL DEFAULT 0
             );
 
             CREATE TABLE IF NOT EXISTS projects (
@@ -292,6 +298,24 @@ def init_db() -> None:
                 UNIQUE(citizen_id, process_key)
             );
 
+            CREATE TABLE IF NOT EXISTS maintenance_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                job_id INTEGER NOT NULL UNIQUE,
+                citizen_id TEXT NOT NULL,
+                event_type TEXT NOT NULL,
+                target_type TEXT NOT NULL,
+                target_id TEXT NOT NULL,
+                before_value REAL,
+                after_value REAL,
+                materials_json TEXT,
+                outcome TEXT NOT NULL,
+                sim_minute INTEGER NOT NULL,
+                summary TEXT NOT NULL
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_maintenance_events_target
+            ON maintenance_events(target_type, target_id, id);
+
             CREATE TABLE IF NOT EXISTS jobs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 citizen_id TEXT NOT NULL,
@@ -306,7 +330,8 @@ def init_db() -> None:
                 project_id INTEGER,
                 outcome TEXT,
                 experiment_method TEXT,
-                result_discovery_id INTEGER
+                result_discovery_id INTEGER,
+                maintenance_event_id INTEGER
             );
 
             CREATE TABLE IF NOT EXISTS citizen_conversations (
@@ -338,11 +363,14 @@ def init_db() -> None:
         add_column_if_missing(conn, "citizens", "location_id TEXT NOT NULL DEFAULT 'seed_site'", "location_id")
         add_column_if_missing(conn, "citizens", "last_planned_minute INTEGER NOT NULL DEFAULT 0", "last_planned_minute")
         add_column_if_missing(conn, "citizens", "active_job_id INTEGER", "active_job_id")
+        add_column_if_missing(conn, "citizens", "battery_health REAL NOT NULL DEFAULT 100", "battery_health")
+        add_column_if_missing(conn, "citizens", "last_service_minute INTEGER", "last_service_minute")
         add_column_if_missing(conn, "jobs", "intent_reason TEXT", "intent_reason")
         add_column_if_missing(conn, "jobs", "project_id INTEGER", "project_id")
         add_column_if_missing(conn, "jobs", "outcome TEXT", "outcome")
         add_column_if_missing(conn, "jobs", "experiment_method TEXT", "experiment_method")
         add_column_if_missing(conn, "jobs", "result_discovery_id INTEGER", "result_discovery_id")
+        add_column_if_missing(conn, "jobs", "maintenance_event_id INTEGER", "maintenance_event_id")
         add_column_if_missing(conn, "deposits", "discoverer_id TEXT", "discoverer_id")
         add_column_if_missing(conn, "deposits", "discovered_minute INTEGER", "discovered_minute")
         add_column_if_missing(conn, "locations", "x_km REAL", "x_km")
@@ -353,6 +381,10 @@ def init_db() -> None:
         add_column_if_missing(conn, "structures", "kind TEXT NOT NULL DEFAULT 'structure'", "kind")
         add_column_if_missing(conn, "structures", "provides_charging INTEGER NOT NULL DEFAULT 0", "provides_charging")
         add_column_if_missing(conn, "structures", "project_id INTEGER", "project_id")
+        add_column_if_missing(conn, "structures", "last_service_minute INTEGER", "last_service_minute")
+        add_column_if_missing(conn, "structures", "use_count INTEGER NOT NULL DEFAULT 0", "use_count")
+        add_column_if_missing(conn, "equipment", "last_service_minute INTEGER", "last_service_minute")
+        add_column_if_missing(conn, "equipment", "use_count INTEGER NOT NULL DEFAULT 0", "use_count")
         add_column_if_missing(conn, "citizen_conversations", "source_job_id INTEGER", "source_job_id")
         conn.execute(
             """
@@ -455,6 +487,11 @@ def init_db() -> None:
         conn.execute(
             "UPDATE jobs SET outcome = 'legacy_complete' WHERE status = 'complete' AND outcome IS NULL"
         )
+        conn.execute(
+            "UPDATE citizens SET battery_health = 100 WHERE battery_health IS NULL OR battery_health <= 0"
+        )
+        if get_meta(conn, "maintenance_wear_minute") is None:
+            set_meta(conn, "maintenance_wear_minute", get_meta(conn, "sim_minute") or "360")
 
         if get_meta(conn, "v0_2_migrated") is None:
             current = int(get_meta(conn, "sim_minute") or "360")
@@ -582,6 +619,30 @@ def snapshot() -> dict[str, Any]:
     with connect() as conn:
         citizens = [dict(r) for r in conn.execute("SELECT * FROM citizens ORDER BY rowid")]
         structures = [dict(r) for r in conn.execute("SELECT * FROM structures ORDER BY id")]
+
+        def condition_state(value: float) -> str:
+            if value <= 20:
+                return "critical"
+            if value < 60:
+                return "degraded"
+            if value < 90:
+                return "service_due"
+            return "nominal"
+
+        for citizen in citizens:
+            battery = float(citizen.get("battery_health") or 0)
+            wear = float(citizen.get("joint_wear") or 0)
+            citizen["battery_state"] = condition_state(battery)
+            citizen["chassis_service_state"] = (
+                "critical" if wear >= 60
+                else "service_due" if wear >= 12
+                else "nominal"
+            )
+
+        for structure in structures:
+            condition = float(structure.get("condition") or 0)
+            structure["condition_state"] = condition_state(condition)
+            structure["operational"] = condition > 20
         resources = [dict(r) for r in conn.execute("SELECT * FROM resources ORDER BY name")]
         history = [dict(r) for r in conn.execute("SELECT * FROM history ORDER BY id DESC LIMIT 60")]
         locations = [dict(r) for r in conn.execute("SELECT * FROM locations ORDER BY rowid")]
@@ -601,6 +662,16 @@ def snapshot() -> dict[str, Any]:
 
         inventory = [dict(r) for r in conn.execute("SELECT * FROM citizen_inventory WHERE amount > 0 ORDER BY citizen_id, material")]
         equipment = [dict(r) for r in conn.execute("SELECT * FROM equipment WHERE condition > 0 ORDER BY id")]
+        for item in equipment:
+            condition = float(item.get("condition") or 0)
+            factor = max(0.0, min(1.0, condition / 100.0)) if condition > 20 else 0.0
+            base_speed = float(item.get("extraction_speed_multiplier") or 1.0)
+            item["condition_state"] = condition_state(condition)
+            item["operational"] = condition > 20
+            item["effective_cargo_bonus"] = float(item.get("cargo_bonus") or 0) * factor
+            item["effective_extraction_speed_multiplier"] = (
+                1.0 + (base_speed - 1.0) * factor if factor > 0 else 1.0
+            )
         projects = [dict(r) for r in conn.execute("SELECT * FROM projects ORDER BY id DESC LIMIT 50")]
         project_materials = [dict(r) for r in conn.execute("SELECT * FROM project_materials ORDER BY project_id, material")]
         jobs = [dict(r) for r in conn.execute("SELECT * FROM jobs WHERE status = 'active' ORDER BY id")]
@@ -648,6 +719,11 @@ def snapshot() -> dict[str, Any]:
         learned_processes = [
             dict(r) for r in conn.execute(
                 "SELECT * FROM learned_processes ORDER BY citizen_id, id"
+            )
+        ]
+        maintenance_events = [
+            dict(r) for r in conn.execute(
+                "SELECT * FROM maintenance_events ORDER BY id DESC LIMIT 80"
             )
         ]
 
@@ -720,5 +796,6 @@ def snapshot() -> dict[str, Any]:
             "citizen_knowledge": citizen_knowledge,
             "experiment_results": experiment_results,
             "learned_processes": learned_processes,
+            "maintenance_events": maintenance_events,
             "citizen_conversations": citizen_conversations,
         }
