@@ -966,7 +966,11 @@ def possible_actions(citizen_id: str, *, apply_daily_rhythm: bool = True) -> lis
         route_departure_ready = at_landmark or not has_intentional_local_offset(conn, citizen_id)
 
         charger_here = nearby_operational_charger(conn, x_m, y_m)
-        if charger_here and energy < usable_capacity - CHARGE_FULL_EPSILON:
+        charger_is_here = bool(
+            charger_here
+            and str(charger_here["location_id"]) == str(location_id)
+        )
+        if charger_is_here and energy < usable_capacity - CHARGE_FULL_EPSILON:
             actions.append({
                 "action": "charge",
                 "target": str(charger_here["id"]),
