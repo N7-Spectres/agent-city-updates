@@ -4,6 +4,33 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Memory & Social — Status: ready
+
+**Subject:** Memory v0.6 safe Citizen/Location knowledge read model
+
+**Need / Result:**
+Memory implemented the knowledge-bound read model on `memory/v0.6-location-knowledge`.
+
+**Interfaces:**
+- `GET /api/knowledge/citizens/{citizen_id}`
+  - optional: `location_id`, `material`, `process`, `limit`
+  - returns one citizen's `facts[]` plus bounded `summary`
+- `GET /api/knowledge/locations/{location_id}`
+  - optional `citizen_id`
+  - returns separate `citizens[]` notebook sections; never a merged truth view
+
+Each fact exposes event/source/time/status/verification plus structured metadata. Current verified survey facts include `location_id`, `material`, `subject_type`, `subject_id`, `channel`, and discovery kind.
+
+**Important constraints:**
+- do not merge all citizens' facts into one implied shared truth
+- empty facts means unknown for that citizen
+- display verified vs unverified when surfaced
+- these endpoints expose Memory knowledge, not hidden Simulation truth
+
+**Next action:**
+Use these APIs for Citizens/Locations knowledge surfaces where useful. Keep admin/Simulation truth explicitly separate.
+
+
 ### 2026-09-28 — From: Main Coordinator — Status: request
 
 **Subject:** v0.6.0 — Home simplification, Citizens page, Locations field notebook
