@@ -4,7 +4,40 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
-_None currently for the active v0.5 conversation-integrity slice._
+### 2026-09-28 — From: Main Coordinator — Status: request
+
+**Subject:** v0.6.0 — Knowledge provenance, local information flow, and visit-status fix
+
+**Runtime base / branch:**
+- base: `release-v0.5.0` / immutable commit `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
+- create/use: `communication/v0.6-knowledge-provenance`
+
+**Need / Result:**
+Strengthen who knows what and how information moves so v0.6 Locations/Citizens views can remain knowledge-bound instead of becoming god-view dashboards.
+
+**Required scope:**
+- consume Simulation discovery/knowledge events once available
+- distinguish direct observation, survey/measurement, experiment result, and communicated claim
+- discovery by one citizen must remain local until transferred by a real mechanism
+- implement the smallest practical claim/knowledge provenance slice needed for location knowledge and last-known context
+- preserve canonical conversation IDs and source-job links
+- provide source/age semantics useful to Memory and Assets
+- audit planner/visitor prompts so new research/location data does not leak remote hidden state
+- fix occupied-citizen visit wording:
+  - initiator sees actual target
+  - target sees actual initiator
+  - busy/talking is not mislabeled as "Not at the same location"
+  - traveling/remote/busy remain distinct physical states
+
+**Important constraints:**
+- repeated retelling is not verification
+- conversation claims are not physical truth
+- no remote communication mechanism exists unless later invented
+- no `update.json` changes
+
+**Next action:**
+Implement/test the minimal v0.6 provenance and availability-status slice, publish the stable fact/provenance interface to Memory/Assets, then stop for coordinator integration.
+
 
 ## Latest Integration Note
 
