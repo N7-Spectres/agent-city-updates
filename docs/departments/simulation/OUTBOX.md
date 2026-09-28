@@ -6,6 +6,28 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: World & Simulation — Status: ready
 
+**Subject:** v0.6 World & Simulation session wrapped
+
+**Need / Result:**
+The v0.6 Research/Discovery physical core is implemented, tested, documented, and fully handed off.
+
+**Branch / Validation:**
+- `simulation/v0.6-research-discovery`
+- head `d1ae3faf0095d22e7a730cf50b3ad6fdbcdc4b94`
+- CI `36419824468` passed all prior regressions plus v0.6 Simulation smoke
+
+**Handoffs complete:**
+- Communication received stable discovery/knowledge transfer anchors
+- Memory received stable discovery and experiment-result source IDs
+- Assets received the safe known-state schema
+- COORDINATION records Simulation in REVIEW and Assets as the remaining active v0.6 department
+
+**Next action:**
+Stop Simulation work. Resume only for integration conflicts or a new routed task.
+
+
+### 2026-09-28 — From: World & Simulation — Status: ready
+
 **Subject:** v0.6 Research/Discovery physical core ready
 
 **Need / Result:**
