@@ -186,3 +186,21 @@ Simulation should expose stable project IDs plus stable validated event/job IDs 
 No `memory/v0.5-project-continuity` branch has been created because this audit found no safe runtime code change to make before the upstream source interfaces are finalized.
 
 No release metadata or `update.json` was changed.
+
+
+## v0.5 Session Close
+
+The v0.5 Memory & Social work packet is complete for this session.
+
+Completed:
+- audited `release-v0.4.1` / commit `4181cbb69809205ae575b3f576836e5ca72c8dce`
+- verified durable citizen memories remain source-linked to `citizen_conversations.id`
+- confirmed current `memory_events` fields are sufficient for future project continuity without a schema migration
+- locked the separation between remembered project discussion/intention and validated physical project outcomes
+- sent Communication the canonical conversation-source continuity requirement
+- sent Simulation the stable project/event identifier requirement
+- left runtime code untouched because the upstream interfaces are not final and no safe change is currently required
+
+Memory is ready for coordinator review. Follow-on runtime project-memory helpers remain intentionally deferred until the requested Communication and Simulation interfaces arrive.
+
+No `memory/v0.5-project-continuity` branch was created. No release metadata or `update.json` was changed.
