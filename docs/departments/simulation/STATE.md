@@ -2,224 +2,246 @@
 
 _Last updated: 2026-09-28_
 _Current shipped release: v0.5.0_
-_Active implementation branch: `simulation/v0.5-making-building`_
-_Branch head: `773299189d22d214b3376c72b396015a4a7a762e`_
+_Active implementation branch: `simulation/v0.6-research-discovery`_
+_Branch head: `d1ae3faf0095d22e7a730cf50b3ad6fdbcdc4b94`_
 
 ## Mission
 
 Own physical truth.
 
-The LLM may choose intent, but every physical action must be legal, validated, timed, and persisted by the simulation.
-
-## Core Rule
-
 > **The AI may decide intent. The simulation decides reality.**
 
-## v0.5 Making & Building — Implemented on Department Branch
+For v0.6 this also means:
 
-The Simulation branch now contains a tested physical core for v0.5.0. It is not yet the shipped release until the coordinator integrates it.
+> **World truth may exist before any citizen knows it.**
 
-### Fabrication
+## Shipped Foundation Preserved
 
-Implemented real fabrication jobs with:
+The v0.6 branch starts from immutable shipped v0.5.0 commit:
 
-- validated settlement material requirements
-- real job duration and energy cost
-- material consumption before the job proceeds
-- persisted `equipment` records only after successful job completion
-- stable equipment IDs
-- explicit physical modifiers instead of abstract level bonuses
+`d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
 
-Current starting workbench processes are intentionally small, not a technology tree:
+It preserves:
 
-- Field Cargo Pack
-  - raises physical carrying capacity
-  - requires real fabricated equipment
-- Powered Extraction Tool
-  - reduces extraction job duration through an explicit speed multiplier
+- travel / survey / extract / deposit / charge / wait
+- face-to-face talk with source-linked conversation integrity
+- fabrication and equipment
+- construction projects and structures
+- cargo-capacity and extraction-tool effects
+- return-energy reserve
+- stable job/project IDs
+- local coordinate groundwork
 
-A citizen is not repeatedly offered another copy of the same still-functional personal equipment template.
+## v0.6 Research & Discovery — Implemented on Department Branch
 
-### Construction / Projects
+### Hidden World Truth
 
-Implemented persisted multi-step projects:
+New internal table:
 
-`planned -> reserved -> underway -> complete`
+- `world_properties`
 
-Physical tables:
+It stores physical facts that may exist before discovery.
 
-- `projects`
-- `project_materials`
+Examples currently include:
 
-A construction project has:
+- material response properties
+- location field properties
 
-- stable project ID
-- blueprint/type
-- name
-- validated location
-- local x/y coordinates
-- creating citizen
-- lifecycle timestamps
-- active construction job ID
-- resulting structure ID after completion
+This table is deliberately **not included** in ordinary `/api/state`.
 
-Reservation deducts validated settlement materials and records the reserved amounts. Construction creates a real `structures` row only when the timed construction job completes.
+### Discovery Events
 
-Current v0.5 construction is intentionally settlement-local at Seed Site. Remote construction waits for explicit physical project-material transport rather than teleporting reserved stock.
+New persisted table:
 
-### Structures / Coordinate Groundwork
+- `discoveries`
 
-Structures now support:
+Stable fields:
 
-- stable ID
-- kind
-- `location_id`
-- local `x_km` / `y_km`
-- condition
-- `provides_charging`
-- source `project_id`
-
-Starter landmarks also receive simple local coordinates. This is groundwork for later continuous/spherical geography; v0.5 does not implement free-roam globe movement.
-
-### Energy-Safe Field Work
-
-Implemented return-energy reserve validation.
-
-Before outbound travel or remote survey/extraction, Simulation checks whether the citizen can still reach a known operational charger with a modest safety margin.
-
-Rules:
-
-- unsafe outbound travel is not offered
-- unsafe remote survey/extraction is not offered
-- start-time validation repeats the safety check
-- returning to a charger remains legal when physically reachable
-- future structures with `provides_charging = 1` automatically become valid recharge destinations in the route-distance calculation
-- charging itself is available at any location containing an operational charging structure
-
-Returning cargo remains a citizen choice. It is not hard-coded as an automatic action.
-
-### Stable Physical Event References
-
-Completed jobs remain durable authoritative physical-event records.
-
-Relevant fields:
-
-- `jobs.id` — stable physical event/job ID
+- `id`
+- `discovery_kind` — currently `deposit` or `world_property`
+- `subject_type`
+- `subject_id`
+- `property_id` when applicable
 - `citizen_id`
-- `action`
-- `target`
-- `start_minute`
-- `end_minute`
-- `status`
+- `location_id`
+- `source_job_id`
+- `discovered_minute`
+- `summary`
+
+A survey or experiment may produce a validated discovery. A discovery is an event/knowledge anchor, not a global mind-meld.
+
+### Citizen Knowledge
+
+New persisted table:
+
+- `citizen_knowledge`
+
+Stable fields:
+
+- `citizen_id`
+- `discovery_id`
+- `learned_minute`
+- `acquisition_kind`
+- `source_type`
+- `source_id`
+- `verification_state`
+
+Direct survey/experiment discoveries grant knowledge only to the discovering citizen.
+
+No other citizen receives that knowledge automatically.
+
+New helper module:
+
+- `agent_city/knowledge.py`
+
+Useful interfaces:
+
+- `grant_citizen_knowledge(...)`
+- `known_properties_for(citizen_id)`
+- `known_deposits_for_citizen(citizen_id)`
+- `knowledge_payload_for(citizen_id)`
+
+Communication may later use `grant_citizen_knowledge` only after a real transfer event and only when the transferred fact can be tied to a validated discovery.
+
+### Experiments
+
+New legal action:
+
+- `experiment`
+
+Current generic physical methods:
+
+- thermal-response assay
+- electrical-response assay
+- mechanical-response assay
+
+These methods are not technologies and do not reveal which hidden property exists.
+
+Experiment requirements:
+
+- citizen at Seed Site
+- real stored native material sample
+- real sample consumption
+- energy cost
+- timed job
+
+Experiment results persist in:
+
+- `experiment_results`
+
+Fields include:
+
+- stable result `id`
+- `job_id`
+- `citizen_id`
+- `location_id`
+- `material`
+- `method`
 - `outcome`
-- `project_id` when applicable
+- `discovery_id` when successful
+- `summary`
+- `completed_minute`
 
-New outcomes use values such as `success`, `failed`, or `no_yield`. Pre-v0.5 completed jobs are migrated to `legacy_complete` instead of being assigned invented richer semantics.
+Current outcomes:
 
-### Conversation Integrity Preserved
+- `discovery`
+- `verified`
+- `inconclusive`
 
-Communication's v0.5 physical-talk invariant is integrated into this branch.
+An inconclusive experiment is a real persisted result, not erased failure.
 
-- `citizen_conversations.source_job_id` links a stored exchange to its physical talk job
-- a talk job completes successfully only if that durable exchange exists
-- missing exchange => talk job `failed`
-- Simulation never fabricates a synthetic conversation to make the job succeed
-- both citizens are released from the physical talk job either way
+### Reproducible Learned Processes
 
-## Current Time Model
+A successful property discovery creates a citizen-scoped verification process in:
 
-Target chronology:
+- `learned_processes`
 
-**1 real hour = 4 simulated hours**
+Fields:
 
-Time stops while the app is closed. Pause freezes simulation time.
+- `id`
+- `citizen_id`
+- `process_key`
+- `name`
+- `process_kind`
+- `source_discovery_id`
+- `learned_minute`
 
-## Existing Physical Actions Preserved
+These are repeatable verification procedures derived from real discoveries, not a visible technology tree and not automatic fabrication unlocks.
 
-- travel
-- survey
-- extract
-- deposit cargo
-- charge
-- wait / observe
-- face-to-face citizen talk
+### Survey / Location Knowledge
 
-The v0.5 branch adds:
+Field surveys can now be repeated.
 
-- fabricate
-- plan project
-- reserve project materials
-- construct
+A survey may:
 
-## Existing World State Preserved
+- reveal a previously hidden deposit
+- independently confirm a deposit another citizen found
+- reveal a hidden location property
+- produce no new finding
 
-Citizens still track:
+Repeated surveys remain legal rather than using hidden truth to decide whether the action is offered.
 
-- location
-- energy
-- integrity
-- active job
-- carried materials
+Locations now expose safe accumulated facts through:
 
-World still tracks:
+- `state.locations[].known_facts`
 
-- locations
-- routes
-- deposits
-- survey state
-- structures
-- settlement stores
+Unknown facts are absent.
 
-New v0.5 snapshot collections exposed through existing `/api/state`:
+### Ordinary State Boundary
 
-- `equipment`
-- `projects`
-- `project_materials`
+`snapshot()` is now explicitly civilization-facing safe state.
 
-Structures and locations expose the added physical fields directly in their existing collections.
+Important changes:
+
+- `world_properties` is never returned
+- undiscovered deposits are never returned
+- discovered deposits no longer expose hidden reserve quantity
+- `state.discoveries[]` contains only validated discovery events
+- `state.citizen_knowledge[]` contains only knowledge that actually reached that citizen
+- `state.experiment_results[]` contains persisted experiment history
+- `state.learned_processes[]` contains learned repeatable procedures
+- `state.locations[].known_facts` contains validated accumulated location facts
+
+The UI may display absence as absence. It must not render placeholders that imply a hidden fact exists.
+
+### Planner Boundary
+
+Citizen planner context now receives:
+
+- personally confirmed deposits
+- personally validated material/world properties
+- actual local observations/conversations
+- legal experiment choices without hidden outcome hints
+
+The planner is explicitly instructed not to infer a hidden property from experiment availability.
+
+## Migration
+
+Existing v0.5 saves migrate additively.
+
+Pre-v0.6 discovered deposits are backfilled into:
+
+- `discoveries`
+- `citizen_knowledge`
+
+No destructive reset is required.
 
 ## Validation
 
-GitHub Actions run `36372991331` passed on the integrated branch:
+GitHub Actions run `36419824468` passed:
 
-- Python compilation
-- JavaScript syntax check
-- existing v0.4 regression smoke
-- v0.5 Making & Building smoke
-- v0.5 Communication talk-integrity smoke
-
-The normal release-only workflow trigger was restored afterward.
-
-## Integration Status
-
-Ready for coordinator integration. No `update.json` or release metadata was published or changed.
-
-
-## Work Session Handoff
-
-This Simulation work session is complete.
-
-Handoff source of truth:
-- branch: `simulation/v0.5-making-building`
-- head: `773299189d22d214b3376c72b396015a4a7a762e`
-- integrated validation: GitHub Actions run `36372991331`
-- coordinator state: Simulation is ready for review/integration
-- next active dependency: Assets & Interface consumes the authoritative Making & Building state and finishes the v0.5 visual layer
-
-No release metadata or `update.json` was changed.
-
-
-## Shipped v0.5.0 Integration
-
-Coordinator integrated this physical core with the completed Assets v0.5 UI on `release-v0.5.0`.
-
-Immutable published runtime commit:
-`d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
-
-The assembled release passed:
 - Python compilation
 - JavaScript syntax
 - v0.4 regression smoke
 - v0.5 Simulation smoke
 - v0.5 Communication integrity smoke
-- v0.5 assembled UI integration smoke
+- v0.5 UI integration smoke
+- v0.6 Research/Discovery smoke
+
+The release-only workflow trigger was restored afterward.
+
+## Status
+
+World & Simulation v0.6 core is ready for coordinator/cross-department review.
+
+No `update.json` or release metadata was changed.
