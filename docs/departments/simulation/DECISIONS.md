@@ -161,3 +161,33 @@ A physical talk job is successful only when a real durable conversation source e
 `citizen_conversations.source_job_id` is the link.
 
 If no exchange was actually stored, Simulation marks the talk job failed and does not invent dialogue to make chronology look successful.
+
+
+## World Substrate vs Citizen Solutions
+
+Simulation development should provide laws, capabilities, and constraints rather than predetermined civilization answers.
+
+Examples of appropriate simulation additions:
+- fabrication mechanics
+- measurable material properties
+- atmosphere and weather
+- energy and maintenance rules
+- terrain and movement
+- structures and equipment as physical objects
+- experimentation and validated outcomes
+
+Examples of things that should normally emerge through citizen behavior instead of being directly granted:
+- a specific hauling solution
+- a radio
+- a road
+- a field station
+- a specialized processor
+- a specific advanced tool
+
+If a new system merely solves a current citizen problem for them, prefer not to add it.
+
+If a new system makes a previously unmodeled part of physical reality available for citizens to reason about, it may be appropriate.
+
+Target handoff:
+- pre-v1.0: complete the world's core substrate
+- v1.0 and beyond: preserve autonomy, fix/visualize/optimize/deepen the world, and let citizens determine their civilization's solutions
