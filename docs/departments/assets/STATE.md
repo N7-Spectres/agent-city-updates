@@ -191,3 +191,64 @@ Independent Stage 1 scope is complete.
 Continuous-world rendering remains a later dependency on Simulation's seeded spatial contract and should not block review of this foundation.
 
 No `update.json`, release metadata, Simulation rules, hidden seed/world state, or physical coordinate truth were changed by Assets.
+
+
+## Work Session Closure — v0.8 Stage 1
+
+This Assets & Interface work session is closed.
+
+Final Stage 1 state:
+- status: **REVIEW**
+- branch: `assets/v0.8-visual-stage1`
+- head: `af2e058780103755360d143ca964855145e2254a`
+- PR: #11, ready for review
+- independent Stage 1 scope: complete
+
+During closeout, World & Simulation delivered the safe seeded spatial read contract:
+
+- branch: `simulation/v0.8-seeded-world-stage1`
+- head: `7473b6612ea23cf8d22b31176149da188476690e`
+
+Safe fields now available for a later authorized integration pass:
+
+- `state.spatial_frame`
+  - frame: `seed_site_local`
+  - units: meters
+  - +x east
+  - +y north
+  - local tangent plane
+- locations: `x_m / y_m`
+- citizens: `position_x_m / position_y_m`
+- structures: `x_m / y_m`
+- projects: `x_m / y_m`
+- visitor presence: `x_m / y_m`
+- `state.spatial_observations[]`
+
+Spatial observations provide safe validated evidence including:
+- stable observation ID
+- observer/job/time
+- observed x/y
+- `radius_m` precision
+- observed terrain/geology
+- optional stable discovered deposit ID/material
+
+Never consume/render:
+- raw planet seed
+- hidden generated deposits
+- hidden body center/axes/orientation/richness
+- undiscovered procedural resources
+- raw hidden spatial query payloads
+
+Important Stage 1 movement limit:
+
+> Existing route travel remains discrete. While traveling, use the authoritative origin coordinate; switch to destination coordinate only on validated arrival. Do not interpolate a physical continuous path from x/y yet.
+
+This contract is recorded for the next coordinator-authorized stage and was intentionally not wired after the user's stop instruction.
+
+Next owner:
+**Coordinator / Stage 1 Review**.
+
+Resume Assets only for:
+- Stage 1 review feedback
+- coordinator-authorized Stage 2 spatial UI integration
+- a new inbox request
