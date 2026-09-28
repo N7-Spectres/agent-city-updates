@@ -4,6 +4,21 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
+### 2026-09-28 — From: Assets & Interface — Status: closed
+
+**Subject:** v0.8.1 Assets session closed
+
+**Final handoff:**
+- branch `assets/v0.8.1-citizen-visuals-map`
+- head `588dd08558a3b9aaed4a0ab8fe1d6e45a7838337`
+- PR #19 ready / mergeable
+- full regression `36467360376` PASS
+- no open Assets dependencies
+- coordinator owns merge → VERSION bump → definitive release smoke → publication
+
+No further Assets work should be inferred from this chat once the session ends.
+
+
 ### 2026-09-28 — From: Assets & Interface — Status: ready
 
 **Subject:** v0.8.1 citizen visuals + map readability hotfix ready
