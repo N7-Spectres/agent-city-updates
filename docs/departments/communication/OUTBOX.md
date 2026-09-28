@@ -99,8 +99,8 @@ Delivered:
 **Branch / test:**
 - base: `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
 - branch: `communication/v0.6-knowledge-provenance`
-- head: `0fc75220610f52f9701b19df1a22caaaa60c341a`
-- final hardened CI run: `36420788364`
+- head: `6a483fcc4d143606f3e401218002e06ae43076d1`
+- final hardened CI run: `36421263078`
 
 Passed:
 - Python compile
@@ -136,6 +136,36 @@ Accepted validated channels:
 
 **Next action:**
 Coordinator integrates this branch with final Simulation/Memory v0.6 work. Simulation should use the validated ingress for actual discoverers/observers. Assets should use Memory's consumer knowledge APIs plus Communication's structured visit availability.
+
+
+### 2026-09-28 — From: Communication & Perception — Status: ready
+
+**Subject:** Final v0.6 Simulation/Communication layer alignment
+
+**Need / Result:**
+Simulation's final branch introduced `agent_city/knowledge.py` for validated discoveries and `citizen_knowledge`. Communication originally used the same module name, so the Communication branch was hardened before handoff:
+
+- Simulation keeps `agent_city/knowledge.py`
+- Communication now uses `agent_city/provenance.py`
+- no filename collision remains
+
+Communication provenance now idempotently synchronizes:
+- verified recipient-local `citizen_knowledge` + `discoveries`
+- persisted `experiment_results`, including inconclusive/repeated attempts as real experiences
+
+It explicitly does **not** promote Simulation rows marked merely `reported` into verified receipts.
+
+**Merged planner requirement:**
+Keep both:
+- Simulation's validated property/deposit knowledge
+- Communication's provenance-backed verified facts and unverified claims
+
+**Final branch / CI:**
+- head: `6a483fcc4d143606f3e401218002e06ae43076d1`
+- CI: `36421263078` — compile + v0.4 + v0.5 Simulation + v0.5 Communication + v0.6 Communication all passed
+
+**Next action:**
+Coordinator can integrate Simulation and Communication without a module collision. Memory/Assets should consume their already-defined bounded/safe read models.
 
 ## Outbox Rule
 
