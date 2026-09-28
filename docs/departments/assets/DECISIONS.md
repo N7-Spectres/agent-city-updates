@@ -18,6 +18,12 @@ The map should become a readable physical world, not a decorative dashboard.
 
 Stylization is allowed, but visual spacing should communicate meaningful geography whenever practical.
 
+### v0.4 map rule
+
+Before a true planet view exists, use the simulation's existing route distance as the source for relative map spacing where possible.
+
+Presentation geometry may improve readability, but must not alter route distance or travel duration.
+
 ## Visitor Presentation
 
 N7 and other visitors should have visible physical presence.
@@ -29,6 +35,20 @@ Visitor markers must not imply teleportation or remote face-to-face conversation
 Important information should remain above the fold when practical.
 
 Avoid requiring repeated page scrolling to switch between core views.
+
+### v0.4 Control Room decision
+
+Keep **Visit permanently visible** in the right rail.
+
+Place Region / Stores / Structures / History / Updates in a separate persistent Control Room beneath it rather than making Visit itself a utility tab.
+
+This preserves conversation continuity while allowing secondary state to be inspected without leaving the interaction surface.
+
+## Citizen Cluster Decision
+
+When several citizens occupy one location, use a compact labeled token cluster in a dedicated presentation zone around the location rather than stacking anonymous dots on the location marker.
+
+Citizen initials are the current token stage; richer robot/avatar tokens may replace them later.
 
 ## Future Avatar Rule
 
