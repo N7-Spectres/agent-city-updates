@@ -4,7 +4,12 @@ _Read this at the beginning of each Memory & Social work session._
 
 ## Open Messages
 
-### 2026-09-28 — From: Main Coordinator — Status: request
+_None currently._
+
+
+## Completed This Session
+
+### 2026-09-28 — From: Main Coordinator — Status: handled
 
 **Subject:** v0.8.0 Stage 1 — Spatial knowledge / discovery continuity audit
 
@@ -41,11 +46,6 @@ Simulation Stage 1 must provide the stable coordinate/deposit/observation source
 **Next action:**
 Audit now, consume Simulation's handoff when ready, implement only minimal justified runtime support, add focused smoke coverage if code changes, update STATE/DECISIONS/BACKLOG/OUTBOX, then stop.
 
-
-_None currently._
-
-
-## Completed This Session
 
 ### 2026-09-28 — From: Main Coordinator — Status: handled
 
