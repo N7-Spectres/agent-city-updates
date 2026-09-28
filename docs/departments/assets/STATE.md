@@ -103,18 +103,66 @@ Static verification on `assets/v0.7-home-avatars`:
   - `tests/smoke_v070_assets.py`
 - v0.7 Assets smoke-test contract markers are present
 
-## Waiting Dependency — Maintenance
+## Maintenance Contract — Ready, Not Yet Consumed
 
-Assets sent a direct request to World & Simulation for the final v0.7 maintenance presentation contract.
+World & Simulation delivered the final v0.7 maintenance presentation contract during this session's wrap-up.
 
-Needed before condition UI is completed:
+Authoritative source:
+- branch: `simulation/v0.7-maintenance`
+- head: `54f5d838f674d0b278a51382f3a880cc0738b417`
+- CI: `36429729279`
 
-- equipment wear/condition/service fields
-- structure wear/condition/service fields
-- battery / power-storage health
-- explicit degraded / maintenance-needed / failed semantics if owned by Simulation
-- maintenance/service/repair/replacement timestamps or event/job IDs
-- guidance on meaningful Home alert thresholds
+Ready fields:
+
+### Citizens
+- `battery_health`
+- `battery_state`
+- `usable_energy_capacity`
+- `battery_replacement_due`
+- `joint_wear`
+- `chassis_service_state`
+- `chassis_service_due`
+- `last_service_minute`
+- existing authoritative `cargo_capacity`
+
+### Equipment
+- `condition`
+- `condition_state`
+- `operational`
+- `service_due`
+- `last_service_minute`
+- `use_count`
+- `effective_cargo_bonus`
+- `effective_extraction_speed_multiplier`
+
+Raw `cargo_bonus` / `extraction_speed_multiplier` are pristine design values and must not be shown as current capability.
+
+### Structures
+- `condition`
+- `condition_state`
+- `operational`
+- `service_due`
+- `efficiency_multiplier`
+- `last_service_minute`
+- `use_count`
+- `provides_charging`
+
+### Maintenance history
+`state.maintenance_events[]`:
+- `id`
+- `job_id`
+- `citizen_id`
+- `event_type`
+- `target_type`
+- `target_id`
+- `before_value`
+- `after_value`
+- `materials_json`
+- `outcome`
+- `sim_minute`
+- `summary`
+
+The contract arrived after the user requested session wrap-up, so these fields are intentionally recorded but not yet implemented in PR #7.
 
 Memory guidance is already recorded:
 
@@ -125,8 +173,22 @@ Memory guidance is already recorded:
 
 ## Current Status
 
-Assets & Interface is **WAITING** on World & Simulation's v0.7 maintenance schema.
+This Assets work session is closed by user request.
 
-Draft PR #7 contains the complete independent Home/avatar/Recent Activity slice.
+Draft PR #7 contains the complete independent Home/avatar/Recent Activity slice plus `tests/smoke_v070_assets.py`.
+
+Assets is **not externally blocked** anymore. The remaining work for the next Assets session is to consume Simulation's now-ready maintenance fields into Citizens / Records and add only meaningful Home degradation alerts.
+
+Exact next steps:
+1. read Assets INBOX and COORDINATION
+2. inspect `simulation/v0.7-maintenance` @ `54f5d838f674d0b278a51382f3a880cc0738b417`
+3. render citizen battery/chassis maintenance state
+4. render equipment current condition and **effective** capabilities
+5. render structure condition / operational / efficiency state
+6. add bounded `maintenance_events` presentation to Records
+7. add Home alerts only for authoritative meaningful degradation/service-due states
+8. exclude `diagnostic` History rows from Recent Activity or render them only as system/debug information
+9. rerun `tests/smoke_v070_assets.py` and static verification
+10. hand complete PR #7 to coordinator integration
 
 No `update.json`, release metadata, hidden knowledge rules, or physical simulation rules were changed by Assets.
