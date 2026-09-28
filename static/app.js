@@ -969,8 +969,8 @@ function renderRecentActivity() {
 function render() {
   els.simTime.textContent = `${state.sim_label} • ${state.paused ? "Paused" : "Running"}`;
   els.pauseButton.textContent = state.paused ? "Resume" : "Pause";
-  renderVisitorStatus();
   computeLocationPositions();
+  renderVisitorStatus();
 
   renderCitizens();
   renderMaintenanceAlerts();
