@@ -150,3 +150,16 @@ Next action belongs to coordinator integration:
 5. keep `update.json` untouched unless the human explicitly requests release publication
 
 No simulation rules or release metadata were changed by Assets.
+
+
+## Work Session Closure — 2026-09-28
+
+Assets & Interface is stopped in **REVIEW**.
+
+Department work is complete on `assets/v0.5-making-ui` at `71e30d3ca02edc97f5286436bc5ef03f93b77088`.
+
+Next owner: **Coordinator / Integration**.
+
+Coordinator should combine this branch with `simulation/v0.5-making-building` at `773299189d22d214b3376c72b396015a4a7a762e`, run the assembled v0.5 smoke/runtime checks, and preserve the documented cross-department invariants.
+
+No Assets inbox item or external dependency remains open.
