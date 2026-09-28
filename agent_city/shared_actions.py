@@ -601,6 +601,27 @@ async def maybe_create_proposal_from_exchange(
     return proposal_payload(proposal_id, sync=False)
 
 
+
+def expire_pending_proposals_for_visitor(visitor: str) -> int:
+    """Expire unstarted proposals when the visitor physically leaves/moves."""
+    ensure_shared_action_schema()
+    with connect() as conn:
+        now = int(get_meta(conn, "sim_minute") or "360")
+        cur = conn.execute(
+            """
+            UPDATE shared_action_proposals
+            SET status = 'expired', acceptance_available = 0, updated_minute = ?
+            WHERE visitor = ?
+              AND status IN ('proposed', 'accepted')
+              AND simulation_action_id IS NULL
+            """,
+            (now, visitor),
+        )
+        conn.commit()
+        return int(cur.rowcount or 0)
+
+
+
 def accept_proposal(proposal_id: int, visitor: str) -> tuple[bool, str, dict[str, Any] | None]:
     ensure_shared_action_schema()
 
@@ -615,6 +636,20 @@ def accept_proposal(proposal_id: int, visitor: str) -> tuple[bool, str, dict[str
             return False, "This proposal belongs to a different visitor.", None
         if row["status"] != "proposed":
             return False, f"Proposal is already {row['status']}.", _row_payload(row)
+
+        access = visit_access_payload(visitor, str(row["citizen_id"]))
+        if not access.get("accessible"):
+            now = int(get_meta(conn, "sim_minute") or "360")
+            conn.execute(
+                """
+                UPDATE shared_action_proposals
+                SET status = 'expired', acceptance_available = 0, updated_minute = ?
+                WHERE id = ?
+                """,
+                (now, int(proposal_id)),
+            )
+            conn.commit()
+            return False, "You are no longer physically available for this proposal.", proposal_payload(proposal_id, sync=False)
 
         # Revalidate that the option is still currently legal before recording
         # acceptance. Proposal existence never freezes physical legality.
