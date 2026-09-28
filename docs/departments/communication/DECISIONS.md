@@ -605,3 +605,26 @@ Do not collapse:
 - `spatial_observations.id`
 
 They represent social source, Communication projection, physical shared event, active physical job, and validated evidence respectively.
+
+
+## Citizen personality without authority
+
+Approved design direction:
+
+- each founding citizen should have a distinct, recognizable personality and conversational voice
+- personality may bias preferences, tone, risk tolerance, curiosity, patience, social style, and habitual reasoning
+- personality is not authority and must not create a hidden leadership hierarchy
+- there is no default leader, ruler, command weight, or "final say" trait
+- citizens may develop informal social gravity around demonstrated aptitude or experience, but that is not political rank
+- any future council, leadership role, voting norm, rotating coordinator, or other governance structure must emerge from actual citizen behavior and Simulation history rather than a prewritten personality flag
+- personalities should guide behavior without scripting it; citizens remain capable of surprise and change through experience
+
+Initial personality directions:
+- Aris: curious, restless, independent, prefers firsthand checking
+- Bex: practical, expressive, mildly impatient with overthinking
+- Cato: methodical, steady, risk-aware, likes orderly plans
+- Iri: precise, quietly ambitious about building things well
+- Noma: curious, reflective, skeptical of unsupported conclusions
+- Vale: socially attentive, adaptable, cooperation-oriented
+
+These are behavioral tendencies, not classes, offices, or political status.
