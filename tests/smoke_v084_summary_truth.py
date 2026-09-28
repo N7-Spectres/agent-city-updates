@@ -34,7 +34,7 @@ def main() -> None:
         "The result was demonstrated.",
         "The fact was established.",
     ):
-        assert not _summary_is_claim_safe(text), text
+        assert not is_claim_safe(text), text
 
     fallback = "The citizens exchanged reports and discussed possible next steps; the conversation itself does not verify any physical claim."
     assert is_claim_safe(fallback)
