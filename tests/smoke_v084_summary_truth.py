@@ -10,7 +10,7 @@ UNSAFE = ("validated", "confirmed", "verified", "proved", "proven", "demonstrate
 
 def is_claim_safe(summary: str) -> bool:
     text = str(summary or "").lower()
-    return not any(re.search(rf"\\b{re.escape(term)}\\b", text) for term in UNSAFE)
+    return not any(re.search(rf"\b{re.escape(term)}\b", text) for term in UNSAFE)
 
 
 def main() -> None:
