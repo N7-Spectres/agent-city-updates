@@ -338,13 +338,14 @@ Return JSON only:
       "subject_type": "location, material, citizen, project, or other",
       "subject_id": "known stable id if the assertion clearly refers to one, otherwise null",
       "topic": "short factual topic key",
-      "value": "the concrete assertion actually stated in the dialogue"
+      "value": "an exact sentence or clause copied verbatim from that speaker's dialogue text"
     }
   ]
 }
 
 CLAIM EXTRACTION RULES:
 - Include only concrete factual assertions that literally appear in initiator_text or target_text.
+- The value MUST be copied verbatim from the relevant speaker's dialogue text; do not paraphrase it.
 - Do not turn questions, greetings, suggestions, guesses, or unstated implications into claims.
 - Do not invent facts merely to populate the claims array.
 - An empty claims array is valid.
