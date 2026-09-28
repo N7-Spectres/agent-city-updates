@@ -148,14 +148,14 @@ def main() -> None:
                     "subject_type": "location",
                     "subject_id": "resin_grove",
                     "topic": "plant_fiber_present",
-                    "value": "Plant Fiber is present at Resin Grove.",
+                    "value": "I saw Plant Fiber at Resin Grove during my last trip.",
                 },
                 {
                     "speaker": "target",
                     "subject_type": "claim",
                     "subject_id": None,
                     "topic": "verification_status",
-                    "value": "Aris has not personally verified Bex's Plant Fiber claim.",
+                    "value": "Thanks. I have not verified that myself.",
                 },
             ],
         )
@@ -208,7 +208,7 @@ def main() -> None:
                 "subject_type": "location",
                 "subject_id": "resin_grove",
                 "topic": "plant_fiber_present",
-                "value": "Plant Fiber is present at Resin Grove.",
+                "value": "I saw Plant Fiber at Resin Grove during my last trip.",
             }],
         )
         assert len([
