@@ -19,12 +19,11 @@ This file is the shared project task board.
 - [World & Simulation] v0.7.0 lead: equipment/structure wear, lubrication/service, battery health, repair/replacement, preventative maintenance
 - [Assets & Interface] v0.7.0: full-height Home rails, citizen search/filter, Recent Activity, lightweight avatar framework, maintenance presentation
 - [Communication & Perception] v0.7.0: autonomous talk reliability diagnostics/fixes
-- [Memory & Social] v0.7.0: bounded maintenance/repair history from validated Simulation events
 
 ### WAITING
 
 - [Assets & Interface] final maintenance/condition fields from World & Simulation for data-driven condition displays
-- [Memory & Social] stable maintenance/repair event IDs from World & Simulation if new runtime hooks are required
+- [Memory & Social] maintenance-memory policy audit complete; waiting for stable Simulation maintenance/failure event anchors before runtime ingestion
 
 ### READY
 
@@ -35,7 +34,7 @@ This file is the shared project task board.
 
 ### REVIEW
 
-_None yet for v0.7.0._
+- [Memory & Social] v0.7 maintenance-memory policy/audit ready; no runtime branch until Simulation event anchors exist
 
 ### DONE
 
