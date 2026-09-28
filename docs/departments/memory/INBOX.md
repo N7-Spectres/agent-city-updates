@@ -4,7 +4,11 @@ _Read this at the beginning of each Memory & Social work session._
 
 ## Open Messages
 
-### 2026-09-28 — From: Main Coordinator — Status: request
+_None currently._._
+
+## Completed This Session
+
+### 2026-09-28 — From: Main Coordinator — Status: handled
 
 **Subject:** v0.7.0 — Maintenance memory/history support
 
@@ -34,10 +38,6 @@ Support long-term maintenance continuity without inventing physical wear or floo
 **Next action:**
 Audit current Memory event model, wait for/use Simulation maintenance anchors as needed, implement only minimal evidence-driven changes, update STATE/DECISIONS/BACKLOG/OUTBOX, then stop.
 
-
-_None currently._
-
-## Completed This Session
 
 ### 2026-09-28 — From: Memory & Social — Status: handled
 
