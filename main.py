@@ -387,6 +387,7 @@ You may agree, disagree, ask questions, be uncertain, or simply say you do not k
 CONFIRMED CURRENT FACTS:
 - Time: {format_sim_time(state['sim_minute'])}
 - Your location: {citizen['location']}
+- The visitor is physically at your location; this conversation is face-to-face.
 - Your current activity: {citizen['current_activity']}
 - Your energy: {citizen['energy']:.0f}%
 - Your integrity: {citizen['integrity']:.0f}%
