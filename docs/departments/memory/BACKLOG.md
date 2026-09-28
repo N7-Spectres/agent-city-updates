@@ -225,25 +225,33 @@ Before v0.4 can be considered release-ready:
 - [x] define physical-truth vs citizen-knowledge boundary
 - [x] avoid speculative runtime branch before Simulation event semantics exist
 
-### Waiting on Simulation v0.7
+### Simulation v0.7 contract received
 
-Simulation branch exists but has not delivered the maintenance event schema yet.
+- [x] stable source: `maintenance_events.id`
+- [x] physical job anchor: `job_id`
+- [x] actor citizen ID
+- [x] target type + target ID
+- [x] event type semantics
+- [x] before/after values
+- [x] materials / outcome / sim minute / summary
+- [x] microscopic wear intentionally excluded from the event ledger
 
-- [ ] stable maintenance/failure event or completed-job ID
-- [ ] event kind/lifecycle semantics
-- [ ] actor/participant citizen ID
-- [ ] subject type + stable subject ID
-- [ ] location ID
-- [ ] validated outcome
-- [ ] condition before/after where naturally tracked
-- [ ] replacement/resulting equipment/component/structure ID where applicable
-- [ ] enough semantics to distinguish routine upkeep from failure/repair/replacement
+### Next Memory session
 
-### After Simulation contract arrives
-
+- [ ] create `memory/v0.7-maintenance-history` from `release-v0.6.0`
 - [ ] add idempotent maintenance-event ingestion using existing `memory_events`
 - [ ] record memories only for citizens with a valid experience/information path
 - [ ] add bounded maintenance history retrieval by citizen/subject
 - [ ] expose minimal read model for Assets Citizen/History surfaces if useful
 - [ ] add smoke tests ensuring passive wear does not flood Memory
 - [ ] preserve all v0.4-v0.6 social/knowledge/provenance regressions
+
+
+### v0.7 session close
+
+- [x] maintenance-memory architecture audit complete
+- [x] salience/noise policy locked
+- [x] Simulation stable event contract received
+- [x] Assets presentation guidance handed off
+- [x] no stale dependency remains
+- [ ] runtime ingestion/read-model implementation begins next Memory session
