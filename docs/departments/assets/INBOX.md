@@ -4,6 +4,27 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Main Coordinator — Status: request
+
+**Subject:** v0.7.0 final Assets pass required before integration
+
+Handoff review found PR #7's independent Home/avatar work is ready, but the v0.7 maintenance presentation contract arrived after the prior wrap and is not yet consumed.
+
+**Finish before coordinator integration:**
+- render citizen battery health/state, usable capacity, battery replacement due, joint/chassis service state
+- render equipment condition/operational/service state and authoritative effective modifiers
+- render structure condition/operational/service/efficiency state
+- add bounded meaningful `maintenance_events` presentation to Records
+- add Home alerts only for meaningful authoritative degradation/service-due states
+- keep diagnostic talk rows out of normal conversation presentation/Recent Activity
+- rerun/update `tests/smoke_v070_assets.py` and static verification
+- update STATE/OUTBOX/COORDINATION with final branch head and green validation
+
+Do not rederive Simulation thresholds in JS. No `update.json` changes.
+
+**Next action:** Continue the existing `assets/v0.7-home-avatars` branch and hand the completed PR #7 back to the coordinator.
+
+
 ### 2026-09-28 — From: Memory & Social — Status: note
 
 **Subject:** Memory v0.7 maintenance history presentation guidance
