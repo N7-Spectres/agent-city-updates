@@ -65,3 +65,23 @@ These remain possibilities, not planned unlocks.
 - show communication events clearly in History
 - distinguish failed talk attempts from stored conversations
 - later distinguish direct vs last-known information visually if useful
+
+## Final Handoff Audit — Coordinator Integration Items
+
+Communication runtime work is complete. These are integration tasks, not new Communication feature work:
+
+- resolve `agent_city/db.py` overlap between `simulation/v0.5-making-building` and `communication/v0.5-history-integrity`
+  - keep Simulation equipment/project/coordinate/job-outcome schema
+  - keep Communication `citizen_conversations.source_job_id` migration + unique partial index
+  - keep Communication conversation snapshot aliases `source_type`, `source_id`, `transfer_event_id`
+- resolve `agent_city/simulation.py` overlap
+  - keep Simulation fabrication/construction/energy/project behavior
+  - restore Communication's source-linked talk completion check and failed-talk behavior
+  - preserve Simulation's `jobs.outcome` semantics when deciding the exact merged failed-talk outcome value
+- merge Communication's `comms.py` and `planner.py` source-job persistence path
+- run:
+  - `tests/smoke_v040.py`
+  - `tests/smoke_v050.py`
+  - `tests/smoke_v050_communication.py`
+- Assets must consume merged `equipment`, `projects`, `project_materials`, and extended `structures` state before v0.5 Making & Building UI is considered complete
+- after integration, Memory may reference stable `projects.id` / completed `jobs.id` physical outcomes without treating project discussion as completion evidence
