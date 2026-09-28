@@ -29,6 +29,9 @@ The branch reuses `memory_events`, projects only validated personal survey disco
 - no new Memory table/schema migration
 - no `update.json` changes
 
+**Validation:**
+CI run `36419352645` passed all existing v0.4/v0.5 regression suites plus `tests/smoke_v060_memory.py`. Final branch head after removing the temporary workflow: `89c0a3e2d49c4c9236342c10559f92b93b1b7601`.
+
 **Next action:**
 Simulation should provide final v0.6 discovery/experiment source IDs and metadata. Communication should provide transferred-claim provenance. Assets can build Citizen/Location notebook UI against the safe APIs now, keeping facts partitioned by citizen.
 
