@@ -20,6 +20,31 @@ from .world import format_sim_time
 
 OLLAMA_URL = "http://127.0.0.1:11434"
 
+# Citizen-conversation summaries are social records, not physical evidence.
+# These verbs are too strong unless a separate Simulation source proves them,
+# so raw talk summaries must never upgrade claims into verification.
+UNSAFE_SUMMARY_TERMS = (
+    "validated",
+    "confirmed",
+    "verified",
+    "proved",
+    "proven",
+    "demonstrated",
+    "established",
+)
+
+
+def _summary_is_claim_safe(summary: str) -> bool:
+    lowered = f" {str(summary or '').lower()} "
+    return not any(f" {term} " in lowered for term in UNSAFE_SUMMARY_TERMS)
+
+
+def _safe_summary_fallback() -> str:
+    return (
+        "The citizens exchanged reports and discussed possible next steps; "
+        "the conversation itself does not verify any physical claim."
+    )
+
 
 def _diag(source_job_id: int, **kwargs: Any) -> None:
     """Diagnostics must never become a new reason for a valid talk to fail."""
@@ -365,7 +390,10 @@ async def _generate_raw_exchange(
                                 "content": (
                                     "Return only one valid JSON object with exactly "
                                     "initiator_text, target_text, and summary. "
-                                    "Preserve local information boundaries."
+                                    "Preserve local information boundaries. "
+                                    "The summary is a social record of what was said, not physical evidence. "
+                                    "Never upgrade reports or agreements into validated, confirmed, verified, "
+                                    "proved, demonstrated, or established physical facts."
                                 ),
                             },
                             {"role": "user", "content": prompt},
@@ -458,6 +486,21 @@ async def _generate_raw_exchange(
                 continue
 
             dialogue = _dialogue_payload(data)
+            if dialogue is not None and not _summary_is_claim_safe(dialogue["summary"]):
+                last_code = "summary_claim_upgrade"
+                last_detail = "Dialogue summary used verification language unsupported by a conversation source."
+                _diag(
+                    source_job_id,
+                    stage="dialogue_generation",
+                    outcome="degraded" if final_attempt else "retry",
+                    code=last_code,
+                    detail=last_detail,
+                )
+                if final_attempt:
+                    dialogue["summary"] = _safe_summary_fallback()
+                else:
+                    continue
+
             if dialogue is None:
                 last_code = "dialogue_schema_incomplete"
                 last_detail = "Required dialogue fields were blank or missing."
@@ -729,11 +772,18 @@ INFORMATION RULES:
 - Personality may influence preference and wording, but never creates authority, rank, command rights, or extra knowledge.
 - An invented explanation, material property, terrain detail, weather effect, economic value, tool, or capability is not allowed just because it would make the conversation more colorful.
 
+SUMMARY TRUTH RULES:
+- The summary describes communication, not physical verification.
+- Prefer verbs such as "said", "reported", "discussed", "compared", "planned", or "agreed".
+- Do not use "validated", "confirmed", "verified", "proved", "proven", "demonstrated", or "established" for a physical claim in a conversation summary.
+- An agreement to inspect, travel, recharge, build, or test remains an intention until Simulation records the physical action/outcome.
+- A citizen reporting their own inventory/status may be summarized as a report; the listener hearing it does not independently verify it.
+
 Return JSON only:
 {{
   "initiator_text": "1-2 natural sentences",
   "target_text": "1-2 natural sentences",
-  "summary": "one concise factual summary of what these two actually communicated"
+  "summary": "one concise claim-safe summary of what these two communicated"
 }}
 """.strip()
 
