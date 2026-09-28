@@ -526,3 +526,109 @@ Knowledge boundary:
 - a scan result reveals only what the actual instrument/action can measure
 
 This same hierarchy should later scale from local meter-level exploration to global planetary coordinates and, eventually, additional seeded celestial bodies.
+
+
+## v0.8 Stage 1 Seeded Spatial Truth
+
+The planet seed is persistent save state and hidden physical truth.
+
+Do not expose `meta.planet_seed` to citizens, visitors, UI, Memory, or Communication.
+
+A query result is not a discovery. Calling the hidden world function does not itself make anything known.
+
+## Determinism
+
+World generation must be deterministic from the persistent seed and physical coordinate/chunk.
+
+Do not use per-scan random rolls for terrain/geology/deposit identity.
+
+Lazy materialization is allowed only when the materialized result is a cache of deterministic truth.
+
+## Spatial Correlation
+
+Terrain/geology must vary spatially and continuously enough that nearby positions are related.
+
+Resource bodies have physical extent.
+
+Moving one meter may:
+- remain inside the same body
+- leave a body near its edge
+- enter another overlapping body
+
+It must not automatically generate a brand-new deposit merely because the coordinate changed.
+
+## Stable Deposit Identity
+
+Procedural deposit IDs derive from stable seeded source coordinates/slots.
+
+A deposit's identity is independent of who discovers it and when.
+
+Legacy named deposits retain their pre-v0.8 IDs and are spatially anchored rather than replaced.
+
+## Local / Global Coordinate Layers
+
+Stage 1 local coordinates are a tangent-plane frame:
+
+- x = east meters
+- y = north meters
+- origin = Seed Site
+
+Later global latitude/longitude may map this frame onto a spherical body without changing local history or IDs.
+
+Do not reinterpret the current local x/y values as latitude/longitude.
+
+## Hidden vs Safe Spatial State
+
+Hidden:
+- planet seed
+- generated-deposit table
+- richness
+- full hidden body geometry
+- raw hidden query results
+
+Safe after validation:
+- actor's authoritative meter position
+- known landmark meter coordinates
+- persisted validated observation
+- stable deposit ID/material only when a validated observation actually revealed contact
+
+## Observation Contract
+
+`spatial_observations.id` is the stable Stage 1 observation/event anchor.
+
+A validated observation must be tied to:
+- a real observer
+- a real coordinate
+- a physical range
+- a simulation minute
+- an optional real source job belonging to that observer
+
+Traveling citizens cannot make local stationary observations.
+
+A future scanner/survey/shared action owns its own legality, duration, energy/tool requirements and calls the observation primitive only after those physical rules are satisfied.
+
+## Coordinate Precision
+
+Floating-point coordinate storage is computational precision, not epistemic/sensor precision.
+
+Use `radius_m` and source action/tool semantics to describe what was actually observed.
+
+## Route Compatibility
+
+Named route travel remains the authoritative movement system in Stage 1.
+
+Meter positions snap to validated route destinations on completion.
+
+Do not present the Stage 1 position field as continuous travel interpolation until Simulation implements a real continuous movement/path contract.
+
+## No Technology by Substrate
+
+Adding deterministic hidden geology does not grant citizens:
+- scanners
+- drills
+- navigation electronics
+- satellite maps
+- prospecting sensors
+- generated-deposit extraction capability
+
+Physical technology still requires real learned processes/equipment/capability.
