@@ -140,3 +140,49 @@ Long-distance communication must be invented by the civilization if research, ma
 The v0.5 conversation-history integrity slice is ready for coordinator integration/review.
 
 The next deeper Communication work is claim-level provenance / last-known propagation, which is intentionally outside this v0.5 integrity slice unless the coordinator reactivates it.
+
+## Final Cross-Department Handoff Audit — 2026-09-28
+
+All department branches were inspected after their work sessions ended.
+
+### Communication branch
+- `communication/v0.5-history-integrity`
+- head: `672f221c0a2e796ba30d685d2cad68a5552c8333`
+- status: implementation complete and tested
+
+### Simulation branch
+- `simulation/v0.5-making-building`
+- head: `eadea56841469a29e8078f5eca23247b13317251`
+- Simulation's own CI run `36372834945` is green.
+- The branch exposes real v0.5 physical state through `equipment`, `projects`, `project_materials`, extended `structures`, and completed `jobs` with stable IDs/outcomes.
+- **Integration conflict found:** this branch was developed independently from the v0.4.1 base and does not contain Communication's `citizen_conversations.source_job_id` migration or talk-completion integrity logic. Its talk completion still marks a physical talk as successfully finished without checking for a stored exchange.
+
+Therefore the Simulation branch is individually complete but cannot replace/overwrite Communication's `db.py` / `simulation.py` changes during integration.
+
+### Assets branch
+- `assets/v0.5-making-ui`
+- head: `da3b579bb42fb86a171470dd93946c01a80b0fc1`
+- The branch contains the independent compact chat/layout/History improvements.
+- Its conversation History renderer is compatible with real stored `citizen_conversations`.
+- **Remaining integration gap:** it does not yet render Simulation's new `projects`, `equipment`, or `project_materials` state, so the Making & Building visual layer is not complete.
+
+### Memory
+Memory's v0.5 audit requires no new schema for conversation continuity. Communication preserved canonical `citizen_conversations.id`. Simulation's finished branch now demonstrates stable physical references:
+- `projects.id`
+- completed `jobs.id`
+- `jobs.outcome`
+- `jobs.project_id`
+- project lifecycle timestamps/status
+- resulting structure/equipment source IDs
+
+These are suitable physical anchors after coordinator integration, but claim-level Communication provenance remains future depth.
+
+### Overall integration status
+
+Communication department work is finished.
+
+The v0.5 milestone packet still requires coordinator-level integration work:
+1. merge Simulation and Communication without losing the talk-source invariant
+2. expose the merged Simulation state to Assets
+3. finish the Making & Building UI against authoritative merged state
+4. run combined smoke tests including both `smoke_v050.py` and `smoke_v050_communication.py`
