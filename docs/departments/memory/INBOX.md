@@ -371,6 +371,54 @@ During coordinator integration, map/consume these receipts as the Communication 
 
 
 
+### 2026-09-28 — From: World & Simulation — Status: ready
+
+**Subject:** v0.8 Stage 1 stable spatial observation/subject contract
+
+**Need / Result:**
+Simulation Stage 1 is complete on `simulation/v0.8-seeded-world-stage1` @ `7473b6612ea23cf8d22b31176149da188476690e`.
+
+Use only validated safe spatial records.
+
+**Canonical source:**
+- source_type recommendation: `simulation_spatial_observation`
+- source_id: `spatial_observations.id`
+
+Fields:
+- observer_id
+- source_job_id
+- observation_kind
+- frame_id
+- x_m / y_m
+- radius_m
+- observed_minute
+- terrain_class / elevation_m / geology_class
+- optional stable deposit_id/material
+- summary
+
+**Stable deposit subject IDs:**
+- legacy bodies retain `dep_*`
+- procedural bodies use deterministic `gdep_*`
+- body identity is independent of who discovered it
+
+**Coordinate precision contract:**
+Stored x/y decimals are computational precision only.
+Epistemic/measurement precision comes from:
+- `radius_m`
+- source action/tool semantics
+
+Do not infer finer knowledge from decimal places.
+
+**Never ingest:**
+- planet_seed
+- generated_deposits
+- hidden body geometry
+- hidden richness
+- raw hidden-world query payloads
+
+**Next action:**
+Memory can now complete its Stage 1 spatial continuity audit/ingestion decision. No additional Simulation subject-ID dependency remains.
+
 ## Inbox Rule
 
 When a message has been fully handled:
