@@ -339,6 +339,8 @@ Planned direction:
 - Locations should include a simple visual/scene representation of the place plus its gradually filled knowledge sheet
 - keep Making, Stores, History, and Updates as secondary/system views rather than crowding Home
 - visitor current location may be reduced to a compact map badge
+- fix occupied-citizen visit messaging: when a citizen is already in a talk job, show the actual counterpart rather than a self-reference
+- do not label every unavailable visit as "Not at the same location"; distinguish remote, traveling, busy/talking, and other physical reasons accurately
 - support meaningful alerts/requests without turning Home into an admin dashboard
 
 #### Citizen character sheets
