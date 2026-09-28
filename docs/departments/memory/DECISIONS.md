@@ -123,3 +123,14 @@ Each source must retain enough provenance to explain why the citizen remembers i
 Memory records and retrieves experience.
 
 Memory does not alter physical outcomes or declare that an event happened if Simulation did not validate it.
+
+
+## Runtime Lineage Decision
+
+The complete shipped v0.3.0 runtime is anchored at commit `40f9704b7e84e2dd6279932223105ae93d9fef49`.
+
+The default `main` branch currently contains the coordination/updater lineage and is not a safe base for runtime feature implementation because key v0.3.0 modules are absent there.
+
+Until repository lineage is reconciled, runtime department branches must start from the shipped v0.3.0 runtime commit or another explicitly verified descendant. Documentation/coordination changes may continue on `main`.
+
+Do not silently copy partial runtime files from `main` over the release lineage.
