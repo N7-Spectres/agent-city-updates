@@ -1,6 +1,6 @@
 {
-  "version": "0.5.0",
-  "notes": "Making & Building: citizens can fabricate real equipment, plan/reserve/build projects, create structures from validated materials, gain physical cargo/extraction benefits from equipment, and respect a return-energy reserve before remote work. Conversation History is source-linked and reliable, the Visit/chat UI is bounded and compact, and the Making view exposes real projects, equipment, and structures. Local site coordinates lay groundwork for later continuous geography.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/d5bb929ef8def630afcbfbc07d90a51dd6c80cc8",
+  "version": "0.6.0",
+  "notes": "Research, Discovery & Knowledge UI: hidden world properties and experiment outcomes now exist separately from what citizens actually know. Surveys and experiments create persistent discovery records; inconclusive results are retained; learned verification processes can emerge from validated discoveries. Communication now tracks provenance-backed information receipts and unverified face-to-face claims, Memory exposes bounded per-citizen/location knowledge, and the UI adds a simpler Home plus dedicated Citizens, Locations, and Records views. Unknown resources/properties stay absent until discovered. Visitor busy/talk status now identifies the real counterpart, and citizen sheets show authoritative cargo capacity, experiments, learned processes, equipment, projects, and bounded knowledge.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/6092aeafd685a3ba4cb8e9d455e586771d3f6d26",
   "sha256": ""
 }
