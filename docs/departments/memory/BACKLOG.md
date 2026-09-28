@@ -73,6 +73,12 @@ Need stable validated event references for physical social outcomes such as:
 - promise fulfillment outcomes
 - later verification/contradiction evidence
 
+## Conversation History Visibility
+
+- ensure durable citizen conversation memories remain linked to their raw conversation source
+- support History/UI access to concise conversation summaries and transcripts without promoting claims into physical truth
+- preserve enough source metadata to diagnose a chronology entry that says a conversation occurred but has no visible content card
+
 ## UI Requests for Assets
 
 Future Memory/Relationships view may need:
