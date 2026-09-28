@@ -24,6 +24,10 @@
 - citizen experience may later contribute modestly and separately from tool quality
 - carry-capacity equipment such as backpacks, cargo frames, carts, or other citizen-invented transport gear can increase how much material a citizen can physically carry
 - carrying upgrades must be real fabricated equipment with tradeoffs such as weight, energy use, speed, suitability, or wear when those systems exist
+- add a simple return-energy reserve: before starting remote work or outbound travel, citizens/simulation should preserve enough energy to reach a known charger with a modest safety margin
+- low energy away from a charger should make returning to recharge the practical priority; do not rely only on the LLM noticing a percentage
+- travel should not be able to complete normally after energy reaches zero; reserve/feasibility validation should prevent impossible trips before they start
+- future field chargers/outposts can become valid recharge destinations and change safe operating range
 - keep efficiency rules understandable; avoid turning the system into a dense engineering simulator
 
 ## v0.6.0 — Research & Discovery
