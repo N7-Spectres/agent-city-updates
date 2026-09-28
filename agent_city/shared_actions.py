@@ -386,6 +386,40 @@ def proposals_for_visit(
         return list(reversed(result))
 
 
+def shared_action_option_context(visitor: str, citizen_id: str) -> str:
+    options = simulation_shared_action_options(visitor, citizen_id)
+    if not options:
+        return (
+            "AVAILABLE SHARED PHYSICAL ACTIVITIES:\n"
+            "- none currently exposed as legal/available by Simulation"
+        )
+
+    lines = ["AVAILABLE SHARED PHYSICAL ACTIVITIES:"]
+    for option in options[:10]:
+        target_parts = []
+        if option.get("frame_id") and option.get("target_x_m") is not None and option.get("target_y_m") is not None:
+            target_parts.append(
+                f"target {option['frame_id']} ({float(option['target_x_m']):.2f}, {float(option['target_y_m']):.2f}) m"
+            )
+        if option.get("target_subject_id"):
+            target_parts.append(
+                f"subject {option.get('target_subject_type') or 'object'}:{option['target_subject_id']}"
+            )
+        if option.get("requested_tool_id"):
+            target_parts.append(f"tool/equipment #{option['requested_tool_id']}")
+
+        suffix = f" [{'; '.join(target_parts)}]" if target_parts else ""
+        lines.append(
+            f"- option_key={option['option_key']}: {option['label']}{suffix}"
+        )
+    lines.extend([
+        "- You may conversationally propose one of these activities.",
+        "- A proposal is still not physically started until the visitor accepts it and Simulation returns a real active action ID.",
+        "- Do not propose a shared physical action that is absent from this list.",
+    ])
+    return "\n".join(lines)
+
+
 def shared_action_context(visitor: str, citizen_id: str, *, visit_id: int | None = None) -> str:
     proposals = proposals_for_visit(visitor, citizen_id, visit_id=visit_id, limit=4)
     if not proposals:
