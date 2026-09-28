@@ -16,6 +16,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from agent_city.db import connect, get_meta, init_db, set_meta, snapshot
+from agent_city.comms import known_deposits_for, recent_dialogues_for, visible_citizens
 from agent_city.planner import planning_loop
 from agent_city.world import WorldClock, format_sim_time
 from agent_city.visits import (
@@ -281,12 +282,20 @@ async def talk(req: TalkRequest):
 
     resource_summary = ", ".join(f"{r['name']}: {r['amount']:g}" for r in state["resources"])
 
-    known_deposits = []
-    for dep in state["deposits"]:
-        if dep["discovered"]:
-            loc = next((l["name"] for l in state["locations"] if l["id"] == dep["location_id"]), dep["location_id"])
-            known_deposits.append(f"{dep['material']} at {loc}")
-    deposit_summary = ", ".join(known_deposits) or "none confirmed"
+    personal_deposits = known_deposits_for(citizen["id"])
+    deposit_summary = ", ".join(
+        f"{d['material']} at {d['location_name']}" for d in personal_deposits
+    ) or "none personally confirmed"
+
+    visible_others = visible_citizens(citizen["id"])
+    visible_summary = "; ".join(
+        f"{c['name']} — {c['current_activity']}" for c in visible_others
+    ) or "none"
+
+    citizen_dialogues = recent_dialogues_for(citizen["id"], limit=6)
+    citizen_dialogue_summary = "\n".join(
+        f"- {d['summary']}" for d in citizen_dialogues
+    ) or "- none"
 
     inventory = [r for r in state["inventory"] if r["citizen_id"] == citizen["id"] and r["amount"] > 0]
     inventory_summary = ", ".join(f"{r['amount']:g} {r['material']}" for r in inventory) or "nothing"
@@ -343,7 +352,11 @@ CONFIRMED CURRENT FACTS:
 - The six citizens are Aris, Bex, Cato, Iri, Noma, and Vale.
 - No leader has been appointed.
 - No long-term objective has been assigned.
-- Confirmed material deposits known to the settlement: {deposit_summary}
+- Material deposits you personally confirmed: {deposit_summary}
+- Citizens physically present at your current location and directly observable: {visible_summary}
+
+RECENT FACE-TO-FACE CITIZEN CONVERSATIONS YOU ACTUALLY PARTICIPATED IN:
+{citizen_dialogue_summary}
 
 YOUR CONFIRMED PERSONAL ACTIVITY HISTORY:
 {confirmed_history_text}
@@ -387,6 +400,9 @@ STRICT REALITY RULES:
 6. If no intent reason was recorded, say so instead of inventing one.
 7. You may discuss future ideas as intentions, possibilities, or plans.
 8. The simulation determines physical outcomes.
+9. You know the other five citizens exist, but you do NOT know a remote citizen's current location, activity, discoveries, or condition unless that information reached you through an actual face-to-face citizen conversation recorded above.
+10. There is currently no radio, network, telepathy, shared live status channel, or other long-distance communication system.
+11. If asked about a remote citizen and you lack recent communicated information, say you do not know their current status. You may state the last thing they actually told you, clearly as last-known information.
 
 Keep conversation natural and fairly concise. Do not speak like an AI assistant or narrator.
 """.strip()
