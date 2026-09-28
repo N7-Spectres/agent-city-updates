@@ -139,6 +139,21 @@ def structure_at(conn, name: str, location_id: str | None = None):
     ).fetchone()
 
 
+def charging_structure_at(conn, location_id: str):
+    return conn.execute(
+        """
+        SELECT *
+        FROM structures
+        WHERE location_id = ?
+          AND provides_charging = 1
+          AND condition > ?
+        ORDER BY condition DESC, id
+        LIMIT 1
+        """,
+        (location_id, MIN_OPERATIONAL_CONDITION),
+    ).fetchone()
+
+
 def structure_operational(conn, name: str, location_id: str | None = None) -> bool:
     row = structure_at(conn, name, location_id)
     return bool(row and float(row["condition"]) > MIN_OPERATIONAL_CONDITION)
@@ -385,7 +400,15 @@ def _apply_post_job_asset_wear(conn, citizen: Any, job: Any, now: int) -> None:
     elif action == "experiment":
         _wear_structure(conn, "Basic Workbench", str(citizen["location_id"]), 0.25, now)
     elif action == "charge":
-        _wear_structure(conn, "Charging Station", str(citizen["location_id"]), 0.15, now)
+        charger = charging_structure_at(conn, str(citizen["location_id"]))
+        if charger:
+            before = float(charger["condition"])
+            after = max(0.0, before - 0.15)
+            conn.execute(
+                "UPDATE structures SET condition = ?, use_count = use_count + 1 WHERE id = ?",
+                (after, charger["id"]),
+            )
+            _note_condition_transition(conn, now, str(charger["name"]), before, after)
     elif action == "deposit_cargo":
         _wear_structure(conn, "Storage Unit", str(citizen["location_id"]), 0.05, now)
 
@@ -694,11 +717,14 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
                 """
                 SELECT *
                 FROM equipment
-                WHERE owner_citizen_id = ? AND condition < ?
+                WHERE condition < ?
+                  AND (
+                      owner_citizen_id = ?
+                      OR (owner_citizen_id IS NULL AND location_id = ?)
+                  )
                 ORDER BY condition, id
-                LIMIT 3
                 """,
-                (citizen_id, SERVICE_DUE_CONDITION),
+                (SERVICE_DUE_CONDITION, citizen_id, location_id),
             ).fetchall()
             for item in equipment_rows:
                 target_id = str(item["id"])
@@ -716,17 +742,16 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
                         ),
                     })
 
-            structure = conn.execute(
+            structures_due = conn.execute(
                 """
                 SELECT *
                 FROM structures
                 WHERE location_id = ? AND condition < ?
                 ORDER BY condition, id
-                LIMIT 1
                 """,
                 (location_id, SERVICE_DUE_CONDITION),
-            ).fetchone()
-            if structure:
+            ).fetchall()
+            for structure in structures_due:
                 target_id = str(structure["id"])
                 requirements = structure_service_requirements(structure)
                 if (
@@ -741,6 +766,7 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
                             f"(condition {float(structure['condition']):.0f}%)."
                         ),
                     })
+                    break
 
             workbench_ok = structure_operational(conn, "Basic Workbench", location_id)
             if workbench_ok:
@@ -1019,8 +1045,15 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             if c["location_id"] != "seed_site":
                 return False, "Equipment service currently requires the Seed Site workshop."
             item = conn.execute(
-                "SELECT * FROM equipment WHERE id = ? AND owner_citizen_id = ?",
-                (int(target), citizen_id),
+                """
+                SELECT * FROM equipment
+                WHERE id = ?
+                  AND (
+                      owner_citizen_id = ?
+                      OR (owner_citizen_id IS NULL AND location_id = ?)
+                  )
+                """,
+                (int(target), citizen_id, c["location_id"]),
             ).fetchone()
             if not item or float(item["condition"]) >= SERVICE_DUE_CONDITION:
                 return False, "That equipment does not currently require service."
@@ -1181,14 +1214,16 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             activity = "Unloading material into Seed Site storage"
 
         elif action == "charge":
-            if c["location_id"] not in charging_locations(conn):
+            charger = charging_structure_at(conn, c["location_id"])
+            if not charger:
                 return False, "No operational charging structure is available here."
-            charger_efficiency = structure_efficiency(conn, "Charging Station", c["location_id"])
-            if charger_efficiency <= 0:
-                return False, "No operational charging structure is available here."
+            charger_efficiency = condition_factor(float(charger["condition"]))
             duration = max(60, int(round(60 / charger_efficiency)))
-            detail = f"charge:{c['location_id']}"
-            activity = f"Charging at {location_name(conn, c['location_id'])}"
+            detail = json.dumps(
+                {"charge_location": c["location_id"], "structure_id": int(charger["id"])},
+                separators=(",", ":"),
+            )
+            activity = f"Charging at {charger['name']}"
 
         else:
             duration = 45
