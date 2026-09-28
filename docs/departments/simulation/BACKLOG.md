@@ -18,6 +18,11 @@
 - multi-step projects
 - physical structure placement
 - settlement growth
+- lay enough coordinate/location groundwork that future structures can exist at real sites rather than only as settlement-wide counters
+- allow tools to improve work through physical capability rather than abstract level bonuses
+- extraction tools may affect speed, usable yield, energy cost, or material suitability
+- citizen experience may later contribute modestly and separately from tool quality
+- keep efficiency rules understandable; avoid turning the system into a dense engineering simulator
 
 ## v0.6.0 — Research & Discovery
 
@@ -50,6 +55,13 @@
 - native vegetation behavior
 - distant work sites
 - possible cultivation if citizens discover a reason
+- global spherical coordinates (latitude/longitude) for persistent geography
+- local (x, y) working frames around settlements/regions
+- continuous citizen positions between named landmarks
+- exploration intents that Simulation converts into validated reachable positions
+- terrain-aware movement without overcomplicated physics
+- citizen-created places and buildings between original landmarks
+- routes/roads that can emerge from repeated use or construction
 
 ## v0.9.0 — Continuity
 
