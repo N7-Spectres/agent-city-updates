@@ -131,6 +131,7 @@ def _candidate_body(seed: str, chunk_x: int, chunk_y: int, slot: int) -> dict[st
 
     return {
         "id": _stable_id(seed, "deposit", chunk_x, chunk_y, slot, prefix="gdep"),
+        "source_kind": "procedural",
         "material": material,
         "source_chunk_x": chunk_x,
         "source_chunk_y": chunk_y,
@@ -140,6 +141,37 @@ def _candidate_body(seed: str, chunk_x: int, chunk_y: int, slot: int) -> dict[st
         "short_axis_m": round(short_axis_m, 4),
         "angle_rad": round(angle_rad, 7),
         "richness": round(richness, 6),
+    }
+
+
+def legacy_body_geometry(
+    seed: str,
+    deposit_id: str,
+    material: str,
+    anchor_x_m: float,
+    anchor_y_m: float,
+) -> dict[str, Any]:
+    """
+    Give a pre-v0.8 named deposit deterministic local geometry around its legacy
+    landmark without changing its existing stable deposit ID.
+    """
+    offset_radius = 22.0 + 42.0 * _u01(seed, "legacy_offset_radius", deposit_id)
+    offset_angle = math.tau * _u01(seed, "legacy_offset_angle", deposit_id)
+    center_x = float(anchor_x_m) + math.cos(offset_angle) * offset_radius
+    center_y = float(anchor_y_m) + math.sin(offset_angle) * offset_radius
+    base = 32.0 + 38.0 * _u01(seed, "legacy_radius", deposit_id)
+    return {
+        "id": str(deposit_id),
+        "source_kind": "legacy",
+        "material": str(material),
+        "source_chunk_x": chunk_for_coordinate(center_x, center_y)[0],
+        "source_chunk_y": chunk_for_coordinate(center_x, center_y)[1],
+        "center_x_m": round(center_x, 4),
+        "center_y_m": round(center_y, 4),
+        "long_axis_m": round(base * (1.20 + 0.45 * _u01(seed, "legacy_long", deposit_id)), 4),
+        "short_axis_m": round(base * (0.62 + 0.25 * _u01(seed, "legacy_short", deposit_id)), 4),
+        "angle_rad": round(math.tau * _u01(seed, "legacy_angle", deposit_id), 7),
+        "richness": round(0.45 + 0.45 * _u01(seed, "legacy_richness", deposit_id), 6),
     }
 
 
@@ -160,12 +192,13 @@ def _materialize_body(conn, body: dict[str, Any]) -> None:
     conn.execute(
         """
         INSERT OR IGNORE INTO generated_deposits
-        (id, material, source_chunk_x, source_chunk_y, center_x_m, center_y_m,
+        (id, source_kind, material, source_chunk_x, source_chunk_y, center_x_m, center_y_m,
          long_axis_m, short_axis_m, angle_rad, richness)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             body["id"],
+            body.get("source_kind", "procedural"),
             body["material"],
             body["source_chunk_x"],
             body["source_chunk_y"],
@@ -192,20 +225,33 @@ def query_hidden_world(conn, x_m: float, y_m: float) -> dict[str, Any]:
     y_m = float(y_m)
     chunk_x, chunk_y = chunk_for_coordinate(x_m, y_m)
 
-    bodies: list[dict[str, Any]] = []
-    # Search neighboring source chunks so an ellipse crossing a chunk edge keeps
-    # the same identity when queried from either side.
+    # Materialize procedural candidates in neighboring source chunks so an
+    # ellipse crossing a chunk edge keeps one identity from either side.
     for source_x in range(chunk_x - 1, chunk_x + 2):
         for source_y in range(chunk_y - 1, chunk_y + 2):
             for slot in (0, 1):
                 body = _candidate_body(seed, source_x, source_y, slot)
-                if not body:
-                    continue
-                _materialize_body(conn, body)
-                if _inside_body(body, x_m, y_m):
-                    bodies.append(body)
+                if body:
+                    _materialize_body(conn, body)
 
-    bodies.sort(key=lambda body: body["id"])
+    # Read all persisted bodies that could plausibly cover this point. This
+    # includes deterministic legacy bodies anchored around pre-v0.8 landmarks.
+    rows = conn.execute(
+        """
+        SELECT *
+        FROM generated_deposits
+        WHERE center_x_m BETWEEN ? AND ?
+          AND center_y_m BETWEEN ? AND ?
+        ORDER BY id
+        """,
+        (
+            x_m - CHUNK_SIZE_M,
+            x_m + CHUNK_SIZE_M,
+            y_m - CHUNK_SIZE_M,
+            y_m + CHUNK_SIZE_M,
+        ),
+    ).fetchall()
+    bodies = [dict(row) for row in rows if _inside_body(dict(row), x_m, y_m)]
     terrain = _terrain_at(seed, x_m, y_m)
     return {
         "frame_id": SPATIAL_FRAME_ID,
