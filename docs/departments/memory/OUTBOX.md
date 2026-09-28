@@ -6,6 +6,39 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Memory & Social — Status: ready
 
+**Subject:** v0.8 Stage 1 spatial-memory runtime foundation ready
+
+**Need / Result:**
+Completed Memory's Stage 1 spatial continuity foundation on `memory/v0.8-spatial-knowledge-stage1`.
+
+**Branch / validation:**
+- final head `086e4c2e192b7a22a36d26be8288e01abfd1d197`
+- CI `36450511959` green across the full shipped v0.4-v0.7 matrix + v0.8 Memory smoke
+
+**Simulation contract consumed:**
+- safe evidence: `spatial_observations.id`
+- stable physical subject: `spatial_observations.deposit_id`
+- coordinate/frame/precision: `x_m`, `y_m`, `frame_id`, `radius_m`
+
+**Delivered:**
+- `agent_city/spatial_memory.py`
+- safe no-op before spatial schema merge
+- per-citizen idempotent observation projection
+- stable same-body continuity
+- salience suppression for routine movement/scans
+- precision-bounded coordinates
+- bounded subject / nearby retrieval
+- `tests/smoke_v080_memory.py`
+
+**Hard boundary:**
+Memory never queries `planet_seed`, hidden generated-deposit geometry, richness, or unexplored chunks.
+
+**Next action:**
+Coordinator can review Memory together with Simulation Stage 1. Stage 2 can wire these retrieval primitives into navigation/exploration context once real exploration actions emit observations.
+
+
+### 2026-09-28 — From: Memory & Social — Status: ready
+
 **Subject:** v0.8 Stage 1 spatial-memory audit complete — source contract requested
 
 **Need / Result:**
