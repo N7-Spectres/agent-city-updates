@@ -98,3 +98,20 @@ Until that gate is complete, the v0.7 Simulation core is feature-complete and ha
 - successful validated development may create a persistent citizen-created process or blueprint
 - an existing structure such as the Crude Smelter cannot be assumed to support a new material/process until that capability has been validated
 - preserve proposal/hypothesis history even when a proposed process does not work
+
+
+## v0.8 Visitor-linked shared physical actions
+
+Consider a minimal validated mechanism for visitor + citizen shared activities when physically co-located.
+
+Examples:
+- walk or survey a nearby perimeter together
+- accompany a citizen to an adjacent site
+- observe a local inspection together
+
+Constraints:
+- chat agreement alone must not create motion or discovery
+- Simulation owns start, participants, location/path, duration, energy cost, and outcome
+- visitor and citizen must satisfy physical co-location / travel requirements
+- any discovery/observation produced by the activity follows normal knowledge/provenance rules
+- keep scope narrow; do not turn visitor chat into hidden admin control
