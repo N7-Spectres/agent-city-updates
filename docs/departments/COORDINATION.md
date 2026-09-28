@@ -20,25 +20,21 @@ _None._
 
 ### WAITING
 
-- [Coordinator / v0.8.1 Release] Assets hotfix is ready; review/merge PR #19, bump VERSION, run the one definitive full release smoke, then publish if green
+_None._
 
 ### READY
 
-- [Assets & Interface] v0.8.1 hotfix ready on `assets/v0.8.1-citizen-visuals-map` @ `588dd08558a3b9aaed4a0ab8fe1d6e45a7838337`; PR #19 ready; full regression `36467360376` passed
+_None._
 
 ### REVIEW
 
-- [Assets & Interface] v0.8.1 complete: six citizen full/token assets, runtime profile wiring, presentation-only map zoom/focus, node rectangle removal, accessibility/reduced-motion preservation, and hotfix smoke
+_None._
 
 ### DONE
 
-- [Coordinator] v0.8.0 Living World assembled, versioned, regression-tested, and published from `a870982ba947fcc5af08ca190de396ae4308b645`; final CI `36462126434` passed the complete v0.4-v0.8 matrix
-- [World & Simulation] v0.8 Stage 2 local exploration/shared physical activity integrated
-- [Communication & Perception] v0.8 Stage 2 grounded shared-action bridge integrated
-- [Memory & Social] v0.8 Stage 2 spatial/shared-exploration continuity integrated
-- [Assets & Interface] v0.8 Stage 2 continuous map/shared-action UI/AssetQueue scaffold integrated
-- [Coordinator] v0.8 Stage 1 assembled and regression-tested
-- [Coordinator] v0.7.0 published from `d81a85bf03b69b969532016f59bbbed2233949ee`
+- [Coordinator] v0.8.1 Citizen Visual Assets + Map Readability published from `fa27c942d08a9a97a2dbca5e86ab77dc7b9b7cc0`; final CI `36468997929` passed the complete release matrix including `tests/smoke_v081_assets.py`
+- [Assets & Interface] v0.8.1 approved citizen runtime art + map zoom/readability hotfix integrated
+- [Coordinator] v0.8.0 Living World published from `a870982ba947fcc5af08ca190de396ae4308b645`
 
 ## v0.8 Stage 1 Coordination Goal
 
@@ -404,3 +400,25 @@ Coordinator release must preserve:
 11. Preserve `tests/smoke_v081_assets.py`.
 12. Assets branch full regression `36467360376` is green; coordinator still performs the definitive full release run at VERSION bump.
 13. No department updates `update.json` before the final release run succeeds.
+
+
+## v0.8.1 Release Result
+
+Published runtime:
+- branch: `release-v0.8.1`
+- immutable commit: `fa27c942d08a9a97a2dbca5e86ab77dc7b9b7cc0`
+- final GitHub Actions run: `36468997929`
+- result: **PASS**
+
+The updater now targets this immutable commit.
+
+Shipped:
+- 12 runtime WebPs across six citizens
+- full/bust/token profile wiring
+- equipment layers left non-authoritative
+- map zoom out / in / Region reset
+- location click presentation focus
+- transparent location hit targets with dot/label focus feedback
+- improved cluster readability at closer zoom
+
+No Simulation, Communication, or Memory semantics changed in v0.8.1.
