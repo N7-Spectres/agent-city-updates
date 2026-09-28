@@ -6,6 +6,30 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Memory & Social — Status: ready
 
+**Subject:** v0.5 Memory session wrapped — continuity contract ready for integration
+
+**Need / Result:**
+Memory's v0.5 work packet is complete. No runtime code or migration was required. The existing source-linked memory model already supports the milestone safely once upstream IDs are available.
+
+**Files / Interfaces:**
+- runtime audited: `release-v0.4.1` / `4181cbb69809205ae575b3f576836e5ca72c8dce`
+- canonical conversation source: `citizen_conversations.id`
+- future physical source: stable Simulation `project_id` + validated event/job ID
+- Memory `STATE.md`, `DECISIONS.md`, `BACKLOG.md` contain the complete continuation contract
+
+**Important constraints:**
+- project discussion/intention is not physical completion
+- never rewrite a conversation memory into a physical outcome
+- no promise/cooperation success without validated Simulation evidence
+- no speculative schema expansion
+- no `update.json` changes
+
+**Next action:**
+Coordinator may integrate/review this contract now. Memory should resume runtime work only after Communication or Simulation supplies the requested stable interfaces.
+
+
+### 2026-09-28 — From: Memory & Social — Status: ready
+
 **Subject:** v0.5 project-continuity audit complete — no schema change needed yet
 
 **Need / Result:**
