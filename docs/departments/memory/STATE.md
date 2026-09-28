@@ -1,7 +1,7 @@
 # Memory & Social — State
 
 _Last updated: 2026-09-28_
-_Current release: v0.6.0_
+_Current release: v0.7.0_
 _Current development branch: `memory/v0.7-maintenance-history`_
 
 ## Mission
@@ -579,3 +579,82 @@ Coordinator integration should preserve:
 - citizen-scoped `GET /api/memory/maintenance/{citizen_id}`
 
 No release was published and `update.json` was not changed.
+
+
+## v0.8 Stage 1 Spatial Knowledge Audit
+
+_Audited against shipped `release-v0.7.0` / `d81a85bf03b69b969532016f59bbbed2233949ee`._
+
+No Memory runtime branch has been created yet.
+
+### What already supports v0.8
+
+The existing Memory/knowledge stack already provides:
+
+- `memory_events` with source type + source ID + metadata
+- stable `discoveries.id` event anchors
+- stable `discoveries.subject_type / subject_id`
+- stable deposit IDs in the current landmark model
+- `citizen_knowledge(citizen_id, discovery_id)` for per-citizen possession
+- Communication provenance with immutable source/transfer IDs
+- bounded per-citizen retrieval
+- verified vs unverified knowledge separation
+
+This means v0.8 does **not** justify a new spatial-memory table by itself.
+
+### Current gap
+
+v0.7 discovery records are landmark-oriented:
+
+- `discoveries.location_id` identifies a named landmark
+- current deposit rows belong to a landmark
+- Memory metadata records `location_id`
+- there is no observation coordinate or observation precision in the discovery/memory contract
+- coordinate fields exist for landmark/project/structure placement, but not yet as a citizen knowledge source contract
+
+Continuous exploration therefore needs new Simulation source semantics, not a parallel Memory truth model.
+
+### Stage 1 Memory direction
+
+Once Simulation provides stable spatial observation/deposit anchors, Memory should reference them through existing `memory_events`.
+
+Expected Memory metadata for a meaningful spatial observation may include:
+
+- stable physical subject type + subject ID
+- authoritative observation/discovery event ID
+- observed coordinate
+- coordinate reference frame
+- precision / uncertainty radius or equivalent
+- observation method
+- simulation minute
+- optional landmark/place association if actually known
+- sample/scan ID when a physical sample or scan is the source
+- verification state
+
+Memory should store the coordinate **as observed**, not silently replace it with a more precise hidden Simulation coordinate.
+
+### Stable subject continuity
+
+Repeated encounters with the same generated physical deposit/body must use the same stable subject ID.
+
+A second observation of the same body may add:
+- a newer observation time
+- a different observed coordinate/edge point
+- improved precision
+- new properties/samples
+
+It must not create the fiction of a second unrelated deposit merely because the citizen encountered it from another meter-scale position.
+
+### Naming / places
+
+A future citizen-created place name should be a social/knowledge label attached to a stable physical/spatial subject or region.
+
+Naming must not replace the underlying stable subject ID.
+
+Different citizens may initially know different names for the same place until Communication transfers or reconciles them.
+
+### Branch status
+
+Do not create `memory/v0.8-spatial-knowledge-stage1` until Simulation's Stage 1 stable coordinate/deposit/observation contract lands.
+
+No release metadata or `update.json` was changed.
