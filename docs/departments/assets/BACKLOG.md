@@ -32,23 +32,28 @@
 - asynchronous fallback/provenance rules
 - v0.8 Assets Stage 1 smoke test
 
-## Waiting — Simulation Spatial Contract
+## Ready for Next Authorized Stage — Simulation Spatial Contract
 
-Assets direct request is in:
-`docs/departments/simulation/INBOX.md`
+Simulation contract is now ready on:
+`simulation/v0.8-seeded-world-stage1` @ `7473b6612ea23cf8d22b31176149da188476690e`
 
-Do not start continuous-world UI placement until Simulation hands off:
+Safe future UI inputs:
+- `state.spatial_frame`
+- location `x_m/y_m`
+- citizen `position_x_m/position_y_m`
+- structure/project `x_m/y_m`
+- visitor `x_m/y_m`
+- `state.spatial_observations[]`
+- observation `radius_m`
+- stable discovered subject/deposit identity
 
-- coordinate frame / units
-- safe citizen x/y
-- landmark anchors
-- stable generated subject IDs
-- safe observed subject coordinates
-- safe extent / uncertainty
-- discovery/observation event IDs
-- repeat-encounter identity semantics
+Stage 2 guardrails:
+- no hidden seed/generated-body access
+- no precision beyond `radius_m`
+- no continuous travel interpolation yet
+- existing route travel remains discrete until Simulation adds continuous movement
 
-This is a dependency for later continuous-world UI, not a blocker for Stage 1 review.
+Do not begin this wiring until coordinator authorizes the next stage.
 
 ## Stage 2 / Later
 
@@ -70,4 +75,4 @@ This is a dependency for later continuous-world UI, not a blocker for Stage 1 re
 
 _None for Stage 1 review._
 
-Continuous-world rendering is intentionally deferred until Simulation's spatial contract is ready.
+The spatial contract is ready, but continuous-world UI remains intentionally deferred to the next coordinator-authorized stage.
