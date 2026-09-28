@@ -15,6 +15,14 @@ from .world import format_sim_time
 OLLAMA_URL = "http://127.0.0.1:11434"
 
 
+def _diag(source_job_id: int, **kwargs: Any) -> None:
+    """Diagnostics must never become a new reason for a valid talk to fail."""
+    try:
+        record_talk_diagnostic(source_job_id, **kwargs)
+    except Exception:
+        pass
+
+
 def visible_citizens(citizen_id: str) -> list[dict[str, Any]]:
     """Citizens physically co-located with this citizen right now."""
     with connect() as conn:
@@ -362,7 +370,7 @@ async def _generate_raw_exchange(
             except httpx.HTTPStatusError as exc:
                 last_code = "ollama_http_failure"
                 last_detail = f"HTTP {exc.response.status_code}"
-                record_talk_diagnostic(
+                _diag(
                     source_job_id,
                     stage="dialogue_generation",
                     outcome="failure" if final_attempt else "retry",
@@ -375,7 +383,7 @@ async def _generate_raw_exchange(
             except httpx.RequestError as exc:
                 last_code = "ollama_network_failure"
                 last_detail = type(exc).__name__
-                record_talk_diagnostic(
+                _diag(
                     source_job_id,
                     stage="dialogue_generation",
                     outcome="failure" if final_attempt else "retry",
@@ -391,7 +399,7 @@ async def _generate_raw_exchange(
             if not raw:
                 last_code = "ollama_empty_response"
                 last_detail = "Ollama returned no dialogue content."
-                record_talk_diagnostic(
+                _diag(
                     source_job_id,
                     stage="dialogue_generation",
                     outcome="failure" if final_attempt else "retry",
@@ -406,7 +414,7 @@ async def _generate_raw_exchange(
             if data is None:
                 last_code = "dialogue_malformed_json"
                 last_detail = "Response was not a parseable JSON object."
-                record_talk_diagnostic(
+                _diag(
                     source_job_id,
                     stage="dialogue_generation",
                     outcome="failure" if final_attempt else "retry",
@@ -421,7 +429,7 @@ async def _generate_raw_exchange(
             if dialogue is None:
                 last_code = "dialogue_schema_incomplete"
                 last_detail = "Required dialogue fields were blank or missing."
-                record_talk_diagnostic(
+                _diag(
                     source_job_id,
                     stage="dialogue_generation",
                     outcome="failure" if final_attempt else "retry",
@@ -432,7 +440,7 @@ async def _generate_raw_exchange(
                     raise RuntimeError("Citizen dialogue generation returned an incomplete exchange.")
                 continue
 
-            record_talk_diagnostic(
+            _diag(
                 source_job_id,
                 stage="dialogue_generation",
                 outcome="success",
@@ -512,7 +520,7 @@ Rules:
             )
             response.raise_for_status()
     except httpx.HTTPStatusError as exc:
-        record_talk_diagnostic(
+        _diag(
             source_job_id,
             stage="claim_extraction",
             outcome="degraded",
@@ -521,7 +529,7 @@ Rules:
         )
         return
     except httpx.RequestError as exc:
-        record_talk_diagnostic(
+        _diag(
             source_job_id,
             stage="claim_extraction",
             outcome="degraded",
@@ -533,7 +541,7 @@ Rules:
     raw = str((response.json().get("message") or {}).get("content") or "").strip()
     data = _parse_json_object(raw)
     if data is None:
-        record_talk_diagnostic(
+        _diag(
             source_job_id,
             stage="claim_extraction",
             outcome="degraded",
@@ -544,7 +552,7 @@ Rules:
 
     claims = data.get("claims")
     if not isinstance(claims, list):
-        record_talk_diagnostic(
+        _diag(
             source_job_id,
             stage="claim_extraction",
             outcome="degraded",
@@ -556,7 +564,7 @@ Rules:
     try:
         receipt_ids = record_face_to_face_claims(conversation_id, claims)
     except sqlite3.DatabaseError as exc:
-        record_talk_diagnostic(
+        _diag(
             source_job_id,
             stage="claim_persistence",
             outcome="degraded",
@@ -565,7 +573,7 @@ Rules:
         )
         return
     except Exception as exc:
-        record_talk_diagnostic(
+        _diag(
             source_job_id,
             stage="claim_persistence",
             outcome="degraded",
@@ -574,7 +582,7 @@ Rules:
         )
         return
 
-    record_talk_diagnostic(
+    _diag(
         source_job_id,
         stage="claim_extraction",
         outcome="success",
@@ -597,7 +605,7 @@ async def generate_dialogue(
         job = conn.execute("SELECT * FROM jobs WHERE id = ?", (source_job_id,)).fetchone()
 
         if not initiator or not target:
-            record_talk_diagnostic(
+            _diag(
                 source_job_id,
                 stage="physical_validation",
                 outcome="failure",
@@ -611,7 +619,7 @@ async def generate_dialogue(
             or str(job["citizen_id"]) != initiator_id
             or str(job["target"]) != target_id
         ):
-            record_talk_diagnostic(
+            _diag(
                 source_job_id,
                 stage="physical_validation",
                 outcome="failure",
@@ -623,7 +631,7 @@ async def generate_dialogue(
             or int(initiator["active_job_id"] or 0) != source_job_id
             or int(target["active_job_id"] or 0) != source_job_id
         ):
-            record_talk_diagnostic(
+            _diag(
                 source_job_id,
                 stage="physical_validation",
                 outcome="failure",
@@ -635,7 +643,7 @@ async def generate_dialogue(
         location_id = str(initiator["location_id"])
         location = conn.execute("SELECT * FROM locations WHERE id = ?", (location_id,)).fetchone()
 
-    record_talk_diagnostic(
+    _diag(
         source_job_id,
         stage="physical_validation",
         outcome="success",
@@ -695,7 +703,7 @@ Return JSON only:
             claims=None,
         )
     except sqlite3.DatabaseError as exc:
-        record_talk_diagnostic(
+        _diag(
             source_job_id,
             stage="raw_persistence",
             outcome="failure",
@@ -705,7 +713,7 @@ Return JSON only:
         raise RuntimeError("Citizen dialogue could not be persisted.") from exc
 
     if conversation_id is None:
-        record_talk_diagnostic(
+        _diag(
             source_job_id,
             stage="raw_persistence",
             outcome="failure",
@@ -713,7 +721,7 @@ Return JSON only:
         )
         raise RuntimeError("Talk was invalidated before the generated exchange could be committed.")
 
-    record_talk_diagnostic(
+    _diag(
         source_job_id,
         stage="raw_persistence",
         outcome="success",
