@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-28_
 _Current release: v0.6.0_
-_Current development branch: `memory/v0.6-location-knowledge`_
+_Current development branch: `memory/v0.7-maintenance-history`_
 
 ## Mission
 
@@ -475,3 +475,81 @@ Required implementation remains:
 Do not infer maintenance from condition deltas, History strings, or dialogue.
 
 No Memory runtime branch was created in this session. No release metadata or `update.json` was changed.
+
+
+## v0.7 Maintenance History — Runtime Complete
+
+Branch: `memory/v0.7-maintenance-history`  
+Base: `release-v0.6.0` / `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`  
+Final branch head: `dda84cdf6a46fbd79e48ce9eea59adce363c5714`
+
+### Implemented
+
+- reuses existing `memory_events`; no new Memory table
+- safely no-ops before Simulation's `maintenance_events` table is merged
+- idempotently ingests explicit validated `maintenance_events`
+- canonical source: `source_type='simulation_maintenance_event'`, `source_id=maintenance_events.id`
+- actor citizen receives the event as direct personal experience
+- if a different citizen is the physical maintenance target, that serviced citizen also receives the event
+- equipment owners, bystanders, and the whole settlement are **not** auto-granted maintenance memory
+- source metadata retains:
+  - maintenance event ID
+  - physical job ID
+  - event type
+  - target type / target ID
+  - before / after physical values
+  - consumed materials
+  - outcome
+  - experience role
+- maintenance importance is bounded by event class
+- routine passive wear remains absent because Simulation does not emit maintenance-event rows for microscopic wear
+- v0.6 knowledge retrieval explicitly excludes `simulation_maintenance_event`, so service history does not pollute research/location knowledge sheets
+- planner and visitor conversation receive only a bounded selection of that citizen's own meaningful maintenance experiences
+
+### Read model
+
+`GET /api/memory/maintenance/{citizen_id}`
+
+Optional filters:
+- `target_type`
+- `target_id`
+- `limit`
+
+Returns:
+- citizen identity
+- applied filters
+- bounded `events[]`
+- compact maintenance summary
+
+This is a citizen-experience view, not a settlement-wide physical maintenance ledger. Current condition/status remains Simulation-owned.
+
+### Validation
+
+Green branch CI: `36434785293`
+
+Passed:
+- Python compile
+- JavaScript syntax
+- v0.4 regression smoke
+- all v0.5 smoke suites
+- all v0.6 Simulation / Communication / Memory / UI smoke suites
+- new `tests/smoke_v070_memory.py`
+
+The v0.7 Memory smoke verifies:
+- safe no-op before Simulation maintenance schema merge
+- passive condition change creates no durable memory
+- actor-only equipment service memory
+- actor + serviced-citizen memory for citizen-target service
+- no bystander/global propagation
+- idempotent repeated synchronization
+- target-scoped bounded retrieval
+- maintenance history stays separate from knowledge facts
+- API returns citizen-scoped history
+
+The temporary branch-only workflow was removed after the green run.
+
+### Integration note
+
+Coordinator must merge this branch with Simulation's `maintenance_events` schema from `simulation/v0.7-maintenance`. The Memory branch is intentionally compatible before and after that merge.
+
+No release metadata or `update.json` was changed.
