@@ -95,3 +95,69 @@ Requirements:
 - do not send while an IME composition event is active
 - avoid duplicate submission from keydown + form submit
 - preserve current chat validation/disabled-state behavior
+
+
+## Planned v0.8 — Citizen Visual Asset System
+
+Master design:
+`docs/departments/assets/V080_CITIZEN_VISUAL_SYSTEM.md`
+
+### Base assets
+- clean equipment-free full body for Aris / Bex / Cato / Iri / Noma / Vale
+- consistent transparent canvas / body anchors
+- bust reference
+- head token reference
+- strong accent identity
+- preserve shared cream/black/visor mechanical species language
+
+### Visor expressions
+- neutral
+- blink
+- happy `^ ^`
+- focused
+- curious / soft variant
+- randomized blink timing
+- citizen-specific expression bias
+
+### Home / map
+- replace letter circles with real head tokens
+- periodic blink
+- occasional safe idle expression
+- validated travel/talk/work/charge cues
+- keep motion compositor-friendly
+
+### Citizens page
+- full-body base asset
+- lazy-loaded selected citizen
+- validated equipment overlays
+- physical maintenance/configuration remains state-driven
+
+### Modular gear
+- define rear / body / chest-waist / held / foreground layers
+- shared canvas/anchor convention
+- future attachment points
+- do not infer attachment from concept art
+
+### Canonical silhouette notes
+- Aris: lean prospecting/extraction field identity
+- Bex: compact fabricator
+- Cato: heavy logistics/hauling chassis; do not slim
+- Iri: especially slim/elegant construction precision chassis
+- Noma: broad research/experimentation identity, not ecology-only
+- Vale: generalist/cooperation/support, not dedicated medic
+
+### Performance
+- 64–96 px Home/map tokens
+- lazy-load bust/full-body assets
+- lazy-load equipment overlays
+- prefer transform/opacity/sprite swaps
+- reduced-motion support
+- avoid expensive continuous blur/filter effects
+
+### Future dependency
+Before authoritative equipment overlays are complete, Assets may need Simulation to expose stable:
+- equipped/attached equipment IDs
+- owner/location
+- optional body attachment slot semantics
+
+Do not request or implement this dependency until v0.8 is formally activated by the coordinator.
