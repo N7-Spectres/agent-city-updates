@@ -6,6 +6,7 @@ from typing import Any
 import httpx
 
 from .db import add_history, connect, get_meta
+from .provenance import knowledge_context_for, record_face_to_face_claims
 from .memory import record_conversation_memory, social_context_for
 from .world import format_sim_time
 
@@ -85,6 +86,7 @@ def _citizen_private_context(citizen_id: str) -> str:
 
     discoveries = known_deposits_for(citizen_id)
     dialogues = recent_dialogues_for(citizen_id, limit=4)
+    provenance_knowledge = knowledge_context_for(citizen_id, limit=8)
     social_history = social_context_for(citizen_id, limit=3)
     cargo_text = ", ".join(f"{r['amount']:g} {r['material']}" for r in cargo) or "nothing"
     discovery_text = "; ".join(
@@ -103,7 +105,9 @@ Energy: {c['energy']:.0f}%
 Integrity: {c['integrity']:.0f}%
 Carrying: {cargo_text}
 Personally confirmed discoveries: {discovery_text}
-Recent things actually heard or said in face-to-face citizen conversations:
+Provenance-backed facts and claims that actually reached you:
+{provenance_knowledge}
+Recent face-to-face conversation summaries for social continuity only (not physical proof):
 {dialogue_text}
 Durable relationship history derived from actual recorded encounters:
 {social_history}
@@ -119,6 +123,7 @@ def record_dialogue(
     target_text: str,
     summary: str,
     source_job_id: int | None = None,
+    claims: list[dict[str, Any]] | None = None,
 ) -> int | None:
     """
     Persist one real face-to-face exchange.
@@ -253,6 +258,13 @@ def record_dialogue(
     except Exception:
         pass
 
+    try:
+        record_face_to_face_claims(conversation_id, claims)
+    except Exception:
+        # The durable raw exchange remains authoritative for what was said.
+        # Claim projection can be safely retried/backfilled later.
+        pass
+
     return conversation_id
 
 async def generate_dialogue(
@@ -319,8 +331,25 @@ Return JSON only:
 {
   "initiator_text": "1-2 natural sentences",
   "target_text": "1-2 natural sentences",
-  "summary": "one concise factual summary of what these two actually communicated"
+  "summary": "one concise factual summary of what these two actually communicated",
+  "claims": [
+    {
+      "speaker": "initiator or target",
+      "subject_type": "location, material, citizen, project, or other",
+      "subject_id": "known stable id if the assertion clearly refers to one, otherwise null",
+      "topic": "short factual topic key",
+      "value": "an exact sentence or clause copied verbatim from that speaker's dialogue text"
+    }
+  ]
 }
+
+CLAIM EXTRACTION RULES:
+- Include only concrete factual assertions that literally appear in initiator_text or target_text.
+- The value MUST be copied verbatim from the relevant speaker's dialogue text; do not paraphrase it.
+- Do not turn questions, greetings, suggestions, guesses, or unstated implications into claims.
+- Do not invent facts merely to populate the claims array.
+- An empty claims array is valid.
+- Claims will be stored as UNVERIFIED speaker claims until a separate physical observation or experiment verifies them.
 """.strip()
 
     try:
@@ -355,6 +384,7 @@ Return JSON only:
         "initiator_text": str(data.get("initiator_text") or "").strip(),
         "target_text": str(data.get("target_text") or "").strip(),
         "summary": str(data.get("summary") or "").strip(),
+        "claims": data.get("claims") if isinstance(data.get("claims"), list) else [],
     }
     if not result["initiator_text"] or not result["target_text"] or not result["summary"]:
         raise RuntimeError("Citizen dialogue generation returned an incomplete exchange; nothing was recorded.")
@@ -368,6 +398,7 @@ Return JSON only:
         result["target_text"],
         result["summary"],
         source_job_id=source_job_id,
+        claims=result["claims"],
     )
     if conversation_id is None:
         raise RuntimeError("Talk was invalidated before the generated exchange could be committed.")
