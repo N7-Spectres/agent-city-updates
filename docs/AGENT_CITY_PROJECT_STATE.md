@@ -4,7 +4,7 @@ _Last updated: 2026-09-28_
 
 ## Current Release
 
-**v0.5.0 — Making & Building**
+**v0.6.0 — Research, Discovery & Knowledge UI**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -20,27 +20,26 @@ Human users such as N7 are **visitors**, not gods, rulers, or omniscient operato
 
 ## Current Milestone
 
-**v0.6.0 — Research, Discovery & Knowledge UI is now the active development milestone.**
+v0.6.0 is assembled, tested, and published from immutable runtime commit `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`.
 
-v0.5.0 remains the current shipped release, assembled and published from immutable runtime commit `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`.
+Major shipped v0.6 changes:
 
-v0.6.0 is a major combined simulation + information-architecture milestone. It adds experimental research, persistent discovered knowledge, knowledge-filtered world data, a dedicated Citizens view, a dedicated Locations field-notebook view, and a simpler Home surface centered on live observation.
-
-Major shipped v0.5 changes:
-
-- real fabrication jobs that consume validated resources and create persisted equipment only on successful completion
-- real construction projects with `planned -> reserved -> underway -> complete` lifecycle
-- validated project material reservation and resulting physical structures
-- fabricated cargo equipment can raise carry capacity through persisted physical modifiers
-- fabricated extraction equipment can reduce extraction time through persisted physical modifiers
-- return-energy reserve blocks unsafe remote work/outbound travel before citizens strand themselves
-- charging structures are represented as physical recharge destinations for future expansion
-- local structure/site coordinates provide groundwork for later continuous/spherical geography without pretending free-roam already exists
-- citizen talk jobs now source-link to stored exchanges; a missing exchange causes the talk to fail instead of producing false successful chronology
-- Visit/chat is bounded and scrollable with anchored controls
-- History defaults beneath Visit and shows canonical citizen conversation records with summaries/transcripts
-- Making view exposes real projects, equipment, project materials, and structures from Simulation state
-- v0.5 release CI passed the v0.4 regression smoke, v0.5 Simulation smoke, v0.5 Communication integrity smoke, JavaScript syntax check, Python compilation, and assembled UI integration smoke
+- hidden physical world properties exist independently of citizen knowledge
+- repeated surveys can reveal deposits, confirm existing findings, reveal location properties, or produce no new finding
+- experiments consume real samples/energy/time and persist discovery, verified, or inconclusive outcomes
+- validated discoveries receive stable IDs and initially belong only to the citizen who actually learned them
+- learned verification processes can descend from real discoveries without becoming a fixed tech tree
+- ordinary UI state hides undiscovered deposits, hidden property tables, and hidden reserve quantities
+- Communication now records recipient-local provenance for validated observations/results and unverified face-to-face claims
+- claims must be grounded in the durable transcript and retelling does not verify them
+- Memory provides bounded Citizen and Location knowledge views without creating a global shared encyclopedia
+- planner and visitor dialogue receive provenance-backed knowledge without remote omniscience
+- Home is simplified around the map, citizen quick list, and visitor chat
+- dedicated Citizens character-sheet view includes physical state, authoritative cargo capacity, equipment, projects, experiments, learned processes, and bounded knowledge
+- dedicated Locations field-notebook view begins sparse and fills as real discoveries/observations accumulate
+- dedicated Records view holds Making, Stores, History, Region, and Updates away from the Home surface
+- visitor accessibility now distinguishes remote, traveling, busy, and talking states; talk counterpart resolution no longer produces self-references
+- v0.6 release CI passed all v0.4/v0.5 regressions, v0.6 Simulation, Communication, Memory, and UI integration smoke tests, Python compilation, and JavaScript syntax checks
 
 
 
