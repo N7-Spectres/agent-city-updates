@@ -317,6 +317,28 @@ The core loop should be:
 
 The save/database is the continuity of the civilization. The local language model may later be upgraded without replacing the citizens or erasing their history.
 
+## Autonomy Cutoff
+
+Agent City should eventually reach a point where the development team stops supplying civilization-specific answers and instead maintains the world in which the citizens can discover their own answers.
+
+Core rule:
+
+> **Updates add possibility, not answers.**
+
+A good update may add a missing physical domain such as atmosphere, terrain, fabrication, maintenance, chemistry, or weather.
+
+A poor update would directly unlock a named solution because the citizens currently need it.
+
+Examples:
+- add atmospheric composition and gas-processing physics, not "Atmospheric Processor unlocked"
+- add fabrication/material/tool rules, not "Backpack unlocked"
+- add terrain/path/infrastructure rules, not "Road technology unlocked"
+- add communication physics and components, not "Radio unlocked"
+
+v1.0 is the intended handoff point where the sandbox is mature enough that future development is mostly QoL, visualization, performance, bug fixes, balance/realism corrections, and broad physical-world expansion.
+
+The civilization itself should increasingly be authored by the citizens' accumulated decisions rather than by release notes.
+
 ## Development Pace Philosophy
 
 The release numbers are milestones, not gates.
