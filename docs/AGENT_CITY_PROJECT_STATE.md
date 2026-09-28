@@ -54,7 +54,7 @@ Major shipped v0.7 changes:
 - bounded Home maintenance alerts
 - final coordinator integration fixed the avatar fallback semantic-lock comment so the assembled Assets smoke matched the intended presentation-only identity rule
 
-v0.8.0 — Living World is now in **Stage 2 exploration development**. Stage 1 was assembled on `release-v0.8.0` at `017b417386f4f4e0f957dfb66285431223283739` and passed the full v0.4-v0.8 Stage 1 regression suite in Actions run `36453177128`. Stage 2 now turns the seeded spatial substrate into real local movement, validated exploration, visitor-linked shared physical activity, bounded spatial continuity, and continuous-world UI.
+v0.8.0 — Living World has completed **Stage 2 integration**. The unified runtime is `release-v0.8.0` at `022f7655e9e958e3c35866d90679166a5b1c21e6`; GitHub Actions run `36461596122` passed the complete v0.4-v0.8 Stage 2 regression matrix. Stage 2 adds real local meter-space movement, validated coordinate observations, visitor-linked shared walk/inspect activities with explicit acceptance, bounded exploration continuity, continuous-world UI, and a presentation-only local AssetQueue scaffold. v0.8.0 is not published yet; the next decision is additional v0.8 scope versus release hardening.
 
 
 The richer provenance layer for individual claims, source reliability, promises, help, and validated cooperation remains future depth. Those features must wait for explicit Communication provenance and Simulation event references rather than being inferred from ordinary conversation.
