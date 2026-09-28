@@ -6,6 +6,7 @@ from typing import Any
 
 import httpx
 
+from .comms import generate_dialogue, known_deposits_for, recent_dialogues_for, visible_citizens
 from .db import connect, get_meta, snapshot
 from .simulation import possible_actions, start_action
 from .world import format_sim_time
@@ -14,24 +15,28 @@ OLLAMA_URL = "http://127.0.0.1:11434"
 
 
 def citizen_context(citizen: dict[str, Any], state: dict[str, Any], actions: list[dict[str, Any]]) -> str:
-    other = "; ".join(
-        f"{c['name']}: {c['current_activity']} at {c['location']}"
-        for c in state["citizens"]
-        if c["id"] != citizen["id"]
-    )
-
     inventory = [
         r for r in state["inventory"] if r["citizen_id"] == citizen["id"] and r["amount"] > 0
     ]
     inv_text = ", ".join(f"{r['amount']:g} {r['material']}" for r in inventory) or "nothing"
 
-    discovered = [
-        d for d in state["deposits"] if d["discovered"]
-    ]
-    deposit_text = ", ".join(
-        f"{d['material']} at {next((l['name'] for l in state['locations'] if l['id'] == d['location_id']), d['location_id'])}"
-        for d in discovered
-    ) or "no confirmed deposits yet"
+    visible = visible_citizens(citizen["id"])
+    visible_text = "; ".join(
+        f"{c['name']} — {c['current_activity']}"
+        for c in visible
+    ) or "none"
+
+    discoveries = known_deposits_for(citizen["id"])
+    discovery_text = "; ".join(
+        f"{d['material']} at {d['location_name']}"
+        for d in discoveries
+    ) or "none personally confirmed"
+
+    dialogues = recent_dialogues_for(citizen["id"], limit=5)
+    dialogue_text = "\n".join(
+        f"- {d['summary']}"
+        for d in dialogues
+    ) or "- none"
 
     action_text = "\n".join(
         f"{i}. {a['label']} | action={a['action']} target={a.get('target')} material={a.get('material')}"
@@ -43,29 +48,42 @@ You are {citizen['name']}, one of six equal mechanical citizens at the beginning
 
 Starting aptitude: {citizen['aptitude']}. This is only an aptitude, not a permanent job.
 There is no leader and no assigned long-term objective.
-You should choose what you believe is a reasonable next action from the legal actions provided.
-You may be curious, cautious, practical, exploratory, or cooperative, but do not invent facts.
+Choose what you believe is a reasonable next action from the legal actions provided.
 
 Current time: {format_sim_time(state['sim_minute'])}
 Current location: {citizen['location']}
 Energy: {citizen['energy']:.0f}%
 Integrity: {citizen['integrity']:.0f}%
 Carrying: {inv_text}
-Confirmed deposits known to the settlement: {deposit_text}
-Other citizens: {other}
+
+DIRECTLY OBSERVABLE CITIZENS AT YOUR LOCATION:
+{visible_text}
+
+DEPOSITS YOU PERSONALLY CONFIRMED:
+{discovery_text}
+
+THINGS YOU ACTUALLY HEARD OR SAID IN RECENT FACE-TO-FACE CITIZEN CONVERSATIONS:
+{dialogue_text}
+
+INFORMATION BOUNDARY:
+- You know the other five citizens exist.
+- You can directly observe citizens at your own location.
+- You do NOT know the current location, activity, discoveries, or condition of a citizen elsewhere unless that information reached you through an actual recorded conversation.
+- A conversation memory is something somebody said, not automatic proof that their claim was physically true.
+- No radio, network, telepathy, shared status channel, or remote communication exists yet.
 
 LEGAL ACTIONS:
 {action_text}
 
-Choose exactly one legal action. Return JSON only with this shape:
+Choose exactly one legal action. Return JSON only:
 {{
   "action": "one of the legal action names",
   "target": "the exact target from that legal action",
   "material": "exact material if the action is extract, otherwise null",
-  "reason": "one concise sentence"
+  "reason": "one concise sentence explaining why you chose it"
 }}
 
-Do not create new actions. Do not claim the action has succeeded yet. The simulation will decide what actually happens.
+Do not create new actions. Do not invent remote knowledge. Do not claim the action succeeded yet; the simulation decides reality.
 """.strip()
 
 
@@ -77,7 +95,10 @@ async def choose_action(citizen: dict[str, Any], state: dict[str, Any]) -> dict[
     payload = {
         "model": state["ollama_model"],
         "messages": [
-            {"role": "system", "content": "Return only valid JSON. You choose intent; the physical simulation decides reality."},
+            {
+                "role": "system",
+                "content": "Return only valid JSON. Respect information boundaries. You choose intent; the physical simulation decides reality.",
+            },
             {"role": "user", "content": citizen_context(citizen, state, actions)},
         ],
         "stream": False,
@@ -96,7 +117,6 @@ async def choose_action(citizen: dict[str, Any], state: dict[str, Any]) -> dict[
 
 
 async def planning_loop() -> None:
-    # Stagger initial planning so six citizens do not hit the GPU at once.
     await asyncio.sleep(8)
 
     while True:
@@ -130,8 +150,14 @@ async def planning_loop() -> None:
             decision = await choose_action(citizen, state)
             if decision:
                 ok, _ = start_action(citizen["id"], decision)
-                if not ok:
-                    # Mark a short cooldown to avoid hammering the same invalid choice.
+                if ok and decision.get("action") == "talk":
+                    await generate_dialogue(
+                        citizen["id"],
+                        str(decision.get("target") or ""),
+                        str(decision.get("reason") or ""),
+                        state["ollama_model"],
+                    )
+                elif not ok:
                     with connect() as conn:
                         conn.execute(
                             "UPDATE citizens SET last_planned_minute = ? WHERE id = ?",
@@ -139,8 +165,7 @@ async def planning_loop() -> None:
                         )
                         conn.commit()
         except Exception:
-            # If Ollama is unavailable or malformed, routine simulation keeps running.
-            # The citizen simply remains idle until a future planning attempt.
+            # Ollama or a dialogue generation failure should never stop the city clock.
             with connect() as conn:
                 conn.execute(
                     "UPDATE citizens SET last_planned_minute = ? WHERE id = ?",
