@@ -1,8 +1,8 @@
 # Assets & Interface — Backlog
 
-## Review / Validation
+## Review / Validation — Next Session
 
-- runtime-test `assets-v0.4-control-room` against a running Agent City instance
+- runtime-test PR #1 / `assets-v0.4-control-room` against a running Agent City instance
 - visually inspect distance-derived map spacing with actual route distances
 - verify citizen travel, visitor travel, selection, chat persistence, pause, and updater controls
 - responsive sanity pass at desktop, tablet, and narrow widths
@@ -40,3 +40,8 @@
 - selected-citizen route highlighting
 - decision: Visit remains permanently visible above utility views
 - decision: multi-citizen locations use compact labeled token clusters
+
+
+## Current Blockers
+
+_None._ The branch is waiting on runtime review, not another department's implementation.
