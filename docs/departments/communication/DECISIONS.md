@@ -164,3 +164,71 @@ Required combined invariant:
 If no source-linked conversation exists at due time, the talk job fails and no information transfer is invented.
 
 Combined integration testing must run both Simulation's v0.5 physical smoke coverage and Communication's v0.5 conversation-integrity smoke coverage before release.
+
+## v0.6 Information Receipt Authority
+
+Communication's minimum durable provenance primitive is an **information receipt**.
+
+A receipt records that one specific citizen received one specific piece of information through one real mechanism. It does not assert that the information is globally true unless its assertion/verification fields say it came from an authoritative validated observation.
+
+This layer remains separate from:
+
+- Simulation hidden world truth
+- Memory's retention/retrieval projections
+- UI presentation
+
+## Validated Versus Claimed Knowledge
+
+Simulation-grounded observation, survey measurement, experiment result, or personal physical experience may enter Communication through `record_validated_information(...)`.
+
+Such records require an authoritative physical event reference and are stored as verified observations.
+
+Face-to-face statements are different:
+
+- they are tied to the canonical stored conversation
+- they are attributed to the actual speaker
+- they are received only by the other participant
+- they begin `unverified`
+- retelling does not verify them
+
+A later verified observation may coexist with an earlier claim. Do not erase the historical claim merely because later evidence differs.
+
+## Transcript-Grounded Claim Rule
+
+Structured claim extraction may classify or tag dialogue, but it may not invent the underlying assertion.
+
+The persisted claim `value_text` must be a verbatim sentence/clause present in the durable stored text of the attributed speaker.
+
+If the extracted value is not present in that transcript, no receipt is created.
+
+This protects the provenance ledger from a second model-generated fiction layer.
+
+## Knowledge Is Recipient-Local
+
+A validated discovery has a physical truth source, but it becomes citizen knowledge only for recipients who actually observed/received it.
+
+One citizen discovering a property does not populate all citizens' knowledge.
+
+Any later propagation requires another valid Communication mechanism.
+
+## Current Direct Observation Is Derived
+
+A citizen's present physical location may be exposed as a current direct observation without fabricating a historical receipt.
+
+Historical knowledge requires a real receipt/event source.
+
+## Consumer Read Models
+
+Communication's `GET /api/knowledge/{citizen_id}` is a low-level provenance-oriented view.
+
+For ordinary v0.6 Citizen/Location UI, prefer Memory's bounded consumer knowledge endpoints after integration. This prevents Assets from depending directly on raw provenance internals and preserves Memory ownership of bounded retention/retrieval.
+
+## Visitor Availability Privacy
+
+Visit accessibility states are structured separately from human-readable messages.
+
+When visitor and citizen are remote, the response should not reveal local busy/talk counterpart details merely to explain inaccessibility.
+
+When co-located, busy/talking/traveling states may be reported accurately.
+
+Talk counterpart identity must be resolved from both job roles, not by assuming the selected citizen is always the initiator.
