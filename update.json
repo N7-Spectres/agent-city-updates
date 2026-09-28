@@ -1,6 +1,6 @@
 {
-  "version": "0.8.0",
-  "notes": "Living World: Agent City now has a persistent hidden planet seed, deterministic meter-scale local world truth, stable spatial deposit bodies, real local exploration movement, validated coordinate observations, and explicit visitor-linked shared walk/inspect activities with proposal/accept/start/reject/complete states. Communication now grounds visitor RP and tool/capability claims against real runtime state; Memory retains bounded spatial continuity and completed shared exploration only from validated Simulation events. The UI adds continuous meter-space movement, shared-action proposal/progress controls, observation uncertainty rings, restored citizen job progress bars, Enter-to-send chat, six citizen visual profiles, and a presentation-only local AssetQueue scaffold. No Blender or 3D runtime dependency is required yet.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/a870982ba947fcc5af08ca190de396ae4308b645",
+  "version": "0.8.1",
+  "notes": "Citizen Visual Assets + Map Readability: all six founding citizens now ship with approved equipment-free full-body and token WebP art wired into the existing visual profiles. Map controls now include zoom out, zoom in, and Region reset; clicking a location centers/focuses the presentation viewport without changing Simulation coordinates. The visible rectangular location-node surface is removed while the generous click target remains, and citizen clustering scales more clearly with zoom. Simulation, Communication, and Memory behavior are unchanged.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/fa27c942d08a9a97a2dbca5e86ab77dc7b9b7cc0",
   "sha256": ""
 }
