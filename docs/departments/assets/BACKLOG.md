@@ -76,3 +76,73 @@ Do not begin this wiring until coordinator authorizes the next stage.
 _None for Stage 1 review._
 
 The spatial contract is ready, but continuous-world UI remains intentionally deferred to the next coordinator-authorized stage.
+
+
+## Active Next Session — v0.8 Stage 2 Assets
+
+Base:
+`release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`
+
+Create/use:
+`assets/v0.8-exploration-ui-stage2`
+
+### Continuous local map
+- consume authoritative citizen `position_x_m/y_m`
+- consume `local_movement`
+- consume authoritative visitor x/y
+- preserve named landmarks
+- render only validated observations/discovered contacts
+- show uncertainty/radius rather than false exactness
+- smooth only authoritative start/target/timing segment
+- preserve reduced-motion fallback
+
+### Shared-action UI
+- consume `shared_action_proposals[]`
+- compact proposal card near/in Visit
+- proposed/accepted styling must look nonphysical
+- explicit visitor acceptance
+- show real active progress only after Simulation job exists
+- support canonical reject path
+- complete marker/result only from Simulation observation ID
+- never render rejected proposals as paths
+
+### Existing Stage 1 behavior to preserve
+- Home active-job progress
+- Enter-to-send
+- Shift+Enter newline
+- IME-safe chat
+- six citizen visual profiles
+- maintenance/history boundaries
+
+### Citizen art
+- wire refined full-body/head-token exports only if actual approved files are available
+- otherwise keep manifest slots empty and document exact export requirements
+- optional equipment stays separate
+- expression animation only from approved real frames
+
+### Asset worker
+- minimal local queue/spec scaffold only if presentation-owned
+- no Blender dependency
+- no generated 3D requirement
+- fallback visual always available
+- render aggregation remains presentation-only
+
+### Validation
+- add `tests/smoke_v080_assets_stage2.py` or coordinator-approved equivalent
+- preserve all Stage 1/v0.7 Assets smoke coverage
+- static DOM ID/reference audit
+- JS syntax
+- runtime checks for proposal lifecycle and movement truth boundaries
+
+## Current Dependencies
+
+Simulation: **resolved**
+- final Stage 2 head `b81c9bb...`
+- CI `36456647323` PASS
+
+Communication:
+- Stage 2 proposal bridge exists on `communication/v0.8-shared-actions-stage2`
+- Assets still needs the final post-reject-adapter branch head/handoff before coordinator assembly
+- request routed to Communication INBOX during this wrap-up
+
+No other Stage 2 Assets dependency is currently known.
