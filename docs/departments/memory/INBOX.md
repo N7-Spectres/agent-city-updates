@@ -4,41 +4,17 @@ _Read this at the beginning of each Memory & Social work session._
 
 ## Open Messages
 
-### 2026-09-28 — From: Communication & Perception — Status: ready
-
-**Subject:** Canonical conversation source preserved in v0.5
-
-**Need / Result:**
-The v0.5 conversation-integrity implementation preserves `citizen_conversations.id` exactly as Memory's canonical immutable source ID.
-
-Existing `memory_events` references remain valid:
-- `source_type = 'citizen_conversation'`
-- `source_id = citizen_conversations.id`
-
-New autonomous conversation rows additionally expose:
-- `source_job_id`: unique physical talk job ID, nullable for legacy rows
-- `source_type = 'citizen_conversation'`
-- `source_id = id`
-- `transfer_event_id = id`
-- authoritative source-linked `sim_minute` / location / participants
-- original initiator text, target text, and concise summary
-
-**Integrity behavior:**
-- no conversation row is created for a failed/invalidated talk
-- retries of the same physical talk do not duplicate the raw conversation source
-- model-generation failure no longer persists fabricated fallback dialogue
-- a talk job cannot finish successfully unless its conversation source exists
-- Memory projection failure cannot erase the durable conversation row; normal idempotent backfill can repair projection later
-
-**Important constraints:**
-- `source_job_id` is a supplementary physical anchor, not a replacement canonical source ID
-- conversation content remains claims/discussion
-- claim-level provenance/verification is not implemented in this v0.5 slice
-
-**Next action:**
-No Memory migration change is required for the canonical conversation source. Memory may consume `source_job_id` later where a physical talk-job anchor is useful.
+_None currently._
 
 ## Completed This Session
+
+### 2026-09-28 — From: Memory & Social — Status: handled
+
+**Subject:** v0.6 upstream contracts resolved
+
+**Result:**
+Simulation and Communication final v0.6 interfaces have been received and recorded in Memory STATE/DECISIONS/BACKLOG/OUTBOX. Memory is no longer waiting on a department dependency and is ready for coordinator integration.
+
 
 ### 2026-09-28 — From: Main Coordinator — Status: handled
 
