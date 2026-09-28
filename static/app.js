@@ -1272,7 +1272,7 @@ function renderVisitConversation(data) {
   els.visitHistoryPanel.innerHTML = "";
 
   if (data.accessible === false) {
-    els.selectedLabel.textContent = "Not at the same location";
+    els.selectedLabel.textContent = data.reason || "Face-to-face visit unavailable";
     els.chatInput.disabled = true;
     els.sendButton.disabled = true;
     els.leaveVisit.hidden = true;
