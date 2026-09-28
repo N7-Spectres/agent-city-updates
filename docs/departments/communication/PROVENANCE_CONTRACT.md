@@ -45,3 +45,56 @@ Visitor prompt context follows the same rule for face-to-face claims and observa
 3. Noma tells Cato a plan while co-located. Cato knows what was said; Vale elsewhere does not. Vale learns only after a later valid transfer.
 4. A claimed location conflicts with a later direct observation. Both records survive; the current direct observation takes precedence in the planner view without erasing the earlier claim.
 5. A conversation is cancelled or invalidated by travel before completion; no transfer record is created.
+
+## v0.6 Runtime Implementation
+
+_Status: implemented on `communication/v0.6-knowledge-provenance`; pending coordinator integration._
+
+The minimum contract is implemented as Communication-owned `information_receipts` in `agent_city/knowledge.py`.
+
+### Runtime mapping
+
+Contract concepts map as follows:
+
+- recipient -> `recipient_id`
+- subject -> `subject_type` + `subject_id`
+- fact/topic/value -> `topic` + `value_text`
+- channel -> `channel`
+- source actor -> `source_actor_id`
+- authoritative physical source -> `origin_event_type` + `origin_event_id`
+- communication transfer -> `transfer_event_type` + `transfer_event_id`
+- canonical raw conversation -> `source_conversation_id`
+- original observation time -> `observed_at_sim_minute`
+- receipt time -> `received_at_sim_minute`
+- assertion semantics -> `assertion_kind`
+- verification -> `verification`
+
+Every receipt also has a unique `source_key` for idempotent projection/migration.
+
+### Validated physical ingestion
+
+Simulation may create a receipt only through the validated ingestion surface for a specific recipient:
+
+`record_validated_information(...)`
+
+Communication does not query hidden Simulation truth and distribute it itself.
+
+### Conversation claims
+
+Claims are extracted only from a valid canonical stored face-to-face exchange.
+
+The persisted `value_text` must appear verbatim in the attributed speaker's stored transcript. This is stricter than the original proposed contract and prevents model-generated claim metadata from introducing assertions that were never actually spoken.
+
+Claims reach only the other participant and begin `unverified`.
+
+### Consumer boundary
+
+`GET /api/knowledge/{citizen_id}` exposes a bounded provenance view.
+
+Memory may build higher-level bounded summaries/read models from receipts. Assets should normally consume Memory's safe consumer APIs rather than raw provenance internals.
+
+### Still future
+
+The receipt schema can represent contradiction/verification transitions, but automatic semantic reconciliation between old claims and later observations is not part of this slice.
+
+Third-party overhearing also remains deferred.
