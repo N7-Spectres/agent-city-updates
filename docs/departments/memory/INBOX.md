@@ -250,8 +250,8 @@ Your existing v0.6 Memory endpoints remain the preferred bounded consumer read m
 - later contradiction/reliability derivation should preserve historical claim + later evidence rather than rewriting history
 
 **Branch / tests:**
-- Communication head: `0cd9642c720e2950cb2a50728e19c08092408591`
-- CI: `36420188139`
+- Communication head: `0fc75220610f52f9701b19df1a22caaaa60c341a`
+- CI: `36420788364`
 
 **Next action:**
 During coordinator integration, map/consume these receipts as the Communication provenance source beneath Memory's bounded read model. Communication is no longer blocking the v0.6 Memory contract.
