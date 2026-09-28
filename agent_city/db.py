@@ -347,6 +347,7 @@ def init_db() -> None:
                 observer_id TEXT NOT NULL,
                 source_job_id INTEGER,
                 observation_kind TEXT NOT NULL,
+                detail_level TEXT NOT NULL DEFAULT 'field',
                 frame_id TEXT NOT NULL,
                 x_m REAL NOT NULL,
                 y_m REAL NOT NULL,
@@ -471,6 +472,7 @@ def init_db() -> None:
         add_column_if_missing(conn, "jobs", "terrain_multiplier REAL", "terrain_multiplier")
         add_column_if_missing(conn, "jobs", "result_observation_id INTEGER", "result_observation_id")
         add_column_if_missing(conn, "jobs", "shared_activity_id INTEGER", "shared_activity_id")
+        add_column_if_missing(conn, "spatial_observations", "detail_level TEXT NOT NULL DEFAULT 'field'", "detail_level")
         add_column_if_missing(conn, "deposits", "discoverer_id TEXT", "discoverer_id")
         add_column_if_missing(conn, "deposits", "discovered_minute INTEGER", "discovered_minute")
         add_column_if_missing(conn, "locations", "x_km REAL", "x_km")
