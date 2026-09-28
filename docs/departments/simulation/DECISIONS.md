@@ -492,3 +492,37 @@ Examples:
 Unique tools, machines, crafted equipment, and other identity-bearing objects should generally retain individual visual identity.
 
 Rendering must never alter quantity or physical truth. Asset instancing/aggregation is a presentation optimization only.
+
+
+## Seeded Spatial Truth
+
+The procedural planet should expose deterministic hidden physical truth at coordinates, not generate a fresh result every time somebody scans.
+
+Core rule:
+
+> **The seed determines what is physically there. Citizens and visitors only learn it through valid observation.**
+
+Implementation direction:
+- store one persistent planet/body seed in the save
+- use authoritative coordinates for every citizen, visitor, sample, discovery, structure, and scan
+- derive local terrain/geology/resource truth deterministically from planet seed + coordinate/chunk
+- generate lazily for performance, but never reroll an already-determined coordinate
+- the same coordinate queried later must resolve to the same hidden physical world
+- nearby coordinates should be spatially correlated rather than independent random rolls
+
+Deposits should be spatial bodies/fields, not "one random deposit per scan".
+A scan one meter away may:
+- still be inside the same vein/deposit,
+- cross into a different part of that same body,
+- reveal a separate nearby deposit,
+- or find nothing useful.
+
+When a real deposit is first encountered, give it a stable physical ID plus spatial extent/geometry sufficient to recognize later encounters with the same body.
+
+Knowledge boundary:
+- Simulation/world generation may know the hidden terrain/material/deposit truth
+- citizens and visitors do not know it until valid observation, survey, scan, experiment, or communication occurs
+- the UI must not expose raw seed/world-generator output
+- a scan result reveals only what the actual instrument/action can measure
+
+This same hierarchy should later scale from local meter-level exploration to global planetary coordinates and, eventually, additional seeded celestial bodies.
