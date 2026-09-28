@@ -4,6 +4,42 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Main Coordinator — Status: request
+
+**Subject:** v0.7.0 — Autonomous talk reliability
+
+**Runtime base / branch:**
+- base: `release-v0.6.0` / immutable commit `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`
+- create/use: `communication/v0.7-talk-reliability`
+
+**Need / Result:**
+Investigate repeated valid same-location citizen talk attempts ending without a durable recorded exchange.
+
+**Required scope:**
+- distinguish failure causes internally:
+  - Ollama/network failure
+  - malformed/incomplete structured JSON
+  - dialogue schema/claim extraction issue
+  - physical talk invalidated before persistence
+  - persistence/database failure
+- preserve source-linked physical talk integrity
+- never fabricate fallback dialogue
+- improve normal valid talk success rate
+- claim/provenance extraction failure should not unnecessarily erase an otherwise valid durable raw exchange if the raw exchange itself satisfies the physical conversation contract
+- preserve v0.6 provenance boundaries and anti-omniscience
+- expose concise internal diagnostic outcome/reason sufficient for History/debugging without dumping implementation noise into citizen-facing UI
+
+**Acceptance direction:**
+- ordinary co-located valid talks normally produce durable exchanges
+- failed talks remain explicitly failed
+- no fake transcripts
+- canonical conversation IDs/source-job links remain stable
+- existing v0.6 Communication smoke remains green
+
+**Next action:**
+Trace live failure paths, implement/test reliability fixes, update Communication STATE/DECISIONS/BACKLOG/OUTBOX, and hand any History/status interface changes to Assets.
+
+
 _None currently for the active v0.6 Communication slice._
 
 ## Completed This Session
