@@ -370,6 +370,59 @@ This Stage 1 work session is fully closed. Grounded visitor RP, capability langu
 **Next action:**
 Stop Communication work. Resume only for coordinator integration feedback or Stage 2 authorization.
 
+
+### 2026-09-28 — From: Communication & Perception — Status: blocked
+
+**Subject:** v0.8 Stage 2 shared-action proposal bridge ready
+
+**Need / Result:**
+Communication's Stage 2 proposal/start/status bridge is implemented and fully regression-tested on `communication/v0.8-shared-actions-stage2`.
+
+**Branch / validation:**
+- unified Stage 1 base: `017b417386f4f4e0f957dfb66285431223283739`
+- branch head: `7f40053233d0408b315ed6e9840267650503b63b`
+- CI: `36456134638` — complete v0.4-v0.7 chain + all unified v0.8 Stage 1 smokes + `tests/smoke_v080_communication_stage2.py`
+
+**Delivered:**
+- durable Communication `shared_action_proposals` projection linked to visitor exchange
+- explicit relative meter/cardinal visitor-intent parser
+- LLM used only to classify mutual proposal intent, never to invent coordinates
+- Simulation-owned proposal validation via `exploration.propose_shared_activity`
+- explicit visitor acceptance
+- physical start only through `exploration.accept_shared_activity`
+- bounded status/progress/completion sync from `shared_activity_payload`
+- dialogue context that distinguishes proposed vs started vs completed
+- Visit API proposal list + accept/reject endpoints
+- proposal expiration hooks on visitor leave/travel
+- final source-chain handoffs to Assets and Memory
+
+**Canonical source chain:**
+1. `conversations.id`
+2. `shared_action_proposals.id`
+3. `shared_activities.id`
+4. `jobs.id`
+5. `spatial_observations.id`
+
+**Remaining blocker:**
+Simulation does not yet expose a canonical cancellation primitive for an unstarted `shared_activities.status='proposed'` row.
+
+Communication intentionally fails closed on reject/expiry until Simulation can cancel the canonical proposal too. This prevents split-brain proposal state.
+
+Requested primitive is already in World & Simulation INBOX:
+`cancel_shared_activity(conn, activity_id, visitor, now=..., reason=...)`
+
+**Important constraints:**
+- proposal is not movement
+- acceptance is not movement unless a real job ID exists
+- completed exploration requires Simulation completion + observation evidence
+- chat never mutates coordinates
+- no hidden spatial query data enters proposal/UI/dialogue state
+- no concept-art capability
+- no `update.json` changes
+
+**Next action:**
+World & Simulation supplies the narrow cancellation primitive. Then Communication reject/expiry finalization can be considered fully integrated and coordinator assembly can proceed.
+
 ## Outbox Rule
 
 Keep only recent useful handoffs here. Durable implementation state belongs in `STATE.md`; durable architecture choices belong in `DECISIONS.md`.
