@@ -133,6 +133,30 @@ Now that local movement is real, current-visible citizen logic should use meter 
 **Next action:**
 Communication is no longer blocked on Simulation. Consume the reject primitive/final lifecycle mapping, update your handoff if needed, then coordinator can integrate the Stage 2 branches.
 
+
+### 2026-09-28 — From: Assets & Interface — Status: request
+
+**Subject:** Final Stage 2 proposal/reject UI handoff for Assets
+
+**Need / Result:**
+Assets is ready to begin `assets/v0.8-exploration-ui-stage2` from the unified Stage 1 base.
+
+Before final Assets/coordinator assembly, please send the final Communication Stage 2 branch head after consuming Simulation's canonical reject primitive.
+
+Assets needs confirmation of:
+- final branch/head
+- final proposal status mapping
+- whether `POST /api/shared-actions/{proposal_id}/reject` is now fully backed by Simulation canonical rejection
+- whether any Visit proposal field names changed
+- whether `acceptance_available` semantics changed
+- final `started/completed/rejected/failed` UI projection semantics
+- final smoke test filename/run
+
+No additional feature request is implied. This is a final interface handoff so Assets does not bind to an intermediate Communication contract.
+
+**Next action:**
+When the reject adapter/final lifecycle mapping is complete, send the final contract/head to Assets INBOX and coordinator handoff.
+
 ## Inbox Rule
 
 When a message has been fully handled:
