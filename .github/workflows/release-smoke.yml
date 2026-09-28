@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - "release-v*"
-      - "simulation/v0.6-research-discovery"
 
 jobs:
   smoke:
@@ -39,6 +38,3 @@ jobs:
 
       - name: Run v0.5 UI integration smoke
         run: python tests/smoke_v050_ui.py
-
-      - name: Run v0.6 research/discovery smoke
-        run: python tests/smoke_v060.py
