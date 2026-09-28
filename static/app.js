@@ -2,7 +2,7 @@ let state = null;
 let visitorPresence = null;
 let selectedCitizen = null;
 let focusedLocation = "seed_site";
-let openControlView = "region";
+let openControlView = "history";
 let currentVisitAccessKey = null;
 
 const LOCATION_PRESENTATION = {
@@ -54,6 +54,8 @@ const els = {
   locations: document.getElementById("locations"),
   resourceBalance: document.getElementById("resource-balance"),
   citizenCargo: document.getElementById("citizen-cargo"),
+  projects: document.getElementById("projects"),
+  equipment: document.getElementById("equipment"),
   structures: document.getElementById("structures"),
   history: document.getElementById("history"),
   citizenConversations: document.getElementById("citizen-conversations"),
@@ -554,6 +556,281 @@ function renderRegionStrip() {
   }).join("");
 }
 
+function citizenNameById(id) {
+  return state?.citizens?.find(c => String(c.id) === String(id))?.name || id || "Unassigned";
+}
+
+function locationNameById(id) {
+  return state?.locations?.find(loc => String(loc.id) === String(id))?.name || id || "Unknown location";
+}
+
+function projectMaterialsFor(projectId) {
+  return (state?.project_materials || []).filter(row => String(row.project_id) === String(projectId));
+}
+
+function statusLabel(status) {
+  const labels = {
+    planned: "Planned",
+    reserved: "Materials reserved",
+    underway: "Underway",
+    complete: "Complete",
+  };
+  return labels[status] || String(status || "Unknown");
+}
+
+function localCoordinateText(x, y) {
+  const xNum = Number(x);
+  const yNum = Number(y);
+  if (!Number.isFinite(xNum) || !Number.isFinite(yNum)) return "";
+  return `Local site ${trimNumber(xNum)} km x / ${trimNumber(yNum)} km y`;
+}
+
+function renderMakingBuilding() {
+  const projects = state?.projects || [];
+  const equipment = state?.equipment || [];
+  const structures = state?.structures || [];
+
+  els.projects.innerHTML = projects.length ? projects.map(project => {
+    const materials = projectMaterialsFor(project.id);
+    const coords = localCoordinateText(project.x_km, project.y_km);
+    const creator = citizenNameById(project.created_by);
+    const location = locationNameById(project.location_id);
+    const status = String(project.status || "unknown");
+
+    const materialMarkup = materials.length ? `
+      <div class="project-materials">
+        ${materials.map(row => `
+          <div class="project-material-row">
+            <span>${escapeHtml(row.material)}</span>
+            <strong>${trimNumber(row.reserved_amount || 0)} / ${trimNumber(row.required_amount || 0)}</strong>
+          </div>
+        `).join("")}
+      </div>
+    ` : '<div class="making-empty-note">No material requirement rows are exposed for this project.</div>';
+
+    const completion = status === "complete" && project.resulting_structure_id != null
+      ? `<span>Structure #${escapeHtml(String(project.resulting_structure_id))}</span>`
+      : "";
+
+    const activeJob = project.active_job_id != null
+      ? `<span>Active job #${escapeHtml(String(project.active_job_id))}</span>`
+      : "";
+
+    return `
+      <article class="project-card status-${escapeHtml(status)}" data-project-id="${escapeHtml(String(project.id))}">
+        <div class="making-card-head">
+          <div>
+            <strong>${escapeHtml(project.name || project.blueprint_id || "Project")}</strong>
+            <span>Project #${escapeHtml(String(project.id))}</span>
+          </div>
+          <span class="status-chip status-${escapeHtml(status)}">${escapeHtml(statusLabel(status))}</span>
+        </div>
+        <div class="making-meta">
+          <span>${escapeHtml(location)}</span>
+          <span>Created by ${escapeHtml(creator)}</span>
+          ${coords ? `<span>${escapeHtml(coords)}</span>` : ""}
+          ${activeJob}
+          ${completion}
+        </div>
+        ${materialMarkup}
+      </article>
+    `;
+  }).join("") : '<div class="muted making-empty">No construction projects exist yet.</div>';
+
+  els.equipment.innerHTML = equipment.length ? equipment.map(item => {
+    const owner = item.owner_citizen_id
+      ? citizenNameById(item.owner_citizen_id)
+      : "Settlement equipment";
+    const location = locationNameById(item.location_id);
+    const cargoBonus = Number(item.cargo_bonus || 0);
+    const extractionMultiplier = Number(item.extraction_speed_multiplier || 1);
+    const effects = [];
+    if (cargoBonus !== 0) effects.push(`Cargo capacity ${cargoBonus > 0 ? "+" : ""}${trimNumber(cargoBonus)}`);
+    if (extractionMultiplier !== 1) effects.push(`Extraction speed ${trimNumber(extractionMultiplier)}×`);
+
+    return `
+      <article class="equipment-card" data-equipment-id="${escapeHtml(String(item.id))}">
+        <div class="making-card-head">
+          <div>
+            <strong>${escapeHtml(item.name || item.template_id || "Equipment")}</strong>
+            <span>Equipment #${escapeHtml(String(item.id))} • ${escapeHtml(item.kind || "equipment")}</span>
+          </div>
+          <span class="condition-chip">${Math.round(Number(item.condition) || 0)}%</span>
+        </div>
+        <div class="making-meta">
+          <span>${escapeHtml(owner)}</span>
+          <span>${escapeHtml(location)}</span>
+          ${item.created_job_id != null ? `<span>Created by job #${escapeHtml(String(item.created_job_id))}</span>` : ""}
+        </div>
+        <div class="effect-row">
+          ${effects.length ? effects.map(effect => `<span>${escapeHtml(effect)}</span>`).join("") : '<span>No non-default modifier exposed.</span>'}
+        </div>
+      </article>
+    `;
+  }).join("") : '<div class="muted making-empty">No fabricated equipment exists yet.</div>';
+
+  els.structures.innerHTML = structures.length ? structures.map(structure => {
+    const location = locationNameById(structure.location_id);
+    const coords = localCoordinateText(structure.x_km, structure.y_km);
+    const charging = Number(structure.provides_charging || 0) === 1;
+    return `
+      <article class="structure-card" data-structure-id="${escapeHtml(String(structure.id))}">
+        <div class="making-card-head">
+          <div>
+            <strong>${escapeHtml(structure.name)}</strong>
+            <span>Structure #${escapeHtml(String(structure.id))} • ${escapeHtml(structure.kind || "structure")}</span>
+          </div>
+          <span class="condition-chip">${Math.round(Number(structure.condition) || 0)}%</span>
+        </div>
+        <div class="making-meta">
+          <span>${escapeHtml(location)}</span>
+          ${coords ? `<span>${escapeHtml(coords)}</span>` : ""}
+          ${charging ? "<span>Provides charging</span>" : ""}
+          ${structure.project_id != null ? `<span>From project #${escapeHtml(String(structure.project_id))}</span>` : ""}
+        </div>
+      </article>
+    `;
+  }).join("") : '<div class="muted making-empty">No structures are currently exposed.</div>';
+}
+
+function normalizedConversationKey(simMinute, personA, personB, locationName) {
+  const people = [String(personA || "").trim().toLowerCase(), String(personB || "").trim().toLowerCase()]
+    .filter(Boolean)
+    .sort()
+    .join("|");
+  return [
+    Number(simMinute),
+    people,
+    String(locationName || "").trim().toLowerCase(),
+  ].join("::");
+}
+
+function parseConversationHistoryMessage(message) {
+  const text = String(message || "").trim();
+  const match = text.match(/^(.+?) and (.+?) talked at (.+?)\.$/);
+  if (!match) return null;
+  return {
+    personA: match[1].trim(),
+    personB: match[2].trim(),
+    locationName: match[3].trim(),
+  };
+}
+
+function conversationIdFromChronology(message) {
+  const match = String(message || "").match(/\(conversation #(\d+)\)/i);
+  return match ? Number(match[1]) : null;
+}
+
+function renderCitizenConversationHistory() {
+  const allConversations = state.citizen_conversations || [];
+  const conversations = allConversations.slice(0, 12);
+
+  const completionHistory = new Map();
+  for (const row of state.history || []) {
+    const conversationId = conversationIdFromChronology(row.message);
+    if (conversationId != null) completionHistory.set(conversationId, row);
+  }
+
+  const snapshotKeys = new Set(allConversations.map(c =>
+    normalizedConversationKey(c.sim_minute, c.initiator_name, c.target_name, c.location_name)
+  ));
+
+  // Legacy conversation chronology can predate canonical completion IDs. Preserve
+  // those real chronology rows when their exchange is outside the current snapshot.
+  const chronologyOnly = (state.history || [])
+    .filter(h => h.category === "conversation")
+    .filter(h => {
+      const parsed = parseConversationHistoryMessage(h.message);
+      if (!parsed) return false;
+      const key = normalizedConversationKey(
+        h.sim_minute,
+        parsed.personA,
+        parsed.personB,
+        parsed.locationName
+      );
+      return !snapshotKeys.has(key);
+    })
+    .slice(0, 6);
+
+  const storedCards = conversations.map(c => {
+    const conversationId = Number(c.id ?? c.source_id);
+    const completion = Number.isFinite(conversationId) ? completionHistory.get(conversationId) : null;
+    const summary = String(c.summary || "").trim() || "No compact summary is available for this exchange.";
+    const initiatorText = String(c.initiator_text || "").trim();
+    const targetText = String(c.target_text || "").trim();
+    const hasTranscript = Boolean(initiatorText || targetText);
+    const sourceJobId = c.source_job_id != null ? String(c.source_job_id) : "";
+    const idLabel = Number.isFinite(conversationId) ? `Conversation #${conversationId}` : "Conversation record";
+
+    return `
+      <article class="conversation-card" data-conversation-id="${Number.isFinite(conversationId) ? escapeHtml(String(conversationId)) : ""}">
+        <div class="conversation-card-head">
+          <div class="conversation-people">
+            <strong>${escapeHtml(c.initiator_name)}</strong>
+            <span aria-hidden="true">↔</span>
+            <strong>${escapeHtml(c.target_name)}</strong>
+          </div>
+          <time>${formatMinute(c.sim_minute)}</time>
+        </div>
+        <div class="conversation-location">At ${escapeHtml(c.location_name)}</div>
+        <div class="conversation-record-meta">
+          <span>${escapeHtml(idLabel)}</span>
+          ${sourceJobId ? `<span>Talk job #${escapeHtml(sourceJobId)}</span>` : "<span>Legacy conversation</span>"}
+          ${completion ? `<span>Completed ${escapeHtml(formatMinute(completion.sim_minute))}</span>` : ""}
+        </div>
+        <div class="conversation-summary">
+          <span>Summary</span>
+          <p>${escapeHtml(summary)}</p>
+        </div>
+        ${hasTranscript ? `
+          <details class="conversation-transcript">
+            <summary>Read exchange</summary>
+            ${initiatorText ? `<div><strong>${escapeHtml(c.initiator_name)}</strong><span>${escapeHtml(initiatorText)}</span></div>` : ""}
+            ${targetText ? `<div><strong>${escapeHtml(c.target_name)}</strong><span>${escapeHtml(targetText)}</span></div>` : ""}
+          </details>
+        ` : '<div class="conversation-record-note">Exchange text is not available in this state snapshot.</div>'}
+      </article>
+    `;
+  });
+
+  const chronologyCards = chronologyOnly.map(h => {
+    const parsed = parseConversationHistoryMessage(h.message);
+    return `
+      <article class="conversation-card chronology-only">
+        <div class="conversation-card-head">
+          <div class="conversation-people">
+            <strong>${escapeHtml(parsed.personA)}</strong>
+            <span aria-hidden="true">↔</span>
+            <strong>${escapeHtml(parsed.personB)}</strong>
+          </div>
+          <time>${formatMinute(h.sim_minute)}</time>
+        </div>
+        <div class="conversation-location">At ${escapeHtml(parsed.locationName)}</div>
+        <div class="conversation-summary">
+          <span>Legacy chronology record</span>
+          <p>${escapeHtml(h.message)}</p>
+        </div>
+        <div class="conversation-record-note">
+          Chronology confirms this conversation, but its exchange text is outside the current state snapshot.
+        </div>
+      </article>
+    `;
+  });
+
+  const sections = [];
+  if (storedCards.length) sections.push(storedCards.join(""));
+  if (chronologyCards.length) {
+    sections.push(`
+      <div class="conversation-gap-label">Older chronology-only conversation records</div>
+      ${chronologyCards.join("")}
+    `);
+  }
+
+  els.citizenConversations.innerHTML = sections.length
+    ? sections.join("")
+    : '<div class="muted conversation-empty">No citizen-to-citizen conversations recorded yet.</div>';
+}
+
 function renderDrawerLists() {
   els.locations.innerHTML = state.locations.map(loc => {
     const known = depositsForLocation(loc.id);
@@ -613,25 +890,9 @@ function renderDrawerLists() {
     ? carriers.join("")
     : '<div class="muted cargo-empty">No materials are currently being carried in the field.</div>';
 
-  els.structures.innerHTML = state.structures.map(s => `
-    <div class="list-row"><span>${escapeHtml(s.name)}</span><strong>${Math.round(s.condition)}%</strong></div>
-  `).join("");
+  renderMakingBuilding();
 
-  const conversations = (state.citizen_conversations || []).slice(0, 10);
-  els.citizenConversations.innerHTML = conversations.length ? conversations.map(c => `
-    <div class="conversation-card">
-      <div class="conversation-card-head">
-        <strong>${escapeHtml(c.initiator_name)} ↔ ${escapeHtml(c.target_name)}</strong>
-        <span>${formatMinute(c.sim_minute)} • ${escapeHtml(c.location_name)}</span>
-      </div>
-      <p>${escapeHtml(c.summary)}</p>
-      <details class="conversation-transcript">
-        <summary>Read exchange</summary>
-        <div><strong>${escapeHtml(c.initiator_name)}</strong><span>${escapeHtml(c.initiator_text)}</span></div>
-        <div><strong>${escapeHtml(c.target_name)}</strong><span>${escapeHtml(c.target_text)}</span></div>
-      </details>
-    </div>
-  `).join("") : '<div class="muted conversation-empty">No citizen-to-citizen conversations recorded yet.</div>';
+  renderCitizenConversationHistory();
 
   els.history.innerHTML = state.history.map(h => `
     <div class="history-entry">
@@ -876,7 +1137,7 @@ els.visitorName.addEventListener("change", async () => {
 
 els.toggleRegion.addEventListener("click", () => openControlRoomView("region", "Known region", "REGION"));
 els.toggleResources.addEventListener("click", () => openControlRoomView("resources", "Seed Site stores", "STORES"));
-els.toggleStructures.addEventListener("click", () => openControlRoomView("structures", "Structures", "STRUCTURES"));
+els.toggleStructures.addEventListener("click", () => openControlRoomView("structures", "Making & building", "PHYSICAL STATE"));
 els.toggleHistory.addEventListener("click", () => openControlRoomView("history", "Settlement history", "HISTORY"));
 els.toggleUpdates.addEventListener("click", () => openControlRoomView("updates", "Admin • Updates", "ADMIN"));
 
