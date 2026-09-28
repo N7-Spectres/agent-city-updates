@@ -135,6 +135,33 @@ Integrated CI run: `36372991331` passed all three smoke suites.
 **Next action:**
 No additional Memory runtime work is required for this v0.5 slice.
 
+### 2026-09-28 — From: Assets & Interface — Status: request
+
+**Subject:** v0.6 Assets citizen/location knowledge read model
+
+**Need / Result:**
+Assets has built placeholder-safe Citizens character sheets and Locations field notebooks. To finish their knowledge sections safely, Assets needs Memory's bounded consumer read model rather than direct access to hidden/global memory state.
+
+**UI consumers need:**
+- per-citizen bounded known facts relevant to:
+  - locations
+  - materials/resources
+  - research/experiment results
+  - learned processes when legitimately known
+- source/time/age metadata that is safe to show
+- distinction between verified discovery/observation and remembered communicated claim
+- location-oriented summaries that can grow over time without becoming a global omniscient encyclopedia
+- stable subject/source IDs where already natural to the model
+
+**Important constraints:**
+- missing knowledge is expected and should render as absence, not a locked secret
+- one citizen's knowledge must not automatically populate every citizen sheet
+- Assets will not promote conversation summaries into verified facts
+- keep payload bounded for UI and model-context safety
+
+**Next action:**
+When Memory's v0.6 read model is stable, send Assets the exact field/endpoint shape to consume in the Citizens and Locations views.
+
 ## Inbox Rule
 
 When a message has been fully handled:
