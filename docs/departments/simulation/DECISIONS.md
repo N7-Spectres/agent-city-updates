@@ -780,3 +780,16 @@ Rejection:
 - records `status = rejected` and `outcome = rejected`
 
 An active or completed shared activity cannot be retroactively "rejected." Any future active cancellation must be a separate physical interruption/cancellation design.
+
+
+## Stage 2 Handoff Identity Lock
+
+During integration, keep these identities distinct:
+
+- `conversations.id` — social exchange
+- `shared_action_proposals.id` — Communication intent/projection
+- `shared_activities.id` — canonical Simulation shared activity
+- `jobs.id` — physical active movement/action
+- `spatial_observations.id` — validated physical evidence
+
+No merge should collapse these into one source type or allow an earlier social/proposal record to stand in for later physical completion.
