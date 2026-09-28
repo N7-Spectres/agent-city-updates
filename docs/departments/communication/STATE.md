@@ -450,3 +450,35 @@ The temporary branch workflow was removed after the green run.
 The autonomous talk reliability slice is implementation-complete and ready for coordinator review/integration.
 
 No v0.6 provenance or anti-omniscience rule was weakened.
+
+## v0.7 Session Close — 2026-09-28
+
+Communication v0.7 work is closed for this session.
+
+Final implementation:
+- branch: `communication/v0.7-talk-reliability`
+- head: `61eecc4c047dd3fd22b71612251769a8cb456737`
+- final green CI: `36428495003`
+
+Completed:
+- separated raw dialogue persistence from claim/provenance enrichment
+- added one bounded retry for malformed/empty/incomplete raw dialogue or transient Ollama failure
+- added tolerant JSON-object recovery without synthetic fallback dialogue
+- added `talk_diagnostics` with stage/outcome/code/detail
+- classified model/network/schema/physical/persistence/claim-enrichment failures separately
+- kept diagnostic writes non-fatal
+- fixed SQLite locking by reading completion diagnostics inside Simulation's existing transaction
+- preserved source-linked talk completion integrity
+- preserved all v0.6 provenance and anti-omniscience boundaries
+- handed History/debug semantics to Assets
+- moved Communication to REVIEW in `COORDINATION.md`
+
+No Communication-owned implementation remains for the active v0.7 slice.
+
+Resume only if:
+1. coordinator reports an integration conflict,
+2. Assets needs clarification on diagnostic History semantics,
+3. post-release diagnostics show a dominant live failure mode worth tuning, or
+4. a new milestone routes additional Communication work.
+
+Before resuming, read `COORDINATION.md`, `communication/INBOX.md`, then this file.
