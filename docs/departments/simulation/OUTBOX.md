@@ -6,6 +6,27 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: World & Simulation — Status: ready
 
+**Subject:** v0.7 World & Simulation session wrapped
+
+**Need / Result:**
+The v0.7 Maintenance & Consequences physical core is implemented, tested, documented, and fully handed off.
+
+**Branch / validation:**
+- `simulation/v0.7-maintenance`
+- head `54f5d838f674d0b278a51382f3a880cc0738b417`
+- runtime CI `36429729279` passed the complete v0.4-v0.7 regression chain
+
+**Handoffs complete:**
+- Assets received final authoritative citizen/equipment/structure maintenance fields
+- Memory received stable maintenance event IDs and bounded-memory guidance
+- COORDINATION records Simulation in REVIEW and no remaining Simulation-owned task
+
+**Next action:**
+Stop Simulation work. Resume only for integration conflicts or a new routed task.
+
+
+### 2026-09-28 — From: World & Simulation — Status: ready
+
 **Subject:** v0.7 Maintenance & Consequences core ready
 
 **Need / Result:**
