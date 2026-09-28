@@ -400,3 +400,14 @@ Need exact authoritative fields for:
 - [ ] place-name/alias social continuity when real naming records exist
 - [ ] sample-specific memory if Simulation adds physical sample identity
 - [ ] route familiarity/path-memory only from validated traveled paths, not inferred geometry
+
+
+### Stage 2 final session handoff
+
+- [x] final Simulation Stage 2 source contract confirmed
+- [x] final Communication Stage 2 source mapping confirmed
+- [x] rejected pre-start activities excluded from completed Memory
+- [x] no remaining Memory-owned Stage 2 dependency
+- [x] Memory branch and focused smoke are green
+- [ ] coordinator merges Stage 2 branches and runs assembled regression suite
+- [ ] Memory resumes only for integration regressions or a new milestone
