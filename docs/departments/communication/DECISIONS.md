@@ -147,3 +147,20 @@ Memory determines how communicated/observed information persists and how bounded
 Until replaced by a later explicit architecture decision, `PROVENANCE_CONTRACT.md` is the Communication-owned interface for deeper information provenance.
 
 Do not weaken the planner boundary to compensate for missing memory/provenance plumbing. Unknown remote state must remain unknown rather than falling back to simulation-global truth.
+
+## v0.5 Integration Gate
+
+A v0.5 integrated runtime is not acceptable if merging Simulation reintroduces the old conversation mismatch.
+
+The integrated `db.py` / `simulation.py` must preserve **both** departments' physical schema additions:
+
+- Simulation: equipment/projects/project materials/job outcomes/coordinates/structure placement
+- Communication: nullable unique `citizen_conversations.source_job_id` and talk completion validation
+
+Required combined invariant:
+
+> A `talk` job may be physically complete only when its real stored conversation exists.
+
+If no source-linked conversation exists at due time, the talk job fails and no information transfer is invented.
+
+Combined integration testing must run both Simulation's v0.5 physical smoke coverage and Communication's v0.5 conversation-integrity smoke coverage before release.
