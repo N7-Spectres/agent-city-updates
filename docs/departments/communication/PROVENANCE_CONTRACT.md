@@ -98,3 +98,24 @@ Memory may build higher-level bounded summaries/read models from receipts. Asset
 The receipt schema can represent contradiction/verification transitions, but automatic semantic reconciliation between old claims and later observations is not part of this slice.
 
 Third-party overhearing also remains deferred.
+
+## Final v0.6 Simulation Integration
+
+Simulation's v0.6 implementation has its own `agent_city/knowledge.py`, which remains authoritative for validated `discoveries` and current `citizen_knowledge`.
+
+Communication's implementation therefore lives in `agent_city/provenance.py`.
+
+The layers are intentionally distinct:
+
+- `discoveries` = validated physical discovery anchor
+- `citizen_knowledge` = current possession/access to a validated Simulation discovery
+- `information_receipts` = historical record of what reached a citizen, through what mechanism, from what source, and when
+- Memory = bounded long-term retention/retrieval projection
+
+Communication synchronizes only `citizen_knowledge.verification_state = 'verified'` into verified receipts.
+
+A `reported` Simulation knowledge row is not upgraded to verified by synchronization.
+
+`experiment_results` are also synchronized as real experience/result receipts. An inconclusive result verifies that the experiment was inconclusive; it does not imply an undiscovered hidden property.
+
+This integration preserves the central rule: hidden world truth may exist without any citizen knowing it.
