@@ -97,3 +97,12 @@ Follow-up:
 - keep the invariant: never fabricate a conversation merely to make chronology look successful
 - improve reliability so successful same-location talks normally yield a durable exchange
 - expose enough diagnostic reason internally for debugging without leaking implementation noise into citizen-facing UI
+
+
+## v0.7 Talk Reliability
+
+- investigate repeated autonomous talk attempts that end without a recorded exchange
+- separate diagnostics for model/network failure, malformed JSON, claim-structure validation failure, and post-generation physical invalidation
+- preserve source-linked talk integrity
+- never fabricate fallback dialogue
+- aim for ordinary valid same-location talks to persist successfully most of the time
