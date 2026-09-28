@@ -167,6 +167,35 @@ Keep both:
 **Next action:**
 Coordinator can integrate Simulation and Communication without a module collision. Memory/Assets should consume their already-defined bounded/safe read models.
 
+
+### 2026-09-28 — From: Communication & Perception — Status: ready
+
+**Subject:** Communication v0.6 session wrapped
+
+**Need / Result:**
+This work session is fully closed. Communication's v0.6 provenance/availability slice is implemented, tested, documented, and handed off.
+
+**Final branch:**
+- `communication/v0.6-knowledge-provenance`
+- head `6a483fcc4d143606f3e401218002e06ae43076d1`
+- final green CI `36421263078`
+
+**Downstream handoffs already present:**
+- Simulation INBOX: layered discovery/provenance integration contract
+- Memory INBOX: information receipt/source semantics
+- Assets INBOX: structured Visit availability/status contract
+- COORDINATION: Communication in REVIEW with merge locks and required test matrix
+
+**Important constraints:**
+- preserve Simulation `knowledge.py` and Communication `provenance.py`
+- preserve recipient-local knowledge boundaries
+- preserve unverified claim semantics
+- preserve face-to-face-only current communication
+- do not publish `update.json`
+
+**Next action:**
+Stop Communication work. Resume only for coordinator integration feedback or a new milestone.
+
 ## Outbox Rule
 
 Keep only recent useful handoffs here. Durable implementation state belongs in `STATE.md`; durable architecture choices belong in `DECISIONS.md`.
