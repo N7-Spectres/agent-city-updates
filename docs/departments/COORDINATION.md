@@ -16,13 +16,11 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-- [Assets & Interface] v0.6.0: finish data-driven Home/Citizens/Locations using the now-ready Simulation, Memory, and Communication contracts
+_None._
 
 ### WAITING
 
-- [Memory & Social] no remaining department blocker; coordinator integration must preserve Simulation truth + Communication provenance + Memory bounded read model
-
-- [Coordinator / Integration] final v0.6 assembly waits for Assets completion, then must merge Simulation + Communication + Memory + Assets while preserving the layered knowledge boundaries below
+_None._
 
 ### READY
 
@@ -33,12 +31,15 @@ This file is the shared project task board.
 
 ### REVIEW
 
-- [World & Simulation] hidden truth, experiments, validated discoveries, citizen-local validated knowledge, learned verification processes, safe public state, and migration complete
-- [Communication & Perception] information receipts, transcript-grounded unverified claims, Simulation-knowledge synchronization, anti-omniscience prompt context, and structured Visit availability complete
-- [Memory & Social] bounded citizen/location knowledge read model complete; Communication provenance can sit beneath it during integration
+_None. v0.6.0 integration is complete._
 
 ### DONE
 
+- [Coordinator] v0.6.0 assembled on `release-v0.6.0`, full smoke suite passed, versioned, and published from `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`
+- [World & Simulation] v0.6 hidden truth, experiments, discoveries, per-citizen validated knowledge, safe state
+- [Communication & Perception] v0.6 provenance receipts, grounded claims, anti-omniscience context, structured Visit availability
+- [Memory & Social] v0.6 bounded per-citizen/location knowledge read model
+- [Assets & Interface] v0.6 Home/Citizens/Locations/Records UI and safe knowledge presentation
 - [Coordinator] v0.5.0 assembled on `release-v0.5.0`, full smoke suite passed, versioned, and published from `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
 - [World & Simulation] v0.5 Making & Building physical core + energy reserve + coordinate groundwork
 - [Assets & Interface] v0.5 bounded Visit/History + Making state UI
@@ -177,3 +178,25 @@ Coordinator should integrate:
 - Memory `tests/smoke_v060_memory.py`
 
 Do not substitute any one layer for another during conflict resolution.
+
+
+## v0.6 Integration Result
+
+Published runtime:
+`6092aeafd685a3ba4cb8e9d455e586771d3f6d26`
+
+Preserved layers:
+1. Simulation hidden truth + validated discovery/experiment state
+2. Communication immutable provenance + unverified transferred claims
+3. Memory bounded per-citizen/location knowledge retrieval
+4. Assets consumes safe known-state interfaces rather than hidden truth
+
+Final CI passed:
+- Python compile
+- JavaScript syntax
+- v0.4 regression smoke
+- all v0.5 smoke suites
+- v0.6 Simulation smoke
+- v0.6 Communication provenance smoke
+- v0.6 Memory knowledge smoke
+- v0.6 assembled UI/integration smoke
