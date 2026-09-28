@@ -1,42 +1,42 @@
 # Communication & Perception — Backlog
 
-## Integration / Follow-Up
+## v0.6 Integration Follow-Up
 
-- investigate visitor access/status wording when a selected citizen is already occupied in a talk; current UI can show a self-referential message such as "Vale is currently speaking with Vale" instead of naming the actual counterpart
+- integrate `communication/v0.6-knowledge-provenance` with Simulation's final v0.6 discovery/experiment branch
+- ensure each Simulation discovery calls `record_validated_information(...)` only for the citizen(s) who physically learned the result
+- preserve authoritative Simulation event IDs and simulation minutes in receipts
+- integrate with Memory's v0.6 bounded knowledge read model without duplicating or globally merging citizen knowledge
+- ensure Assets consumes structured Visit `status/availability` instead of generic inaccessible-location wording
+- run combined v0.6 smoke suites after all department branches merge
+- live-test autonomous conversation claim extraction for false positives/empty claim arrays after integration
 
-- coordinator integration must preserve the v0.5 talk invariant when merging with `simulation/v0.5-making-building`:
-  - `citizen_conversations.source_job_id` remains available
-  - source-linked talk completion succeeds only when the conversation row exists
-  - missing exchange causes failed talk, not a false successful transfer
-- Assets may optionally cross-link successful talk-completion chronology to `citizen_conversations.id` / `source_id`
-- legacy conversation rows may legitimately have `source_job_id = NULL`; do not fabricate a physical source link when ambiguous
-- after integration, observe live autonomous talk for any unexpected failed attempts or model-generation reliability issues
+## Claim Reconciliation / Reliability — Future Depth
 
-## Deeper Provenance — Future Depth
+The v0.6 ledger can represent `verified`, `unverified`, and `contradicted`, but richer reconciliation is not yet implemented.
 
-- extract only specific facts actually spoken, not every fact implied by a summary
-- store explicit claim/observation provenance records from `PROVENANCE_CONTRACT.md`
-- formalize per-citizen last-known views derived from provenance records
-- track information source and age in bounded Memory retrieval
-- model claim verification/contradiction without treating retelling as verification
-- add acceptance tests for the five claim-level provenance scenarios in `PROVENANCE_CONTRACT.md`
+Future work:
 
-## Prompt / Perception Audits
+- compare later validated observations with earlier speaker claims when subject/topic semantics match safely
+- preserve both old claim and later evidence
+- derive source reliability from real verified/contradicted history only when enough evidence exists
+- avoid reputation scores that collapse nuanced history into a game stat
+- distinguish outdated-but-once-correct information from genuinely contradicted claims
 
-- continue auditing visitor conversation prompts for accidental omniscience as new v0.5 project/building context is added
-- continue auditing legal-action labels/reasons for hidden remote-state leakage
-- ensure future project/building discussion remains conversation/intent unless Simulation exposes a validated physical outcome
+## Last-Known Remote State
+
+- extend structured receipts for citizen location/activity reports where those facts are actually spoken or observed
+- expire nothing silently; expose source/time/age so consumers can treat old status as last-known
+- do not convert last-known into current truth without a current channel
 
 ## Speech / Hearing
 
-- consider whether nearby third parties can overhear future conversations
-- consider distance/noise/environment only if the world becomes detailed enough to justify it
-
-Third-party overhearing does not exist yet.
+- third-party overhearing remains unimplemented
+- only add hearing radius/noise/environment constraints when world detail justifies a real physical model
+- no one receives a conversation they did not participate in unless an explicit hearing mechanism is implemented
 
 ## Physical Records
 
-Potential future mechanisms if citizens create/use them:
+Possible future physical channels, only after citizens create/use them:
 
 - work logs
 - notice boards
@@ -44,13 +44,13 @@ Potential future mechanisms if citizens create/use them:
 - written ledgers
 - terminals
 
-These must physically exist before becoming information channels.
+A physical record must exist at a place and be encountered/read before it transfers information.
 
 ## Future Invented Communication
 
-Do not preselect the solution.
+Do not preselect a technology.
 
-Possible outcomes might include:
+Possible eventual mechanisms may include:
 
 - wired signaling
 - optical relays
@@ -59,59 +59,10 @@ Possible outcomes might include:
 - radio-like systems
 - world-specific alternatives
 
-These remain possibilities, not planned unlocks.
+They remain possibilities, not planned unlocks.
 
-## UI Requests for Assets
+## UI / Audit Follow-Up
 
-- show when a citizen is actively talking
-- show communication events clearly in History
-- distinguish failed talk attempts from stored conversations
-- later distinguish direct vs last-known information visually if useful
-
-## Final Handoff Audit — Coordinator Integration Items
-
-Communication runtime work is complete. These are integration tasks, not new Communication feature work:
-
-- resolve `agent_city/db.py` overlap between `simulation/v0.5-making-building` and `communication/v0.5-history-integrity`
-  - keep Simulation equipment/project/coordinate/job-outcome schema
-  - keep Communication `citizen_conversations.source_job_id` migration + unique partial index
-  - keep Communication conversation snapshot aliases `source_type`, `source_id`, `transfer_event_id`
-- resolve `agent_city/simulation.py` overlap
-  - keep Simulation fabrication/construction/energy/project behavior
-  - restore Communication's source-linked talk completion check and failed-talk behavior
-  - preserve Simulation's `jobs.outcome` semantics when deciding the exact merged failed-talk outcome value
-- merge Communication's `comms.py` and `planner.py` source-job persistence path
-- run:
-  - `tests/smoke_v040.py`
-  - `tests/smoke_v050.py`
-  - `tests/smoke_v050_communication.py`
-- Assets must consume merged `equipment`, `projects`, `project_materials`, and extended `structures` state before v0.5 Making & Building UI is considered complete
-- after integration, Memory may reference stable `projects.id` / completed `jobs.id` physical outcomes without treating project discussion as completion evidence
-
-
-## v0.6 Knowledge-Bound UI / Perception
-
-- define what location facts may appear in visitor-facing knowledge sheets without leaking hidden Simulation truth
-- preserve the difference between direct observation, survey/measurement, and communicated last-known information
-- support provenance/source age for facts shown in Locations/Citizen detail where useful
-- ensure a discovery by one citizen does not automatically become global knowledge unless a real sharing mechanism makes it available
-- coordinate with Memory on retention/retrieval and with Assets on how unknown fields are omitted rather than teased as hidden secrets
-
-
-## v0.6 Visitor Availability Messaging Fix
-
-Observed in v0.5:
-- selecting Vale while Vale is the second participant in Iri's talk job can display "Vale is currently speaking with Vale"
-- the Visit header can also say "Not at the same location" even when visitor and citizen are co-located and the real reason is that the citizen is busy talking
-
-Root cause to preserve for implementation:
-- both talk participants share one physical talk job
-- for the target participant, reading only jobs.target returns that same citizen instead of the initiator
-- counterpart resolution must use both jobs.citizen_id and jobs.target relative to the selected citizen
-
-Acceptance:
-- initiator view names the target
-- target view names the initiator
-- same-location-but-busy does not display a location mismatch
-- traveling/remote/busy reasons remain distinct and physically accurate
-- no change to face-to-face legality itself
+- periodically audit new planner/visitor prompts for raw Simulation truth leakage as Research & Discovery expands
+- unknown properties/resources should remain absent, not presented as hidden locked secrets
+- preserve distinction between admin truth views and citizen/visitor knowledge views
