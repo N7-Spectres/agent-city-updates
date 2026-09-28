@@ -1,73 +1,60 @@
 # Assets & Interface — Backlog
 
-## Review / Integration — v0.5
+## Waiting — v0.6 Knowledge Contracts
 
-Assets implementation is complete. Remaining work is coordinator/runtime validation.
+### Simulation
+- consume knowledge-safe location/world read model
+- stop reading any raw field that becomes hidden-truth-only
+- display authoritative citizen cargo capacity without frontend re-derivation
+- consume stable discovery / experiment anchors
 
-- integrate `assets/v0.5-making-ui` with `simulation/v0.5-making-building`
-- runtime-test draft PR #2 against the integrated v0.5 backend
-- verify long visitor conversations stay inside the bounded chat viewport
-- verify Previous Visits never displaces visitor input/actions
-- verify History opens by default and other Control Room tabs still work
-- verify canonical conversation IDs/source-job IDs display correctly on new talks
-- verify failed talk attempts appear only in chronology, with no fabricated transcript
-- verify Making tab with real:
-  - planned projects
-  - reserved projects/materials
-  - underway projects
-  - completed projects/resulting structures
-  - fabricated equipment
-  - cargo modifiers
-  - extraction-speed modifiers
-  - charging structures
-- verify local coordinates are presented only as local site data
-- verify updater, pause, visitor travel, citizen selection, conversation persistence, and responsive behavior remain intact
+### Communication
+- consume structured visit accessibility state
+- distinguish remote / visitor traveling / citizen traveling / busy talking / other busy state
+- display safe provenance and source age without implying verification from retelling
 
-## Completed in v0.5 Assets
+### Memory
+- consume bounded per-citizen knowledge
+- show citizen-known location/material/research/process facts
+- preserve source/time and claim-vs-verified distinction
+- add location summaries that grow only from legitimate knowledge
 
-- fixed-height chat
-- internal chat scrolling
-- anchored input/actions
-- centered/rebalanced layout
-- useful History companion view
-- canonical conversation-source display
-- chronology-only legacy fallback
-- Making tab
-- authoritative project lifecycle display
-- project material reservation display
-- equipment display
-- explicit modifier display
-- extended structure display
+## Review / Validation — v0.6 Branch
 
-## v0.6 Visit Status Polish
+- runtime-test draft PR #3 / `assets/v0.6-knowledge-ui`
+- verify Home remains map-centered with compact citizens and Visit
+- verify Home no longer grows secondary datasets underneath the map
+- verify Citizens page selection and "Visit on Home" handoff
+- verify Locations page selection and "Focus on Home map" handoff
+- verify visitor map badge opens the correct location
+- verify Records tabs still preserve Making / Stores / History / Region / Updates
+- verify narrow/mobile navigation
+- verify no undiscovered resource/property leaks through Locations
+- verify character sheets do not invent appearance/configuration
 
-- render the backend's real visit availability reason instead of the generic "Not at the same location" label for every inaccessible state
-- distinguish: remote location, visitor traveling, citizen traveling, citizen already talking/busy
-- when citizen is busy talking, display the actual counterpart supplied by Communication/Simulation
+## Completed in v0.6 Independent Slice
 
-## Medium Priority
-
-- arrival / departure visual pulse
-- richer hover cards for citizens and locations
-- clearer activity indicators on map tokens
-- consider route direction / travel-progress affordances beyond selected-route highlight
+- top-level Home / Citizens / Locations / Records navigation
+- compact Home citizen rows
+- compact visitor location badge
+- simplified Home layout
+- Citizens character-sheet shell
+- placeholder-safe citizen visual identity slot
+- Locations field-notebook shell
+- placeholder-safe location scene slot
+- discovered-resource filtering
+- Records page separation
+- specific backend visit reason displayed instead of generic inaccessible label
 
 ## Later
 
-- tiny robot tokens
-- portrait/avatar chips
+- richer citizen identity art from authoritative visual assets
+- richer location scene art from authoritative known environment state
+- map work-site activity
+- tiny robot / portrait tokens
 - planet/globe representation
-- richer visible work-site activity on the world map
-- accumulated settlement history in the environment
-- animated miniature citizens
+- accumulated environmental history visualization
 
-## Current Blockers
+## Current Blocker
 
-_None within Assets._ The department branch is ready for coordinator integration and runtime smoke testing.
-
-
-## Next Owner
-
-**Coordinator / Integration**
-
-There is no remaining Assets implementation task before v0.5 assembly. Any new Assets work should come from coordinator smoke-test findings or a new inbox request.
+Assets is waiting on Simulation, Communication, and Memory v0.6 read models. No additional hidden/distributed-knowledge UI should be invented before those contracts arrive.
