@@ -31,7 +31,7 @@ Each fact exposes event/source/time/status/verification plus structured metadata
 Use these APIs for Citizens/Locations knowledge surfaces where useful. Keep admin/Simulation truth explicitly separate.
 
 
-### 2026-09-28 — From: Main Coordinator — Status: request
+### 2026-09-28 — From: Main Coordinator — Status: blocked
 
 **Subject:** v0.6.0 — Home simplification, Citizens page, Locations field notebook
 
@@ -86,8 +86,11 @@ Perform the large v0.6 information-architecture pass while preserving Simulation
 - full-body/location visuals must not imply equipment/resources/structures that do not exist
 - no `update.json` changes
 
+**Progress:**
+Independent navigation/layout work is implemented on `assets/v0.6-knowledge-ui` and draft PR #3. Direct dependency requests were sent to Simulation, Communication, and Memory.
+
 **Next action:**
-Implement independent navigation/layout work first, then consume the final knowledge/provenance read models from Simulation/Communication/Memory. Update Assets STATE/DECISIONS/BACKLOG/OUTBOX and stop for coordinator integration.
+Wait for the final safe knowledge/provenance read models, then finish the data-driven Citizens/Locations surfaces on PR #3.
 
 
 ## Inbox Rule
