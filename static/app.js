@@ -2,15 +2,44 @@ let state = null;
 let visitorPresence = null;
 let selectedCitizen = null;
 let focusedLocation = "seed_site";
-let openDrawer = null;
+let openControlView = "region";
 let currentVisitAccessKey = null;
 
-const LOCATION_POSITIONS = {
-  seed_site: { x: 50, y: 55 },
-  northern_ridge: { x: 50, y: 16 },
-  rocky_basin: { x: 78, y: 42 },
-  southern_flats: { x: 50, y: 85 },
-  resin_grove: { x: 23, y: 42 },
+const LOCATION_PRESENTATION = {
+  seed_site: {
+    direction: { x: 0, y: 0 },
+    label: "above",
+    cluster: { x: 0, y: 38 },
+    visitor: { x: -58, y: 0 },
+  },
+  northern_ridge: {
+    direction: { x: 0, y: -1 },
+    label: "below",
+    cluster: { x: 54, y: 0 },
+    visitor: { x: -54, y: 0 },
+  },
+  rocky_basin: {
+    direction: { x: 1, y: -0.32 },
+    label: "below",
+    cluster: { x: -54, y: 0 },
+    visitor: { x: 0, y: -46 },
+  },
+  southern_flats: {
+    direction: { x: 0, y: 1 },
+    label: "above",
+    cluster: { x: 54, y: 0 },
+    visitor: { x: -54, y: 0 },
+  },
+  resin_grove: {
+    direction: { x: -1, y: -0.32 },
+    label: "below",
+    cluster: { x: 54, y: 0 },
+    visitor: { x: 0, y: -46 },
+  },
+};
+
+let locationPositions = {
+  seed_site: { x: 50, y: 52 },
 };
 
 const els = {
@@ -18,6 +47,7 @@ const els = {
   pauseButton: document.getElementById("pause-button"),
   ollamaStatus: document.getElementById("ollama-status"),
   citizens: document.getElementById("citizens"),
+  routeLayer: document.getElementById("route-layer"),
   mapLayer: document.getElementById("map-layer"),
   regionStrip: document.getElementById("region-strip"),
   worldFocus: document.getElementById("world-focus"),
@@ -38,10 +68,9 @@ const els = {
   leaveVisit: document.getElementById("leave-visit"),
   previousVisits: document.getElementById("previous-visits"),
   visitHistoryPanel: document.getElementById("visit-history-panel"),
-  detailDrawer: document.getElementById("detail-drawer"),
+  controlRoom: document.getElementById("control-room"),
   detailEyebrow: document.getElementById("detail-eyebrow"),
   detailTitle: document.getElementById("detail-title"),
-  closeDrawer: document.getElementById("close-drawer"),
   versionLabel: document.getElementById("version-label"),
   updateFeed: document.getElementById("update-feed"),
   saveUpdateFeed: document.getElementById("save-update-feed"),
@@ -155,15 +184,92 @@ function citizensAtLocation(locationId) {
 }
 
 function routeBetween(a, b) {
-  return state.routes?.find(r => r.a === a && r.b === b) || null;
+  return state.routes?.find(r =>
+    (r.a === a && r.b === b) ||
+    (r.a === b && r.b === a)
+  ) || null;
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function computeLocationPositions() {
+  const center = { x: 50, y: 52 };
+  const locations = state?.locations || [];
+  const routes = state?.routes || [];
+  const directRoutes = routes.filter(r => r.a === "seed_site" || r.b === "seed_site");
+  const distances = directRoutes
+    .map(r => Number(r.distance_km))
+    .filter(Number.isFinite);
+
+  const minDistance = distances.length ? Math.min(...distances) : 0;
+  const maxDistance = distances.length ? Math.max(...distances) : 1;
+  locationPositions = {};
+
+  let fallbackIndex = 0;
+  for (const loc of locations) {
+    if (loc.id === "seed_site") {
+      locationPositions[loc.id] = center;
+      continue;
+    }
+
+    const route = directRoutes.find(r => r.a === loc.id || r.b === loc.id);
+    const distance = Number(route?.distance_km);
+    const normalizedDistance = Number.isFinite(distance) && maxDistance > minDistance
+      ? (distance - minDistance) / (maxDistance - minDistance)
+      : 0.5;
+    const radius = 29 + (normalizedDistance * 14);
+
+    let direction = LOCATION_PRESENTATION[loc.id]?.direction;
+    if (!direction) {
+      const angle = ((fallbackIndex++ / Math.max(1, locations.length - 1)) * Math.PI * 2) - (Math.PI / 2);
+      direction = { x: Math.cos(angle), y: Math.sin(angle) };
+    }
+
+    const magnitude = Math.hypot(direction.x, direction.y) || 1;
+    locationPositions[loc.id] = {
+      x: clamp(center.x + ((direction.x / magnitude) * radius), 8, 92),
+      y: clamp(center.y + ((direction.y / magnitude) * radius), 10, 90),
+    };
+  }
+}
+
+function positionForLocation(id) {
+  return locationPositions[id] || { x: 50, y: 52 };
 }
 
 function interpolatedPosition(a, b, fraction) {
-  const from = LOCATION_POSITIONS[a] || {x: 50, y: 50};
-  const to = LOCATION_POSITIONS[b] || from;
+  const from = positionForLocation(a);
+  const to = positionForLocation(b);
   return {
     x: from.x + (to.x - from.x) * fraction,
     y: from.y + (to.y - from.y) * fraction,
+  };
+}
+
+function sameRoute(a, b, c, d) {
+  return (a === c && b === d) || (a === d && b === c);
+}
+
+function initialsFor(name) {
+  return String(name || "?")
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map(part => part[0] || "")
+    .join("")
+    .toUpperCase();
+}
+
+function clusterOffset(index, total) {
+  const row = Math.floor(index / 3);
+  const firstInRow = row * 3;
+  const rowCount = Math.min(3, total - firstInRow);
+  const column = index - firstInRow;
+  return {
+    x: (column - ((rowCount - 1) / 2)) * 28,
+    y: row * 30,
   };
 }
 
@@ -189,6 +295,7 @@ function render() {
   els.simTime.textContent = `${state.sim_label} • ${state.paused ? "Paused" : "Running"}`;
   els.pauseButton.textContent = state.paused ? "Resume" : "Pause";
   renderVisitorStatus();
+  computeLocationPositions();
 
   renderCitizens();
   renderMap();
@@ -244,83 +351,141 @@ function renderCitizens() {
   }).join("");
 }
 
+function renderRoutes() {
+  const selected = selectedCitizen ? state.citizens.find(c => c.id === selectedCitizen) : null;
+  const selectedJob = selected ? activeJobFor(selected.id) : null;
+  const selectedTravel = selected && selectedJob?.action === "travel"
+    ? { from: selected.location_id, to: selectedJob.target }
+    : null;
+
+  const labels = [];
+  els.routeLayer.innerHTML = (state.routes || []).map(route => {
+    const from = positionForLocation(route.a);
+    const to = positionForLocation(route.b);
+    const active = selectedTravel && sameRoute(route.a, route.b, selectedTravel.from, selectedTravel.to);
+    const midX = (from.x + to.x) / 2;
+    const midY = (from.y + to.y) / 2;
+    const distance = Number(route.distance_km);
+    if (Number.isFinite(distance)) {
+      labels.push(`
+        <span class="route-distance ${active ? "active" : ""}" style="left:${midX}%; top:${midY}%;">
+          ${escapeHtml(trimNumber(distance))} km
+        </span>
+      `);
+    }
+    return `<line class="${active ? "active-route" : ""}" x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" />`;
+  }).join("");
+
+  return labels.join("");
+}
+
 function renderMap() {
+  const routeLabels = renderRoutes();
   const nodes = state.locations.map(loc => renderLocationNode(loc)).join("");
-  const travelers = state.citizens
-    .filter(c => isTravelingCitizen(c))
-    .map((c, index) => {
-      const job = activeJobFor(c.id);
-      const progress = jobProgress(job);
-      const pos = interpolatedPosition(c.location_id, job.target, progress?.fraction || 0);
-      const offset = (index % 3) * 8 - 8;
-      const targetName = locationById(job.target)?.name || job.target;
-      return `
-        <button
-          class="map-citizen traveling ${selectedCitizen === c.id ? "selected" : ""}"
-          style="left:calc(${pos.x}% + ${offset}px); top:${pos.y}%;"
-          title="${escapeHtml(c.name)} • traveling to ${escapeHtml(targetName)} • ${progress?.percent || 0}%"
-          onclick="selectCitizen('${c.id}')"
-        ></button>
-      `;
-    }).join("");
+  const travelersList = state.citizens.filter(c => isTravelingCitizen(c));
+  const travelers = travelersList.map(c => {
+    const job = activeJobFor(c.id);
+    const progress = jobProgress(job);
+    const pos = interpolatedPosition(c.location_id, job.target, progress?.fraction || 0);
+    const peers = travelersList.filter(peer => {
+      const peerJob = activeJobFor(peer.id);
+      return peerJob?.action === "travel" && sameRoute(c.location_id, job.target, peer.location_id, peerJob.target);
+    });
+    const laneIndex = peers.findIndex(peer => peer.id === c.id);
+    const laneOffset = (laneIndex - ((peers.length - 1) / 2)) * 18;
+    const from = positionForLocation(c.location_id);
+    const to = positionForLocation(job.target);
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const magnitude = Math.hypot(dx, dy) || 1;
+    const offsetX = (-dy / magnitude) * laneOffset;
+    const offsetY = (dx / magnitude) * laneOffset;
+    const targetName = locationById(job.target)?.name || job.target;
+
+    return `
+      <button
+        class="map-citizen traveling ${selectedCitizen === c.id ? "selected" : ""}"
+        style="left:calc(${pos.x}% + ${offsetX}px); top:calc(${pos.y}% + ${offsetY}px);"
+        title="${escapeHtml(c.name)} • traveling to ${escapeHtml(targetName)} • ${progress?.percent || 0}%"
+        aria-label="${escapeHtml(c.name)} traveling to ${escapeHtml(targetName)}"
+        onclick="selectCitizen('${c.id}')"
+      >${escapeHtml(initialsFor(c.name))}</button>
+    `;
+  }).join("");
 
   let visitorMarker = "";
   if (visitorPresence) {
     let pos;
     let label;
+    let offset = { x: 0, y: -26 };
+    let locationId;
+
     if (visitorPresence.traveling) {
       pos = interpolatedPosition(
         visitorPresence.from_location_id,
         visitorPresence.to_location_id,
         visitorPresence.progress || 0
       );
+      locationId = visitorPresence.to_location_id;
       label = `${els.visitorName.value.trim() || "Visitor"} • traveling to ${visitorPresence.to_location_name}`;
     } else {
-      pos = LOCATION_POSITIONS[visitorPresence.location_id] || {x:50,y:50};
+      locationId = visitorPresence.location_id;
+      pos = positionForLocation(locationId);
+      offset = LOCATION_PRESENTATION[locationId]?.visitor || offset;
       label = `${els.visitorName.value.trim() || "Visitor"} • ${visitorPresence.location_name}`;
     }
+
     visitorMarker = `
       <button
         class="map-visitor ${visitorPresence.traveling ? "traveling" : ""}"
-        style="left:${pos.x}%; top:calc(${pos.y}% - 25px);"
+        style="left:calc(${pos.x}% + ${offset.x}px); top:calc(${pos.y}% + ${offset.y}px);"
         title="${escapeHtml(label)}"
-        onclick="focusLocation('${visitorPresence.traveling ? visitorPresence.to_location_id : visitorPresence.location_id}')"
+        onclick="focusLocation('${locationId}')"
       >YOU</button>
     `;
   }
 
-  els.mapLayer.innerHTML = nodes + travelers + visitorMarker;
+  els.mapLayer.innerHTML = routeLabels + nodes + travelers + visitorMarker;
   updateWorldFocus();
 }
 
 function renderLocationNode(loc) {
-  const pos = LOCATION_POSITIONS[loc.id] || { x: 50, y: 50 };
+  const pos = positionForLocation(loc.id);
   const people = citizensAtLocation(loc.id);
   const deposits = depositsForLocation(loc.id);
+  const presentation = LOCATION_PRESENTATION[loc.id] || {
+    label: "below",
+    cluster: { x: 0, y: 38 },
+  };
+  const selected = selectedCitizen ? state.citizens.find(c => c.id === selectedCitizen) : null;
+  const selectedHere = selected && !isTravelingCitizen(selected) && selected.location_id === loc.id;
+  const nodeTitle = `${loc.name} • ${loc.surveyed ? "Surveyed" : "Not yet surveyed"}${deposits.length ? ` • ${deposits.length} confirmed deposit${deposits.length > 1 ? "s" : ""}` : ""}`;
 
-  const citizenDots = people.map((person, index) => {
-    const offset = (index - (people.length - 1) / 2) * 14;
+  const citizenTokens = people.map((person, index) => {
+    const cluster = presentation.cluster || { x: 0, y: 38 };
+    const offset = clusterOffset(index, people.length);
     return `
       <button
         class="map-citizen ${selectedCitizen === person.id ? "selected" : ""}"
-        style="left: calc(${pos.x}% + ${offset}px); top: calc(${pos.y}% + 20px);"
-        title="${escapeHtml(person.name)}"
+        style="left:calc(${pos.x}% + ${cluster.x + offset.x}px); top:calc(${pos.y}% + ${cluster.y + offset.y}px);"
+        title="${escapeHtml(person.name)} • ${escapeHtml(person.current_activity || person.location)}"
+        aria-label="${escapeHtml(person.name)} at ${escapeHtml(loc.name)}"
         onclick="selectCitizen('${person.id}')"
-      ></button>
+      >${escapeHtml(initialsFor(person.name))}</button>
     `;
   }).join("");
 
   return `
     <button
-      class="map-node ${focusedLocation === loc.id ? "focused" : ""}"
+      class="map-node label-${presentation.label || "below"} ${focusedLocation === loc.id ? "focused" : ""} ${selectedHere ? "selected-location" : ""}"
       style="left:${pos.x}%; top:${pos.y}%;"
+      title="${escapeHtml(nodeTitle)}"
       onclick="focusLocation('${loc.id}')"
     >
       <span class="node-dot"></span>
       <span class="node-label">${escapeHtml(loc.name)}</span>
-      <span class="node-sub">${loc.surveyed ? "Surveyed" : "Not yet surveyed"}${deposits.length ? ` • ${deposits.length} deposit${deposits.length > 1 ? "s" : ""}` : ""}</span>
     </button>
-    ${citizenDots}
+    ${citizenTokens}
   `;
 }
 
@@ -394,13 +559,13 @@ function renderDrawerLists() {
     const known = depositsForLocation(loc.id);
     const people = citizensAtLocation(loc.id).map(c => c.name);
     return `
-      <div class="location-card">
+      <button class="location-card ${focusedLocation === loc.id ? "focused" : ""}" onclick="focusLocation('${loc.id}')">
         <div class="location-name">${escapeHtml(loc.name)}</div>
         <div class="muted">${escapeHtml(loc.description)}</div>
         <div class="location-meta">${loc.surveyed ? "Surveyed" : "Not yet surveyed"}</div>
         <div class="small">${known.length ? `Confirmed: ${known.map(d => escapeHtml(d.material)).join(", ")}` : "No confirmed deposits"}</div>
         <div class="small">${people.length ? `Present: ${people.map(escapeHtml).join(", ")}` : "No citizens currently present"}</div>
-      </div>
+      </button>
     `;
   }).join("");
 
@@ -484,9 +649,8 @@ function formatMinute(minute) {
   return `Day ${day} • ${hour}:${min}`;
 }
 
-function openDrawerView(name, title, eyebrow = "DETAILS") {
-  openDrawer = name;
-  els.detailDrawer.classList.remove("hidden");
+function openControlRoomView(name, title, eyebrow = "DETAILS") {
+  openControlView = name;
   els.detailEyebrow.textContent = eyebrow;
   els.detailTitle.textContent = title;
 
@@ -494,7 +658,7 @@ function openDrawerView(name, title, eyebrow = "DETAILS") {
     el.classList.toggle("hidden", key !== name);
   });
 
-  document.querySelectorAll(".tool-button").forEach(btn => {
+  document.querySelectorAll(".control-tab").forEach(btn => {
     btn.classList.remove("active");
   });
 
@@ -509,16 +673,11 @@ function openDrawerView(name, title, eyebrow = "DETAILS") {
   if (activeMap[name]) activeMap[name].classList.add("active");
 }
 
-function closeDrawer() {
-  openDrawer = null;
-  els.detailDrawer.classList.add("hidden");
-  Object.values(els.detailViews).forEach(el => el.classList.add("hidden"));
-  document.querySelectorAll(".tool-button").forEach(btn => btn.classList.remove("active"));
-}
-
 window.focusLocation = function(id) {
   focusedLocation = id;
   renderMap();
+  renderRegionStrip();
+  renderDrawerLists();
 };
 
 window.startVisitorTravel = async function(target) {
@@ -714,12 +873,11 @@ els.visitorName.addEventListener("change", async () => {
   if (selectedCitizen) await selectCitizen(selectedCitizen, { restore: true });
 });
 
-els.toggleRegion.addEventListener("click", () => openDrawer === "region" ? closeDrawer() : openDrawerView("region", "Known region", "REGION"));
-els.toggleResources.addEventListener("click", () => openDrawer === "resources" ? closeDrawer() : openDrawerView("resources", "Seed Site stores", "STORES"));
-els.toggleStructures.addEventListener("click", () => openDrawer === "structures" ? closeDrawer() : openDrawerView("structures", "Structures", "STRUCTURES"));
-els.toggleHistory.addEventListener("click", () => openDrawer === "history" ? closeDrawer() : openDrawerView("history", "Settlement history", "HISTORY"));
-els.toggleUpdates.addEventListener("click", () => openDrawer === "updates" ? closeDrawer() : openDrawerView("updates", "Admin • Updates", "ADMIN"));
-els.closeDrawer.addEventListener("click", closeDrawer);
+els.toggleRegion.addEventListener("click", () => openControlRoomView("region", "Known region", "REGION"));
+els.toggleResources.addEventListener("click", () => openControlRoomView("resources", "Seed Site stores", "STORES"));
+els.toggleStructures.addEventListener("click", () => openControlRoomView("structures", "Structures", "STRUCTURES"));
+els.toggleHistory.addEventListener("click", () => openControlRoomView("history", "Settlement history", "HISTORY"));
+els.toggleUpdates.addEventListener("click", () => openControlRoomView("updates", "Admin • Updates", "ADMIN"));
 
 els.pauseButton.addEventListener("click", async () => {
   await fetch("/api/pause", {
