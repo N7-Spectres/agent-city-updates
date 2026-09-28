@@ -335,6 +335,12 @@ def _apply_citizen_job_wear(conn, citizen: Any, job: Any, now: int) -> None:
         distance = route_distance(conn, str(citizen["location_id"]), str(job["target"])) or 0.0
         energy_cost = max(2.0, distance * 3.0)
         joint_added = distance * 0.12
+    elif action in {"local_move", "shared_local_activity"}:
+        payload = json.loads(job["detail"] or "{}")
+        energy_cost = float(payload.get("energy_cost", 0.2))
+        joint_added = max(0.01, float(job["path_distance_m"] or 0.0) / 1000.0 * 0.12)
+    elif action == "local_inspect":
+        energy_cost, joint_added = 0.5, 0.02
     elif action == "survey":
         energy_cost, joint_added = 8.0, 0.30
     elif action == "extract":
@@ -403,8 +409,19 @@ def _apply_post_job_asset_wear(conn, citizen: Any, job: Any, now: int) -> None:
     action = str(job["action"])
     if action == "extract":
         _wear_equipment(conn, str(citizen["id"]), "extraction", 1.5, now)
-    elif action == "travel" and carried_amount(conn, str(citizen["id"])) > 0:
-        _wear_equipment(conn, str(citizen["id"]), "cargo", 0.35, now)
+    elif action in {"travel", "local_move", "shared_local_activity"} and carried_amount(conn, str(citizen["id"])) > 0:
+        distance_m = (
+            float(job["path_distance_m"] or 0.0)
+            if action != "travel"
+            else (route_distance(conn, str(citizen["location_id"]), str(job["target"])) or 0.0) * 1000.0
+        )
+        _wear_equipment(
+            conn,
+            str(citizen["id"]),
+            "cargo",
+            max(0.02, 0.35 * (distance_m / 1000.0)),
+            now,
+        )
     elif action == "fabricate":
         _wear_structure(conn, "Basic Workbench", str(citizen["location_id"]), 0.35, now)
     elif action == "experiment":
@@ -1502,7 +1519,129 @@ def complete_due_jobs(now: int) -> None:
             job_status = "complete"
             outcome = "success"
 
-            if action == "service_chassis":
+            if action == "local_move":
+                target_x = float(job["target_x_m"])
+                target_y = float(job["target_y_m"])
+                conn.execute(
+                    """
+                    UPDATE citizens
+                    SET position_x_m = ?, position_y_m = ?,
+                        current_activity = 'Available', active_job_id = NULL
+                    WHERE id = ?
+                    """,
+                    (target_x, target_y, c["id"]),
+                )
+                message = (
+                    f"{c['name']} completed local movement to "
+                    f"({target_x:.0f} m, {target_y:.0f} m)."
+                )
+
+            elif action == "local_inspect":
+                x_m = float(job["target_x_m"] if job["target_x_m"] is not None else c["position_x_m"] or 0.0)
+                y_m = float(job["target_y_m"] if job["target_y_m"] is not None else c["position_y_m"] or 0.0)
+                payload = json.loads(job["detail"] or "{}")
+                observation_id = record_validated_observation(
+                    conn,
+                    observer_id=str(c["id"]),
+                    x_m=x_m,
+                    y_m=y_m,
+                    observed_minute=now,
+                    source_job_id=int(job["id"]),
+                    observation_kind=str(payload.get("observation_kind") or "direct_inspection"),
+                    radius_m=DIRECT_INSPECTION_RADIUS_M,
+                )
+                conn.execute(
+                    """
+                    UPDATE jobs SET result_observation_id = ? WHERE id = ?
+                    """,
+                    (observation_id, job["id"]),
+                )
+                conn.execute(
+                    """
+                    UPDATE citizens
+                    SET current_activity = 'Available', active_job_id = NULL
+                    WHERE id = ?
+                    """,
+                    (c["id"],),
+                )
+                message = (
+                    f"{c['name']} completed local inspection "
+                    f"(spatial observation #{observation_id})."
+                )
+
+            elif action == "shared_local_activity":
+                activity = conn.execute(
+                    "SELECT * FROM shared_activities WHERE id = ?",
+                    (job["shared_activity_id"],),
+                ).fetchone()
+                if not activity or activity["status"] != "active":
+                    job_status = "failed"
+                    outcome = "failed"
+                    conn.execute(
+                        """
+                        UPDATE citizens
+                        SET current_activity = 'Available', active_job_id = NULL
+                        WHERE id = ?
+                        """,
+                        (c["id"],),
+                    )
+                    message = f"{c['name']}'s shared local activity ended without a valid lifecycle record."
+                else:
+                    target_x = float(job["target_x_m"])
+                    target_y = float(job["target_y_m"])
+                    visitor = str(activity["visitor"])
+                    conn.execute(
+                        """
+                        UPDATE citizens
+                        SET position_x_m = ?, position_y_m = ?,
+                            current_activity = 'Available', active_job_id = NULL
+                        WHERE id = ?
+                        """,
+                        (target_x, target_y, c["id"]),
+                    )
+                    conn.execute(
+                        """
+                        UPDATE visitor_presence
+                        SET x_m = ?, y_m = ?
+                        WHERE visitor = ?
+                        """,
+                        (target_x, target_y, visitor),
+                    )
+                    observation_id = record_validated_observation(
+                        conn,
+                        observer_id=str(c["id"]),
+                        x_m=target_x,
+                        y_m=target_y,
+                        observed_minute=now,
+                        source_job_id=int(job["id"]),
+                        observation_kind="shared_walk_inspect",
+                        radius_m=DIRECT_INSPECTION_RADIUS_M,
+                    )
+                    conn.execute(
+                        """
+                        UPDATE jobs
+                        SET result_observation_id = ?
+                        WHERE id = ?
+                        """,
+                        (observation_id, job["id"]),
+                    )
+                    conn.execute(
+                        """
+                        UPDATE shared_activities
+                        SET status = 'complete',
+                            completed_minute = ?,
+                            observation_id = ?,
+                            outcome = 'success'
+                        WHERE id = ?
+                        """,
+                        (now, observation_id, activity["id"]),
+                    )
+                    message = (
+                        f"{c['name']} and {visitor} completed shared activity "
+                        f"#{activity['id']} with spatial observation #{observation_id}."
+                    )
+
+            elif action == "service_chassis":
                 payload = json.loads(job["detail"] or "{}")
                 before = float(payload.get("before", c["joint_wear"] or 0))
                 materials = dict(payload.get("materials") or {})
