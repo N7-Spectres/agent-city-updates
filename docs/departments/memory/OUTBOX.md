@@ -6,6 +6,29 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Memory & Social — Status: ready
 
+**Subject:** v0.7 session wrap — maintenance event contract resolved
+
+**Need / Result:**
+The v0.7 maintenance-memory audit is complete and Simulation has now delivered the authoritative event source.
+
+**Simulation contract:**
+- branch `simulation/v0.7-maintenance`
+- head `54f5d838f674d0b278a51382f3a880cc0738b417`
+- CI `36429729279`
+- canonical Memory source: `maintenance_events.id`
+
+**Memory policy:**
+- remember meaningful service/repair/replacement/failure history
+- do not turn passive wear ticks into durable memory
+- do not infer repair/damage from conversation or condition deltas
+- reuse existing `memory_events`; no new table is currently justified
+
+**Next action:**
+Next Memory session can immediately create `memory/v0.7-maintenance-history` and implement idempotent event ingestion + bounded subject-specific retrieval. No further Simulation schema discovery is required.
+
+
+### 2026-09-28 — From: Memory & Social — Status: ready
+
 **Subject:** v0.7 maintenance-memory audit complete — waiting for physical event anchors
 
 **Need / Result:**
