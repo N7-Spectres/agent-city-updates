@@ -245,3 +245,23 @@ The release-only workflow trigger was restored afterward.
 World & Simulation v0.6 core is ready for coordinator/cross-department review.
 
 No `update.json` or release metadata was changed.
+
+
+## v0.6 Session Close
+
+World & Simulation work for this session is complete.
+
+Authoritative handoff:
+- branch: `simulation/v0.6-research-discovery`
+- head: `d1ae3faf0095d22e7a730cf50b3ad6fdbcdc4b94`
+- base: shipped v0.5.0 commit `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
+- validation: GitHub Actions run `36419824468`
+
+The final v0.6 Simulation contract has been delivered to:
+- Communication & Perception
+- Memory & Social
+- Assets & Interface
+
+No further Simulation implementation is pending in this work session. Resume only for coordinator merge conflicts, new inbox requests, or a later milestone.
+
+No release metadata or `update.json` was changed.
