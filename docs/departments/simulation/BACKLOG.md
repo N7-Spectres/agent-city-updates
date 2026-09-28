@@ -38,6 +38,10 @@ Remaining cross-department/integration work:
 
 ## v0.8.0 — Living World
 
+- citizen-generated place names for discovered geographic features / work sites / settlements
+- keep physical coordinates separate from social names; places can exist unnamed before citizens decide they matter
+- support persistent renaming/aliases/shared naming conventions as communication and history justify them
+
 - additional regions
 - environmental variation
 - richer route network
