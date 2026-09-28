@@ -17,7 +17,12 @@ def main() -> None:
         from fastapi import HTTPException
 
         from agent_city.db import connect, init_db, snapshot
-        from agent_city.memory import ensure_memory_schema
+        from agent_city.memory import ensure_memory_schema, knowledge_snapshot_for
+        from agent_city.exploration_memory import (
+            shared_exploration_context_for,
+            shared_exploration_snapshot_for,
+            sync_shared_exploration,
+        )
         from agent_city.planner import citizen_context
         from agent_city.spatial_memory import (
             MAX_SPATIAL_CONTEXT_CHARS,
@@ -111,9 +116,93 @@ def main() -> None:
                 )
                 """
             )
+            # Simulation Stage 2 shared-activity ledger shape.
+            conn.executescript(
+                """
+                CREATE TABLE IF NOT EXISTS shared_activities (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    visitor TEXT NOT NULL,
+                    citizen_id TEXT NOT NULL,
+                    activity_type TEXT NOT NULL,
+                    objective TEXT NOT NULL,
+                    frame_id TEXT NOT NULL,
+                    start_x_m REAL NOT NULL,
+                    start_y_m REAL NOT NULL,
+                    target_x_m REAL NOT NULL,
+                    target_y_m REAL NOT NULL,
+                    status TEXT NOT NULL DEFAULT 'proposed',
+                    proposed_minute INTEGER NOT NULL,
+                    accepted_minute INTEGER,
+                    started_minute INTEGER,
+                    completed_minute INTEGER,
+                    source_visit_id INTEGER,
+                    source_exchange_id INTEGER,
+                    tool_equipment_id INTEGER,
+                    citizen_job_id INTEGER,
+                    observation_id INTEGER,
+                    outcome TEXT,
+                    failure_reason TEXT
+                );
+                """
+            )
+
+            # Proposal only: must NOT become a physical shared-exploration memory.
+            conn.execute(
+                """
+                INSERT INTO shared_activities(
+                    visitor, citizen_id, activity_type, objective, frame_id,
+                    start_x_m, start_y_m, target_x_m, target_y_m,
+                    status, proposed_minute, source_visit_id, source_exchange_id
+                )
+                VALUES (
+                    'N7', 'noma', 'walk_inspect', 'Maybe inspect the ridge together',
+                    'seed_site_local', 110, 55, 130, 70,
+                    'proposed', 1450, 21, 301
+                )
+                """
+            )
+
+            # Active but unfinished: also must NOT become completed memory.
+            conn.execute(
+                """
+                INSERT INTO shared_activities(
+                    visitor, citizen_id, activity_type, objective, frame_id,
+                    start_x_m, start_y_m, target_x_m, target_y_m,
+                    status, proposed_minute, accepted_minute, started_minute,
+                    source_visit_id, source_exchange_id, citizen_job_id
+                )
+                VALUES (
+                    'N7', 'noma', 'walk_inspect', 'Walk to the ferrite contact',
+                    'seed_site_local', 110, 55, 120, 60,
+                    'active', 1460, 1462, 1462, 21, 302, 9400
+                )
+                """
+            )
+
+            # Physically completed Simulation-owned activity with a real linked
+            # observation. This one is eligible for durable shared continuity.
+            conn.execute(
+                """
+                INSERT INTO shared_activities(
+                    visitor, citizen_id, activity_type, objective, frame_id,
+                    start_x_m, start_y_m, target_x_m, target_y_m,
+                    status, proposed_minute, accepted_minute, started_minute,
+                    completed_minute, source_visit_id, source_exchange_id,
+                    citizen_job_id, observation_id, outcome
+                )
+                VALUES (
+                    'N7', 'noma', 'walk_inspect', 'Return to the ferrite contact together',
+                    'seed_site_local', 110, 55, 102, 51,
+                    'complete', 1470, 1471, 1471, 1490,
+                    21, 303, 9500, ?, 'success'
+                )
+                """,
+                (improved_id,),
+            )
             conn.commit()
 
         sync_spatial_observations()
+        sync_shared_exploration()
 
         same_body = spatial_snapshot_for("noma", subject_id="gdep_return")
         assert len(same_body) == 2
