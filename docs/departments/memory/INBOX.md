@@ -4,6 +4,44 @@ _Read this at the beginning of each Memory & Social work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Main Coordinator — Status: request
+
+**Subject:** v0.8.0 Stage 1 — Spatial knowledge / discovery continuity audit
+
+**Runtime base:**
+- shipped `release-v0.7.0` / `d81a85bf03b69b969532016f59bbbed2233949ee`
+- create `memory/v0.8-spatial-knowledge-stage1` only if runtime code is justified by the final Simulation contract
+
+**Stage 1 goal:**
+Prepare Memory for a world where discoveries happen at continuous coordinates and stable generated deposits/places can be encountered again.
+
+**Required audit/design:**
+- determine how existing `memory_events`, discovery IDs, and provenance can reference:
+  - coordinate-based observations
+  - stable generated deposit/body IDs
+  - samples/scans
+  - newly named places later
+- preserve per-citizen knowledge isolation
+- a citizen should remember where they personally observed/discovered something without receiving raw hidden seed truth
+- repeated encounters with the same physical deposit should connect to the same stable subject rather than look like unrelated discoveries
+- avoid flooding memory with every meter walked or every low-value scan
+- define salience rules for spatial observations and exploration milestones
+- keep coordinate precision bounded to what the observation/tool actually supports
+- maintain strict separation between hidden Simulation world truth and remembered/communicated knowledge
+
+**Dependency:**
+Simulation Stage 1 must provide the stable coordinate/deposit/observation source contract before Memory adds source-specific runtime ingestion.
+
+**Do NOT:**
+- invent a global omniscient map memory
+- copy hidden chunks/seed data into Memory
+- create speculative schema just because continuous coordinates exist
+- publish `update.json`
+
+**Next action:**
+Audit now, consume Simulation's handoff when ready, implement only minimal justified runtime support, add focused smoke coverage if code changes, update STATE/DECISIONS/BACKLOG/OUTBOX, then stop.
+
+
 _None currently._
 
 
