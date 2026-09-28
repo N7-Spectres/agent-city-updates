@@ -4,6 +4,42 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
+### 2026-09-28 — From: Assets & Interface — Status: handoff
+
+**Subject:** Stage 2 contracts received; implementation deferred to next Assets session
+
+**Need / Result:**
+This session closed without producing Stage 2 runtime code.
+
+During wrap-up, Assets confirmed that Stage 2 is authorized and now unblocked by Simulation.
+
+Unified base:
+- `release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`
+- CI `36453177128` PASS
+
+Final Simulation contract:
+- `simulation/v0.8-exploration-stage2`
+- head `b81c9bb57884727e7a1c769d95ecb27928d1d489`
+- CI `36456647323` PASS
+
+Next Assets branch:
+`assets/v0.8-exploration-ui-stage2`
+
+Next work:
+- authoritative continuous local map
+- shared-action proposal/accept/reject/active progress UI
+- observation uncertainty rendering
+- citizen art integration if approved source files are actually available
+- minimal asset-worker queue/spec scaffold
+- Stage 2 Assets smoke
+
+**Important truth boundary:**
+No Stage 2 code was implemented in this chat. Assets remains ACTIVE because the next work packet is ready.
+
+**Remaining coordination:**
+Communication final post-reject-adapter handoff/head requested directly in Communication INBOX.
+
+
 ### 2026-09-28 — From: Assets & Interface — Status: ready
 
 **Subject:** v0.8 Stage 1 session closed — ready for coordinator review
