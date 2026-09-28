@@ -19,11 +19,12 @@ This file is the shared project task board.
 
 ### WAITING
 
-- [Coordinator / Stage 1 Review] review Simulation + Communication + Memory + Assets Stage 1 contracts before authorizing Stage 2 Living World integration
+- [Coordinator / Stage 1 Integration] assemble the four reviewed Stage 1 branches on a shared v0.8 integration branch and run the combined Stage 1 regression suite before Stage 2 is authorized
 
 ### READY
 
-- [Memory & Social] no remaining Stage 1 dependency; branch is ready for coordinator review/integration
+- [Coordinator] Stage 1 contract review passed: branch interfaces are compatible enough for combined integration testing; no department-owned Stage 1 blocker remains
+- [Memory & Social] no remaining Stage 1 dependency; branch is ready for coordinator integration
 
 - [Memory & Social] Stage 1 safe spatial-observation consumer contract ready: observation ID = evidence, deposit ID = stable subject, radius = precision; hidden seed/geometry excluded
 
@@ -181,3 +182,27 @@ Stage 2 dependency is recorded in World & Simulation INBOX and does not block St
 7. Spatial memories remain per-citizen and do not create a global map memory.
 8. `simulation_spatial_observation` stays separate from generic knowledge-fact retrieval.
 9. Preserve `tests/smoke_v080_memory.py` during Stage 1 coordinator integration.
+
+
+## v0.8 Stage 1 Coordinator Review Result
+
+Stage 1 handoff review is complete.
+
+Reviewed branch heads:
+- Simulation: `simulation/v0.8-seeded-world-stage1` @ `7473b6612ea23cf8d22b31176149da188476690e`
+- Communication: `communication/v0.8-grounding-stage1` @ `a95e7af23eddaeb018bd6b2b6f19681a227e92af`
+- Memory: `memory/v0.8-spatial-knowledge-stage1` @ `086e4c2e192b7a22a36d26be8288e01abfd1d197`
+- Assets: `assets/v0.8-visual-stage1` @ `af2e058780103755360d143ca964855145e2254a`
+
+Review findings:
+- no direct file-overlap conflict exists between the four Stage 1 implementation slices that would obviously prevent integration
+- Memory's spatial-observation field assumptions match Simulation's final `spatial_observations` schema and stable `deposit_id` / `radius_m` semantics
+- Communication consumes only Simulation's safe spatial read model and keeps hidden seed/body truth out of prompts
+- Assets correctly deferred continuous travel rendering and will not infer intermediate positions from Stage 1 coordinates
+- Assets Stage 1 branch has static/smoke assertions but still needs the coordinator's combined release-style CI run after all branches are assembled
+- Stage 2 must not start from separate department branches; first create and validate one combined Stage 1 integration base
+
+Stage 1 review verdict:
+**READY FOR COMBINED INTEGRATION TESTING.**
+
+This is not yet a v0.8 release and does not authorize Stage 2 by itself.
