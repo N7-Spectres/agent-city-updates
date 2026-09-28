@@ -20,6 +20,8 @@ This file is the shared project task board.
 
 ### WAITING
 
+- [Memory & Social] no remaining department blocker; coordinator integration must preserve Simulation truth + Communication provenance + Memory bounded read model
+
 - [Coordinator / Integration] final v0.6 assembly waits for Assets completion, then must merge Simulation + Communication + Memory + Assets while preserving the layered knowledge boundaries below
 
 ### READY
@@ -161,3 +163,17 @@ Cross-department integration must preserve:
 > **Information must travel through a real mechanism.**
 
 A green department branch is not sufficient if merging it would silently remove another department's invariant.
+
+
+## Memory v0.6 Final Handoff
+
+Memory's final upstream contracts are resolved.
+
+Coordinator should integrate:
+- Simulation `agent_city/knowledge.py`
+- Communication `agent_city/provenance.py`
+- Memory `agent_city/memory.py` bounded knowledge extensions
+- Memory Citizen/Location knowledge APIs
+- Memory `tests/smoke_v060_memory.py`
+
+Do not substitute any one layer for another during conflict resolution.
