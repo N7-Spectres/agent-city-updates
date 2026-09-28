@@ -1,24 +1,36 @@
 # Communication & Perception — Backlog
 
-## Near-Term
+## Integration / Follow-Up
 
-- investigate mismatch where talk start/finish history can exist without a visible matching citizen conversation record
-- guarantee a completed/generated face-to-face exchange has a stable stored conversation record that History can display
-- expose conversation summary/source IDs cleanly so History can show what was discussed, not only that a talk occurred
-- wire `PROVENANCE_CONTRACT.md` into the actual v0.3 conversation/database runtime once `comms.py`, `db.py`, and `simulation.py` are present on the branch
-- store explicit transfer events for same-location conversations
-- extract only facts actually spoken, not every fact implied by a summary
+- coordinator integration must preserve the v0.5 talk invariant when merging with `simulation/v0.5-making-building`:
+  - `citizen_conversations.source_job_id` remains available
+  - source-linked talk completion succeeds only when the conversation row exists
+  - missing exchange causes failed talk, not a false successful transfer
+- Assets may optionally cross-link successful talk-completion chronology to `citizen_conversations.id` / `source_id`
+- legacy conversation rows may legitimately have `source_job_id = NULL`; do not fabricate a physical source link when ambiguous
+- after integration, observe live autonomous talk for any unexpected failed attempts or model-generation reliability issues
+
+## Deeper Provenance — Future Depth
+
+- extract only specific facts actually spoken, not every fact implied by a summary
+- store explicit claim/observation provenance records from `PROVENANCE_CONTRACT.md`
 - formalize per-citizen last-known views derived from provenance records
 - track information source and age in bounded Memory retrieval
-- audit visitor conversation prompts for the same anti-omniscience boundary
-- audit legal-action labels/reasons for hidden remote-state leakage
-- add tests for the five provenance acceptance scenarios in `PROVENANCE_CONTRACT.md`
+- model claim verification/contradiction without treating retelling as verification
+- add acceptance tests for the five claim-level provenance scenarios in `PROVENANCE_CONTRACT.md`
+
+## Prompt / Perception Audits
+
+- continue auditing visitor conversation prompts for accidental omniscience as new v0.5 project/building context is added
+- continue auditing legal-action labels/reasons for hidden remote-state leakage
+- ensure future project/building discussion remains conversation/intent unless Simulation exposes a validated physical outcome
 
 ## Speech / Hearing
 
-- model local speech as an explicit information-transfer event
 - consider whether nearby third parties can overhear future conversations
 - consider distance/noise/environment only if the world becomes detailed enough to justify it
+
+Third-party overhearing does not exist yet.
 
 ## Physical Records
 
@@ -30,7 +42,7 @@ Potential future mechanisms if citizens create/use them:
 - written ledgers
 - terminals
 
-These should exist physically before they become information channels.
+These must physically exist before becoming information channels.
 
 ## Future Invented Communication
 
@@ -45,21 +57,11 @@ Possible outcomes might include:
 - radio-like systems
 - world-specific alternatives
 
-But these remain possibilities, not planned unlocks.
+These remain possibilities, not planned unlocks.
 
 ## UI Requests for Assets
 
 - show when a citizen is actively talking
 - show communication events clearly in History
+- distinguish failed talk attempts from stored conversations
 - later distinguish direct vs last-known information visually if useful
-
-## Resume Order
-
-When work resumes:
-
-1. read Communication `INBOX.md` and `COORDINATION.md`
-2. check for responses from Memory and Simulation
-3. confirm whether `comms.py`, `db.py`, and `simulation.py` are now present on the default branch
-4. if present, audit the real talk/visitor prompt/database paths before changing them
-5. implement provenance persistence and bounded last-known retrieval against the documented contract
-6. run the five acceptance scenarios in `PROVENANCE_CONTRACT.md`
