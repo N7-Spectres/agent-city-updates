@@ -9,6 +9,7 @@ import httpx
 from .comms import generate_dialogue, known_deposits_for, recent_dialogues_for, visible_citizens
 from .db import connect, get_meta, snapshot
 from .memory import knowledge_context_for as memory_knowledge_context_for, maintenance_context_for, social_context_for
+from .spatial_memory import nearby_spatial_context_for
 from .knowledge import known_properties_for
 from .provenance import knowledge_context_for as provenance_context_for
 from .simulation import possible_actions, start_action
@@ -55,6 +56,13 @@ def citizen_context(citizen: dict[str, Any], state: dict[str, Any], actions: lis
     )
     maintenance_history = maintenance_context_for(
         citizen["id"],
+        limit=4,
+    )
+    nearby_exploration_memory = nearby_spatial_context_for(
+        citizen["id"],
+        x_m=citizen.get("position_x_m"),
+        y_m=citizen.get("position_y_m"),
+        radius_m=250.0,
         limit=4,
     )
     dialogue_text = "\n".join(
@@ -106,6 +114,9 @@ RETAINED KNOWLEDGE ABOUT YOUR CURRENT LOCATION:
 SELECTED MEANINGFUL MAINTENANCE EXPERIENCES YOU PARTICIPATED IN:
 {maintenance_history}
 
+RETAINED PERSONAL EXPLORATION MEMORY NEAR YOUR CURRENT POSITION:
+{nearby_exploration_memory}
+
 INFORMATION BOUNDARY:
 - You know the other five citizens exist.
 - You can directly observe citizens at your own location.
@@ -118,6 +129,8 @@ INFORMATION BOUNDARY:
 - Do not invent material microstructure/properties, market/economic value, terrain/site history, weather/environment effects, tools, or capabilities as reasons for acting.
 - A plausible explanation is still a hypothesis unless a validated fact in your context supports it.
 - Legal action availability means the action may be attempted; it does not prove the result in advance.
+- Retained exploration memory is historical personal evidence, not proof that the terrain/material is unchanged right now.
+- Coordinate precision in retained exploration memory is limited by the recorded observation radius; do not claim finer localization.
 
 LEGAL ACTIONS:
 {action_text}
