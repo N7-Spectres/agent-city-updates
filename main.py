@@ -23,6 +23,7 @@ from agent_city.provenance import (
     knowledge_payload,
 )
 from agent_city.planner import planning_loop
+from agent_city.simulation import cargo_capacity as physical_cargo_capacity
 from agent_city.memory import (
     ensure_memory_schema,
     knowledge_context_for as memory_knowledge_context_for,
@@ -102,6 +103,13 @@ def index():
 def get_state():
     state = snapshot()
     state["sim_label"] = format_sim_time(state["sim_minute"])
+    with connect() as conn:
+        for citizen in state["citizens"]:
+            citizen["cargo_capacity"] = physical_cargo_capacity(
+                conn,
+                citizen["id"],
+                citizen["location_id"],
+            )
     return state
 
 
