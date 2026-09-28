@@ -5,6 +5,7 @@ let focusedLocation = "seed_site";
 let openControlView = "history";
 let currentView = "home";
 let sheetCitizenId = null;
+let citizenSearchQuery = "";
 let currentVisitAccessKey = null;
 const citizenKnowledgeCache = new Map();
 const locationKnowledgeCache = new Map();
@@ -48,13 +49,28 @@ let locationPositions = {
   seed_site: { x: 50, y: 52 },
 };
 
+// Drop-in 2D art manifest. Keep values null until authoritative identity art exists.
+// Later art can be added without changing the layout/rendering contract.
+const CITIZEN_AVATAR_ASSETS = {
+  aris: { full: null, token: null },
+  bex: { full: null, token: null },
+  cato: { full: null, token: null },
+  iri: { full: null, token: null },
+  noma: { full: null, token: null },
+  vale: { full: null, token: null },
+};
+
 const els = {
   simTime: document.getElementById("sim-time"),
   pauseButton: document.getElementById("pause-button"),
   ollamaStatus: document.getElementById("ollama-status"),
   citizens: document.getElementById("citizens"),
+  citizenSearch: document.getElementById("citizen-search"),
+  recentActivity: document.getElementById("recent-activity"),
+  viewAllHistory: document.getElementById("view-all-history"),
   citizenDirectory: document.getElementById("citizen-directory"),
   citizenPortraitSlot: document.getElementById("citizen-portrait-slot"),
+  citizenPortraitArt: document.getElementById("citizen-portrait-art"),
   citizenPortraitInitials: document.getElementById("citizen-portrait-initials"),
   citizenSheetName: document.getElementById("citizen-sheet-name"),
   citizenSheetRole: document.getElementById("citizen-sheet-role"),
@@ -305,6 +321,89 @@ function initialsFor(name) {
     .toUpperCase();
 }
 
+function avatarHueFor(citizenId) {
+  const text = String(citizenId || "");
+  let hash = 0;
+  for (const char of text) hash = ((hash * 31) + char.charCodeAt(0)) % 360;
+  return hash;
+}
+
+function citizenVisualState(citizen) {
+  const action = activeJobFor(citizen.id)?.action;
+  if (action === "travel") return "traveling";
+  if (action === "charge") return "charging";
+  if (action === "talk") return "talking";
+  if (action) return "working";
+  return "idle";
+}
+
+function citizenAvatarAsset(citizenId, variant) {
+  const record = CITIZEN_AVATAR_ASSETS[String(citizenId)] || {};
+  return record[variant] || null;
+}
+
+function citizenAvatarMarkup(citizen, variant = "token") {
+  const stateClass = citizenVisualState(citizen);
+  const assetVariant = variant === "full" ? "full" : "token";
+  const asset = citizenAvatarAsset(citizen.id, assetVariant);
+  const hue = avatarHueFor(citizen.id);
+  const classes = [
+    "citizen-avatar",
+    `avatar-${variant}`,
+    `state-${stateClass}`,
+    asset ? "has-image" : "fallback-avatar",
+  ].join(" ");
+
+  if (asset) {
+    return `
+      <span class="${classes}" style="--avatar-hue:${hue};">
+        <img class="avatar-image" src="${escapeHtml(asset)}" alt="" />
+      </span>
+    `;
+  }
+
+  if (variant === "full") {
+    return `
+      <span class="${classes}" style="--avatar-hue:${hue};">
+        <span class="avatar-fallback-figure">
+          <i class="avatar-head"></i>
+          <i class="avatar-body"></i>
+        </span>
+        <span class="avatar-initials">${escapeHtml(initialsFor(citizen.name))}</span>
+      </span>
+    `;
+  }
+
+  return `
+    <span class="${classes}" style="--avatar-hue:${hue};" aria-hidden="true">
+      <span class="avatar-initials">${escapeHtml(initialsFor(citizen.name))}</span>
+    </span>
+  `;
+}
+
+function applyCitizenPortrait(citizen) {
+  const stateClass = citizenVisualState(citizen);
+  const asset = citizenAvatarAsset(citizen.id, "full");
+  const hue = avatarHueFor(citizen.id);
+
+  els.citizenPortraitArt.className = `citizen-avatar avatar-full state-${stateClass} ${asset ? "has-image" : "fallback-avatar"}`;
+  els.citizenPortraitArt.style.setProperty("--avatar-hue", String(hue));
+  els.citizenPortraitArt.style.removeProperty("--avatar-image");
+
+  if (asset) {
+    els.citizenPortraitArt.innerHTML = `<img class="avatar-image" src="${escapeHtml(asset)}" alt="" />`;
+  } else {
+    els.citizenPortraitArt.innerHTML = `
+      <span class="avatar-fallback-figure">
+        <i class="avatar-head"></i>
+        <i class="avatar-body"></i>
+      </span>
+      <span id="citizen-portrait-initials" class="avatar-initials">${escapeHtml(initialsFor(citizen.name))}</span>
+    `;
+    els.citizenPortraitInitials = document.getElementById("citizen-portrait-initials");
+  }
+}
+
 function clusterOffset(index, total) {
   const row = Math.floor(index / 3);
   const firstInRow = row * 3;
@@ -334,6 +433,74 @@ function trimNumber(value) {
   return Number.isInteger(n) ? String(n) : n.toFixed(1);
 }
 
+function isMeaningfulHistoryRow(row) {
+  const message = String(row?.message || "").trim();
+  if (!message) return false;
+
+  // Stored conversation summaries are rendered separately from real conversation rows.
+  if (row.category === "conversation") return false;
+  if (/\(conversation #\d+\)/i.test(message)) return false;
+  if (/\bbegan:\s*Talking with\b/i.test(message)) return false;
+
+  // Routine observe/wait churn does not deserve Home at-a-glance space.
+  if (/\bobserving surroundings\b/i.test(message)) return false;
+  if (/\bfinished observing\b/i.test(message)) return false;
+
+  // Failed conversation attempts intentionally remain ordinary events.
+  return true;
+}
+
+function recentActivityItems(limit = 5) {
+  const items = [];
+
+  for (const conversation of state?.citizen_conversations || []) {
+    const summary = String(conversation.summary || "").trim();
+    if (!summary) continue;
+    items.push({
+      key: `conversation:${conversation.id}`,
+      kind: "conversation",
+      simMinute: Number(conversation.sim_minute) || 0,
+      title: `${conversation.initiator_name} ↔ ${conversation.target_name}`,
+      text: summary,
+      meta: conversation.location_name || "",
+    });
+  }
+
+  for (const row of state?.history || []) {
+    if (!isMeaningfulHistoryRow(row)) continue;
+    items.push({
+      key: `history:${row.id ?? row.sim_minute}:${row.message}`,
+      kind: "event",
+      simMinute: Number(row.sim_minute) || 0,
+      title: row.category === "visitor" ? "Visitor" : "City event",
+      text: String(row.message || "").trim(),
+      meta: "",
+    });
+  }
+
+  items.sort((a, b) => {
+    if (b.simMinute !== a.simMinute) return b.simMinute - a.simMinute;
+    if (a.kind === b.kind) return 0;
+    return a.kind === "conversation" ? -1 : 1;
+  });
+
+  return items.slice(0, Math.max(1, limit));
+}
+
+function renderRecentActivity() {
+  const items = recentActivityItems(5);
+  els.recentActivity.innerHTML = items.length ? items.map(item => `
+    <article class="recent-activity-item ${item.kind}">
+      <div class="recent-activity-time">${escapeHtml(formatMinute(item.simMinute))}</div>
+      <div class="recent-activity-copy">
+        <strong>${escapeHtml(item.title)}</strong>
+        <p>${escapeHtml(item.text)}</p>
+        ${item.meta ? `<span>${escapeHtml(item.meta)}</span>` : ""}
+      </div>
+    </article>
+  `).join("") : '<div class="muted recent-activity-empty">No meaningful recent activity yet.</div>';
+}
+
 function render() {
   els.simTime.textContent = `${state.sim_label} • ${state.paused ? "Paused" : "Running"}`;
   els.pauseButton.textContent = state.paused ? "Resume" : "Pause";
@@ -341,6 +508,7 @@ function render() {
   computeLocationPositions();
 
   renderCitizens();
+  renderRecentActivity();
   renderCitizenDirectory();
   renderCitizenSheet();
   renderLocationDirectory();
@@ -364,7 +532,12 @@ function renderVisitorStatus() {
 }
 
 function renderCitizens() {
-  els.citizens.innerHTML = state.citizens.map(c => {
+  const query = citizenSearchQuery.trim().toLowerCase();
+  const visible = (state.citizens || []).filter(c =>
+    !query || String(c.name || "").toLowerCase().includes(query)
+  );
+
+  els.citizens.innerHTML = visible.length ? visible.map(c => {
     const cargo = inventoryFor(c.id);
     const job = activeJobFor(c.id);
     const destination = job?.action === "travel" ? locationById(job.target)?.name : null;
@@ -372,7 +545,7 @@ function renderCitizens() {
     return `
       <button class="citizen-row compact-citizen-row ${selectedCitizen === c.id ? "selected" : ""}" onclick="selectCitizen('${c.id}')">
         <div class="compact-citizen-main">
-          <span class="compact-citizen-token">${escapeHtml(initialsFor(c.name))}</span>
+          ${citizenAvatarMarkup(c, "token")}
           <div>
             <div class="citizen-name">${escapeHtml(c.name)}</div>
             <div class="activity">${escapeHtml(c.current_activity)}</div>
@@ -385,7 +558,12 @@ function renderCitizens() {
         </div>
       </button>
     `;
-  }).join("");
+  }).join("") : `
+    <div class="citizen-search-empty">
+      <strong>No citizen matches “${escapeHtml(citizenSearchQuery)}”.</strong>
+      <span>Try a shorter name.</span>
+    </div>
+  `;
 }
 
 function cargoRowsForCitizen(citizenId) {
@@ -564,7 +742,7 @@ function renderCitizenDirectory() {
     const where = destination ? `Traveling to ${destination}` : c.location;
     return `
       <button class="directory-row ${sheetCitizenId === c.id ? "selected" : ""}" onclick="openCitizenSheet('${c.id}')">
-        <span class="directory-token">${escapeHtml(initialsFor(c.name))}</span>
+        ${citizenAvatarMarkup(c, "directory")}
         <span>
           <strong>${escapeHtml(c.name)}</strong>
           <small>${escapeHtml(c.current_activity)} • ${escapeHtml(where)}</small>
@@ -605,7 +783,7 @@ function renderCitizenSheet() {
     .slice(0, 6);
   const cargoCapacity = Number(citizen.cargo_capacity);
 
-  els.citizenPortraitInitials.textContent = initialsFor(citizen.name);
+  applyCitizenPortrait(citizen);
   els.citizenSheetName.textContent = citizen.name;
   els.citizenSheetRole.textContent = citizen.aptitude;
   els.citizenSheetVisit.disabled = false;
@@ -898,7 +1076,7 @@ function renderMap() {
         title="${escapeHtml(c.name)} • traveling to ${escapeHtml(targetName)} • ${progress?.percent || 0}%"
         aria-label="${escapeHtml(c.name)} traveling to ${escapeHtml(targetName)}"
         onclick="selectCitizen('${c.id}')"
-      >${escapeHtml(initialsFor(c.name))}</button>
+      >${citizenAvatarMarkup(c, "map")}</button>
     `;
   }).join("");
 
@@ -960,7 +1138,7 @@ function renderLocationNode(loc) {
         title="${escapeHtml(person.name)} • ${escapeHtml(person.current_activity || person.location)}"
         aria-label="${escapeHtml(person.name)} at ${escapeHtml(loc.name)}"
         onclick="selectCitizen('${person.id}')"
-      >${escapeHtml(initialsFor(person.name))}</button>
+      >${citizenAvatarMarkup(person, "map")}</button>
     `;
   }).join("");
 
@@ -1651,6 +1829,16 @@ els.visitorStatus.addEventListener("click", () => {
     renderLocationSheet();
     setView("locations");
   }
+});
+
+els.citizenSearch.addEventListener("input", () => {
+  citizenSearchQuery = els.citizenSearch.value;
+  renderCitizens();
+});
+
+els.viewAllHistory.addEventListener("click", () => {
+  setView("records");
+  openControlRoomView("history", "Settlement history", "HISTORY");
 });
 
 els.visitorName.addEventListener("change", async () => {
