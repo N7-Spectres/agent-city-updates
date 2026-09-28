@@ -162,6 +162,10 @@ def main() -> None:
             "id": "seed_site_local",
             "units": "meters",
             "origin_location_id": "seed_site",
+            "frame_type": "local_tangent_plane",
+            "x_axis": "east",
+            "y_axis": "north",
+            "global_mapping": "not_yet_assigned",
         }
         assert state["spatial_observations"] == []
 
@@ -175,6 +179,28 @@ def main() -> None:
         assert not ok
         assert observation_id is None
         assert "outside" in message.lower()
+
+        # A source job must belong to the observing citizen.
+        with connect() as conn:
+            fake_job = conn.execute(
+                """
+                INSERT INTO jobs
+                (citizen_id, action, target, start_minute, end_minute, status, outcome)
+                VALUES ('bex', 'wait', 'seed_site', 360, 400, 'complete', 'success')
+                """
+            )
+            foreign_job_id = int(fake_job.lastrowid)
+            conn.commit()
+        ok, observation_id, message = record_local_spatial_observation(
+            "aris",
+            1.0,
+            0.0,
+            max_range_m=2.0,
+            source_job_id=foreign_job_id,
+        )
+        assert not ok
+        assert observation_id is None
+        assert "does not belong" in message.lower()
 
         ok, observation_id, _ = record_local_spatial_observation(
             "aris",
