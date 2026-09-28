@@ -16,11 +16,15 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-_None._
+- [World & Simulation] v0.6.0 lead: hidden material/world properties, experiments, persistent discoveries, knowledge-filtered world state
+- [Communication & Perception] v0.6.0: discovery/claim provenance, local information flow, anti-omniscience audits, visitor busy/talk status fix
+- [Memory & Social] v0.6.0: durable per-citizen location/research knowledge and bounded retrieval
+- [Assets & Interface] v0.6.0: simplified Home, Citizens character sheets, Locations field notebook, knowledge-bound visuals
 
 ### WAITING
 
-_None._
+- [Assets & Interface] final knowledge/read-model contracts from Simulation, Communication, and Memory will be needed for the data-driven portions after independent navigation/layout work
+- [Memory & Social] may need final Simulation discovery IDs and Communication provenance shape before any new runtime helper/schema work
 
 ### READY
 
@@ -28,7 +32,7 @@ _None._
 
 ### REVIEW
 
-_None. v0.5.0 integration is complete._
+_None yet for v0.6.0._
 
 ### DONE
 
@@ -46,6 +50,23 @@ _None. v0.5.0 integration is complete._
 - [World & Simulation] Visitor physical presence and travel
 - [Assets & Interface] v0.3.0 live job progress and moving map markers
 - [Memory & Social] Persistent visitor visits and bounded conversation context
+
+## v0.6 Coordination Goal
+
+v0.6.0 is the active coordinated milestone.
+
+Primary rule:
+> **The UI may show what the civilization knows, not everything the Simulation secretly knows.**
+
+Department order does not need to be strictly serial, but the integration dependency is:
+
+1. Simulation defines hidden world truth + validated discovery/experiment records.
+2. Communication defines how discoveries/claims can move between citizens and fixes visit-status wording.
+3. Memory retains/retrieves per-citizen knowledge without creating a global omniscient encyclopedia.
+4. Assets renders Home/Citizens/Locations only from the safe known-state interfaces.
+5. Coordinator assembles all branches and runs regression + v0.6 smoke tests before publication.
+
+No department should publish `update.json`.
 
 ## v0.5 Integration Result
 
