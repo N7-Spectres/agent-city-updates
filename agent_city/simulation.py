@@ -946,7 +946,7 @@ def apply_daily_rhythm_to_actions(
     return actions
 
 
-def possible_actions(citizen_id: str, *, apply_daily_rhythm: bool = True) -> list[dict[str, Any]]:
+def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
     with connect() as conn:
         c = conn.execute("SELECT * FROM citizens WHERE id = ?", (citizen_id,)).fetchone()
         if not c or c["active_job_id"] is not None:
@@ -1268,13 +1268,24 @@ def possible_actions(citizen_id: str, *, apply_daily_rhythm: bool = True) -> lis
                 })
 
         actions.append({"action": "wait", "target": location_id, "label": "Remain where you are and observe for a while."})
-        if not apply_daily_rhythm:
-            return actions
+        return actions
+
+
+def autonomous_actions(citizen_id: str) -> list[dict[str, Any]]:
+    """Physically legal actions filtered by the citizen's daily autonomy rhythm."""
+    actions = possible_actions(citizen_id)
+    if not actions:
+        return []
+    with connect() as conn:
+        citizen = conn.execute("SELECT * FROM citizens WHERE id = ?", (citizen_id,)).fetchone()
+        if not citizen or citizen["active_job_id"] is not None:
+            return []
+        now = int(get_meta(conn, "sim_minute") or "360")
         return apply_daily_rhythm_to_actions(
             actions,
             sim_minute=now,
-            energy=energy,
-            usable_capacity=usable_capacity,
+            energy=float(citizen["energy"]),
+            usable_capacity=usable_energy_capacity(citizen),
         )
 
 
@@ -1282,7 +1293,7 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
     # Daily rhythm is an autonomy/planning constraint, not a new law of physics.
     # Direct Simulation calls remain valid when the requested action is otherwise
     # physically legal; critical-energy survival is still enforced below.
-    legal = possible_actions(citizen_id, apply_daily_rhythm=False)
+    legal = possible_actions(citizen_id)
     chosen = None
 
     for action in legal:
