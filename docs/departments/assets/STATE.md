@@ -1,175 +1,131 @@
 # Assets & Interface — State
 
 _Last updated: 2026-09-28_
-_Current release: v0.5.0_
-_Current department branch: `assets/v0.5-making-ui`_
-_Current branch head: `71e30d3ca02edc97f5286436bc5ef03f93b77088`_
-_Current review surface: draft PR #2_
+_Current shipped release: v0.5.0_
+_Current department branch: `assets/v0.6-knowledge-ui`_
+_Current branch head: `280417e7361d888c7bd740c80f436493a13d85a1`_
+_Current review surface: draft PR #3_
 
 ## Mission
 
-Make Agent City visually understandable and increasingly feel like a living place while never allowing the visual layer to invent physical reality.
+Make Agent City visually understandable and increasingly feel like a living place while never allowing the visual layer to invent physical reality or hidden knowledge.
 
-## v0.5 Assets Scope — Complete
+## v0.6 Independent Information Architecture — Implemented
 
-The v0.5 Assets branch is based from immutable runtime commit:
-`4181cbb69809205ae575b3f576836e5ca72c8dce`.
+Branch base:
+`release-v0.5.0` / `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
 
-It now contains the full requested Assets work.
+### Home
 
-### Compact Visit / layout
+Home is simplified to the core visit experience:
 
-- bounded Visit panel
-- internally scrolling chat log
-- anchored visitor input / Talk controls
-- capped Previous Visits region
-- centered, rebalanced three-column desktop layout
-- more usable right-side width
-- responsive fixed-height interaction layout
+- compact citizen quick list
+- central world map remains primary
+- selected-citizen Visit remains immediately accessible
+- visitor physical location is a compact map-corner status
+- duplicate region strip is removed from Home
+- permanent Making / Stores / History / Updates console is removed from Home
 
-### Conversation History
+Quick citizen rows now emphasize only high-value live state:
 
-History is the default Control Room companion beneath Visit.
+- name
+- activity
+- location / travel destination
+- carried cargo
+- compact energy / integrity
 
-Conversation cards are rendered only from real `state.citizen_conversations[]` records and show:
+### Citizens
 
-- canonical conversation ID
-- physical talk `source_job_id` when available
-- participants
-- location
-- simulation time
-- stored summary
-- expandable transcript
+Dedicated character-sheet page added.
 
-Successful v0.5 talk completion chronology is correlated by its `conversation #<id>` reference.
+Current safe v0.5-backed fields include:
 
-Failed talk attempts remain settlement chronology only and do not receive synthetic conversation cards or transcripts.
+- placeholder-safe full-body identity slot
+- aptitude
+- location / travel state
+- activity / active job
+- energy / integrity
+- carried cargo
+- validated personal equipment
+- explicit equipment modifiers
+- projects created by the citizen
+- personally confirmed discoveries only
+- recent authoritative chronology
 
-Legacy chronology-only conversation records may still be shown explicitly when the actual exchange is outside the current state snapshot.
+Appearance art and richer configuration remain placeholder-safe until an authoritative source exists.
 
-### Making & Building
+### Locations
 
-The Control Room tab previously labeled Structures is now **Making**.
+Dedicated field-notebook page added.
 
-It consumes only Simulation's authoritative v0.5 snapshot state:
+Current safe v0.5-backed fields include:
 
-#### Projects — `state.projects[]`
+- placeholder-safe scene slot
+- survey state
+- discovered resources only
+- physically present citizens
+- validated structures
+- validated projects
+- known routes
 
-Displayed:
-- stable project ID
-- exposed lifecycle status: `planned | reserved | underway | complete`
-- name / blueprint-derived label
-- validated location
-- local x/y site coordinates when exposed
-- creating citizen
-- active physical job ID when exposed
-- resulting structure ID after Simulation exposes it
+Unknown resources/properties are omitted rather than shown as locked secrets.
 
-#### Project materials — `state.project_materials[]`
+### Records
 
-Displayed:
-- material
-- reserved amount
-- required amount
+Making / Stores / History / Region / Updates are now moved to a dedicated top-level Records page.
 
-The UI does not calculate material reservation itself.
+### Visit status polish
 
-#### Equipment — `state.equipment[]`
+When a visit is inaccessible, the UI now shows the backend's actual reason instead of always displaying the generic "Not at the same location" label.
 
-Displayed:
-- stable equipment ID
-- name / kind
-- owner or settlement ownership
-- location
-- condition
-- fabrication source job ID
-- explicit Simulation modifiers:
-  - `cargo_bonus`
-  - `extraction_speed_multiplier`
+## Verification
 
-The UI does not derive bonuses from item names.
+Static verification on `assets/v0.6-knowledge-ui`:
 
-#### Structures — extended `state.structures[]`
-
-Displayed:
-- stable structure ID
-- name / kind
-- validated location
-- condition
-- local x/y coordinates when exposed
-- `provides_charging`
-- source project ID when exposed
-
-Local x/y is presented as local site data only, not as free-roam world geography.
-
-## Cross-Department Contracts Consumed
-
-World & Simulation:
-- `simulation/v0.5-making-building`
-- authoritative head `773299189d22d214b3376c72b396015a4a7a762e`
-
-Communication contract preserved through the integrated Simulation branch:
-- canonical `citizen_conversations.id/source_id`
-- nullable unique `source_job_id`
-- successful physical talk completion requires a stored exchange
-- missing exchange => failed talk, not successful conversation
-
-Memory boundary preserved:
-- conversation/project discussion is not proof of physical project progress or completion
-
-## Verification Performed
-
-Static branch verification:
-
-- 47 HTML IDs
-- 47 JavaScript `getElementById` references
-- zero missing IDs
+- 65 HTML IDs
+- 60 JavaScript `getElementById` references
+- zero missing referenced IDs
 - zero duplicate IDs
-- zero stale bottom-drawer hooks
-- JavaScript parsed successfully
-- branch is 7 commits ahead / 0 behind pinned v0.4.1 base
+- JavaScript parses successfully
+- branch is 4 commits ahead / 0 behind the shipped v0.5.0 base
 - changed runtime files are only:
   - `static/index.html`
   - `static/app.js`
   - `static/styles.css`
-- Simulation branch changes no `static/` files, so there is no direct frontend file overlap during coordinator integration
 
-## Integration Status
+## Waiting Dependencies
 
-Assets & Interface is now **REVIEW**, not ACTIVE or WAITING.
+The independent UI shell is complete. Remaining v0.6 data-driven work is waiting on three owner contracts.
 
-Draft PR #2:
-**Assets: v0.5 compact interaction, History, and Making UI**
+### World & Simulation
 
-Next action belongs to coordinator integration:
+Requested:
+- knowledge-safe world/location read model
+- discovery/experiment anchors
+- authoritative per-citizen cargo capacity
+- guidance on which raw v0.5 fields must no longer be used directly once hidden truth exists
 
-1. combine `simulation/v0.5-making-building` with `assets/v0.5-making-ui`
-2. smoke-test the assembled runtime with real v0.5 state
-3. verify Making tab against actual projects/equipment/structures
-4. preserve canonical conversation-source invariants
-5. keep `update.json` untouched unless the human explicitly requests release publication
+### Communication & Perception
 
-No simulation rules or release metadata were changed by Assets.
+Requested:
+- stable structured visit accessibility semantics
+- display-safe provenance/source/age fields
+- distinction between direct observation/discovery and communicated claim
 
+### Memory & Social
 
-## Work Session Closure — 2026-09-28
+Requested:
+- bounded per-citizen known-fact read model
+- location/material/research/process knowledge
+- source/time/verification metadata
+- no global omniscient encyclopedia
 
-Assets & Interface is stopped in **REVIEW**.
+All three requests are recorded directly in the owning department INBOX files.
 
-Department work is complete on `assets/v0.5-making-ui` at `71e30d3ca02edc97f5286436bc5ef03f93b77088`.
+## Current Status
 
-Next owner: **Coordinator / Integration**.
+Assets & Interface is **WAITING** on those v0.6 contracts.
 
-Coordinator should combine this branch with `simulation/v0.5-making-building` at `773299189d22d214b3376c72b396015a4a7a762e`, run the assembled v0.5 smoke/runtime checks, and preserve the documented cross-department invariants.
+Draft PR #3 contains the independent information-architecture work and should not be treated as the complete v0.6 UI until the safe knowledge models are consumed.
 
-No Assets inbox item or external dependency remains open.
-
-
-## Shipped v0.5.0 Integration
-
-Coordinator integrated the completed Assets branch with the authoritative Simulation/Communication runtime on `release-v0.5.0`.
-
-Immutable published runtime commit:
-`d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
-
-The combined release smoke suite passed, including the assembled UI integration check.
+No `update.json`, release metadata, simulation rules, or hidden-state interfaces were changed by Assets.
