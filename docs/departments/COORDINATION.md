@@ -20,29 +20,32 @@ Departments should read this file at the beginning of a work session in addition
 
 ### ACTIVE
 
-_None recorded at Memory & Social session close._
+_None. v0.4.0 integration/release is complete._
 
 ### STANDBY
 
-_None recorded._
+- [All departments] Await next coordinated milestone.
 
 ### WAITING
 
-- [Memory & Social] Next social-memory layer waits for Communication provenance and Simulation validated-event interfaces
+_None blocking the v0.4.0 release._
 
 ### READY
 
-- [Communication & Perception] Full v0.3.0 runtime source located at commit `40f9704b7e84e2dd6279932223105ae93d9fef49`; provenance runtime work can resume from that lineage
-- [World & Simulation] Full v0.3.0 runtime source located; Memory and Communication event/interface requests are in Simulation inbox
+- [Communication & Perception] Provenance contract is ready for a later deeper social-memory pass.
+- [World & Simulation] Stable completed job IDs remain available as candidate authoritative event references for later cooperation/help memories.
 
 ### REVIEW
 
-- [Memory & Social] v0.4 social-memory core on `memory/v0.4-social-memory-core` at `eb1ccc17e2fc7a44a15fbb73c44fc2b87d47f997`; runtime migration/Ollama tests required before release
-- [Communication & Perception] Planner anti-omniscience patch + v0.4 provenance contract
-- [Assets & Interface] v0.4 Control Room + map readability pass on `assets-v0.4-control-room`; static checks passed, runtime UI test required
+_None. Coordinator integration smoke test passed for v0.4.0._
 
 ### DONE
 
+- [Coordinator] v0.4.0 assembled on `release-v0.4.0`, tested, versioned, and published
+- [Memory & Social] Durable directional conversation memory + bounded social context
+- [Assets & Interface] Control Room redesign + distance-aware map readability pass
+- [Communication & Perception] Information-boundary rules / anti-omniscience architecture preserved; provenance contract documented
+- [World & Simulation] Existing validated jobs/physical state preserved unchanged for this milestone
 - [Communication & Perception] Same-location citizen talk system
 - [World & Simulation] Visitor physical presence and travel
 - [Assets & Interface] v0.3.0 live job progress and moving map markers
