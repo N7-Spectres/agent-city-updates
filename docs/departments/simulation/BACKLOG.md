@@ -78,3 +78,19 @@ Cross-department Stage 1 follow-on:
 - how should generated bodies connect to finite extraction quantity without exposing hidden reserve estimates?
 - when should a cluster of observations become a new physical place/site record?
 - how should local tangent frames transition between distant settlements on the later spherical world?
+
+
+## v0.8 Stage 1 Integration Gate
+
+Do not start Stage 2 Simulation feature work until coordinator review confirms the Stage 1 contracts across all departments.
+
+Coordinator review must verify:
+
+1. Simulation hidden seeded world remains hidden.
+2. Communication uses safe observations/coordinates only and keeps RP claims separate from validated facts.
+3. Memory retains safe observation evidence without ingesting hidden generated-world tables.
+4. Assets uses the safe spatial read model and does not infer continuous movement yet.
+5. All v0.4-v0.7 regressions plus Simulation/Communication/Memory/Assets Stage 1 smoke tests pass after integration.
+6. Any conflict that changes spatial identity, hidden/public boundaries, coordinate semantics, or observation legality returns to World & Simulation for review.
+
+After that gate, Stage 2 may introduce continuous movement, coordinate-based exploration/survey actions, generated-deposit discovery/extraction, and shared visitor actions as separate validated systems.
