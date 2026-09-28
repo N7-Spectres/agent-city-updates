@@ -23,7 +23,7 @@ Remaining depth:
 - project cancellation/recovery rules
 - equipment wear/weight/energy tradeoffs when maintenance systems arrive
 
-## v0.6.0 — Research & Discovery
+## v0.6.0 — Research, Discovery & Knowledge State
 
 - hidden material properties
 - experiment actions
@@ -33,6 +33,11 @@ Remaining depth:
 - failed experiment history
 - new capabilities derived from discovered properties
 - keep newly learned processes separate from a visible fixed technology tree
+- create/confirm a strict split between authoritative world truth and citizen/visitor-facing known truth
+- expose knowledge-filtered location/resource/environment data instead of leaking hidden world state to ordinary UI
+- locations should begin sparse and accumulate known facts through validated survey/measurement/experiment events
+- unknown resources and properties remain absent from citizen-facing data
+- store enough source/time metadata to explain when/how a location fact became known
 - ensure research results remain unknown to LLM context until physically discovered/communicated
 
 ## v0.7.0 — Maintenance & Consequences
