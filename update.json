@@ -1,6 +1,6 @@
 {
-  "version": "0.2.7",
-  "notes": "Persistent visits + bounded conversation memory: refresh restores the active chat, Leave Visit explicitly ends it, older visits are summarized, and Ollama only receives a bounded recent window plus compact summaries so long-running conversations do not grow without limit.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/refs/heads/release-v0.2.7",
+  "version": "0.2.8",
+  "notes": "Local citizen communication: remote omniscience removed. Citizens directly observe only co-located citizens, can autonomously hold face-to-face conversations, remember what was actually said, and must learn remote information through real communication.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/refs/heads/release-v0.2.8",
   "sha256": ""
 }
