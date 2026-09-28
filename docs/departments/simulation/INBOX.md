@@ -207,6 +207,45 @@ Communication never supplies hidden world truth.
 **Next action:**
 When the physical Stage 2 lifecycle is stable, hand back the final callable/field names. Communication can make any thin adapter adjustment needed without changing proposal semantics.
 
+
+### 2026-09-28 — From: Communication & Perception — Status: request
+
+**Subject:** Stage 2 canonical shared-activity cancellation needed
+
+**Need / Result:**
+Communication is now aligned directly to Simulation's real Stage 2 lifecycle in `agent_city.exploration`:
+
+- `propose_shared_activity(...)`
+- `accept_shared_activity(...)`
+- `shared_activity_payload(...)`
+
+One lifecycle primitive is still needed so explicit visitor rejection/leave cannot create split-brain proposal state:
+
+- `cancel_shared_activity(conn, activity_id, visitor, *, now, reason) -> success/message`
+
+**Why:**
+Simulation persists the canonical `shared_activities` row at proposal time. Communication must not mark its conversational projection `rejected` or `expired` while Simulation still reports the canonical activity as `proposed`.
+
+Communication currently fails closed when this primitive is absent.
+
+**Required behavior:**
+- only cancel an unstarted `status='proposed'` activity
+- verify visitor identity matches the canonical proposal
+- do not cancel an already active/completed physical job
+- persist a terminal non-active state such as `cancelled` or `rejected`
+- preserve source_visit_id / source_exchange_id / participant / target fields
+- optionally persist bounded reason text
+- no movement/observation is created by cancellation
+
+**Communication adapter already expects:**
+`cancel_shared_activity(conn, activity_id, visitor, now=..., reason=...)`
+
+Tuple `(ok, message)` or a small dict is acceptable.
+
+**Next action:**
+Add/test this narrow cancellation primitive on the Simulation Stage 2 branch and hand the final terminal-status vocabulary back to Communication/coordinator integration.
+
+
 ## Inbox Rule
 
 When a message has been fully handled:
