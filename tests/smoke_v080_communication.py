@@ -52,6 +52,7 @@ def main() -> None:
             citizen_capability_payload,
             grounding_policy_text,
             settlement_store_context,
+            spatial_grounding_context,
         )
         from agent_city.memory import ensure_memory_schema
         from agent_city.planner import citizen_context
@@ -128,6 +129,14 @@ def main() -> None:
         assert "Processed structural material" not in remote_store
         assert "120" not in remote_store
 
+        # Spatial grounding is safe both before and after Simulation's Stage 1
+        # meter substrate is merged. It must never expose hidden geometry.
+        spatial_text = spatial_grounding_context("aris", visitor_id="N7")
+        assert "SPATIAL GROUNDING" in spatial_text
+        assert "richness" not in spatial_text.lower()
+        assert "long_axis" not in spatial_text.lower()
+        assert "short_axis" not in spatial_text.lower()
+
         # Grounding vocabulary explicitly separates claims/hypotheses/actions.
         visitor_rules = grounding_policy_text(visitor_facing=True)
         assert "KNOWN FACT" in visitor_rules
@@ -195,6 +204,7 @@ def main() -> None:
             system_text = messages[0]["content"]
             assert "VISITOR ROLEPLAY GROUNDING" in system_text
             assert "AUTHORITATIVE CAPABILITY SURFACE" in system_text
+            assert "SPATIAL GROUNDING" in system_text
             assert "visitor-reported" in system_text
             assert "concept art" in system_text
             assert "shared visitor activity" in system_text
