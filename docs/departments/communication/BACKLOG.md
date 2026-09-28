@@ -1,98 +1,90 @@
 # Communication & Perception — Backlog
 
-## v0.8 Stage 2 — Visitor-Linked Physical Actions
+## v0.8 Stage 2 — Immediate Integration Blocker
 
-Stage 1 grounding is complete.
+Communication proposal/start/status work is complete on:
 
-Real shared visitor/citizen activity remains intentionally deferred until Simulation defines the physical action lifecycle.
+`communication/v0.8-shared-actions-stage2`
 
-Communication needs Stage 2 Simulation interfaces for:
+Remaining dependency:
 
-- visitor identity + citizen identity participant binding
-- authoritative co-location/proximity validation
-- requested local objective/direction/point
-- meter-scale path/movement legality
-- duration
-- energy requirements
-- tool/equipment requirements
-- shared action start/status/failure/completion
-- stable Simulation action ID
-- stable completion/physical event ID when distinct
-- validated observation ID(s) produced by the action
-- authoritative participant positions during/after the action
+### Simulation canonical proposal cancellation
 
-Communication will attach:
+Need:
 
-- source visit ID
-- source exchange ID
-- visitor request text
-- citizen response/intention
+`cancel_shared_activity(conn, activity_id, visitor, *, now, reason)`
 
-but will not create physical state.
+Required semantics:
 
-See branch document:
+- only terminalize unstarted canonical `shared_activities.status='proposed'`
+- validate the proposed visitor
+- never cancel an already active/completed physical job through this proposal-cancel path
+- preserve participant/source/target fields
+- persist terminal `cancelled` or equivalent status
+- create no movement or observation
+- return success/message
 
-`docs/departments/communication/SHARED_ACTION_CONTRACT.md`
+Communication already fails closed if this function is unavailable.
 
-## Stage 2 Spatial Communication
+Once supplied:
 
-When Simulation adds continuous movement:
+- explicit visitor reject can synchronize both layers
+- visitor leave/travel can expire pending proposals without leaving stale Simulation proposals
+- Assets can safely enable reject/decline UI
 
-- preserve exact source/time for last-known positions
-- distinguish current co-location from stale remembered coordinates
-- use validated position/action state, not visitor prose
-- retain `radius_m` / tool semantics for observations
-- do not infer hidden resource geometry from repeated point observations
+## Stage 2 Coordinator Merge Requirements
 
-## Visitor Claim Provenance — Future Depth
+Preserve both department implementations in `main.py`:
 
-Stage 1 grounds visitor claims in prompt semantics and preserves raw visitor conversation.
+### Simulation physical endpoints/state
+- canonical `shared_activities`
+- continuous movement payloads
+- physical propose/accept/status API/helpers
+- jobs and observation completion
 
-If later required, add structured visitor-claim provenance only with transcript-grounded extraction comparable to citizen claims.
+### Communication conversational endpoints/context
+- `shared_action_proposals`
+- `/api/shared-actions/...`
+- proposal creation from durable visitor exchange
+- explicit accept/reject UI layer
+- bounded shared activity dialogue context
 
-Do not create a broad visitor-claim extractor merely to make Stage 1 work.
+Do not replace Communication proposal semantics with direct UI calls to Simulation's proposal endpoint, or the durable conversational source/explicit RP bridge is lost.
 
-## Emergent Place Naming
+## Stage 2 Source Chain
 
-Future place naming should remain social information distinct from physical coordinate identity.
+Keep distinct:
 
-Communication may eventually carry:
+1. `conversations.id` — social source exchange
+2. `shared_action_proposals.id` — Communication proposal projection
+3. `shared_activities.id` — Simulation canonical shared activity
+4. `jobs.id` — active physical job
+5. `spatial_observations.id` — validated exploration evidence
 
-- proposed place names
-- aliases
-- who coined/adopted them
-- naming discussion
+## Future Shared-Action Depth
 
-but Simulation owns the physical feature/site identity and Memory owns retained naming history.
+After Stage 2 integration:
+
+- additional Simulation-owned shared activity types may be exposed through explicit safe contracts
+- tool-assisted inspection may use actual available equipment IDs
+- proposal parser may expand beyond cardinal meter requests only when Simulation defines safe target semantics
+- cancellation after physical start should be a separate Simulation movement/job cancel design, not proposal rejection
+- proposal provenance may later be surfaced in History/Memory if useful
 
 ## Existing Deferred Communication Depth
 
+- structured visitor-claim provenance beyond current raw visitor exchange
 - claim contradiction/reliability reconciliation
 - third-party overhearing
-- physical notice boards/logs/records
-- invented long-distance communication after real research/material/fabrication prerequisites
-- diagnostic aggregation/backfill for degraded claim extraction
+- physical records / notice boards
+- emergent place-name propagation
+- invented long-distance communication after actual research/material/fabrication prerequisites
 
-## Ongoing Audit Rules
+## Ongoing Safety Audits
 
-As Living World systems expand:
-
-- audit all new prompt/context sources for raw hidden Simulation truth
-- audit remote live state leakage
-- audit concept-art/visual metadata so presentation never becomes capability
-- preserve v0.7 raw-exchange-first talk reliability
-- keep personality expressive while factual nouns stay evidence-grounded
-
-## Stage 1 Resume Order
-
-When Communication resumes:
-
-1. read `docs/departments/COORDINATION.md`
-2. read `docs/departments/communication/INBOX.md`
-3. confirm the integrated/runtime branch being targeted
-4. verify `agent_city/grounding.py` and `SHARED_ACTION_CONTRACT.md` survived integration
-5. run `tests/smoke_v080_communication.py` plus prior Communication regressions
-6. if Stage 2 is active, read Simulation's visitor-linked action lifecycle before wiring chat proposals to physical actions
-7. do not infer movement, observation, or capability from prose/visuals when the Simulation contract is absent
-
-Current Stage 1 feature work is complete; remaining work is coordinator integration or Stage 2.
+- no hidden world query in prompts
+- no concept-art capability
+- no remote live-state leakage
+- no LLM-invented coordinates
+- no proposal-as-completion
+- preserve v0.7 raw-exchange-first conversation reliability
