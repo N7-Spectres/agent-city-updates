@@ -1,34 +1,27 @@
 # World & Simulation — Backlog
 
-## Near-Term
+## Near-Term After v0.5 Integration
 
 - refine duplicate/parallel survey behavior intentionally
-- expose richer action progress metadata cleanly to UI
+- cooperative job foundation: reserve multiple citizens without race conditions
+- expose richer action progress metadata cleanly to UI where current job timing is insufficient
 - support visitor turn-around / cancel travel behavior
-- improve route/distance representation for Assets
-- continue testing citizen talk job edge cases
+- improve route/distance representation as geography grows
+- continue testing citizen talk job edge cases after branch integration
+- define explicit project-material transport before allowing remote construction
+- decide how equipment transfer/storage assignment should work beyond maker-owned personal gear
 
-## v0.5.0 — Making & Building
+## v0.5 Follow-On Depth
 
-- fabrication actions
-- construction actions
-- recipes/processes based on learned knowledge
-- material requirements
-- tool requirements
-- multi-step projects
-- physical structure placement
-- settlement growth
-- lay enough coordinate/location groundwork that future structures can exist at real sites rather than only as settlement-wide counters
-- allow tools to improve work through physical capability rather than abstract level bonuses
-- extraction tools may affect speed, usable yield, energy cost, or material suitability
-- citizen experience may later contribute modestly and separately from tool quality
-- carry-capacity equipment such as backpacks, cargo frames, carts, or other citizen-invented transport gear can increase how much material a citizen can physically carry
-- carrying upgrades must be real fabricated equipment with tradeoffs such as weight, energy use, speed, suitability, or wear when those systems exist
-- add a simple return-energy reserve: before starting remote work or outbound travel, citizens/simulation should preserve enough energy to reach a known charger with a modest safety margin
-- low energy away from a charger should make returning to recharge the practical priority; do not rely only on the LLM noticing a percentage
-- travel should not be able to complete normally after energy reaches zero; reserve/feasibility validation should prevent impossible trips before they start
-- future field chargers/outposts can become valid recharge destinations and change safe operating range
-- keep efficiency rules understandable; avoid turning the system into a dense engineering simulator
+Core fabrication, construction, equipment modifiers, project lifecycle, energy reserve, charger representation, and coordinate groundwork are implemented on the department branch.
+
+Remaining depth:
+- broader physically learned fabrication processes after research exists
+- tool requirements for particular future processes
+- explicit remote construction logistics
+- cooperative fabrication/construction jobs
+- project cancellation/recovery rules
+- equipment wear/weight/energy tradeoffs when maintenance systems arrive
 
 ## v0.6.0 — Research & Discovery
 
@@ -39,6 +32,8 @@
 - reproducible learned processes
 - failed experiment history
 - new capabilities derived from discovered properties
+- keep newly learned processes separate from a visible fixed technology tree
+- ensure research results remain unknown to LLM context until physically discovered/communicated
 
 ## v0.7.0 — Maintenance & Consequences
 
@@ -51,6 +46,7 @@
 - repair
 - replacement parts
 - preventive maintenance
+- job interruption/recovery rules for damage or failure
 
 ## v0.8.0 — Living World
 
@@ -82,6 +78,7 @@
 ## Open Questions
 
 - how should cooperative jobs reserve multiple citizens?
-- how should tools affect job duration/success?
+- how should tool wear/weight/energy tradeoffs interact with job efficiency?
 - how should research results remain unknown to the LLM until discovered?
 - how should injuries/damage interrupt active jobs?
+- how should reserved construction materials be physically transported to remote project sites?
