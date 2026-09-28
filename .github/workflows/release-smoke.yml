@@ -38,3 +38,16 @@ jobs:
 
       - name: Run v0.5 UI integration smoke
         run: python tests/smoke_v050_ui.py
+
+      - name: Run v0.6 simulation smoke
+        run: python tests/smoke_v060.py
+
+      - name: Run v0.6 communication provenance smoke
+        run: python tests/smoke_v060_communication.py
+
+      - name: Run v0.6 memory knowledge smoke
+        run: python tests/smoke_v060_memory.py
+
+      - name: Run v0.6 assembled UI integration smoke
+        run: python tests/smoke_v060_ui.py
+
