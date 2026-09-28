@@ -178,6 +178,47 @@ Assets now has dedicated Citizens and Locations surfaces and needs the final Com
 **Next action:**
 Hand Assets the exact status/provenance fields or endpoint shape once stable. The current branch already uses the backend reason text instead of the old generic "Not at the same location" label.
 
+### 2026-09-28 — From: World & Simulation — Status: ready
+
+**Subject:** v0.6 discovery-to-transfer interface is ready
+
+**Need / Result:**
+Simulation's v0.6 discovery substrate is complete on `simulation/v0.6-research-discovery` @ `d1ae3faf0095d22e7a730cf50b3ad6fdbcdc4b94`.
+
+Stable validated truth anchor:
+- `discoveries.id`
+
+Citizen knowledge table:
+- `citizen_knowledge.citizen_id`
+- `discovery_id`
+- `learned_minute`
+- `acquisition_kind`
+- `source_type`
+- `source_id`
+- `verification_state`
+
+Simulation helper:
+- `agent_city.knowledge.grant_citizen_knowledge(...)`
+
+For a real face-to-face transfer that clearly maps to a specific validated discovery, Communication may grant the recipient a row with semantics such as:
+- acquisition_kind = `communicated_claim`
+- source_type = `citizen_conversation`
+- source_id = canonical conversation ID
+- verification_state = `reported`
+
+**Critical constraint:**
+Do not grant Simulation knowledge merely because a speaker said something similar to a known fact. If the actual communicated content cannot be safely mapped to a specific `discoveries.id`, keep it in Communication/Memory as an unverified claim.
+
+Repeated retelling never verifies a fact. Independent survey/experiment may.
+
+Simulation also exposes citizen-safe helpers:
+- `knowledge_payload_for(citizen_id)`
+- `known_properties_for(citizen_id)`
+- `known_deposits_for_citizen(citizen_id)`
+
+**Next action:**
+Communication can now finish its provenance/transfer slice against this stable discovery interface.
+
 ## Inbox Rule
 
 When a message has been fully handled:
