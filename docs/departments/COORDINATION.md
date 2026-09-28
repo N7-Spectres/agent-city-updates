@@ -308,3 +308,28 @@ Coordinator integration must preserve:
 18. No Blender or 3D generator dependency is required for v0.8.
 19. Preserve `tests/smoke_v080_assets_stage2.py` in the final Stage 2 regression matrix.
 20. No department publishes `update.json`.
+
+
+## v0.8 Stage 2 Coordinator Handoff Review
+
+All four department branches are now complete and ready for combined integration.
+
+Final branch heads:
+- Simulation: `simulation/v0.8-exploration-stage2` @ `b81c9bb57884727e7a1c769d95ecb27928d1d489`
+- Communication: `communication/v0.8-shared-actions-stage2` @ `ddab4bd445d5eb9f7d6354eb86e58afc0dc53332`
+- Memory: `memory/v0.8-exploration-stage2` @ `306a9ef4329ab81afa5912846333a1d9782ee9be`
+- Assets: `assets/v0.8-exploration-ui-stage2` @ `7f5294efaab738b44af116514a65d22478851ad0`
+
+Review notes:
+- all four branches are ahead of the unified Stage 1 base and none are behind it
+- Simulation owns physical movement/shared activity/observation truth
+- Communication proposal IDs remain distinct from Simulation activity/job IDs
+- Memory completion memories require real completed Simulation shared activities and linked observations
+- Assets renders only authoritative movement/proposal/observation state
+- Communication and Memory both modify `main.py`; coordinator merge resolution must preserve both shared-action lifecycle context and bounded exploration-memory context
+- Assets branch CI `36460454385` passed Stage 1 + Stage 2 Assets smoke and AssetQueue lifecycle checks
+
+Verdict:
+**READY FOR COMBINED STAGE 2 INTEGRATION TESTING.**
+
+This is not yet the published v0.8.0 release.
