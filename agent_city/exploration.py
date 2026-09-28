@@ -330,6 +330,37 @@ def propose_shared_activity(
     if math.hypot(cx - vx, cy - vy) > 2.0:
         return False, None, "Visitor and citizen are not physically close enough to start together."
 
+    if source_visit_id is not None:
+        visit = conn.execute(
+            """
+            SELECT * FROM conversation_visits
+            WHERE id = ? AND visitor = ? AND citizen_id = ?
+            """,
+            (int(source_visit_id), visitor_name, citizen_id),
+        ).fetchone()
+        if not visit:
+            return False, None, "Proposal source visit does not belong to these participants."
+
+    if source_exchange_id is not None:
+        exchange = conn.execute(
+            """
+            SELECT * FROM conversations
+            WHERE id = ?
+              AND visitor = ?
+              AND citizen_id = ?
+              AND (? IS NULL OR visit_id = ?)
+            """,
+            (
+                int(source_exchange_id),
+                visitor_name,
+                citizen_id,
+                source_visit_id,
+                source_visit_id,
+            ),
+        ).fetchone()
+        if not exchange:
+            return False, None, "Proposal source exchange does not belong to these participants."
+
     profile = path_profile(conn, cx, cy, float(target_x_m), float(target_y_m))
     if float(profile["distance_m"]) > SHARED_WALK_MAX_M:
         return False, None, f"Shared Stage-2 walk exceeds the {SHARED_WALK_MAX_M:.0f} m local limit."
@@ -338,17 +369,21 @@ def propose_shared_activity(
 
     if tool_equipment_id is not None:
         tool = conn.execute(
-            """
-            SELECT * FROM equipment
-            WHERE id = ? AND condition > 20
-              AND (
-                  owner_citizen_id = ?
-                  OR (owner_citizen_id IS NULL AND location_id = ?)
-              )
-            """,
-            (int(tool_equipment_id), citizen_id, citizen["location_id"]),
+            "SELECT * FROM equipment WHERE id = ? AND condition > 20",
+            (int(tool_equipment_id),),
         ).fetchone()
-        if not tool:
+        tool_available = bool(tool and tool["owner_citizen_id"] == citizen_id)
+        if tool and tool["owner_citizen_id"] is None and tool["location_id"] == citizen["location_id"]:
+            landmark = conn.execute(
+                "SELECT x_m, y_m FROM locations WHERE id = ?",
+                (citizen["location_id"],),
+            ).fetchone()
+            if landmark:
+                tool_available = math.hypot(
+                    cx - float(landmark["x_m"] or 0.0),
+                    cy - float(landmark["y_m"] or 0.0),
+                ) <= 5.0
+        if not tool_available:
             return False, None, "Requested equipment is not physically available to the citizen."
 
     cur = conn.execute(
