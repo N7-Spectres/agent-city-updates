@@ -366,6 +366,34 @@ def init_db() -> None:
             CREATE INDEX IF NOT EXISTS idx_spatial_observations_deposit
             ON spatial_observations(deposit_id, id);
 
+            CREATE TABLE IF NOT EXISTS shared_activities (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                visitor TEXT NOT NULL,
+                citizen_id TEXT NOT NULL,
+                activity_type TEXT NOT NULL,
+                objective TEXT NOT NULL,
+                frame_id TEXT NOT NULL,
+                start_x_m REAL NOT NULL,
+                start_y_m REAL NOT NULL,
+                target_x_m REAL NOT NULL,
+                target_y_m REAL NOT NULL,
+                status TEXT NOT NULL DEFAULT 'proposed',
+                proposed_minute INTEGER NOT NULL,
+                accepted_minute INTEGER,
+                started_minute INTEGER,
+                completed_minute INTEGER,
+                source_visit_id INTEGER,
+                source_exchange_id INTEGER,
+                tool_equipment_id INTEGER,
+                citizen_job_id INTEGER,
+                observation_id INTEGER,
+                outcome TEXT,
+                failure_reason TEXT
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_shared_activities_participants
+            ON shared_activities(visitor, citizen_id, status, id);
+
             CREATE TABLE IF NOT EXISTS jobs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 citizen_id TEXT NOT NULL,
@@ -381,7 +409,16 @@ def init_db() -> None:
                 outcome TEXT,
                 experiment_method TEXT,
                 result_discovery_id INTEGER,
-                maintenance_event_id INTEGER
+                maintenance_event_id INTEGER,
+                spatial_frame_id TEXT,
+                start_x_m REAL,
+                start_y_m REAL,
+                target_x_m REAL,
+                target_y_m REAL,
+                path_distance_m REAL,
+                terrain_multiplier REAL,
+                result_observation_id INTEGER,
+                shared_activity_id INTEGER
             );
 
             CREATE TABLE IF NOT EXISTS citizen_conversations (
@@ -425,6 +462,15 @@ def init_db() -> None:
         add_column_if_missing(conn, "jobs", "experiment_method TEXT", "experiment_method")
         add_column_if_missing(conn, "jobs", "result_discovery_id INTEGER", "result_discovery_id")
         add_column_if_missing(conn, "jobs", "maintenance_event_id INTEGER", "maintenance_event_id")
+        add_column_if_missing(conn, "jobs", "spatial_frame_id TEXT", "spatial_frame_id")
+        add_column_if_missing(conn, "jobs", "start_x_m REAL", "start_x_m")
+        add_column_if_missing(conn, "jobs", "start_y_m REAL", "start_y_m")
+        add_column_if_missing(conn, "jobs", "target_x_m REAL", "target_x_m")
+        add_column_if_missing(conn, "jobs", "target_y_m REAL", "target_y_m")
+        add_column_if_missing(conn, "jobs", "path_distance_m REAL", "path_distance_m")
+        add_column_if_missing(conn, "jobs", "terrain_multiplier REAL", "terrain_multiplier")
+        add_column_if_missing(conn, "jobs", "result_observation_id INTEGER", "result_observation_id")
+        add_column_if_missing(conn, "jobs", "shared_activity_id INTEGER", "shared_activity_id")
         add_column_if_missing(conn, "deposits", "discoverer_id TEXT", "discoverer_id")
         add_column_if_missing(conn, "deposits", "discovered_minute INTEGER", "discovered_minute")
         add_column_if_missing(conn, "locations", "x_km REAL", "x_km")
@@ -823,6 +869,27 @@ def snapshot() -> dict[str, Any]:
         jobs = [dict(r) for r in conn.execute("SELECT * FROM jobs WHERE status = 'active' ORDER BY id")]
         routes = [dict(r) for r in conn.execute("SELECT * FROM routes ORDER BY a, b")]
 
+        from .exploration import active_local_movement_payload, shared_activity_payload
+        sim_now = int(get_meta(conn, "sim_minute") or "360")
+        for citizen in citizens:
+            movement = active_local_movement_payload(conn, citizen["id"], sim_now)
+            citizen["local_movement"] = movement
+            if movement:
+                citizen["position_x_m"] = movement["x_m"]
+                citizen["position_y_m"] = movement["y_m"]
+
+        shared_activities = []
+        for row in conn.execute(
+            """
+            SELECT id FROM shared_activities
+            WHERE status IN ('proposed', 'active', 'complete', 'failed')
+            ORDER BY id DESC LIMIT 60
+            """
+        ):
+            payload = shared_activity_payload(conn, int(row["id"]), sim_now)
+            if payload:
+                shared_activities.append(payload)
+
         discovery_rows = conn.execute(
             """
             SELECT d.*,
@@ -959,5 +1026,6 @@ def snapshot() -> dict[str, Any]:
                 "global_mapping": "not_yet_assigned",
             },
             "spatial_observations": spatial_observations,
+            "shared_activities": shared_activities,
             "citizen_conversations": citizen_conversations,
         }
