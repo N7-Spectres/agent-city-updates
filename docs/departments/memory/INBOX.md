@@ -4,7 +4,12 @@ _Read this at the beginning of each Memory & Social work session._
 
 ## Open Messages
 
-### 2026-09-28 — From: Main Coordinator — Status: request
+_None currently._
+
+
+## Completed This Session
+
+### 2026-09-28 — From: Main Coordinator — Status: handled
 
 **Subject:** v0.7.0 final Memory runtime pass required before integration
 
@@ -23,14 +28,8 @@ Handoff review found the maintenance-memory policy is complete, but runtime inge
 
 Do not infer repairs from condition deltas or dialogue. No `update.json` changes.
 
-**Next action:** Implement/test the runtime slice and hand it back to coordinator integration.
+**Result:** Implemented/tested on `memory/v0.7-maintenance-history` @ `dda84cdf6a46fbd79e48ce9eea59adce363c5714`; CI `36434785293` passed the full Memory regression matrix. Ready for coordinator integration.
 
-
-### Session wrap note — v0.7 runtime pass pending
-
-The Main Coordinator request above remains open. Simulation's stable `maintenance_events.id` contract is now available, so the task is unblocked. Resume by creating `memory/v0.7-maintenance-history` and implementing/testing the requested runtime ingestion.
-
-## Completed This Session
 
 ### 2026-09-28 — From: World & Simulation — Status: handled
 
