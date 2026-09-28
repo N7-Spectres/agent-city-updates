@@ -13,11 +13,10 @@
 - distinguish remote / visitor traveling / citizen traveling / busy talking / other busy state
 - display safe provenance and source age without implying verification from retelling
 
-### Memory
-- consume bounded per-citizen knowledge
-- show citizen-known location/material/research/process facts
-- preserve source/time and claim-vs-verified distinction
-- add location summaries that grow only from legitimate knowledge
+### Memory — Completed
+- bounded per-citizen knowledge endpoint consumed
+- location notebook remains partitioned by citizen
+- source/time/verification/channel metadata displayed without merging truth
 
 ## Review / Validation — v0.6 Branch
 
@@ -57,4 +56,4 @@
 
 ## Current Blocker
 
-Assets is waiting on Simulation, Communication, and Memory v0.6 read models. No additional hidden/distributed-knowledge UI should be invented before those contracts arrive.
+Assets is waiting on Simulation and Communication v0.6 read models. No additional hidden/distributed-knowledge UI should be invented before those contracts arrive.
