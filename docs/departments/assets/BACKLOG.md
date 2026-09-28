@@ -1,148 +1,94 @@
 # Assets & Interface — Backlog
 
-## Review / Validation — v0.8 Stage 1
+## Review / Integration — v0.8 Stage 2
 
-- review PR #11 / `assets/v0.8-visual-stage1`
-- run `tests/smoke_v080_assets.py` during coordinator/release assembly
-- verify active-job progress against real travel/survey/extract/charge/fabricate/construct/experiment/maintenance jobs
-- verify idle citizen rows remain compact
-- verify Enter submits once
-- verify Shift+Enter inserts newline
-- verify IME composition cannot submit
-- verify Talk button remains functional
-- verify citizen visual profiles preserve the six approved roles/silhouettes
-- verify no optional equipment appears from visual profile metadata alone
-- verify v0.7 Home/avatar/maintenance behavior remains intact
+Assets implementation is complete.
 
-## Completed — v0.8 Stage 1 Assets
+Review surface:
 
-- restored Home active-job progress
-- elapsed / total / remaining / ETA display
-- Enter-to-send visitor chat
-- Shift+Enter multiline
-- IME-safe keyboard behavior
-- duplicate-submit guard
-- six runtime citizen visual profiles
-- approved silhouette fallback exercise
-- expression asset slots
-- empty modular equipment-layer slots
-- citizen visual-system architecture
-- local Asset Worker contract
-- render aggregation tiers
-- asynchronous fallback/provenance rules
-- v0.8 Assets Stage 1 smoke test
+- branch `assets/v0.8-exploration-ui-stage2`
+- head `7f5294efaab738b44af116514a65d22478851ad0`
+- PR #15 — ready for review
+- Assets branch CI `36460454385` — PASS
 
-## Ready for Next Authorized Stage — Simulation Spatial Contract
+Coordinator integration should verify:
 
-Simulation contract is now ready on:
-`simulation/v0.8-seeded-world-stage1` @ `7473b6612ea23cf8d22b31176149da188476690e`
+- meter-space map keeps +x east / +y north
+- automatic local focus is readable without changing physical coordinates
+- citizen local movement follows authoritative current x/y
+- local route line uses only Simulation start/target segment
+- reduced-motion disables browser smoothing
+- visitor shared movement uses authoritative visitor presence
+- proposed/accepted proposal cards remain visibly nonphysical
+- active proposal styling requires real `simulation_action_id`
+- accept calls final Communication endpoint
+- reject calls canonical final Communication/Simulation rejection path
+- rejected proposals never produce movement markers
+- completed exploration evidence appears only from real observation IDs
+- baseline observations do not expose material/geology
+- `radius_m` uncertainty remains visible
+- hidden seed/generated-body geometry remains inaccessible
+- Stage 1 Home progress/chat behavior remains intact
+- v0.7 maintenance/history truth boundaries remain intact
+- AssetQueue database remains presentation-only and separate from Simulation
 
-Safe future UI inputs:
-- `state.spatial_frame`
-- location `x_m/y_m`
-- citizen `position_x_m/position_y_m`
-- structure/project `x_m/y_m`
-- visitor `x_m/y_m`
-- `state.spatial_observations[]`
-- observation `radius_m`
-- stable discovered subject/deposit identity
+Required Assets test:
+`tests/smoke_v080_assets_stage2.py`
 
-Stage 2 guardrails:
-- no hidden seed/generated-body access
-- no precision beyond `radius_m`
-- no continuous travel interpolation yet
-- existing route travel remains discrete until Simulation adds continuous movement
+## Completed — v0.8 Stage 2 Assets
 
-Do not begin this wiring until coordinator authorizes the next stage.
+- authoritative continuous local meter-space map
+- regional + automatic local-focus viewport
+- physical landmark anchors
+- authoritative citizen local movement positions
+- authoritative visitor shared-walk position
+- Simulation-defined movement segment display
+- validated observation markers
+- observation uncertainty rings
+- baseline evidence privacy
+- shared-action proposal cards
+- explicit accept/start control
+- canonical reject control
+- active physical progress display
+- proposal-vs-physical truth styling
+- final Communication/Simulation ID binding
+- presentation-only persistent AssetQueue scaffold
+- Stage 2 Assets smoke
+- real GitHub Actions branch validation
 
-## Stage 2 / Later
+## Citizen Art — Pending Source Files
 
-- consume Simulation seeded spatial read model
-- replace presentation-only map positioning with physical coordinates where appropriate
-- real head token assets for all six citizens
-- blink / happy / focused / curious visor frames
-- full-body base-body web assets
-- bust assets
-- lazy-loading asset manifest
-- authoritative equipment overlays after equipped/attachment semantics exist
-- persistent asset queue implementation after coordinator approves Stage 1 contract
-- deterministic procedural geometry worker
-- optional Blender/headless integration later
-- richer world/structure/object rendering
-- LOD / instancing / aggregation implementation
+Approved visual direction is documented, but runtime-ready source art is not currently stored in the repository.
+
+When source files become available:
+
+- export transparent equipment-free full bodies
+- export matching head tokens
+- export neutral / blink / happy / focused / curious frames as approved
+- preserve common canvas/anchor conventions
+- keep optional equipment separate
+- optimize for WebP/AVIF where appropriate
+- populate the existing runtime manifest/profile slots
+- add asset-presence/lazy-load smoke coverage
+
+Do not generate replacement runtime art merely to fill these slots.
+
+## Later Asset / Rendering Work
+
+- actual local worker process consuming `asset_jobs`
+- deterministic procedural geometry recipes
+- runtime generated-asset lookup/cache API
+- GLB output integration
+- Blender/headless generator only if later justified
+- richer object/structure visuals
+- equipment overlay attachment slots after Simulation exposes authoritative equipped-state semantics
+- LOD / instancing
+- quantity-aware resource pile/fullness presentation
+- later globe/global-coordinate rendering
 
 ## Current Blockers
 
-_None for Stage 1 review._
+_None for Assets Stage 2._
 
-The spatial contract is ready, but continuous-world UI remains intentionally deferred to the next coordinator-authorized stage.
-
-
-## Active Next Session — v0.8 Stage 2 Assets
-
-Base:
-`release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`
-
-Create/use:
-`assets/v0.8-exploration-ui-stage2`
-
-### Continuous local map
-- consume authoritative citizen `position_x_m/y_m`
-- consume `local_movement`
-- consume authoritative visitor x/y
-- preserve named landmarks
-- render only validated observations/discovered contacts
-- show uncertainty/radius rather than false exactness
-- smooth only authoritative start/target/timing segment
-- preserve reduced-motion fallback
-
-### Shared-action UI
-- consume `shared_action_proposals[]`
-- compact proposal card near/in Visit
-- proposed/accepted styling must look nonphysical
-- explicit visitor acceptance
-- show real active progress only after Simulation job exists
-- support canonical reject path
-- complete marker/result only from Simulation observation ID
-- never render rejected proposals as paths
-
-### Existing Stage 1 behavior to preserve
-- Home active-job progress
-- Enter-to-send
-- Shift+Enter newline
-- IME-safe chat
-- six citizen visual profiles
-- maintenance/history boundaries
-
-### Citizen art
-- wire refined full-body/head-token exports only if actual approved files are available
-- otherwise keep manifest slots empty and document exact export requirements
-- optional equipment stays separate
-- expression animation only from approved real frames
-
-### Asset worker
-- minimal local queue/spec scaffold only if presentation-owned
-- no Blender dependency
-- no generated 3D requirement
-- fallback visual always available
-- render aggregation remains presentation-only
-
-### Validation
-- add `tests/smoke_v080_assets_stage2.py` or coordinator-approved equivalent
-- preserve all Stage 1/v0.7 Assets smoke coverage
-- static DOM ID/reference audit
-- JS syntax
-- runtime checks for proposal lifecycle and movement truth boundaries
-
-## Current Dependencies
-
-Simulation: **resolved**
-- final Stage 2 head `b81c9bb...`
-- CI `36456647323` PASS
-
-Communication:
-- Stage 2 proposal bridge exists on `communication/v0.8-shared-actions-stage2`
-- Assets still needs the final post-reject-adapter branch head/handoff before coordinator assembly
-- request routed to Communication INBOX during this wrap-up
-
-No other Stage 2 Assets dependency is currently known.
+Next owner:
+**Coordinator / Stage 2 Integration**
