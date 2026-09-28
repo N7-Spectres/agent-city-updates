@@ -29,6 +29,8 @@ from agent_city.memory import (
     knowledge_context_for as memory_knowledge_context_for,
     knowledge_snapshot_for,
     location_knowledge_snapshot,
+    maintenance_context_for,
+    maintenance_snapshot_for,
     social_context_for,
 )
 from agent_city.world import WorldClock, format_sim_time
