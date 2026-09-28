@@ -77,6 +77,8 @@ def ensure_memory_schema() -> None:
 
         _backfill_personal_discoveries(conn)
         _sync_maintenance_events(conn)
+        from .spatial_memory import sync_spatial_observations_in_conn
+        sync_spatial_observations_in_conn(conn)
         conn.commit()
 
 
@@ -447,7 +449,10 @@ def _knowledge_memory_rows(citizen_id: str, scan_limit: int = 120) -> list[dict[
             FROM memory_events
             WHERE owner_id = ?
               AND event_kind != 'conversation'
-              AND source_type != 'simulation_maintenance_event'
+              AND source_type NOT IN (
+                  'simulation_maintenance_event',
+                  'simulation_spatial_observation'
+              )
             ORDER BY sim_minute DESC, id DESC
             LIMIT ?
             """,
