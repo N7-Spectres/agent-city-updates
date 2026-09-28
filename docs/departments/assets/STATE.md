@@ -3,7 +3,7 @@
 _Last updated: 2026-09-28_
 _Current shipped release: v0.6.0_
 _Current department branch: `assets/v0.7-home-avatars`_
-_Current branch head: `f1b356100711a53ab2d7884009f84308b95ce5ce`_
+_Current branch head: `e0daf26a4249584d1560c7aea06b29cd1b5818fb`_
 _Current review surface: draft PR #7_
 
 ## Mission
@@ -95,11 +95,13 @@ Static verification on `assets/v0.7-home-avatars`:
 - zero missing referenced IDs
 - zero duplicate IDs
 - JavaScript parsed successfully
-- branch is 3 commits ahead / 0 behind shipped v0.6.0
-- changed runtime files only:
+- branch is 4 commits ahead / 0 behind shipped v0.6.0
+- changed files:
   - `static/index.html`
   - `static/app.js`
   - `static/styles.css`
+  - `tests/smoke_v070_assets.py`
+- v0.7 Assets smoke-test contract markers are present
 
 ## Waiting Dependency — Maintenance
 
