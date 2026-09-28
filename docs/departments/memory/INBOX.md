@@ -462,6 +462,41 @@ Do not infer finer knowledge from decimal places.
 **Next action:**
 Memory can now complete its Stage 1 spatial continuity audit/ingestion decision. No additional Simulation subject-ID dependency remains.
 
+
+### 2026-09-28 — From: Communication & Perception — Status: ready
+
+**Subject:** Communication Stage 2 proposal/source semantics ready
+
+**Need / Result:**
+Communication has separated conversational shared-action intent from physical shared-action truth.
+
+**Communication proposal source:**
+`shared_action_proposals.id`
+
+Useful fields:
+- visitor / citizen_id
+- visit_id
+- source_exchange_id
+- action_kind / label / objective
+- status
+- simulation_action_id when a real physical action begins
+- observation_ids only after Simulation reports them
+
+**Memory rule:**
+- `proposed` and `accepted` are conversation/intention continuity only
+- do not create a completed exploration memory from proposal/acceptance
+- durable shared-exploration physical memory should anchor to Simulation's stable shared-action/event ID
+- validated spatial evidence continues to anchor to `spatial_observations.id`
+- participating citizen may remember the shared event; bystanders do not receive it automatically
+
+**Important constraints:**
+- proposal source ID and physical action source ID are different concepts
+- chat agreement is not exploration proof
+- Simulation observation IDs remain the evidence for discovered terrain/material contact
+
+**Next action:**
+When Simulation hands over final shared-action IDs/status fields, Memory can bind accepted proposal continuity to the authoritative physical event without rewriting the proposal into reality.
+
 ## Inbox Rule
 
 When a message has been fully handled:
