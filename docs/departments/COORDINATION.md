@@ -18,21 +18,23 @@ This file is the shared project task board.
 
 - [World & Simulation] v0.8 Stage 2: continuous local movement/exploration + visitor-linked shared physical activity
 - [Communication & Perception] v0.8 Stage 2: structured shared-action proposals/status grounded in Simulation
-- [Memory & Social] v0.8 Stage 2: spatial memory enters bounded planning/dialogue + real shared-exploration continuity
 - [Assets & Interface] v0.8 Stage 2: continuous local map, explicit shared-action acceptance UI, citizen art/runtime integration, worker scaffold
 
 ### WAITING
 
 - [Communication & Perception] final shared-action lifecycle fields from World & Simulation for real proposal/start/status wiring
-- [Memory & Social] final exploration/shared-action source IDs from World & Simulation and proposal semantics from Communication
 - [Assets & Interface] final continuous-movement/shared-action read model from Simulation and proposal API from Communication
 
 ### READY
+
+- [Memory & Social] no remaining Stage 2 department dependency; ready for coordinator assembly
 
 - [Coordinator] v0.8 Stage 1 combined integration base is green: `release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`, Actions `36453177128`
 - [All departments] Stage 1 contracts are integrated and Stage 2 is authorized from the unified base
 
 ### REVIEW
+
+- [Memory & Social] v0.8 Stage 2 exploration Memory complete on `memory/v0.8-exploration-stage2` @ `306a9ef4329ab81afa5912846333a1d9782ee9be`; CI `36455394456` passed unified Stage 1 regressions + Stage 2 Memory smoke
 
 _None yet for Stage 2._
 
@@ -198,3 +200,25 @@ Stage 1 review verdict:
 **READY FOR COMBINED INTEGRATION TESTING.**
 
 This is not yet a v0.8 release and does not authorize Stage 2 by itself.
+
+
+## Memory v0.8 Stage 2 Integration Locks
+
+Coordinator integration must preserve:
+
+1. Current authoritative spatial grounding and retained historical exploration Memory are separate prompt sections.
+2. The 250 m nearby-memory selection radius is a relevance window, not epistemic precision.
+3. Observation precision remains the source observation's `radius_m`.
+4. `spatial_observations.id` remains physical evidence identity; stable `deposit_id` remains subject identity.
+5. Repeat observations remain salience-bounded; movement ticks do not become memories.
+6. Completed shared exploration Memory uses `source_type='simulation_shared_activity'` and `source_id=shared_activities.id`.
+7. A shared exploration memory is created only for `status='complete'`, `outcome='success'`, non-null completion time, and linked observation.
+8. Communication proposal/acceptance records remain intent/provenance and never substitute for physical completion.
+9. The participating citizen may retain the event; bystanders do not receive it automatically.
+10. Visitor identity plus source visit/exchange/job/observation IDs remain metadata for explainable continuity.
+11. The linked spatial observation remains a separate evidence event from the shared social experience.
+12. `simulation_spatial_observation` and `simulation_shared_activity` remain excluded from generic research/location knowledge facts.
+13. Preserve Memory's `GET /api/memory/spatial/{citizen_id}` consumer view.
+14. Memory and Communication both modify `main.py`; merge resolution must preserve both Communication shared-action lifecycle context and Memory retained/shared-exploration context.
+15. Preserve `tests/smoke_v080_memory_stage2.py` in the assembled Stage 2 regression suite.
+16. Never expose `planet_seed`, hidden generated-deposit geometry/richness, or infer exploration from chat.
