@@ -175,3 +175,12 @@ Do not add promise/cooperation/help success counters from a project discussion a
 Communication may extend conversation provenance, but it should preserve this source ID or provide an explicit immutable mapping from any replacement transfer record back to it.
 
 Memory must not depend on UI chronology strings as a source identifier.
+
+
+## No Speculative v0.5 Schema Decision
+
+Do not create a v0.5 Memory branch, table, or migration merely to anticipate Simulation's unfinished project schema.
+
+The existing `memory_events` source fields are sufficient for the known continuity requirements. Runtime helper code should be added only after Communication and Simulation publish their stable source interfaces.
+
+This keeps migrations additive, minimal, and evidence-driven.
