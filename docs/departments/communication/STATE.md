@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-28_
 _Current release: v0.6.0_
-_Active milestone: v0.6.0 — Research & Discovery_
+_Active milestone: v0.7.0 — Maintenance, Consequences & Home Polish_
 
 ## Mission
 
@@ -298,3 +298,155 @@ Communication v0.6 work is included in the published runtime:
 `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`.
 
 The assembled release passed the full cross-department smoke suite. Coordinator integration preserved Simulation truth, Communication provenance, Memory bounded retrieval, and Assets safe presentation as distinct layers.
+
+## v0.7 Autonomous Talk Reliability
+
+**Branch:** `communication/v0.7-talk-reliability`  
+**Base:** shipped v0.6.0 commit `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`  
+**Branch head:** `61eecc4c047dd3fd22b71612251769a8cb456737`
+
+### Root reliability problem
+
+v0.6 generated the durable raw exchange and structured claim metadata in one strict Ollama JSON response.
+
+That made the physical conversation unnecessarily fragile: a malformed claim list or nested schema problem could invalidate an otherwise good face-to-face exchange.
+
+### v0.7 reliability model
+
+Talk generation is now two-phase:
+
+1. **Raw exchange**
+   - generate only `initiator_text`, `target_text`, and `summary`
+   - allow one retry for malformed/empty/incomplete structured output or transient Ollama failure
+   - revalidate the physical source-linked talk
+   - persist the durable conversation immediately
+
+2. **Claim/provenance enrichment**
+   - run only after the raw exchange exists
+   - extract claim metadata from the already-stored transcript
+   - projection is best-effort
+   - malformed claim metadata, network failure, or claim persistence failure does **not** erase or invalidate the raw conversation
+
+This preserves:
+
+> **A real stored exchange is the information-transfer event. Claim extraction is enrichment, not existence.**
+
+### JSON tolerance
+
+Raw dialogue parsing accepts:
+
+- a normal JSON object
+- a JSON object wrapped in Markdown code fences
+- a response containing one recoverable JSON object surrounded by incidental text
+
+It still rejects:
+
+- unparseable content
+- missing/blank required dialogue fields
+- fabricated fallback text
+
+### Retry behavior
+
+Normal raw dialogue generation gets at most two attempts.
+
+The second attempt:
+
+- keeps the same physical conversation/context
+- lowers temperature
+- increases output allowance slightly
+- still requires a real model-generated exchange
+
+No synthetic fallback transcript exists.
+
+### Diagnostics
+
+New Communication-owned table:
+
+`talk_diagnostics`
+
+Each diagnostic is keyed to `source_job_id` and records:
+
+- simulation minute
+- stage
+- outcome: `success | retry | degraded | failure`
+- concise code
+- bounded detail
+
+Representative codes:
+
+**Generation**
+- `ollama_network_failure`
+- `ollama_http_failure`
+- `ollama_response_malformed`
+- `ollama_empty_response`
+- `dialogue_malformed_json`
+- `dialogue_schema_incomplete`
+- `dialogue_generated`
+
+**Physical/persistence**
+- `physical_talk_invalid_before_generation`
+- `physical_talk_invalid_before_persistence`
+- `citizen_record_missing`
+- `persistence_database_failure`
+- `exchange_persisted`
+
+**Claim enrichment**
+- `claim_ollama_network_failure`
+- `claim_ollama_http_failure`
+- `claim_response_malformed`
+- `claim_malformed_json`
+- `claim_schema_incomplete`
+- `claim_persistence_failure`
+- `claim_projection_failure`
+- `claims_projected`
+- `claims_empty`
+
+Diagnostic writes themselves are best-effort and may never cause a valid talk to fail.
+
+### History behavior
+
+The ordinary failed-talk History line remains concise and citizen-readable:
+
+> conversation attempt ended without a recorded exchange
+
+If a diagnostic failure code exists, Simulation adds a separate `diagnostic` History entry such as:
+
+> Talk job #42 failed before durable exchange: ollama_network_failure.
+
+This gives debugging signal without replacing the normal chronology message with implementation noise.
+
+### Physical integrity preserved
+
+A talk still becomes physically `complete` only when its `source_job_id` has a durable `citizen_conversations` row.
+
+No conversation row:
+- participants are released
+- job becomes `failed`
+- no information transfer is invented
+
+### Test status
+
+Final GitHub Actions run:
+
+`36428495003`
+
+Passed:
+
+- Python compile
+- v0.4 regression smoke
+- v0.5 Simulation smoke
+- v0.5 Communication smoke
+- v0.5 UI smoke
+- v0.6 Simulation smoke
+- v0.6 Communication smoke
+- v0.6 Memory smoke
+- v0.6 UI smoke
+- new `tests/smoke_v070_communication.py`
+
+The temporary branch workflow was removed after the green run.
+
+## v0.7 Status
+
+The autonomous talk reliability slice is implementation-complete and ready for coordinator review/integration.
+
+No v0.6 provenance or anti-omniscience rule was weakened.
