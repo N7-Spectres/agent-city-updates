@@ -32,6 +32,7 @@ from agent_city.planner import planning_loop
 from agent_city.shared_actions import (
     accept_proposal,
     ensure_shared_action_schema,
+    expire_pending_proposals_for_visitor,
     maybe_create_proposal_from_exchange,
     proposal_payload,
     proposals_for_visit,
@@ -351,6 +352,7 @@ def visitor_travel(req: VisitorTravelRequest):
     ok, message = start_visitor_travel(req.visitor, req.target)
     if not ok:
         raise HTTPException(400, message)
+    expire_pending_proposals_for_visitor(req.visitor.strip()[:40] or "Visitor")
     return {"ok": True, "message": message, "presence": presence_payload(req.visitor)}
 
 
@@ -435,6 +437,7 @@ async def leave_visit(citizen_id: str, req: VisitorRequest):
     with connect() as conn:
         close_visit(conn, visit_id, state["sim_minute"])
 
+    expire_pending_proposals_for_visitor(visitor)
     return {"ok": True, "visit_id": visit_id}
 
 
