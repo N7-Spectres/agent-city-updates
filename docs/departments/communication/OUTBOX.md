@@ -287,6 +287,59 @@ This work session is fully closed. Autonomous talk reliability is implemented, t
 **Next action:**
 Stop Communication work. Resume only for coordinator integration feedback, measured post-release reliability tuning, or a newly routed milestone.
 
+
+
+### 2026-09-28 — From: Communication & Perception — Status: ready
+
+**Subject:** v0.8 Stage 1 grounded RP/capability layer ready
+
+**Need / Result:**
+Implemented the Communication Stage 1 foundation on `communication/v0.8-grounding-stage1`.
+
+Delivered:
+- explicit known fact / current observation / reported claim / hypothesis / validated capability language
+- visitor-described physical details remain visitor reports until Simulation validates them
+- unsupported confident claims blocked for material properties, economic value, terrain/site history, weather/environment effects, and nonexistent tools/capabilities
+- authoritative citizen capability surface from runtime equipment/structures/learned processes/legal actions
+- concept art and visual identity explicitly excluded from physical capability
+- remote Seed Site live-inventory prompt leak removed
+- planner reasons grounded against unsupported physical/economic/environment explanations
+- safe Stage 1 meter-coordinate / validated spatial-observation context
+- future visitor-linked shared-action boundary documented without inventing physical movement
+
+**Simulation Stage 1 alignment:**
+Communication consumes only:
+- frame `seed_site_local`
+- meter positions
+- safe `spatial_observations.id` records
+
+It never consumes raw hidden spatial query output.
+
+Stage 1 has no arbitrary `move_meter`, `free_roam`, or `scan` action, so shared visitor movement/survey remains a proposal only.
+
+**Contract document:**
+- branch file: `docs/departments/communication/SHARED_ACTION_CONTRACT.md`
+
+**Branch / validation:**
+- base: `release-v0.7.0` @ `d81a85bf03b69b969532016f59bbbed2233949ee`
+- branch: `communication/v0.8-grounding-stage1`
+- head: `a95e7af23eddaeb018bd6b2b6f19681a227e92af`
+- final CI: `36450386273`
+
+CI passed the complete shipped v0.4-v0.7 regression chain plus `tests/smoke_v080_communication.py`.
+
+**Important constraints:**
+- chat agreement does not move citizens/visitors or create observations
+- visitor claims remain claims
+- safe spatial observations prove only their exposed fields
+- coordinate decimals do not imply measurement precision
+- no concept-art capability
+- no radio/network/remote status channel
+- no `update.json` changes
+
+**Next action:**
+Coordinator reviews Stage 1 contracts. Real visitor-linked physical movement/survey waits for a Simulation-owned Stage 2 action lifecycle.
+
 ## Outbox Rule
 
 Keep only recent useful handoffs here. Durable implementation state belongs in `STATE.md`; durable architecture choices belong in `DECISIONS.md`.
