@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-28_
 _Current release: v0.7.0_
-_Current development branch: `memory/v0.8-spatial-knowledge-stage1`_
+_Current development branch: `memory/v0.8-exploration-stage2`_
 
 ## Mission
 
@@ -767,3 +767,97 @@ Coordinator integration must preserve:
 Stage 2 may selectively wire this retrieval into exploration/navigation context only after coordinator authorization and real Simulation-owned exploration/shared-action lifecycles exist.
 
 No release was published and `update.json` was not changed.
+
+
+## v0.8 Stage 2 Exploration Memory — Runtime Complete
+
+**Base:** `release-v0.8.0` / `017b417386f4f4e0f957dfb66285431223283739`  
+**Branch:** `memory/v0.8-exploration-stage2`  
+**Final head:** `306a9ef4329ab81afa5912846333a1d9782ee9be`  
+**Validation:** CI `36455394456` passed the full unified Stage 1 regression matrix plus `tests/smoke_v080_memory_stage2.py`.
+
+Stage 2 contracts consumed from:
+- Simulation `simulation/v0.8-exploration-stage2` @ `be3614ad34475a5a5ad9bf7661d053bc3ad6ab42`
+- Communication `communication/v0.8-shared-actions-stage2` @ `a6574fcf3988d57d7608f7ccab5c34e3fefaa380`
+
+### Retained exploration enters planning
+
+Citizen planning now receives a bounded section of **historical personal spatial memory near the citizen's current meter-scale position**.
+
+Default selection:
+- center: current `position_x_m / position_y_m`
+- search radius: 250 m
+- max retained memories: 4
+
+The 250 m selection window is relevance filtering only. It is **not** observation precision. Each remembered observation still preserves its own `radius_m`.
+
+Planner instructions explicitly distinguish retained exploration memory from current authoritative physical state.
+
+### Retained exploration enters visitor dialogue
+
+Visitor/citizen dialogue receives:
+- Communication-owned current spatial grounding
+- a separate bounded retained personal exploration section near the citizen's current position
+- completed shared-exploration continuity with the current visitor
+
+Historical Memory is never presented as a fresh current observation unless current grounding independently confirms it.
+
+### Safe spatial read model
+
+`GET /api/memory/spatial/{citizen_id}`
+
+Optional filters:
+- `subject_id`
+- `center_x_m` + `center_y_m`
+- `radius_m`
+- `limit`
+
+The API is citizen-scoped. It does not expose a global known-world map.
+
+### Completed shared exploration continuity
+
+New module: `agent_city/exploration_memory.py`.
+
+A shared visitor/citizen exploration becomes verified durable Memory **only** when Simulation records:
+
+- `shared_activities.status = 'complete'`
+- `shared_activities.outcome = 'success'`
+- non-null `completed_minute`
+- non-null linked `observation_id`
+
+Memory source:
+- `source_type = 'simulation_shared_activity'`
+- `source_id = shared_activities.id`
+
+Metadata retains:
+- visitor identity
+- activity type/objective/frame
+- source visit ID
+- source exchange ID
+- citizen physical job ID
+- linked spatial observation ID
+- physical outcome/status
+
+Proposal, conversational acceptance, and active/in-progress rows do **not** become completed exploration memories.
+
+The participating citizen receives the shared experience. Bystanders do not.
+
+The linked `spatial_observations.id` remains a separate physical evidence record and is not replaced by the shared social event.
+
+### Stream separation
+
+Generic research/location knowledge excludes both:
+- `simulation_spatial_observation`
+- `simulation_shared_activity`
+
+Spatial observation memory, shared exploration experience, research knowledge, provenance claims, social relationship memory, and maintenance history remain distinct bounded streams.
+
+### Integration note
+
+Memory and Communication both modify `main.py` in Stage 2.
+
+Coordinator conflict resolution must preserve **both**:
+- Communication's shared-action proposal/status lifecycle and current authoritative grounding
+- Memory's retained nearby exploration context, completed shared-exploration context, and spatial Memory API
+
+No release metadata or `update.json` was changed.
