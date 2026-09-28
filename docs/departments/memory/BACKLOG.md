@@ -364,3 +364,39 @@ Need exact authoritative fields for:
 - [x] no remaining Memory-owned Stage 1 dependency
 - [ ] coordinator reviews/integrates all Stage 1 department branches
 - [ ] Stage 2 only after coordinator authorization
+
+
+## v0.8.0 Stage 2 — Exploration Memory
+
+### Implemented on `memory/v0.8-exploration-stage2`
+
+- [x] branch from unified Stage 1 base `release-v0.8.0`
+- [x] use retained nearby spatial memories in citizen planning
+- [x] use retained nearby spatial memories in visitor/citizen dialogue
+- [x] keep current spatial grounding separate from historical Memory
+- [x] preserve each observation's `radius_m` precision in model-facing context
+- [x] expose citizen-scoped `GET /api/memory/spatial/{citizen_id}`
+- [x] consume Simulation `shared_activities` lifecycle
+- [x] create verified shared-exploration Memory only for completed/success physical actions with linked observation
+- [x] retain visitor / visit / exchange / job / observation source links
+- [x] do not create physical shared memory from proposal/acceptance alone
+- [x] no bystander/global propagation
+- [x] keep shared exploration and spatial observations out of generic knowledge-fact retrieval
+- [x] add `tests/smoke_v080_memory_stage2.py`
+- [x] full unified Stage 1 regression matrix + Stage 2 Memory smoke green in CI `36455394456`
+- [x] temporary branch CI removed
+
+### Coordinator integration
+
+- [ ] merge Simulation continuous exploration + shared physical lifecycle
+- [ ] merge Communication proposal/status lifecycle
+- [ ] merge Memory nearby historical context + completed shared-exploration continuity
+- [ ] preserve both Communication and Memory `main.py` changes
+- [ ] run combined Stage 2 regression suite
+- [ ] keep `tests/smoke_v080_memory_stage2.py` in assembled validation
+
+### Future depth after Stage 2 integration
+
+- [ ] place-name/alias social continuity when real naming records exist
+- [ ] sample-specific memory if Simulation adds physical sample identity
+- [ ] route familiarity/path-memory only from validated traveled paths, not inferred geometry
