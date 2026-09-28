@@ -547,3 +547,69 @@ The Stage 1 Memory scope is complete and should not expand before coordinator re
 No planner/dialogue-wide spatial context injection is part of Stage 1.
 
 Future Stage 2 changes should be driven by real exploration/navigation/shared-action consumers and should reuse the existing spatial retrieval primitives rather than broadening Memory into a global map or hidden-world cache.
+
+
+## v0.8 Stage 2 Current-vs-Retained Spatial Rule
+
+Communication/Simulation current spatial grounding and Memory retained spatial continuity are separate context channels.
+
+Current grounding answers what is authoritatively observable/known **now**.
+
+Memory answers what this citizen personally observed/retained **before**.
+
+Do not let historical spatial memory silently override current physical state.
+
+## Nearby Retrieval Rule
+
+The Stage 2 default 250 m nearby-memory radius is a relevance window, not a sensor or epistemic precision claim.
+
+Observation precision remains solely determined by the retained observation's `radius_m` and source method.
+
+## Shared Exploration Completion Rule
+
+A visitor/citizen shared exploration becomes verified durable Memory only from an authoritative completed Simulation record:
+
+- `shared_activities.status = 'complete'`
+- `outcome = 'success'`
+- non-null completion time
+- non-null linked spatial observation
+
+Conversational proposal, visitor acceptance, and active/in-progress physical state are not completed exploration memory.
+
+## Proposal / Physical Event Separation
+
+Communication's `shared_action_proposals.id` is social intent/proposal provenance.
+
+Simulation's `shared_activities.id` is the physical shared-action source.
+
+If both histories are later retained, they remain separate records connected through source visit/exchange/action metadata. Do not rewrite a proposal into a physical completion event.
+
+## Shared Exploration Participant Rule
+
+The citizen participant may retain the completed shared physical experience.
+
+The visitor identity is retained as metadata for continuity, not inserted into `relationship_state`, which is currently citizen-to-citizen.
+
+Bystanders and other citizens do not automatically receive the shared experience.
+
+## Linked Observation Rule
+
+A completed shared activity may reference `spatial_observations.id`, but the activity does not replace the observation.
+
+Use:
+- shared activity = social/participation event
+- spatial observation = physical evidence
+
+Both identities remain durable and independently explainable.
+
+## Stage 2 Stream Separation Rule
+
+Keep these retrieval streams distinct:
+- generic research/location knowledge
+- spatial observations
+- completed shared exploration
+- Communication provenance/claims
+- citizen social relationship history
+- maintenance history
+
+This prevents one broad Memory feed from becoming an omniscient context dump.
