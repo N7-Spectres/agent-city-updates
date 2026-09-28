@@ -262,3 +262,21 @@ Home Recent Activity should favor meaningful completed maintenance events or thr
 Communication `diagnostic` rows are debug/system records, not citizen speech and not conversation summaries.
 
 Memory guidance remains separate: a physical maintenance event does not automatically mean a citizen remembers it.
+
+
+## v0.7 Effective Capability Rule
+
+For worn equipment, display Simulation's authoritative effective modifiers:
+
+- `effective_cargo_bonus`
+- `effective_extraction_speed_multiplier`
+
+Pristine design modifiers are not current capability and must not be substituted.
+
+## v0.7 Diagnostic Presentation Rule
+
+Communication `diagnostic` history is system/debug information.
+
+- exclude diagnostics from normal Home Recent Activity
+- never render diagnostics as citizen speech or conversation summaries
+- diagnostics may remain visible as muted system/debug rows in full History
