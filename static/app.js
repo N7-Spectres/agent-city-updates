@@ -8,6 +8,10 @@ let sheetCitizenId = null;
 let citizenSearchQuery = "";
 let currentVisitAccessKey = null;
 let chatSubmitting = false;
+let spatialViewport = null;
+let currentSharedActionProposals = [];
+let currentVisitId = null;
+let sharedActionBusyId = null;
 const citizenKnowledgeCache = new Map();
 const locationKnowledgeCache = new Map();
 const knowledgeLoading = new Set();
@@ -164,6 +168,7 @@ const els = {
   mapLayer: document.getElementById("map-layer"),
   regionStrip: document.getElementById("region-strip"),
   worldFocus: document.getElementById("world-focus"),
+  mapSpatialStatus: document.getElementById("map-spatial-status"),
   locations: document.getElementById("locations"),
   resourceBalance: document.getElementById("resource-balance"),
   citizenCargo: document.getElementById("citizen-cargo"),
@@ -178,6 +183,7 @@ const els = {
   selectedLabel: document.getElementById("selected-label"),
   visitorName: document.getElementById("visitor-name"),
   chatLog: document.getElementById("chat-log"),
+  sharedActionPanel: document.getElementById("shared-action-panel"),
   chatForm: document.getElementById("chat-form"),
   chatInput: document.getElementById("chat-input"),
   sendButton: document.getElementById("send-button"),
@@ -219,6 +225,10 @@ function setView(name) {
     button.classList.toggle("active", button.dataset.view === currentView);
   });
   window.scrollTo({ top: 0, behavior: "instant" });
+  if (currentView === "home" && state) {
+    computeLocationPositions();
+    renderMap();
+  }
 }
 
 function bindViewNavigation() {
@@ -271,6 +281,8 @@ async function loadState() {
     if (nextKey !== currentVisitAccessKey) {
       currentVisitAccessKey = nextKey;
       await loadCurrentVisit(selectedCitizen);
+    } else if (currentVisitId != null) {
+      await refreshSharedActionProposals(selectedCitizen);
     }
   }
 }
@@ -313,12 +325,47 @@ function jobProgress(job) {
   };
 }
 
-function isTravelingCitizen(citizen) {
+function isRouteTravelingCitizen(citizen) {
   return activeJobFor(citizen.id)?.action === "travel";
 }
 
+function localMovementForCitizen(citizen) {
+  return citizen?.local_movement && typeof citizen.local_movement === "object"
+    ? citizen.local_movement
+    : null;
+}
+
+function isTravelingCitizen(citizen) {
+  return isRouteTravelingCitizen(citizen) || Boolean(localMovementForCitizen(citizen));
+}
+
+function finiteNumber(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function spatialDistanceMeters(ax, ay, bx, by) {
+  const values = [ax, ay, bx, by].map(finiteNumber);
+  if (values.some(value => value == null)) return null;
+  return Math.hypot(values[0] - values[2], values[1] - values[3]);
+}
+
 function citizensAtLocation(locationId) {
-  return state.citizens.filter(c => c.location_id === locationId && !isTravelingCitizen(c));
+  const loc = locationById(locationId);
+  return (state?.citizens || []).filter(c => {
+    if (isRouteTravelingCitizen(c)) return false;
+    if (
+      state?.spatial_frame &&
+      finiteNumber(loc?.x_m) != null &&
+      finiteNumber(loc?.y_m) != null &&
+      finiteNumber(c.position_x_m) != null &&
+      finiteNumber(c.position_y_m) != null
+    ) {
+      const distance = spatialDistanceMeters(c.position_x_m, c.position_y_m, loc.x_m, loc.y_m);
+      return distance != null && distance <= 5;
+    }
+    return c.location_id === locationId && !localMovementForCitizen(c);
+  });
 }
 
 function routeBetween(a, b) {
@@ -332,15 +379,150 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
-function computeLocationPositions() {
+function spatialFrameReady() {
+  return Boolean(
+    state?.spatial_frame &&
+    String(state.spatial_frame.units || "").toLowerCase() === "meters" &&
+    (state.locations || []).some(loc => finiteNumber(loc.x_m) != null && finiteNumber(loc.y_m) != null)
+  );
+}
+
+function pointFromMeters(x, y, kind = "point", id = null) {
+  const px = finiteNumber(x);
+  const py = finiteNumber(y);
+  return px == null || py == null ? null : { x_m: px, y_m: py, kind, id };
+}
+
+function nearestLocationToPoint(x, y, maxDistance = Infinity) {
+  let best = null;
+  for (const loc of state?.locations || []) {
+    const distance = spatialDistanceMeters(x, y, loc.x_m, loc.y_m);
+    if (distance == null || distance > maxDistance) continue;
+    if (!best || distance < best.distance) best = { loc, distance };
+  }
+  return best;
+}
+
+function computeSpatialViewport() {
+  if (!spatialFrameReady()) return null;
+
+  const stage = els.mapLayer?.parentElement;
+  const rect = stage?.getBoundingClientRect?.() || {};
+  const width = Math.max(520, Number(rect.width) || 900);
+  const height = Math.max(360, Number(rect.height) || 540);
+
+  const selected = selectedCitizen
+    ? (state.citizens || []).find(c => c.id === selectedCitizen)
+    : null;
+  const selectedMove = localMovementForCitizen(selected);
+  const visitorMove = visitorPresence?.shared_activity?.movement || null;
+
+  const focusPoints = [];
+  let mode = "region";
+
+  const add = point => {
+    if (point) focusPoints.push(point);
+  };
+
+  if (selectedMove) {
+    mode = "local";
+    add(pointFromMeters(selectedMove.start_x_m, selectedMove.start_y_m, "movement-start"));
+    add(pointFromMeters(selectedMove.target_x_m, selectedMove.target_y_m, "movement-target"));
+    add(pointFromMeters(selected?.position_x_m, selected?.position_y_m, "citizen", selected?.id));
+  } else if (visitorMove) {
+    mode = "local";
+    add(pointFromMeters(visitorMove.start_x_m, visitorMove.start_y_m, "movement-start"));
+    add(pointFromMeters(visitorMove.target_x_m, visitorMove.target_y_m, "movement-target"));
+    add(pointFromMeters(visitorPresence?.x_m, visitorPresence?.y_m, "visitor"));
+  } else if (selected && finiteNumber(selected.position_x_m) != null && finiteNumber(selected.position_y_m) != null) {
+    const anchor = locationById(selected.location_id);
+    const offset = spatialDistanceMeters(selected.position_x_m, selected.position_y_m, anchor?.x_m, anchor?.y_m);
+    if (offset != null && offset > 5) {
+      mode = "local";
+      add(pointFromMeters(selected.position_x_m, selected.position_y_m, "citizen", selected.id));
+      add(pointFromMeters(anchor?.x_m, anchor?.y_m, "landmark", anchor?.id));
+    }
+  }
+
+  if (mode === "local" && focusPoints.length) {
+    const cx = focusPoints.reduce((sum, p) => sum + p.x_m, 0) / focusPoints.length;
+    const cy = focusPoints.reduce((sum, p) => sum + p.y_m, 0) / focusPoints.length;
+    const nearest = nearestLocationToPoint(cx, cy, 350);
+    if (nearest) add(pointFromMeters(nearest.loc.x_m, nearest.loc.y_m, "landmark", nearest.loc.id));
+
+    for (const observation of state?.spatial_observations || []) {
+      const distance = spatialDistanceMeters(cx, cy, observation.x_m, observation.y_m);
+      if (distance != null && distance <= 300) {
+        add(pointFromMeters(observation.x_m, observation.y_m, "observation", observation.id));
+      }
+    }
+    for (const citizen of state?.citizens || []) {
+      const distance = spatialDistanceMeters(cx, cy, citizen.position_x_m, citizen.position_y_m);
+      if (distance != null && distance <= 220) {
+        add(pointFromMeters(citizen.position_x_m, citizen.position_y_m, "citizen", citizen.id));
+      }
+    }
+    const visitorDistance = spatialDistanceMeters(cx, cy, visitorPresence?.x_m, visitorPresence?.y_m);
+    if (visitorDistance != null && visitorDistance <= 220) {
+      add(pointFromMeters(visitorPresence.x_m, visitorPresence.y_m, "visitor"));
+    }
+  } else {
+    for (const loc of state?.locations || []) add(pointFromMeters(loc.x_m, loc.y_m, "landmark", loc.id));
+    for (const observation of state?.spatial_observations || []) add(pointFromMeters(observation.x_m, observation.y_m, "observation", observation.id));
+    for (const citizen of state?.citizens || []) {
+      add(pointFromMeters(citizen.position_x_m, citizen.position_y_m, "citizen", citizen.id));
+      const movement = localMovementForCitizen(citizen);
+      if (movement) add(pointFromMeters(movement.target_x_m, movement.target_y_m, "movement-target", citizen.id));
+    }
+    add(pointFromMeters(visitorPresence?.x_m, visitorPresence?.y_m, "visitor"));
+  }
+
+  const points = focusPoints.filter(Boolean);
+  if (!points.length) return null;
+
+  let minX = Math.min(...points.map(p => p.x_m));
+  let maxX = Math.max(...points.map(p => p.x_m));
+  let minY = Math.min(...points.map(p => p.y_m));
+  let maxY = Math.max(...points.map(p => p.y_m));
+
+  const minimumSpan = mode === "local" ? 120 : 500;
+  const cx = (minX + maxX) / 2;
+  const cy = (minY + maxY) / 2;
+  let spanX = Math.max(minimumSpan, maxX - minX);
+  let spanY = Math.max(minimumSpan, maxY - minY);
+  spanX *= 1.28;
+  spanY *= 1.28;
+
+  const scale = Math.min((width * 0.80) / spanX, (height * 0.72) / spanY);
+
+  return {
+    mode,
+    frameId: state.spatial_frame.id || "seed_site_local",
+    units: "meters",
+    centerX: cx,
+    centerY: cy,
+    width,
+    height,
+    scalePxPerMeter: Math.max(0.0001, scale),
+  };
+}
+
+function metersToMap(x, y) {
+  const px = finiteNumber(x);
+  const py = finiteNumber(y);
+  if (!spatialViewport || px == null || py == null) return null;
+  return {
+    x: 50 + (((px - spatialViewport.centerX) * spatialViewport.scalePxPerMeter) / spatialViewport.width) * 100,
+    y: 50 - (((py - spatialViewport.centerY) * spatialViewport.scalePxPerMeter) / spatialViewport.height) * 100,
+  };
+}
+
+function computeLegacyLocationPositions() {
   const center = { x: 50, y: 52 };
   const locations = state?.locations || [];
   const routes = state?.routes || [];
   const directRoutes = routes.filter(r => r.a === "seed_site" || r.b === "seed_site");
-  const distances = directRoutes
-    .map(r => Number(r.distance_km))
-    .filter(Number.isFinite);
-
+  const distances = directRoutes.map(r => Number(r.distance_km)).filter(Number.isFinite);
   const minDistance = distances.length ? Math.min(...distances) : 0;
   const maxDistance = distances.length ? Math.max(...distances) : 1;
   locationPositions = {};
@@ -351,25 +533,36 @@ function computeLocationPositions() {
       locationPositions[loc.id] = center;
       continue;
     }
-
     const route = directRoutes.find(r => r.a === loc.id || r.b === loc.id);
     const distance = Number(route?.distance_km);
     const normalizedDistance = Number.isFinite(distance) && maxDistance > minDistance
       ? (distance - minDistance) / (maxDistance - minDistance)
       : 0.5;
     const radius = 29 + (normalizedDistance * 14);
-
     let direction = LOCATION_PRESENTATION[loc.id]?.direction;
     if (!direction) {
       const angle = ((fallbackIndex++ / Math.max(1, locations.length - 1)) * Math.PI * 2) - (Math.PI / 2);
       direction = { x: Math.cos(angle), y: Math.sin(angle) };
     }
-
     const magnitude = Math.hypot(direction.x, direction.y) || 1;
     locationPositions[loc.id] = {
       x: clamp(center.x + ((direction.x / magnitude) * radius), 8, 92),
       y: clamp(center.y + ((direction.y / magnitude) * radius), 10, 90),
     };
+  }
+}
+
+function computeLocationPositions() {
+  spatialViewport = computeSpatialViewport();
+  if (!spatialViewport) {
+    computeLegacyLocationPositions();
+    return;
+  }
+
+  locationPositions = {};
+  for (const loc of state?.locations || []) {
+    const pos = metersToMap(loc.x_m, loc.y_m);
+    if (pos) locationPositions[loc.id] = pos;
   }
 }
 
@@ -422,7 +615,7 @@ function citizenSilhouetteClass(citizenId) {
 
 function citizenVisualState(citizen) {
   const action = activeJobFor(citizen.id)?.action;
-  if (action === "travel") return "traveling";
+  if (localMovementForCitizen(citizen) || action === "travel" || action === "local_move" || action === "shared_local_activity") return "traveling";
   if (action === "charge") return "charging";
   if (action === "talk") return "talking";
   if (action) return "working";
@@ -797,8 +990,13 @@ function renderVisitorStatus() {
     return;
   }
   const visitor = els.visitorName.value.trim() || "Visitor";
-  if (visitorPresence.traveling) {
+  if (visitorPresence.shared_activity?.movement) {
+    const p = Math.round(clamp(Number(visitorPresence.shared_activity.movement.progress) || 0, 0, 1) * 100);
+    els.visitorStatus.textContent = `${visitor}: shared local activity • ${p}%`;
+  } else if (visitorPresence.traveling) {
     els.visitorStatus.textContent = `${visitor}: traveling to ${visitorPresence.to_location_name} • ${visitorPresence.remaining_minutes}m left`;
+  } else if (spatialViewport && finiteNumber(visitorPresence.x_m) != null && finiteNumber(visitorPresence.y_m) != null) {
+    els.visitorStatus.textContent = `${visitor}: ${visitorPresence.location_name} • x ${trimNumber(visitorPresence.x_m)}m / y ${trimNumber(visitorPresence.y_m)}m`;
   } else {
     els.visitorStatus.textContent = `${visitor}: ${visitorPresence.location_name}`;
   }
@@ -815,7 +1013,12 @@ function renderCitizens() {
     const job = activeJobFor(c.id);
     const progress = job ? jobProgress(job) : null;
     const destination = job?.action === "travel" ? locationById(job.target)?.name : null;
-    const where = destination ? `${c.location} → ${destination}` : c.location;
+    const localMove = localMovementForCitizen(c);
+    const where = destination
+      ? `${c.location} → ${destination}`
+      : localMove
+        ? `${c.location} • local ${trimNumber(localMove.path_distance_m || 0)} m`
+        : c.location;
     const progressMarkup = job && progress ? `
       <div class="citizen-job-progress" aria-label="${escapeHtml(c.current_activity)} progress ${progress.percent}%">
         <div class="citizen-job-progress-meta">
@@ -1351,7 +1554,7 @@ function renderRoutes() {
     : null;
 
   const labels = [];
-  els.routeLayer.innerHTML = (state.routes || []).map(route => {
+  const routeLines = (state.routes || []).map(route => {
     const from = positionForLocation(route.a);
     const to = positionForLocation(route.b);
     const active = selectedTravel && sameRoute(route.a, route.b, selectedTravel.from, selectedTravel.to);
@@ -1366,106 +1569,240 @@ function renderRoutes() {
       `);
     }
     return `<line class="${active ? "active-route" : ""}" x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" />`;
-  }).join("");
+  });
 
+  const localLines = [];
+  if (spatialViewport) {
+    for (const citizen of state.citizens || []) {
+      const movement = localMovementForCitizen(citizen);
+      if (!movement) continue;
+      const start = metersToMap(movement.start_x_m, movement.start_y_m);
+      const target = metersToMap(movement.target_x_m, movement.target_y_m);
+      if (!start || !target) continue;
+      localLines.push(`
+        <line
+          class="local-movement-route ${selectedCitizen === citizen.id ? "selected" : ""}"
+          x1="${start.x}" y1="${start.y}" x2="${target.x}" y2="${target.y}"
+        />
+      `);
+      if (selectedCitizen === citizen.id) {
+        const midX = (start.x + target.x) / 2;
+        const midY = (start.y + target.y) / 2;
+        const distance = finiteNumber(movement.path_distance_m);
+        labels.push(`
+          <span class="local-movement-label" style="left:${midX}%; top:${midY}%;">
+            ${distance != null ? `${escapeHtml(trimNumber(distance))} m` : "Local movement"}
+          </span>
+        `);
+      }
+    }
+  }
+
+  els.routeLayer.innerHTML = routeLines.join("") + localLines.join("");
   return labels.join("");
+}
+
+function physicalClusterOffset(citizen) {
+  if (!spatialViewport || finiteNumber(citizen.position_x_m) == null || finiteNumber(citizen.position_y_m) == null) {
+    return { x: 0, y: 0 };
+  }
+  const peers = (state.citizens || []).filter(peer => {
+    const d = spatialDistanceMeters(citizen.position_x_m, citizen.position_y_m, peer.position_x_m, peer.position_y_m);
+    return d != null && d <= 0.5;
+  });
+  if (peers.length <= 1) return { x: 0, y: 0 };
+  const index = peers.findIndex(peer => peer.id === citizen.id);
+  const offset = clusterOffset(Math.max(0, index), peers.length);
+  return { x: offset.x * 0.85, y: offset.y * 0.85 };
+}
+
+function citizenMapPlacement(citizen) {
+  const movement = localMovementForCitizen(citizen);
+  const x = finiteNumber(citizen.position_x_m);
+  const y = finiteNumber(citizen.position_y_m);
+
+  if (spatialViewport && x != null && y != null) {
+    const pos = metersToMap(x, y);
+    const offset = physicalClusterOffset(citizen);
+    return {
+      pos,
+      offset,
+      localMoving: Boolean(movement),
+      routeTraveling: false,
+      progress: movement ? Math.round(clamp(Number(movement.progress) || 0, 0, 1) * 100) : null,
+      label: movement
+        ? `local ${String(movement.action || "movement").replaceAll("_", " ")}`
+        : `x ${trimNumber(x)} m • y ${trimNumber(y)} m`,
+    };
+  }
+
+  const job = activeJobFor(citizen.id);
+  if (job?.action === "travel") {
+    const progress = jobProgress(job);
+    return {
+      pos: interpolatedPosition(citizen.location_id, job.target, progress?.fraction || 0),
+      offset: { x: 0, y: 0 },
+      localMoving: false,
+      routeTraveling: true,
+      progress: progress?.percent || 0,
+      label: `traveling to ${locationById(job.target)?.name || job.target}`,
+    };
+  }
+
+  return {
+    pos: positionForLocation(citizen.location_id),
+    offset: { x: 0, y: 0 },
+    localMoving: false,
+    routeTraveling: false,
+    progress: null,
+    label: citizen.location || citizen.location_id,
+  };
+}
+
+function renderSpatialObservations() {
+  if (!spatialViewport) return "";
+
+  const observations = [...(state.spatial_observations || [])]
+    .filter(obs => finiteNumber(obs.x_m) != null && finiteNumber(obs.y_m) != null)
+    .sort((a, b) => Number(a.observed_minute || 0) - Number(b.observed_minute || 0))
+    .slice(-32);
+
+  return observations.map(obs => {
+    const pos = metersToMap(obs.x_m, obs.y_m);
+    if (!pos) return "";
+    const radius = Math.max(0.1, finiteNumber(obs.radius_m) || 0.1);
+    const diameterPx = clamp(radius * 2 * spatialViewport.scalePxPerMeter, 2, 180);
+    const baseline = String(obs.detail_level || "").toLowerCase() === "baseline";
+    const material = !baseline && obs.material ? String(obs.material) : "";
+    const geology = !baseline && obs.geology_class && obs.geology_class !== "unclassified"
+      ? String(obs.geology_class)
+      : "";
+    const contact = obs.deposit_id ? (material || "Physical contact") : "";
+    const label = contact || String(obs.terrain_class || "Observation");
+    const titleBits = [
+      `Observation #${obs.id}`,
+      label,
+      `uncertainty radius ${trimNumber(radius)} m`,
+      geology ? `geology ${geology}` : "",
+      obs.summary || "",
+    ].filter(Boolean);
+
+    return `
+      <div
+        class="map-observation ${baseline ? "baseline" : "detailed"}"
+        data-observation-id="${escapeHtml(String(obs.id))}"
+        style="left:${pos.x}%; top:${pos.y}%;"
+        title="${escapeHtml(titleBits.join(" • "))}"
+      >
+        <span class="observation-radius" style="width:${diameterPx}px; height:${diameterPx}px;"></span>
+        <span class="observation-dot"></span>
+        <span class="observation-label">${escapeHtml(label)} <small>±${escapeHtml(trimNumber(radius))}m</small></span>
+      </div>
+    `;
+  }).join("");
 }
 
 function renderMap() {
   const routeLabels = renderRoutes();
-  const nodes = state.locations.map(loc => renderLocationNode(loc)).join("");
-  const travelersList = state.citizens.filter(c => isTravelingCitizen(c));
-  const travelers = travelersList.map(c => {
-    const job = activeJobFor(c.id);
-    const progress = jobProgress(job);
-    const pos = interpolatedPosition(c.location_id, job.target, progress?.fraction || 0);
-    const peers = travelersList.filter(peer => {
-      const peerJob = activeJobFor(peer.id);
-      return peerJob?.action === "travel" && sameRoute(c.location_id, job.target, peer.location_id, peerJob.target);
-    });
-    const laneIndex = peers.findIndex(peer => peer.id === c.id);
-    const laneOffset = (laneIndex - ((peers.length - 1) / 2)) * 18;
-    const from = positionForLocation(c.location_id);
-    const to = positionForLocation(job.target);
-    const dx = to.x - from.x;
-    const dy = to.y - from.y;
-    const magnitude = Math.hypot(dx, dy) || 1;
-    const offsetX = (-dy / magnitude) * laneOffset;
-    const offsetY = (dx / magnitude) * laneOffset;
-    const targetName = locationById(job.target)?.name || job.target;
+  const nodes = (state.locations || []).map(loc => renderLocationNode(loc)).join("");
+  const observations = renderSpatialObservations();
+
+  const citizenTokens = (state.citizens || []).map(citizen => {
+    const placement = citizenMapPlacement(citizen);
+    const pos = placement.pos;
+    if (!pos) return "";
+    const progressText = placement.progress != null ? ` • ${placement.progress}%` : "";
+    const classes = [
+      "map-citizen",
+      placement.localMoving ? "local-moving" : "",
+      placement.routeTraveling ? "traveling" : "",
+      selectedCitizen === citizen.id ? "selected" : "",
+    ].filter(Boolean).join(" ");
 
     return `
       <button
-        class="map-citizen traveling ${selectedCitizen === c.id ? "selected" : ""}"
-        style="left:calc(${pos.x}% + ${offsetX}px); top:calc(${pos.y}% + ${offsetY}px);"
-        title="${escapeHtml(c.name)} • traveling to ${escapeHtml(targetName)} • ${progress?.percent || 0}%"
-        aria-label="${escapeHtml(c.name)} traveling to ${escapeHtml(targetName)}"
-        onclick="selectCitizen('${c.id}')"
-      >${citizenAvatarMarkup(c, "map")}</button>
+        class="${classes}"
+        style="left:calc(${pos.x}% + ${placement.offset.x}px); top:calc(${pos.y}% + ${placement.offset.y}px);"
+        title="${escapeHtml(citizen.name)} • ${escapeHtml(placement.label)}${progressText}"
+        aria-label="${escapeHtml(citizen.name)} • ${escapeHtml(placement.label)}"
+        onclick="selectCitizen('${citizen.id}')"
+      >${citizenAvatarMarkup(citizen, "map")}</button>
     `;
   }).join("");
 
   let visitorMarker = "";
   if (visitorPresence) {
-    let pos;
-    let label;
-    let offset = { x: 0, y: -26 };
-    let locationId;
+    let pos = null;
+    let label = "";
+    let offset = { x: 16, y: -18 };
+    const localShared = visitorPresence.shared_activity?.movement;
 
-    if (visitorPresence.traveling) {
+    if (
+      spatialViewport &&
+      finiteNumber(visitorPresence.x_m) != null &&
+      finiteNumber(visitorPresence.y_m) != null &&
+      localShared
+    ) {
+      pos = metersToMap(visitorPresence.x_m, visitorPresence.y_m);
+      const p = Math.round(clamp(Number(localShared.progress) || 0, 0, 1) * 100);
+      label = `${els.visitorName.value.trim() || "Visitor"} • shared local activity • ${p}%`;
+    } else if (visitorPresence.traveling) {
       pos = interpolatedPosition(
         visitorPresence.from_location_id,
         visitorPresence.to_location_id,
         visitorPresence.progress || 0
       );
-      locationId = visitorPresence.to_location_id;
+      offset = { x: 0, y: -26 };
       label = `${els.visitorName.value.trim() || "Visitor"} • traveling to ${visitorPresence.to_location_name}`;
+    } else if (
+      spatialViewport &&
+      finiteNumber(visitorPresence.x_m) != null &&
+      finiteNumber(visitorPresence.y_m) != null
+    ) {
+      pos = metersToMap(visitorPresence.x_m, visitorPresence.y_m);
+      label = `${els.visitorName.value.trim() || "Visitor"} • x ${trimNumber(visitorPresence.x_m)} m • y ${trimNumber(visitorPresence.y_m)} m`;
     } else {
-      locationId = visitorPresence.location_id;
-      pos = positionForLocation(locationId);
-      offset = LOCATION_PRESENTATION[locationId]?.visitor || offset;
+      pos = positionForLocation(visitorPresence.location_id);
+      offset = LOCATION_PRESENTATION[visitorPresence.location_id]?.visitor || offset;
       label = `${els.visitorName.value.trim() || "Visitor"} • ${visitorPresence.location_name}`;
     }
 
-    visitorMarker = `
-      <button
-        class="map-visitor ${visitorPresence.traveling ? "traveling" : ""}"
-        style="left:calc(${pos.x}% + ${offset.x}px); top:calc(${pos.y}% + ${offset.y}px);"
-        title="${escapeHtml(label)}"
-        onclick="focusLocation('${locationId}')"
-      >YOU</button>
-    `;
+    if (pos) {
+      visitorMarker = `
+        <button
+          class="map-visitor ${localShared ? "local-moving" : ""} ${visitorPresence.traveling ? "traveling" : ""}"
+          style="left:calc(${pos.x}% + ${offset.x}px); top:calc(${pos.y}% + ${offset.y}px);"
+          title="${escapeHtml(label)}"
+          onclick="focusLocation('${visitorPresence.location_id || "seed_site"}')"
+        >YOU</button>
+      `;
+    }
   }
 
-  els.mapLayer.innerHTML = routeLabels + nodes + travelers + visitorMarker;
+  if (els.mapSpatialStatus) {
+    if (spatialViewport) {
+      els.mapSpatialStatus.textContent = spatialViewport.mode === "local"
+        ? `Local meter view • ${spatialViewport.frameId} • +x east / +y north`
+        : `Meter-space region • ${spatialViewport.frameId} • +x east / +y north`;
+    } else {
+      els.mapSpatialStatus.textContent = "Confirmed information only.";
+    }
+  }
+
+  els.mapLayer.innerHTML = routeLabels + nodes + observations + citizenTokens + visitorMarker;
   updateWorldFocus();
 }
 
 function renderLocationNode(loc) {
   const pos = positionForLocation(loc.id);
-  const people = citizensAtLocation(loc.id);
   const deposits = depositsForLocation(loc.id);
-  const presentation = LOCATION_PRESENTATION[loc.id] || {
-    label: "below",
-    cluster: { x: 0, y: 38 },
-  };
+  const presentation = LOCATION_PRESENTATION[loc.id] || { label: "below" };
   const selected = selectedCitizen ? state.citizens.find(c => c.id === selectedCitizen) : null;
-  const selectedHere = selected && !isTravelingCitizen(selected) && selected.location_id === loc.id;
-  const nodeTitle = `${loc.name} • ${loc.surveyed ? "Surveyed" : "Not yet surveyed"}${deposits.length ? ` • ${deposits.length} confirmed deposit${deposits.length > 1 ? "s" : ""}` : ""}`;
-
-  const citizenTokens = people.map((person, index) => {
-    const cluster = presentation.cluster || { x: 0, y: 38 };
-    const offset = clusterOffset(index, people.length);
-    return `
-      <button
-        class="map-citizen ${selectedCitizen === person.id ? "selected" : ""}"
-        style="left:calc(${pos.x}% + ${cluster.x + offset.x}px); top:calc(${pos.y}% + ${cluster.y + offset.y}px);"
-        title="${escapeHtml(person.name)} • ${escapeHtml(person.current_activity || person.location)}"
-        aria-label="${escapeHtml(person.name)} at ${escapeHtml(loc.name)}"
-        onclick="selectCitizen('${person.id}')"
-      >${citizenAvatarMarkup(person, "map")}</button>
-    `;
-  }).join("");
+  const selectedHere = selected && citizensAtLocation(loc.id).some(c => c.id === selected.id);
+  const coords = spatialViewport && finiteNumber(loc.x_m) != null && finiteNumber(loc.y_m) != null
+    ? ` • x ${trimNumber(loc.x_m)} m • y ${trimNumber(loc.y_m)} m`
+    : "";
+  const nodeTitle = `${loc.name} • ${loc.surveyed ? "Surveyed" : "Not yet surveyed"}${deposits.length ? ` • ${deposits.length} confirmed deposit${deposits.length > 1 ? "s" : ""}` : ""}${coords}`;
 
   return `
     <button
@@ -1477,7 +1814,6 @@ function renderLocationNode(loc) {
       <span class="node-dot"></span>
       <span class="node-label">${escapeHtml(loc.name)}</span>
     </button>
-    ${citizenTokens}
   `;
 }
 
@@ -1488,7 +1824,18 @@ function updateWorldFocus() {
 
   let visitorAction = "";
   if (visitorPresence) {
-    if (visitorPresence.traveling) {
+    if (visitorPresence.shared_activity?.movement) {
+      const movement = visitorPresence.shared_activity.movement;
+      const p = Math.round(clamp(Number(movement.progress) || 0, 0, 1) * 100);
+      visitorAction = `
+        <div class="visitor-route-card shared-active">
+          <strong>Shared local activity is physically active</strong>
+          <span>${escapeHtml(String(visitorPresence.shared_activity.objective || visitorPresence.shared_activity.activity_type || "Local exploration"))}</span>
+          <div class="job-progress-track"><span style="width:${p}%"></span></div>
+          <small>${p}% • target x ${escapeHtml(trimNumber(movement.target_x_m))} m / y ${escapeHtml(trimNumber(movement.target_y_m))} m</small>
+        </div>
+      `;
+    } else if (visitorPresence.traveling) {
       const p = Math.round((visitorPresence.progress || 0) * 100);
       visitorAction = `
         <div class="visitor-route-card">
@@ -1972,8 +2319,161 @@ window.startVisitorTravel = async function(target) {
   }
 };
 
+function sharedActionStatusLabel(proposal) {
+  const status = String(proposal?.status || "proposed");
+  if (status === "proposed") return "Proposal • not started";
+  if (status === "accepted" && !proposal?.simulation_action_id) return "Accepted intent • not started";
+  if (status === "started" && proposal?.simulation_action_id) return "Active physical activity";
+  if (status === "completed") return "Completed";
+  if (status === "rejected") return "Declined";
+  if (status === "failed") return "Failed";
+  if (status === "cancelled") return "Cancelled";
+  if (status === "expired") return "Expired";
+  return status.replaceAll("_", " ");
+}
+
+function renderSharedActionPanel(proposals = currentSharedActionProposals) {
+  if (!els.sharedActionPanel) return;
+  const items = Array.isArray(proposals) ? proposals.slice(-3).reverse() : [];
+  if (!items.length || !selectedCitizen) {
+    els.sharedActionPanel.classList.add("hidden");
+    els.sharedActionPanel.innerHTML = "";
+    return;
+  }
+
+  els.sharedActionPanel.innerHTML = items.map(proposal => {
+    const status = String(proposal.status || "proposed");
+    const targetX = finiteNumber(proposal.target?.x_m);
+    const targetY = finiteNumber(proposal.target?.y_m);
+    const target = targetX != null && targetY != null
+      ? `Target x ${trimNumber(targetX)} m • y ${trimNumber(targetY)} m`
+      : "Validated target";
+    const hasPhysicalJob = Boolean(proposal.simulation_action_id);
+    const physicalActive = status === "started" && hasPhysicalJob;
+    const progress = physicalActive && finiteNumber(proposal.progress) != null
+      ? clamp(Number(proposal.progress), 0, 1)
+      : null;
+    const observationIds = Array.isArray(proposal.observation_ids) ? proposal.observation_ids : [];
+    const pending = sharedActionBusyId === Number(proposal.id);
+    const canAccept = status === "proposed" && proposal.acceptance_available === true && !pending;
+    const canReject = status === "proposed" && !pending;
+
+    return `
+      <article class="shared-action-card status-${escapeHtml(status)} ${physicalActive ? "physical-active" : "intent-only"}">
+        <div class="shared-action-head">
+          <div>
+            <span class="shared-action-status">${escapeHtml(sharedActionStatusLabel(proposal))}</span>
+            <strong>${escapeHtml(proposal.label || proposal.objective || "Shared local activity")}</strong>
+          </div>
+          <small>#${escapeHtml(String(proposal.id))}</small>
+        </div>
+        ${proposal.objective ? `<p>${escapeHtml(proposal.objective)}</p>` : ""}
+        <div class="shared-action-meta">
+          <span>${escapeHtml(target)}</span>
+          ${proposal.simulation_activity_id != null ? `<span>Activity #${escapeHtml(String(proposal.simulation_activity_id))}</span>` : ""}
+          ${hasPhysicalJob ? `<span>Physical job #${escapeHtml(String(proposal.simulation_action_id))}</span>` : ""}
+          ${observationIds.length ? `<span>Observation ${observationIds.map(id => "#" + escapeHtml(String(id))).join(", ")}</span>` : ""}
+        </div>
+        ${progress != null ? `
+          <div class="shared-action-progress">
+            <div class="job-progress-track"><span style="width:${Math.round(progress * 100)}%"></span></div>
+            <small>${Math.round(progress * 100)}% • authoritative Simulation progress</small>
+          </div>
+        ` : ""}
+        ${proposal.outcome ? `<div class="shared-action-outcome">${escapeHtml(proposal.outcome)}</div>` : ""}
+        ${status === "proposed" ? `
+          <div class="shared-action-actions">
+            <button type="button" class="accent-button" ${canAccept ? "" : "disabled"} onclick="acceptSharedAction(${Number(proposal.id)})">
+              ${pending ? "Working…" : "Accept & start"}
+            </button>
+            <button type="button" ${canReject ? "" : "disabled"} onclick="rejectSharedAction(${Number(proposal.id)})">Decline</button>
+          </div>
+          <small class="shared-action-truth">A proposal is not movement. Physical start requires Simulation to create a real job.</small>
+        ` : ""}
+      </article>
+    `;
+  }).join("");
+  els.sharedActionPanel.classList.remove("hidden");
+}
+
+function upsertSharedActionProposal(proposal) {
+  if (!proposal?.id) return;
+  const index = currentSharedActionProposals.findIndex(item => Number(item.id) === Number(proposal.id));
+  if (index >= 0) currentSharedActionProposals[index] = proposal;
+  else currentSharedActionProposals.push(proposal);
+  renderSharedActionPanel();
+}
+
+async function refreshSharedActionProposals(citizenId = selectedCitizen) {
+  if (!citizenId || currentVisitId == null) return;
+  const visitor = els.visitorName.value.trim() || "Visitor";
+  try {
+    const response = await fetch(
+      `/api/visit/${encodeURIComponent(citizenId)}/shared-actions?visitor=${encodeURIComponent(visitor)}&visit_id=${encodeURIComponent(currentVisitId)}`,
+      { cache: "no-store" }
+    );
+    if (!response.ok) return;
+    const data = await response.json();
+    currentSharedActionProposals = Array.isArray(data.proposals) ? data.proposals : [];
+    renderSharedActionPanel();
+  } catch {
+    // Proposal UI is an enhancement. Visit/chat remains usable if refresh fails.
+  }
+}
+
+window.acceptSharedAction = async function(proposalId) {
+  if (sharedActionBusyId != null) return;
+  const visitor = els.visitorName.value.trim() || "Visitor";
+  sharedActionBusyId = Number(proposalId);
+  renderSharedActionPanel();
+  try {
+    const response = await fetch(`/api/shared-actions/${encodeURIComponent(proposalId)}/accept`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ visitor }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || data.message || "Shared activity could not start.");
+    if (data.proposal) upsertSharedActionProposal(data.proposal);
+    appendChat("System", data.message || "Shared physical activity started.", "system");
+    await loadState();
+  } catch (error) {
+    appendChat("System", error.message, "system");
+  } finally {
+    sharedActionBusyId = null;
+    renderSharedActionPanel();
+  }
+};
+
+window.rejectSharedAction = async function(proposalId) {
+  if (sharedActionBusyId != null) return;
+  const visitor = els.visitorName.value.trim() || "Visitor";
+  sharedActionBusyId = Number(proposalId);
+  renderSharedActionPanel();
+  try {
+    const response = await fetch(`/api/shared-actions/${encodeURIComponent(proposalId)}/reject`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ visitor }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || data.message || "Proposal could not be declined.");
+    if (data.proposal) upsertSharedActionProposal(data.proposal);
+    appendChat("System", data.message || "Proposal declined. No physical action started.", "system");
+    await refreshSharedActionProposals();
+  } catch (error) {
+    appendChat("System", error.message, "system");
+  } finally {
+    sharedActionBusyId = null;
+    renderSharedActionPanel();
+  }
+};
+
 function renderVisitConversation(data) {
   els.chatLog.innerHTML = "";
+  currentVisitId = data.visit?.id ?? data.visit_id ?? null;
+  currentSharedActionProposals = Array.isArray(data.shared_action_proposals) ? data.shared_action_proposals : [];
+  renderSharedActionPanel();
   els.visitHistoryPanel.classList.add("hidden");
   els.visitHistoryPanel.innerHTML = "";
 
@@ -2089,6 +2589,10 @@ function clearVisitSelection(message = "Choose a citizen on the left or on the m
   els.selectedTitle.textContent = "Conversation";
   els.selectedLabel.textContent = "Select a citizen.";
   els.chatInput.value = "";
+  currentVisitId = null;
+  currentSharedActionProposals = [];
+  sharedActionBusyId = null;
+  renderSharedActionPanel();
   els.chatInput.disabled = true;
   els.sendButton.disabled = true;
   els.leaveVisit.hidden = true;
@@ -2245,6 +2749,9 @@ els.chatForm.addEventListener("submit", async (event) => {
     const data = await response.json();
     if (!response.ok) throw new Error(data.detail || "Conversation failed.");
     appendChat(data.citizen, data.message, "citizen");
+    if (data.shared_action_proposal) {
+      upsertSharedActionProposal(data.shared_action_proposal);
+    }
   } catch (error) {
     appendChat("System", error.message, "system");
   } finally {
