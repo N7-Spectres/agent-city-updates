@@ -20,12 +20,11 @@ _None._
 
 ### WAITING
 
-- [Coordinator / v0.8 planning] Stage 2 is fully integrated and green; decide whether to authorize another v0.8 development stage or begin final release hardening
+_None._
 
 ### READY
 
-- [Coordinator] unified v0.8 Stage 2 integration base: `release-v0.8.0` @ `022f7655e9e958e3c35866d90679166a5b1c21e6`
-- [Coordinator] full combined CI `36461596122` passed all v0.4-v0.8 Stage 2 required smokes
+_None._
 
 ### REVIEW
 
@@ -33,12 +32,12 @@ _None._
 
 ### DONE
 
-- [Coordinator] v0.8 Stage 2 Simulation + Communication + Memory + Assets assembled and regression-tested on `release-v0.8.0`
-- [World & Simulation] v0.8 Stage 2 continuous local exploration/shared physical activity integrated
-- [Communication & Perception] v0.8 Stage 2 shared-action proposal/accept/start/reject/status bridge integrated
-- [Memory & Social] v0.8 Stage 2 bounded exploration/shared-activity continuity integrated
-- [Assets & Interface] v0.8 Stage 2 continuous meter-map/shared-action UI/observation uncertainty/AssetQueue scaffold integrated
-- [Coordinator] v0.8 Stage 1 assembled and regression-tested on `release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`
+- [Coordinator] v0.8.0 Living World assembled, versioned, regression-tested, and published from `a870982ba947fcc5af08ca190de396ae4308b645`; final CI `36462126434` passed the complete v0.4-v0.8 matrix
+- [World & Simulation] v0.8 Stage 2 local exploration/shared physical activity integrated
+- [Communication & Perception] v0.8 Stage 2 grounded shared-action bridge integrated
+- [Memory & Social] v0.8 Stage 2 spatial/shared-exploration continuity integrated
+- [Assets & Interface] v0.8 Stage 2 continuous map/shared-action UI/AssetQueue scaffold integrated
+- [Coordinator] v0.8 Stage 1 assembled and regression-tested
 - [Coordinator] v0.7.0 published from `d81a85bf03b69b969532016f59bbbed2233949ee`
 
 ## v0.8 Stage 1 Coordination Goal
@@ -358,3 +357,16 @@ Integration preserved the explicit identity chain:
 - spatial observation = validated exploration evidence
 
 No v0.8 release metadata or `update.json` publication has occurred yet.
+
+
+## v0.8.0 Release Result
+
+Published runtime:
+- branch: `release-v0.8.0`
+- immutable commit: `a870982ba947fcc5af08ca190de396ae4308b645`
+- final GitHub Actions run: `36462126434`
+- result: **PASS**
+
+The updater may now target this immutable commit.
+
+No additional v0.8 department work remains open.
