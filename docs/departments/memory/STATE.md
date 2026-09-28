@@ -218,3 +218,49 @@ The published runtime preserves:
 
 Published runtime commit:
 `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`.
+
+
+## v0.6 Location Knowledge — Implementation
+
+Branch: `memory/v0.6-location-knowledge`  
+Base: `release-v0.5.0` / `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
+
+Memory now provides a bounded per-citizen knowledge layer without duplicating Simulation's hidden truth.
+
+### Implemented
+
+- existing `memory_events` reused; no new table/migration
+- personally validated survey discoveries are projected into Memory using the authoritative survey job ID when available
+- legacy validated discoveries without a matching job use a clearly labeled legacy deposit source instead of invented provenance
+- new knowledge records retain source type, source ID, simulation minute, verification status, and structured metadata
+- knowledge retrieval can filter by location, material, or future process
+- model-facing knowledge context is bounded separately from social context
+- planner receives only the planning citizen's retained knowledge for their current location
+- visitor conversation can use only that citizen's retained local knowledge
+- location notebook read model partitions facts by citizen; it never unions all citizen knowledge into one omniscient summary
+
+### Safe read APIs
+
+- `GET /api/knowledge/citizens/{citizen_id}`
+  - optional filters: `location_id`, `material`, `process`, `limit`
+  - returns only that citizen's retained facts plus a bounded summary
+- `GET /api/knowledge/locations/{location_id}`
+  - optional `citizen_id`
+  - without a citizen filter, returns separate per-citizen views rather than a merged location truth record
+
+### Current authoritative source support
+
+Today, personal deposit knowledge is sourced from validated survey/deposit records already present in v0.5.
+
+The generic `record_knowledge_event(...)` hook is ready for future Simulation discovery/experiment IDs and Communication-transferred claims. Callers must mark communicated claims unverified until a real verification path exists.
+
+### Compatibility
+
+- v0.4/v0.5 social memory remains unchanged
+- conversation memories remain source-linked to canonical `citizen_conversations.id`
+- idempotent backfill is preserved
+- missing knowledge remains valid and expected
+- hidden undiscovered deposits are never imported into Memory
+- no global shared encyclopedia was added
+
+A focused `tests/smoke_v060_memory.py` covers per-citizen isolation, idempotency, source linkage, unverified claims, location notebook partitioning, and API imports.
