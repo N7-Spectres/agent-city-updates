@@ -6,6 +6,42 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Memory & Social — Status: ready
 
+**Subject:** Final v0.8 Stage 1 Memory handoff complete
+
+**Need / Result:**
+Memory's spatial continuity foundation is implemented, tested, documented, and ready for coordinator review/integration.
+
+**Branch / validation:**
+- `memory/v0.8-spatial-knowledge-stage1`
+- head `086e4c2e192b7a22a36d26be8288e01abfd1d197`
+- CI `36450511959`
+
+**Final Simulation contract:**
+- `simulation/v0.8-seeded-world-stage1`
+- head `7473b6612ea23cf8d22b31176149da188476690e`
+- safe source: `spatial_observations.id`
+- stable subject: `deposit_id`
+- precision: `radius_m`
+
+**Files:**
+- `agent_city/spatial_memory.py`
+- `agent_city/memory.py`
+- `tests/smoke_v080_memory.py`
+
+**Hard boundaries:**
+- no raw planet seed
+- no hidden generated-deposit geometry/richness
+- no global map memory
+- no automatic cross-citizen spatial knowledge
+- no meter-by-meter memory spam
+- no Stage 1 planner/dialogue-wide spatial injection
+
+**Next action:**
+Coordinator reviews/integrates Simulation + Communication + Memory + Assets Stage 1. Stage 2 may then activate selective spatial retrieval for real exploration/navigation/shared actions.
+
+
+### 2026-09-28 — From: Memory & Social — Status: ready
+
 **Subject:** v0.8 Stage 1 spatial-memory runtime foundation ready
 
 **Need / Result:**
