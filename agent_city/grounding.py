@@ -208,6 +208,91 @@ Capability rules:
 """.strip()
 
 
+def spatial_grounding_context(
+    citizen_id: str,
+    *,
+    visitor_id: str | None = None,
+    observation_limit: int = 6,
+) -> str:
+    """
+    Forward-compatible consumer of Simulation's v0.8 meter-scale safe read model.
+
+    It uses only ordinary snapshot/visitor-presence state and persisted safe
+    observations. It never calls hidden spatial truth/query functions.
+    """
+    state = snapshot()
+    citizen = _state_citizen(state, citizen_id)
+    if not citizen:
+        return "SPATIAL GROUNDING:\n- citizen spatial state unavailable"
+
+    frame = state.get("spatial_frame")
+    observations = [
+        row
+        for row in state.get("spatial_observations", [])
+        if row.get("observer_id") == citizen_id
+    ][-max(1, min(int(observation_limit), 12)):]
+
+    lines = ["SPATIAL GROUNDING:"]
+
+    if frame:
+        lines.append(
+            "- frame: "
+            f"{frame.get('id')} in {frame.get('units', 'meters')}; "
+            f"+x {frame.get('x_axis', 'east')}, +y {frame.get('y_axis', 'north')}"
+        )
+    else:
+        lines.append("- meter-scale spatial frame is not present in this runtime yet")
+
+    x = citizen.get("position_x_m")
+    y = citizen.get("position_y_m")
+    if x is not None and y is not None:
+        lines.append(f"- your authoritative position: x={float(x):.2f} m, y={float(y):.2f} m")
+
+    if visitor_id:
+        try:
+            with connect() as conn:
+                columns = {
+                    row["name"]
+                    for row in conn.execute("PRAGMA table_info(visitor_presence)").fetchall()
+                }
+                if {"x_m", "y_m"}.issubset(columns):
+                    visitor = conn.execute(
+                        "SELECT x_m, y_m FROM visitor_presence WHERE visitor = ?",
+                        (visitor_id,),
+                    ).fetchone()
+                else:
+                    visitor = None
+            if visitor and visitor["x_m"] is not None and visitor["y_m"] is not None:
+                lines.append(
+                    f"- visitor authoritative position: x={float(visitor['x_m']):.2f} m, "
+                    f"y={float(visitor['y_m']):.2f} m"
+                )
+        except Exception:
+            pass
+
+    if observations:
+        lines.append("- your persisted validated spatial observations:")
+        for row in observations:
+            detail = (
+                f"observation #{row.get('id')} at "
+                f"({float(row.get('x_m') or 0):.2f}, {float(row.get('y_m') or 0):.2f}) m: "
+                f"terrain={row.get('terrain_class')}, elevation={float(row.get('elevation_m') or 0):.1f} m, "
+                f"geology={row.get('geology_class')}"
+            )
+            if row.get("material"):
+                detail += f", material contact={row.get('material')} ({row.get('deposit_id')})"
+            lines.append("- " + detail)
+    else:
+        lines.append("- no persisted validated meter-scale observations are available to you")
+
+    lines.extend([
+        "- Do not infer hidden deposit richness, extent, axes, seed, or unseen terrain from this context.",
+        "- Visitor-described meter movement does not change either position unless Simulation records movement.",
+        "- A persisted spatial observation is evidence only for what that observation safely exposes.",
+    ])
+    return "\n".join(lines)
+
+
 def settlement_store_context(citizen_id: str) -> str:
     """
     Only expose live Seed Site storage quantities when the citizen is physically
