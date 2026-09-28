@@ -386,3 +386,34 @@ Do not mark the coordinator's runtime-pass request complete until:
 - final branch head/validation are recorded
 
 The current state is **unblocked, not complete**.
+
+
+## v0.7 Experience Assignment Rule
+
+A validated maintenance event is not automatically shared knowledge.
+
+Initial Memory assignment is deliberately conservative:
+
+- the maintenance actor receives the event
+- when `target_type='citizen'` and the target is a different citizen, that serviced citizen also receives the event
+- equipment owners do not automatically receive service memories merely because they own the object
+- bystanders do not automatically receive the event
+- settlement-wide Memory propagation does not occur
+
+Additional awareness must later come through a real observation or Communication provenance path.
+
+## v0.7 Stream Separation Rule
+
+Maintenance history and knowledge/research facts are separate retrieval streams.
+
+`knowledge_snapshot_for` must not include `simulation_maintenance_event` records.
+
+Maintenance history is retrieved through maintenance-specific functions and only injected into model context as a small bounded section.
+
+This prevents character sheets and location notebooks from becoming repair logs.
+
+## v0.7 Compatibility Rule
+
+Memory's maintenance synchronization must safely no-op when the Simulation `maintenance_events` table does not exist.
+
+This allows the Memory branch to remain regression-safe against its shipped v0.6 base while activating automatically after coordinator merge with the Simulation v0.7 schema.
