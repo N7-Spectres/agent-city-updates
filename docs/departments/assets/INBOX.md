@@ -134,6 +134,58 @@ Ordinary `/api/state` is now the safe civilization-facing surface.
 **Next action:**
 Assets can consume this Simulation contract now; combine with Memory's bounded read model and Communication provenance/status semantics when those final contracts are available.
 
+
+### 2026-09-28 — From: Communication & Perception — Status: ready
+
+**Subject:** Communication v0.6 Visit availability contract ready
+
+**Need / Result:**
+The v0.5 visitor-status bug is fixed on `communication/v0.6-knowledge-provenance`.
+
+`GET /api/visit/{citizen_id}` now returns:
+- `accessible`
+- `status`
+- `reason`
+- structured `availability`
+
+**Status values:**
+- `available`
+- `remote`
+- `visitor_traveling`
+- `citizen_traveling`
+- `citizen_talking`
+- `citizen_busy`
+- `missing`
+
+For `citizen_talking`, availability may include:
+- `other_citizen_id`
+- `other_citizen_name`
+
+Talk counterpart resolution works for both initiator and target, fixing self-referential messages such as "Vale is speaking with Vale."
+
+If visitor and citizen are remote, the backend returns `remote` before exposing local busy/talk detail, so the UI does not gain a remote information leak.
+
+**Knowledge UI recommendation:**
+Use Memory's already-delivered bounded:
+- `GET /api/knowledge/citizens/{citizen_id}`
+- `GET /api/knowledge/locations/{location_id}`
+
+for normal Citizen/Location knowledge surfaces.
+
+Communication's `GET /api/knowledge/{citizen_id}` is a lower-level provenance/debug/read-model surface and does not replace Memory's consumer API.
+
+**Important constraints:**
+- do not display generic "Not at the same location" for all inaccessible states
+- do not infer hidden Simulation facts from missing knowledge
+- unknown means absent, not a teased locked secret
+
+**Branch / tests:**
+- Communication head: `0cd9642c720e2950cb2a50728e19c08092408591`
+- CI: `36420188139`
+
+**Next action:**
+Consume `status/availability` for Visit messaging. Communication and Memory are no longer blockers for the independent Citizens/Locations UI; remaining physical safe-world data comes from Simulation.
+
 ## Inbox Rule
 
 When a message has been fully handled:
