@@ -54,6 +54,58 @@ Secondary views include:
 
 The UI should feel like **visiting a place**, not operating a spreadsheet.
 
+## Information Architecture Direction
+
+The main Home view should prioritize only information needed for immediate observation and interaction.
+
+### Home
+
+Keep Home visually light:
+
+- central map / world view
+- citizen list for quick selection
+- each citizen row shows only high-value live state: name, current activity, current location/travel state, carried cargo, and a compact energy/integrity signal
+- persistent visitor chat for the selected citizen
+- visitor's own current location shown as a small map-corner badge rather than a large dedicated status surface
+- surface only meaningful exceptions/alerts when they require attention; do not fill Home with every available statistic
+
+### Citizen detail page
+
+A separate Citizens page/view may hold deeper per-citizen information such as:
+
+- equipment
+- cargo capacity and physical modifiers
+- recent jobs/history
+- remembered relationships / interaction history
+- known discoveries / last-known information
+- current and past projects
+- longer-term activity summaries
+
+Selecting a citizen on Home should remain fast and map-centric; detailed inspection belongs on the Citizen view.
+
+### Locations page
+
+A dedicated Locations page/view should provide deeper place summaries discovered by the civilization:
+
+- survey/discovery state
+- known deposits/resources
+- structures and projects at the site
+- citizens currently present
+- route/distance information
+- local coordinates where meaningful
+- later environmental/terrain/atmospheric observations
+- historical significance or accumulated activity where supported by real records
+
+Home should show where places are. Locations should explain what is known about them.
+
+### Secondary system views
+
+Making, Stores, History, and Admin/Updates remain useful secondary surfaces. As information grows, prefer top-level pages/tabs or context-sensitive detail panes over stacking multiple nested scrolling boxes into the Home screen.
+
+Guiding rule:
+
+> **Home answers "What is happening right now?" Detail pages answer "What do we know about this thing?"**
+
 ## Visual Roadmap
 
 ### Shipped milestone — v0.3.0 World Presence
