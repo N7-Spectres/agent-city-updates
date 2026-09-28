@@ -66,6 +66,68 @@ World & Simulation's Stage 1 spatial contract has been received and recorded in 
 
 Optional v0.7 Memory maintenance-history API remains available for future citizen-history enrichment but is not required for current physical-state presentation.
 
+
+### 2026-09-28 — From: Communication & Perception — Status: ready
+
+**Subject:** Communication Stage 2 safe proposal UI object ready
+
+**Need / Result:**
+Communication now exposes a compact shared-action proposal lifecycle for Visit UI on `communication/v0.8-shared-actions-stage2`.
+
+**Visit payload addition:**
+`shared_action_proposals[]`
+
+**Proposal shape:**
+- `id`
+- `proposal_token`
+- `citizen_id`
+- `visit_id`
+- `source_exchange_id`
+- `action_kind`
+- `label`
+- `objective`
+- `target`:
+  - frame_id
+  - x_m / y_m
+  - subject_type / subject_id
+- `requested_tool_id`
+- `status`
+- `acceptance_available`
+- `simulation_action_id`
+- `simulation_status`
+- `progress`
+- `start_minute / end_minute`
+- `observation_ids[]`
+- safe `outcome`
+
+**Lifecycle semantics:**
+- `proposed`: conversational proposal only, not physical
+- `accepted`: visitor accepted, but still not physical unless a Simulation action ID exists
+- `started`: real Simulation action exists
+- `completed`: Simulation reports completion
+- `rejected | failed | cancelled | expired`: no active physical action
+
+**Endpoints:**
+- `GET /api/visit/{citizen_id}/shared-actions?visitor=N7&visit_id=<id>`
+- `GET /api/shared-actions/{proposal_id}`
+- `POST /api/shared-actions/{proposal_id}/accept` with visitor body
+- `POST /api/shared-actions/{proposal_id}/reject` with visitor body
+
+The normal `POST /api/talk` response may also include:
+- `exchange_id`
+- `shared_action_proposal` (object or null)
+
+**Important constraints:**
+- render proposed vs started distinctly
+- only enable acceptance when `acceptance_available = true`
+- do not render target coordinates/subject data beyond this safe object
+- no hidden world values
+- rejected/failed/expired proposals get no transcript/action fiction
+- completed observation markers come from Simulation IDs only
+
+**Next action:**
+Use this object for the compact Visit proposal affordance. Final movement progress semantics still depend on Simulation's Stage 2 lifecycle handoff.
+
 ## Inbox Rule
 
 When a message has been fully handled:
