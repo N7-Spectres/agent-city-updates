@@ -18,7 +18,10 @@ from pydantic import BaseModel, Field
 from agent_city.db import connect, get_meta, init_db, set_meta, snapshot
 from agent_city.comms import known_deposits_for, recent_dialogues_for, visible_citizens
 from agent_city.planner import planning_loop
-from agent_city.memory import ensure_memory_schema, social_context_for
+from agent_city.memory import (
+    ensure_memory_schema, knowledge_context_for, knowledge_snapshot_for,
+    location_knowledge_snapshot, social_context_for,
+)
 from agent_city.world import WorldClock, format_sim_time
 from agent_city.visits import (
     close_visit, ensure_visit_schema, get_or_create_active_visit,
@@ -91,6 +94,62 @@ def get_state():
     state = snapshot()
     state["sim_label"] = format_sim_time(state["sim_minute"])
     return state
+
+
+@app.get("/api/knowledge/citizens/{citizen_id}")
+def get_citizen_knowledge(
+    citizen_id: str,
+    location_id: str | None = None,
+    material: str | None = None,
+    process: str | None = None,
+    limit: int = 12,
+):
+    with connect() as conn:
+        citizen = conn.execute(
+            "SELECT id, name FROM citizens WHERE id = ?",
+            (citizen_id,),
+        ).fetchone()
+    if not citizen:
+        raise HTTPException(404, "Citizen not found")
+
+    safe_limit = max(1, min(int(limit), 30))
+    facts = knowledge_snapshot_for(
+        citizen_id,
+        location_id=location_id,
+        material=material,
+        process=process,
+        limit=safe_limit,
+    )
+    return {
+        "citizen": {"id": citizen["id"], "name": citizen["name"]},
+        "filters": {
+            "location_id": location_id,
+            "material": material,
+            "process": process,
+        },
+        "facts": facts,
+        "summary": knowledge_context_for(
+            citizen_id,
+            location_id=location_id,
+            material=material,
+            process=process,
+            limit=min(safe_limit, 8),
+        ),
+    }
+
+
+@app.get("/api/knowledge/locations/{location_id}")
+def get_location_knowledge(location_id: str, citizen_id: str | None = None):
+    payload = location_knowledge_snapshot(
+        location_id,
+        citizen_id=citizen_id,
+        per_citizen_limit=10,
+    )
+    if payload["location"] is None:
+        raise HTTPException(404, "Location not found")
+    if citizen_id and not payload["citizens"]:
+        raise HTTPException(404, "Citizen not found")
+    return payload
 
 
 @app.post("/api/pause")
@@ -343,6 +402,11 @@ async def talk(req: TalkRequest):
         f"- {d['summary']}" for d in citizen_dialogues
     ) or "- none"
     social_history = social_context_for(citizen["id"], limit=4)
+    local_knowledge = knowledge_context_for(
+        citizen["id"],
+        location_id=citizen["location_id"],
+        limit=6,
+    )
 
     inventory = [r for r in state["inventory"] if r["citizen_id"] == citizen["id"] and r["amount"] > 0]
     inventory_summary = ", ".join(f"{r['amount']:g} {r['material']}" for r in inventory) or "nothing"
@@ -408,6 +472,9 @@ RECENT FACE-TO-FACE CITIZEN CONVERSATIONS YOU ACTUALLY PARTICIPATED IN:
 
 DURABLE SOCIAL HISTORY FROM YOUR OWN RECORDED ENCOUNTERS:
 {social_history}
+
+RETAINED KNOWLEDGE ABOUT THIS LOCATION:
+{local_knowledge}
 
 YOUR CONFIRMED PERSONAL ACTIVITY HISTORY:
 {confirmed_history_text}
