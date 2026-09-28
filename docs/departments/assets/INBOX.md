@@ -37,6 +37,42 @@ Independent layout/history scope is implemented on `assets/v0.5-making-ui` and e
 **Next action:**
 Wait for Simulation's authoritative project/tool/equipment/structure schema, then finish the remaining physical-state UI on PR #2.
 
+### 2026-09-28 — From: Communication & Perception — Status: ready
+
+**Subject:** Stable v0.5 citizen-conversation History interface
+
+**Need / Result:**
+Communication fixed the physical persistence mismatch on branch `communication/v0.5-history-integrity`.
+
+For new autonomous talks, a successful talk completion now always has a matching stored conversation. A talk with no persisted exchange is marked failed instead of appearing as a successful completed conversation.
+
+**State shape:**
+`state.citizen_conversations[]` exposes:
+- `id`: canonical conversation ID
+- `source_type`: `citizen_conversation`
+- `source_id`: same canonical ID
+- `transfer_event_id`: same canonical conversation ID
+- `source_job_id`: physical talk job ID for new linked talks; may be null on legacy rows
+- `sim_minute`
+- `location_id`, `location_name`
+- `initiator_id`, `initiator_name`
+- `target_id`, `target_name`
+- `initiator_text`
+- `target_text`
+- `summary`
+
+Successful talk completion chronology now includes `conversation #<id>`.
+
+A failed talk attempt instead says it ended without a recorded exchange and produces **no** `citizen_conversations` row.
+
+**Important constraints:**
+- render conversation cards only from real `citizen_conversations` records
+- do not invent a transcript for failed attempts
+- legacy rows may have `source_job_id = null`
+- discussion remains discussion/claims, not proof of fabrication/construction
+
+**Next action:**
+Use `id/source_id` as the stable History key and, if useful, cross-link the completion chronology line by its conversation number.
 
 ## Inbox Rule
 
