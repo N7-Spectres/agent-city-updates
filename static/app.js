@@ -2,7 +2,7 @@ let state = null;
 let visitorPresence = null;
 let selectedCitizen = null;
 let focusedLocation = "seed_site";
-let openControlView = "region";
+let openControlView = "history";
 let currentVisitAccessKey = null;
 
 const LOCATION_PRESENTATION = {
@@ -554,6 +554,121 @@ function renderRegionStrip() {
   }).join("");
 }
 
+function normalizedConversationKey(simMinute, personA, personB, locationName) {
+  const people = [String(personA || "").trim().toLowerCase(), String(personB || "").trim().toLowerCase()]
+    .filter(Boolean)
+    .sort()
+    .join("|");
+  return [
+    Number(simMinute),
+    people,
+    String(locationName || "").trim().toLowerCase(),
+  ].join("::");
+}
+
+function parseConversationHistoryMessage(message) {
+  const text = String(message || "").trim();
+  const match = text.match(/^(.+?) and (.+?) talked at (.+?)\.$/);
+  if (!match) return null;
+  return {
+    personA: match[1].trim(),
+    personB: match[2].trim(),
+    locationName: match[3].trim(),
+  };
+}
+
+function renderCitizenConversationHistory() {
+  const allConversations = state.citizen_conversations || [];
+  const conversations = allConversations.slice(0, 12);
+  const snapshotKeys = new Set(allConversations.map(c =>
+    normalizedConversationKey(c.sim_minute, c.initiator_name, c.target_name, c.location_name)
+  ));
+
+  const chronologyOnly = (state.history || [])
+    .filter(h => h.category === "conversation")
+    .filter(h => {
+      const parsed = parseConversationHistoryMessage(h.message);
+      if (!parsed) return false;
+      const key = normalizedConversationKey(
+        h.sim_minute,
+        parsed.personA,
+        parsed.personB,
+        parsed.locationName
+      );
+      return !snapshotKeys.has(key);
+    })
+    .slice(0, 6);
+
+  const storedCards = conversations.map(c => {
+    const summary = String(c.summary || "").trim() || "No compact summary is available for this exchange.";
+    const initiatorText = String(c.initiator_text || "").trim();
+    const targetText = String(c.target_text || "").trim();
+    const hasTranscript = Boolean(initiatorText || targetText);
+
+    return `
+      <article class="conversation-card">
+        <div class="conversation-card-head">
+          <div class="conversation-people">
+            <strong>${escapeHtml(c.initiator_name)}</strong>
+            <span aria-hidden="true">↔</span>
+            <strong>${escapeHtml(c.target_name)}</strong>
+          </div>
+          <time>${formatMinute(c.sim_minute)}</time>
+        </div>
+        <div class="conversation-location">At ${escapeHtml(c.location_name)}</div>
+        <div class="conversation-summary">
+          <span>Summary</span>
+          <p>${escapeHtml(summary)}</p>
+        </div>
+        ${hasTranscript ? `
+          <details class="conversation-transcript">
+            <summary>Read exchange</summary>
+            ${initiatorText ? `<div><strong>${escapeHtml(c.initiator_name)}</strong><span>${escapeHtml(initiatorText)}</span></div>` : ""}
+            ${targetText ? `<div><strong>${escapeHtml(c.target_name)}</strong><span>${escapeHtml(targetText)}</span></div>` : ""}
+          </details>
+        ` : '<div class="conversation-record-note">Exchange text is not available in this state snapshot.</div>'}
+      </article>
+    `;
+  });
+
+  const chronologyCards = chronologyOnly.map(h => {
+    const parsed = parseConversationHistoryMessage(h.message);
+    return `
+      <article class="conversation-card chronology-only">
+        <div class="conversation-card-head">
+          <div class="conversation-people">
+            <strong>${escapeHtml(parsed.personA)}</strong>
+            <span aria-hidden="true">↔</span>
+            <strong>${escapeHtml(parsed.personB)}</strong>
+          </div>
+          <time>${formatMinute(h.sim_minute)}</time>
+        </div>
+        <div class="conversation-location">At ${escapeHtml(parsed.locationName)}</div>
+        <div class="conversation-summary">
+          <span>Chronology record</span>
+          <p>${escapeHtml(h.message)}</p>
+        </div>
+        <div class="conversation-record-note">
+          Chronology confirms this conversation, but its exchange text is not included in the current UI state snapshot.
+        </div>
+      </article>
+    `;
+  });
+
+  const sections = [];
+  if (storedCards.length) sections.push(storedCards.join(""));
+  if (chronologyCards.length) {
+    sections.push(`
+      <div class="conversation-gap-label">Chronology-only conversation records</div>
+      ${chronologyCards.join("")}
+    `);
+  }
+
+  els.citizenConversations.innerHTML = sections.length
+    ? sections.join("")
+    : '<div class="muted conversation-empty">No citizen-to-citizen conversations recorded yet.</div>';
+}
+
 function renderDrawerLists() {
   els.locations.innerHTML = state.locations.map(loc => {
     const known = depositsForLocation(loc.id);
@@ -617,21 +732,7 @@ function renderDrawerLists() {
     <div class="list-row"><span>${escapeHtml(s.name)}</span><strong>${Math.round(s.condition)}%</strong></div>
   `).join("");
 
-  const conversations = (state.citizen_conversations || []).slice(0, 10);
-  els.citizenConversations.innerHTML = conversations.length ? conversations.map(c => `
-    <div class="conversation-card">
-      <div class="conversation-card-head">
-        <strong>${escapeHtml(c.initiator_name)} ↔ ${escapeHtml(c.target_name)}</strong>
-        <span>${formatMinute(c.sim_minute)} • ${escapeHtml(c.location_name)}</span>
-      </div>
-      <p>${escapeHtml(c.summary)}</p>
-      <details class="conversation-transcript">
-        <summary>Read exchange</summary>
-        <div><strong>${escapeHtml(c.initiator_name)}</strong><span>${escapeHtml(c.initiator_text)}</span></div>
-        <div><strong>${escapeHtml(c.target_name)}</strong><span>${escapeHtml(c.target_text)}</span></div>
-      </details>
-    </div>
-  `).join("") : '<div class="muted conversation-empty">No citizen-to-citizen conversations recorded yet.</div>';
+  renderCitizenConversationHistory();
 
   els.history.innerHTML = state.history.map(h => `
     <div class="history-entry">
