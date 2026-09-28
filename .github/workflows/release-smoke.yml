@@ -75,3 +75,15 @@ jobs:
 
       - name: Run v0.8 Stage 1 Assets/UI smoke
         run: python tests/smoke_v080_assets.py
+
+      - name: Run v0.8 Stage 2 simulation smoke
+        run: python tests/smoke_v080_stage2.py
+
+      - name: Run v0.8 Stage 2 communication smoke
+        run: python tests/smoke_v080_communication_stage2.py
+
+      - name: Run v0.8 Stage 2 memory smoke
+        run: python tests/smoke_v080_memory_stage2.py
+
+      - name: Run v0.8 Stage 2 Assets/UI smoke
+        run: python tests/smoke_v080_assets_stage2.py
