@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-28_
 
-This file is the shared coordination board for Agent City departments.
+This file is the shared project task board.
 
 ## Status Key
 
@@ -16,27 +16,27 @@ This file is the shared coordination board for Agent City departments.
 
 ### ACTIVE
 
-_None. All department work sessions for the current v0.5 packet have stopped._
+- [Assets & Interface] Finish v0.5 Making & Building visualization using Simulation's stable authoritative state contract.
 
 ### WAITING
 
-- [Coordinator / Integration] Merge `communication/v0.5-history-integrity` with `simulation/v0.5-making-building` without dropping Communication's `citizen_conversations.source_job_id` schema or talk-completion integrity. The independent Simulation branch currently lacks those changes.
-- [Assets & Interface] Independent v0.5 layout/History branch is complete, but the Making & Building visual layer still needs the merged authoritative `equipment`, `projects`, `project_materials`, and extended `structures` state.
+- [Coordinator / Integration] Final milestone assembly still needs the completed Simulation branch plus Assets' finished UI branch integrated and smoke-tested together.
 
 ### READY
 
-- [Communication & Perception] Conversation integrity branch ready: `communication/v0.5-history-integrity` @ `672f221c0a2e796ba30d685d2cad68a5552c8333`; CI run `36372479310` passed.
-- [World & Simulation] Making & Building branch ready for integration review: `simulation/v0.5-making-building` @ `eadea56841469a29e8078f5eca23247b13317251`; CI run `36372834945` passed independently.
-- [Assets & Interface] Layout/chat/History branch ready: `assets/v0.5-making-ui` @ `da3b579bb42fb86a171470dd93946c01a80b0fc1`.
-- [Memory & Social] Project-continuity audit complete. Existing Memory source model is sufficient; Communication preserved canonical conversation IDs, and Simulation now exposes stable project/job outcome IDs in its branch.
+- [World & Simulation] Integrated Making & Building + Communication physical-talk invariant ready: `simulation/v0.5-making-building` @ `773299189d22d214b3376c72b396015a4a7a762e`.
+- [World & Simulation] Integrated CI run `36372991331` passed Python compile, JavaScript syntax, `tests/smoke_v040.py`, `tests/smoke_v050.py`, and `tests/smoke_v050_communication.py`.
+- [Assets & Interface] Simulation's authoritative `projects`, `project_materials`, `equipment`, and extended `structures` schema is ready for UI consumption.
+- [Communication & Perception] Canonical conversation source and physical talk-job integrity are already preserved inside the Simulation branch; no separate conflict-resolution step remains for those changes.
+- [Memory & Social] Stable Simulation project/job/equipment/structure anchors are confirmed; no v0.5 Memory schema change is required.
 - [Communication & Perception] Deeper claim-level `PROVENANCE_CONTRACT.md` remains ready for a later milestone.
 
 ### REVIEW
 
-- [Communication & Perception] Final handoff audit complete. Conversation source continuity is compatible with Memory, and Assets' stored-conversation History renderer is compatible. Cross-branch Simulation conflict is explicitly documented.
-- [World & Simulation] Physical v0.5 implementation is individually tested, but coordinator merge must preserve Communication's talk invariant.
-- [Assets & Interface] Independent UI slice is complete; final physical-state visualization remains after merged state is available.
-- [Memory & Social] No v0.5 runtime schema change needed yet; physical project/outcome memories can later reference integrated Simulation IDs.
+- [World & Simulation] v0.5 physical core complete and cross-department talk invariant integrated. Ready for coordinator review.
+- [Communication & Perception] Conversation-history integrity complete and incorporated into Simulation's integrated branch.
+- [Memory & Social] Project-continuity audit complete; physical outcome references are stable.
+- [Assets & Interface] Independent compact layout/chat/History slice exists on `assets/v0.5-making-ui`; final physical-state visualization remains active.
 
 ### DONE
 
@@ -54,13 +54,14 @@ _None. All department work sessions for the current v0.5 packet have stopped._
 
 Before v0.5 can be treated as one coherent milestone:
 
-1. combine Simulation's physical v0.5 schema/behavior with Communication's source-linked talk persistence
-2. preserve canonical `citizen_conversations.id`
-3. preserve nullable unique `citizen_conversations.source_job_id`
-4. ensure a talk with no stored exchange fails rather than completing successfully
-5. run `tests/smoke_v040.py`, `tests/smoke_v050.py`, and `tests/smoke_v050_communication.py`
-6. expose the merged Making & Building state to Assets and finish the restrained physical-state UI
-7. keep Memory project discussion distinct from validated physical project outcomes
+1. Assets consumes Simulation's authoritative Making & Building state and finishes the physical-state UI.
+2. Coordinator integrates `simulation/v0.5-making-building` with the finished Assets branch.
+3. Preserve canonical `citizen_conversations.id` and nullable unique `citizen_conversations.source_job_id`.
+4. Preserve the rule that a talk with no stored exchange fails rather than completing successfully.
+5. Preserve Simulation's project/equipment/structure state without frontend-derived physical facts.
+6. Run the v0.4 regression smoke, v0.5 Simulation smoke, and v0.5 Communication integrity smoke on the assembled milestone.
+7. Keep Memory project discussion distinct from validated physical project outcomes.
+8. Do not publish or alter `update.json` until the human explicitly requests release publication.
 
 ## Handoff Protocol
 
