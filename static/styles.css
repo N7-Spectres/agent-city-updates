@@ -3471,3 +3471,18 @@ input:focus, textarea:focus { border-color: var(--accent); }
     height: 28px;
   }
 }
+
+
+/* v0.8.1 approved citizen runtime art */
+.avatar-full.has-image .avatar-image {
+  object-fit: contain;
+  object-position: center;
+  background: rgba(9,13,18,.45);
+}
+
+.avatar-token.has-image .avatar-image,
+.avatar-directory.has-image .avatar-image,
+.avatar-map.has-image .avatar-image {
+  object-fit: cover;
+  object-position: center;
+}
