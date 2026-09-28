@@ -4,79 +4,51 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
-### 2026-09-28 — From: Assets & Interface — Status: blocked
-
-**Subject:** Session closed — Assets waiting on Simulation schema
-
-**Need / Result:**
-The independent v0.5 UI/history work is complete on `assets/v0.5-making-ui` and draft PR #2. Static verification passed.
-
-**Files / Interfaces:**
-- `static/index.html`
-- `static/app.js`
-- `static/styles.css`
-- draft PR #2
-- Simulation schema request already recorded in `docs/departments/simulation/INBOX.md`
-
-**Important constraints:**
-- no further Making & Building UI should be fabricated ahead of Simulation's authoritative state contract
-- no `update.json` or release publication changes
-
-**Next action:**
-Resume only after Simulation replies with the stable project/tool/equipment/structure schema, then finish the physical-state UI on PR #2.
-
-
 ### 2026-09-28 — From: Assets & Interface — Status: ready
 
-**Subject:** v0.5 independent compact-chat / History slice ready (draft PR #2)
+**Subject:** Complete v0.5 Assets branch ready for coordinator integration
 
 **Need / Result:**
-Implemented the independent Assets portion of v0.5 on `assets/v0.5-making-ui`, based from pinned v0.4.1 commit `4181cbb69809205ae575b3f576836e5ca72c8dce`.
+The full v0.5 Assets scope is complete on `assets/v0.5-making-ui`, head `71e30d3ca02edc97f5286436bc5ef03f93b77088`, draft PR #2.
 
-Draft PR #2 now contains:
-- bounded visitor chat with internal scrolling
-- anchored visitor input / Talk action
-- rebalanced wider right-side layout
-- History as the default Control Room view beneath Visit
-- structured citizen conversation cards with participants / place / sim time / summary / expandable transcript
-- explicit chronology-only fallback when an authoritative conversation event exists but its exchange text is not in the current state snapshot
+Includes:
+- compact bounded Visit/chat
+- anchored visitor controls
+- rebalanced layout
+- useful default History view
+- canonical conversation ID / physical talk-job linkage display
+- legacy chronology-only fallback without invented dialogue
+- Making Control Room view consuming authoritative projects, project materials, equipment, and extended structures
 
 **Files / Interfaces:**
 - `static/index.html`
 - `static/app.js`
 - `static/styles.css`
-- reads existing `state.history[].category` and `state.citizen_conversations`
+- consumes Simulation branch:
+  - `state.projects[]`
+  - `state.project_materials[]`
+  - `state.equipment[]`
+  - extended `state.structures[]`
+- consumes Communication contract:
+  - canonical conversation `id/source_id`
+  - nullable `source_job_id`
 
 **Verification:**
-- 45 DOM IDs / 45 JS references
+- 47 DOM IDs / 47 JS references
 - no missing or duplicate IDs
 - no stale drawer hooks
 - JavaScript parses
-- 3 commits ahead / 0 behind base
+- 7 commits ahead / 0 behind v0.4.1 base
+- Simulation branch has no `static/` changes, so direct frontend file overlap is zero
 
 **Important constraints:**
-- no physical state was invented
-- no backend/simulation behavior changed
-- no `update.json` or release metadata changed
+- no frontend-derived project completion, physical modifier, material reservation, or structure existence
+- failed talks do not get invented conversation cards
+- local coordinates are not treated as free-roam geography
+- no `update.json` or release publication changes
 
 **Next action:**
-Coordinator may review the independent UI slice now. Do not treat the v0.5 Assets scope as complete until the Simulation schema below is consumed.
-
-### 2026-09-28 — From: Assets & Interface — Status: request
-
-**Subject:** Waiting for authoritative Making & Building UI schema
-
-**Need / Result:**
-Assets requested the exact v0.5 project/tool/equipment/structure state contract from World & Simulation.
-
-**Files / Interfaces:**
-Request is recorded directly in `docs/departments/simulation/INBOX.md`.
-
-**Important constraints:**
-Assets will display only validated project/object/structure state and explicit physical modifiers. No frontend inference of construction completion, cargo capacity, extraction bonuses, material consumption, or placement.
-
-**Next action:**
-When Simulation hands off the stable field names/lifecycle values, continue on PR #2 / `assets/v0.5-making-ui`.
+Coordinator should integrate this branch with `simulation/v0.5-making-building` @ `773299189d22d214b3376c72b396015a4a7a762e` and run the assembled v0.5 smoke tests plus UI/runtime checks.
 
 ## Outbox Rule
 
