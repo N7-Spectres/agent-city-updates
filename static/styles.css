@@ -962,3 +962,33 @@ input:focus, textarea:focus { border-color: var(--accent); }
   font-weight: 900;
   letter-spacing: .06em;
 }
+
+
+.conversation-transcript {
+  margin-top: 9px;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 8px;
+}
+
+.conversation-transcript summary {
+  color: var(--accent);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.conversation-transcript div {
+  display: grid;
+  gap: 3px;
+  margin-top: 8px;
+}
+
+.conversation-transcript div strong {
+  color: var(--good);
+  font-size: 11px;
+}
+
+.conversation-transcript div span {
+  color: #d7e0ea;
+  font-size: 12px;
+  line-height: 1.4;
+}
