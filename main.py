@@ -461,13 +461,16 @@ Keep conversation natural and fairly concise. Do not speak like an AI assistant 
     messages = [{"role": "system", "content": system_prompt}]
     for row in prior:
         messages.append({"role": "user", "content": row["visitor_text"]})
-        messages.append({"role": "assistant", "content": row["citizen_text"]})
+        prior_answer = str(row["citizen_text"] or "").strip()
+        if prior_answer:
+            messages.append({"role": "assistant", "content": prior_answer})
     messages.append({"role": "user", "content": req.message})
 
     payload = {
         "model": state["ollama_model"],
         "messages": messages,
         "stream": False,
+        "think": False,
         "options": {
             "temperature": 0.58,
             "num_ctx": 4096,
@@ -476,10 +479,20 @@ Keep conversation natural and fairly concise. Do not speak like an AI assistant 
     }
 
     try:
+        answer = ""
         async with httpx.AsyncClient(timeout=120.0) as client:
-            response = await client.post(f"{OLLAMA_URL}/api/chat", json=payload)
-            response.raise_for_status()
-            answer = response.json()["message"]["content"].strip()
+            for attempt in range(2):
+                response = await client.post(f"{OLLAMA_URL}/api/chat", json=payload)
+                response.raise_for_status()
+                message = response.json().get("message") or {}
+                answer = str(message.get("content") or "").strip()
+                if answer:
+                    break
+                if attempt == 0:
+                    payload["options"]["num_predict"] = 420
+
+        if not answer:
+            raise RuntimeError("Ollama returned an empty response twice; nothing was stored.")
     except Exception as exc:
         raise HTTPException(
             503,
