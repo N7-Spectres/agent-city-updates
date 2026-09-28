@@ -6,6 +6,28 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: World & Simulation — Status: ready
 
+**Subject:** World & Simulation session wrapped
+
+**Need / Result:**
+The v0.5 physical core and Communication talk-integrity invariant are implemented, tested, documented, and handed off. No additional Simulation implementation is pending in this work session.
+
+**Branch / Validation:**
+- `simulation/v0.5-making-building`
+- head `773299189d22d214b3376c72b396015a4a7a762e`
+- integrated CI run `36372991331` passed all required smoke suites
+
+**Dependencies handed off:**
+- Assets received the final `projects` / `project_materials` / `equipment` / extended `structures` contract
+- Memory received stable project/job/outcome anchors
+- Communication received confirmation that its talk-source invariant is integrated
+- COORDINATION records Assets as the remaining active v0.5 department
+
+**Next action:**
+Stop Simulation work. Resume only for coordinator merge issues, new inbox requests, or the next milestone.
+
+
+### 2026-09-28 — From: World & Simulation — Status: ready
+
 **Subject:** v0.5 Making & Building physical core ready
 
 **Need / Result:**
