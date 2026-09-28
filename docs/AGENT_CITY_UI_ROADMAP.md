@@ -601,3 +601,45 @@ Direction:
 Core rule:
 
 > **Simulation defines the object. Assets renders the object.**
+
+
+### v0.8 Rendering Aggregation Rules
+
+Future 3D/world rendering must not use one visible mesh per unit for bulk fungible resources.
+
+Core rule:
+
+> **Simulation tracks reality. Rendering shows only the amount of reality necessary to understand the scene.**
+
+Rendering tiers:
+
+1. **Individual object**
+   - use when the item has its own identity or active interaction value
+   - examples: tools, machines, crafted equipment, batteries, unique parts, actively handled objects
+
+2. **Representative pile / bundle / stack**
+   - use for many identical fungible resources
+   - examples: logs, stone, plant fiber, ingots, resin containers
+   - one visual bundle/pile may represent many simulation units
+   - visual size/fullness may scale with quantity without spawning one object per unit
+
+3. **Storage abstraction**
+   - deposited materials normally disappear as loose world objects
+   - the storage inventory remains the authoritative quantity
+   - storage structures/containers may visually imply fullness or category presence
+   - withdrawing/staging material may re-create a representative visible object/pile
+
+Important constraints:
+- rendering never invents, creates, deletes, or changes physical quantity
+- depositing into storage removes visual clutter, not inventory truth
+- withdrawing/staging can temporarily de-aggregate visually
+- unique crafted objects should preserve their identity
+- bulk materials should prefer aggregation/instancing for performance and readability
+
+Example:
+- citizen gathers 10 logs → show one carried log bundle
+- citizen deposits logs → bundle disappears, storage count increases by 10
+- another citizen withdraws 2 logs → show a small staged log representation
+- settlement owns 80 logs → do not render 80 separate log meshes
+
+This policy should guide the local asset worker and future procedural 3D system.
