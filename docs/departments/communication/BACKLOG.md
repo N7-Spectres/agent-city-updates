@@ -39,3 +39,17 @@ Still future unless routed:
 - claim extraction cannot upgrade claims to verified truth
 - unknown remote state remains unknown
 - diagnostics never become citizen knowledge
+
+## Resume Order
+
+When Communication resumes:
+
+1. read `docs/departments/COORDINATION.md`
+2. read `docs/departments/communication/INBOX.md`
+3. confirm the integrated/runtime branch being targeted
+4. verify `agent_city/talk_diagnostics.py` and the two-phase `generate_dialogue` flow survived integration
+5. run `tests/smoke_v070_communication.py` plus prior Communication regressions before making changes
+6. inspect live diagnostic frequencies before tuning retry/timeout/model settings
+7. prefer measured targeted fixes over broader retries or synthetic fallback behavior
+
+Current v0.7 feature work is complete; remaining items are integration observation or future-depth work.
