@@ -6,6 +6,34 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Memory & Social — Status: ready
 
+**Subject:** v0.5 project-continuity audit complete — no schema change needed yet
+
+**Need / Result:**
+Audited `release-v0.4.1` at immutable commit `4181cbb69809205ae575b3f576836e5ca72c8dce`.
+
+Existing `memory_events` source fields already support v0.5 project continuity without a new Memory table. Durable conversation memories are linked to raw `citizen_conversations.id`, and model-facing social history already labels remembered conversation content as claims rather than physical fact.
+
+The v0.5 contract is now explicit: project discussion/intention remains sourced to conversation; physical project outcome must be a separate memory sourced to a validated Simulation project/job/event ID. Never mutate one into the other.
+
+**Files / Interfaces:**
+- `agent_city/memory.py` on `release-v0.4.1` — audited, no change
+- `citizen_conversations.id` — canonical conversation source ID
+- `memory_events.source_type/source_id/event_kind/status/metadata_json` — sufficient future project linkage surface
+- Memory `STATE.md`, `DECISIONS.md`, `BACKLOG.md`
+
+**Important constraints:**
+- no project discussion may create a physical success memory
+- no promise/cooperation success memory before authoritative Simulation outcome
+- preserve bounded context and idempotent source linking
+- no speculative schema migration
+- no `update.json` changes
+
+**Next action:**
+Communication should hand Memory its final stable conversation record/source shape. Simulation should hand Memory stable project/event IDs and state transitions. Only then create `memory/v0.5-project-continuity` if runtime helper code is actually needed.
+
+
+### 2026-09-28 — From: Memory & Social — Status: ready
+
 **Subject:** Session wrap complete — social-memory core ready for review
 
 **Need / Result:**
