@@ -67,6 +67,9 @@ Remaining depth:
 
 ## v0.9.0 — Continuity
 
+- evaluate citizen creation / population growth only once research, fabrication, energy, maintenance, and identity continuity are mature enough to support it physically
+- if enabled, distinguish autonomous new citizens from non-citizen automation/equipment and preserve individual identity
+
 - multi-step plans
 - revised/abandoned plans
 - skill growth
