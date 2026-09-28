@@ -180,3 +180,26 @@ Next owner:
 **Coordinator / Integration**, after Memory's remaining v0.7 runtime pass is ready.
 
 Resume Assets only for coordinator integration feedback, UI regressions, or a new milestone/inbox request.
+
+
+## Planned v0.8 Citizen Visual System
+
+Durable design spec:
+`docs/departments/assets/V080_CITIZEN_VISUAL_SYSTEM.md`
+
+This plan captures the approved next-stage citizen visual direction:
+
+- canonical base-body identity for all six citizens
+- clean body/equipment separation
+- Home/map head tokens
+- blink + expressive visor sprite system
+- full-body Citizens-page assets
+- modular validated-equipment overlays
+- lightweight state-driven animation
+- strong per-citizen accent identity
+- consistent mechanical species proportions
+- later 3D translation rules
+- performance/lazy-loading strategy
+- future equipped/attachment-state dependency from Simulation
+
+This is **planned v0.8 scope**, not shipped v0.7 runtime state.
