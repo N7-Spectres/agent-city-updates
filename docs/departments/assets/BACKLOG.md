@@ -92,3 +92,20 @@ _None for Assets Stage 2._
 
 Next owner:
 **Coordinator / Stage 2 Integration**
+
+
+## v0.8.1 Citizen Visual Asset Hotfix
+
+- prepare runtime-ready art exports for all six founding citizens
+- recommended minimum per citizen:
+  - transparent full-body PNG
+  - bust/head token PNG
+  - compact map/home token PNG
+- optional expression frames may follow if approved source art supports them
+- populate existing `CITIZEN_VISUAL_PROFILES` asset slots
+- preserve silhouette/color/base-body canon
+- do not bake optional gear into authoritative identity if it is meant to reflect runtime equipment later
+- do not treat concept-art props, scanners, packs, tools, drones, medical kits, or cargo rigs as owned inventory
+- keep clean fallbacks when a frame is absent
+- no Simulation/Communication/Memory behavior changes
+- run Assets smoke plus the full assembled regression suite before publication
