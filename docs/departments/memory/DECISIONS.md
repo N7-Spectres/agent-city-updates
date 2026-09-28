@@ -134,3 +134,44 @@ The default `main` branch currently contains the coordination/updater lineage an
 Until repository lineage is reconciled, runtime department branches must start from the shipped v0.3.0 runtime commit or another explicitly verified descendant. Documentation/coordination changes may continue on `main`.
 
 Do not silently copy partial runtime files from `main` over the release lineage.
+
+
+## Project Discussion vs Physical Outcome
+
+A remembered discussion, plan, proposal, intention, or promise about a project is not evidence that the project physically started or completed.
+
+Memory must preserve two distinct source chains:
+
+1. **social/intention evidence** — sourced to the actual conversation or communication record
+2. **physical outcome evidence** — sourced to a Simulation-owned validated project/job/event record
+
+Never promote or rewrite the first record into the second.
+
+Example:
+
+- "Bex and Iri discussed building a cargo frame" may be remembered from `citizen_conversations.id = N`.
+- "Cargo frame fabrication completed" may only be remembered as physical fact from a later validated Simulation source ID.
+
+Both records may coexist and be linked by a validated `project_id`, but they remain epistemically different.
+
+## v0.5 Source-Link Contract
+
+The existing `memory_events` schema should be reused before adding new schema.
+
+Recommended source semantics:
+
+- `source_type='citizen_conversation'`, `source_id=<citizen_conversations.id>` for discussion/claims
+- future `source_type='project'` or `'project_event'` only after Simulation defines the stable project/event interface
+- future `source_type='job'` may be used for a validated completed job when Simulation confirms job IDs are durable and sufficient
+
+When useful, `metadata_json` may carry cross-links such as a validated `project_id`, related conversation ID, or outcome type. These are references, not substitutes for authoritative source records.
+
+Do not add promise/cooperation/help success counters from a project discussion alone.
+
+## Conversation Source Stability
+
+`citizen_conversations.id` is the canonical Memory source for a citizen-to-citizen exchange in v0.4.1.
+
+Communication may extend conversation provenance, but it should preserve this source ID or provide an explicit immutable mapping from any replacement transfer record back to it.
+
+Memory must not depend on UI chronology strings as a source identifier.
