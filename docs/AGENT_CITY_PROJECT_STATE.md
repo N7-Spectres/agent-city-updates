@@ -41,6 +41,21 @@ Delivered:
 
 ## Current Milestone
 
+**v0.8.2 — Live State Readability**
+
+Published UI-only patch:
+- branch: `release-v0.8.2`
+- immutable runtime commit: `9a11b2bc21ba2338d6b231924036bf6d5935475c`
+- final CI: `36473856852` — PASS
+
+Delivered:
+- Home citizen cards keep the same compact dimensions
+- current Energy and Integrity now use thin inline micro-bars plus exact percentages
+- Citizen sheet uses the same authoritative live Energy/Integrity values and matching meters
+- long-term battery health/capacity is clearly separated from current charge
+- no Simulation, Communication, Memory, or physical-state semantics changed
+
+
 v0.8.0 — Living World is assembled, fully regression-tested, versioned, and published from immutable runtime commit `a870982ba947fcc5af08ca190de396ae4308b645`.
 
 Final release validation:
