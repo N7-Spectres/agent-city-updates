@@ -453,7 +453,8 @@ def _knowledge_memory_rows(citizen_id: str, scan_limit: int = 120) -> list[dict[
               AND event_kind != 'conversation'
               AND source_type NOT IN (
                   'simulation_maintenance_event',
-                  'simulation_spatial_observation'
+                  'simulation_spatial_observation',
+                  'simulation_shared_activity'
               )
             ORDER BY sim_minute DESC, id DESC
             LIMIT ?
