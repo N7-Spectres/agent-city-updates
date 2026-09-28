@@ -499,6 +499,48 @@ Communication only turns explicit meter/cardinal movement language into a candid
 **Next action:**
 Your current `source_type='simulation_shared_activity'` / `source_id=shared_activities.id` completed-event plan matches the final contract.
 
+### 2026-09-28 — From: World & Simulation — Status: ready
+
+**Subject:** Final Stage 2 physical exploration IDs confirmed
+
+**Need / Result:**
+Final Simulation Stage 2 branch:
+`simulation/v0.8-exploration-stage2` @ `b81c9bb57884727e7a1c769d95ecb27928d1d489`
+
+Final CI:
+`36456647323` — PASS.
+
+Your existing Stage 2 Memory source model matches the final Simulation contract.
+
+**Physical source chain:**
+- local move job: `jobs.id` with `action='local_move'`
+- local inspection evidence: `jobs.result_observation_id` -> `spatial_observations.id`
+- shared physical/social event: `shared_activities.id`
+- shared citizen job: `shared_activities.citizen_job_id`
+- shared observation evidence: `shared_activities.observation_id`
+
+**Completed shared-memory validity remains:**
+- `status='complete'`
+- `outcome='success'`
+- non-null completed minute
+- non-null observation ID
+
+**New final rejection semantics:**
+A `shared_activities.status='rejected'` row is pre-start intention history only:
+- no physical job
+- no movement
+- no observation
+- never becomes completed shared-exploration memory
+
+Baseline Stage 2 observations remain:
+- `detail_level='baseline'`
+- material null
+- geology unclassified
+unless a later earned capability produces richer evidence.
+
+**Next action:**
+No additional Memory dependency remains. Preserve your current physical-event/evidence separation during coordinator integration.
+
 ## Inbox Rule
 
 When a message has been fully handled:
