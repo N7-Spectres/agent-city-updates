@@ -9,15 +9,27 @@ The purpose is to let specialized development tasks work independently without r
 A new task should begin by reading:
 
 1. `docs/AGENT_CITY_PROJECT_STATE.md`
-2. its department's `STATE.md`
-3. its department's `DECISIONS.md`
-4. its department's `BACKLOG.md`
+2. `docs/departments/COORDINATION.md`
+3. its department's `INBOX.md`
+4. its department's `STATE.md`
+5. its department's `DECISIONS.md`
+6. its department's `BACKLOG.md`
 
 Then continue from the recorded state instead of reconstructing the project from chat history.
 
 ## Department Files
 
 Each department maintains:
+
+### INBOX.md
+Requests, dependencies, and coordinator messages waiting for that department.
+
+Read this at the start of every work session.
+
+### OUTBOX.md
+Recent completed handoffs, deliverables, and messages intended for the coordinator or another department.
+
+Keep this concise; durable state belongs elsewhere.
 
 ### STATE.md
 What exists **right now**.
@@ -50,6 +62,42 @@ Backlog entries are **not implemented features**.
 - `memory/` — Memory & Social
 - `communication/` — Communication & Perception
 - `simulation/` — World & Simulation
+
+## Shared Coordination Board
+
+`docs/departments/COORDINATION.md` is the shared project task board.
+
+It tracks work as:
+
+- ACTIVE
+- WAITING
+- READY
+- REVIEW
+- DONE
+
+Departments should update their own inbox/outbox during work. The main coordinator may route those messages and maintain the shared board.
+
+## Minimal Session Protocol
+
+At the start of a department work session:
+
+1. read Project State
+2. read Coordination
+3. read your Inbox
+4. read your State / Decisions / Backlog
+5. continue the highest-priority relevant work
+
+Before ending a substantial work session:
+
+1. update State
+2. record durable choices in Decisions
+3. update Backlog
+4. write cross-department results/requests to Outbox or the receiving department's Inbox
+5. update Coordination when status materially changed
+
+The human user should normally only need to open a department chat and say:
+
+> **Check your inbox and continue.**
 
 ## Cross-Department Rule
 
