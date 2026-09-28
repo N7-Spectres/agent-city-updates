@@ -4,7 +4,7 @@ _Last updated: 2026-09-28_
 
 ## Current Release
 
-**v0.6.0 — Research, Discovery & Knowledge UI**
+**v0.7.0 — Maintenance, Consequences & Home Polish**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -20,31 +20,41 @@ Human users such as N7 are **visitors**, not gods, rulers, or omniscient operato
 
 ## Current Milestone
 
-**v0.7.0 — Maintenance, Consequences & Home Polish is now the active development milestone.**
+v0.7.0 is assembled, tested, and published from immutable runtime commit `d81a85bf03b69b969532016f59bbbed2233949ee`.
 
-v0.6.0 remains the current shipped release, assembled, tested, and published from immutable runtime commit `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`.
+Final assembled release validation:
+- GitHub Actions run `36436548845`
+- Python compilation passed
+- JavaScript syntax passed
+- all v0.4 regressions passed
+- all v0.5 Simulation / Communication / UI smoke suites passed
+- all v0.6 Simulation / Communication / Memory / UI smoke suites passed
+- v0.7 Simulation maintenance smoke passed
+- v0.7 Communication talk-reliability smoke passed
+- v0.7 Memory maintenance-history smoke passed
+- v0.7 Assets / UI smoke passed
 
-v0.7.0 adds long-term mechanical wear/repair consequences, a first lightweight avatar/visual-identity stage, stronger Home layout scaling, recent-activity-at-a-glance, and autonomous talk reliability work.
+Major shipped v0.7 changes:
 
-Major shipped v0.6 changes:
+- gradual equipment use wear and structure aging/use wear
+- long-term battery health distinct from current energy charge
+- citizen chassis/joint wear and service state
+- condition-scaled equipment capability with critical non-operational state
+- structure condition, efficiency, service needs, and non-operational failure state
+- material/time-consuming chassis, battery, equipment, and structure maintenance jobs
+- stable `maintenance_events.id` physical maintenance history anchors
+- bounded citizen maintenance memory sourced only from validated Simulation events
+- raw citizen conversation persistence now happens before best-effort claim/provenance enrichment
+- talk generation has one bounded retry and explicit diagnostics without fabricated fallback dialogue
+- full-height Home citizen/world/Visit layout on desktop
+- citizen search/filter groundwork for future population growth
+- compact Recent Activity with real stored conversation summaries and meaningful events
+- lightweight 2D/static avatar framework with validated-state animation and reduced-motion support
+- Citizens/Records maintenance presentation using authoritative Simulation condition/effective-capability fields
+- bounded Home maintenance alerts
+- final coordinator integration fixed the avatar fallback semantic-lock comment so the assembled Assets smoke matched the intended presentation-only identity rule
 
-- hidden physical world properties exist independently of citizen knowledge
-- repeated surveys can reveal deposits, confirm existing findings, reveal location properties, or produce no new finding
-- experiments consume real samples/energy/time and persist discovery, verified, or inconclusive outcomes
-- validated discoveries receive stable IDs and initially belong only to the citizen who actually learned them
-- learned verification processes can descend from real discoveries without becoming a fixed tech tree
-- ordinary UI state hides undiscovered deposits, hidden property tables, and hidden reserve quantities
-- Communication now records recipient-local provenance for validated observations/results and unverified face-to-face claims
-- claims must be grounded in the durable transcript and retelling does not verify them
-- Memory provides bounded Citizen and Location knowledge views without creating a global shared encyclopedia
-- planner and visitor dialogue receive provenance-backed knowledge without remote omniscience
-- Home is simplified around the map, citizen quick list, and visitor chat
-- dedicated Citizens character-sheet view includes physical state, authoritative cargo capacity, equipment, projects, experiments, learned processes, and bounded knowledge
-- dedicated Locations field-notebook view begins sparse and fills as real discoveries/observations accumulate
-- dedicated Records view holds Making, Stores, History, Region, and Updates away from the Home surface
-- visitor accessibility now distinguishes remote, traveling, busy, and talking states; talk counterpart resolution no longer produces self-references
-- v0.6 release CI passed all v0.4/v0.5 regressions, v0.6 Simulation, Communication, Memory, and UI integration smoke tests, Python compilation, and JavaScript syntax checks
-
+v0.8.0 — Living World is the next planned milestone. It should not be treated as active implementation until the coordinator explicitly assigns it.
 
 
 The richer provenance layer for individual claims, source reliability, promises, help, and validated cooperation remains future depth. Those features must wait for explicit Communication provenance and Simulation event references rather than being inferred from ordinary conversation.
@@ -183,7 +193,7 @@ Post-v1.0 updates may still add new physical domains or richer simulation, but s
 If citizens struggle with a logistical, environmental, or technical problem, prefer allowing them to adapt through existing systems rather than shipping a handcrafted solution.
 
 
-## v0.6 Active Scope
+## Shipped v0.6 Scope
 
 ### Research / Discovery
 
@@ -262,6 +272,7 @@ Important boundary:
 - The local Agent City SQLite save remains authoritative for the civilization's changing physical state. Do not copy transient citizen positions/cargo/activity into GitHub as if they were current forever.
 
 Recent coordinator decisions already captured in the repository include:
+- v0.7.0 Maintenance, Consequences & Home Polish shipped from immutable runtime commit `d81a85bf03b69b969532016f59bbbed2233949ee`
 - long-term world generation may use a persistent hierarchical random seed so planets/star systems are deterministic hidden reality rather than handcrafted or rerolled on discovery
 - if citizens eventually invent spaceflight, additional seeded planets/moons/stars can be revealed through the same system
 - stellar-scale engineering, including a possible Dyson-style swarm, is allowed only as an emergent citizen-built outcome rather than a predetermined unlock
@@ -280,7 +291,7 @@ Recent coordinator decisions already captured in the repository include:
 If a future chat needs to resume coordinator work, these repository files should be treated as the persistent source of truth rather than relying on old chat transcript memory alone.
 
 
-## v0.7 Active Scope
+## Shipped v0.7 Scope
 
 ### Maintenance / Consequences
 - gradual component/equipment/structure wear
