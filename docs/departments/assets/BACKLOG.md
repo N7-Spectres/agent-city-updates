@@ -1,75 +1,57 @@
 # Assets & Interface — Backlog
 
-## Ready for Next Session — v0.6 Contracts Arrived
+## Waiting — v0.7 Maintenance Contract
 
-### Simulation — Ready
-- consume safe `/api/state` from `simulation/v0.6-research-discovery`
-- use safe `discoveries`, `citizen_knowledge`, `experiment_results`, `learned_processes`, and `locations[].known_facts`
-- stop assuming deposit reserve `amount` exists in public state
-- verify/consume authoritative citizen cargo capacity if present in the final branch
-- never expose hidden `world_properties`
+- consume final Simulation equipment condition/wear/service fields
+- consume structure condition/wear/service fields
+- consume battery / power-storage health if exposed
+- use Simulation-owned degraded / maintenance-needed / failed semantics
+- add meaningful condition presentation to Citizens and Records
+- add Home alerts only for meaningful degradation
+- never render every wear tick as Recent Activity
+- never infer visible damage from a percentage alone
 
-### Communication — Ready
-- consume structured `status/availability` from `GET /api/visit/{citizen_id}`
-- distinguish remote / visitor traveling / citizen traveling / talking / busy / missing
-- preserve remote privacy masking
-- keep Memory APIs as the normal knowledge UI source; use Communication provenance only where source/transfer context is explicitly needed
+Assets request is recorded in `docs/departments/simulation/INBOX.md`.
 
-### Memory — Completed
-- bounded per-citizen knowledge endpoint consumed
-- location notebook remains partitioned by citizen
-- source/time/verification/channel metadata displayed without merging truth
+## Review / Validation — v0.7 Branch
 
-## Review / Validation — v0.6 Branch
+- runtime-test draft PR #7 / `assets/v0.7-home-avatars`
+- verify three desktop Home columns stay approximately aligned in height
+- verify citizen rail scrolls independently
+- verify citizen search/filter with empty and matching results
+- verify long chat scrolls internally and input/actions stay anchored
+- verify Recent Activity shows at most five meaningful items
+- verify real stored conversations use stored summaries
+- verify failed talk attempts remain events only
+- verify View all history opens Records → History
+- verify avatar fallback is consistent across Home/directory/map/Citizens
+- verify travel/charge/talk/work/idle animation follows active job state
+- verify reduced-motion disables avatar animation
+- verify responsive behavior below desktop
 
-- runtime-test draft PR #3 / `assets/v0.6-knowledge-ui`
-- verify Home remains map-centered with compact citizens and Visit
-- verify Home no longer grows secondary datasets underneath the map
-- verify Citizens page selection and "Visit on Home" handoff
-- verify Locations page selection and "Focus on Home map" handoff
-- verify visitor map badge opens the correct location
-- verify Records tabs still preserve Making / Stores / History / Region / Updates
-- verify narrow/mobile navigation
-- verify no undiscovered resource/property leaks through Locations
-- verify character sheets do not invent appearance/configuration
+## Completed in v0.7 Independent Slice
 
-## Completed in v0.6 Independent Slice
-
-- top-level Home / Citizens / Locations / Records navigation
-- compact Home citizen rows
-- compact visitor location badge
-- simplified Home layout
-- Citizens character-sheet shell
-- placeholder-safe citizen visual identity slot
-- Locations field-notebook shell
-- placeholder-safe location scene slot
-- discovered-resource filtering
-- Records page separation
-- specific backend visit reason displayed instead of generic inaccessible label
+- full-height desktop citizen rail
+- internal citizen scrolling
+- citizen search/filter
+- full-height desktop Visit rail
+- compact Recent Activity
+- View all history action
+- stored-conversation-only summary logic
+- lightweight 2D avatar framework
+- full-body fallback identity slot
+- matching Home/directory/map tokens
+- state-driven CSS animation
+- reduced-motion support
 
 ## Later
 
-- richer citizen identity art from authoritative visual assets
-- richer location scene art from authoritative known environment state
-- map work-site activity
-- tiny robot / portrait tokens
+- unique citizen full-body/token art
+- authoritative equipment overlays on avatars
+- richer map/work-site visuals
+- richer location scene assets
 - planet/globe representation
-- accumulated environmental history visualization
 
 ## Current Blocker
 
-_None._ Simulation, Communication, and Memory contracts are all ready.
-
-The remaining v0.6 work is implementation on PR #3 in the next Assets session, not an external dependency.
-
-
-## v0.7 Home Polish
-
-- full-height scrollable citizen rail aligned to the map on desktop
-- reserve a citizen name search/filter control for future population growth
-- full-height Visit/chat rail aligned to the map on desktop
-- internal chat scroll with anchored input and actions
-- compact Home Recent Activity feed with about 5 latest meaningful events/conversations
-- "View all history" action opens Records → History
-- conversation summaries only from real stored exchanges
-- failed talk attempts remain events, never synthetic conversation cards
+Assets is waiting on World & Simulation's v0.7 maintenance/condition state contract.
