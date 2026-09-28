@@ -1,7 +1,7 @@
 # World & Simulation — State
 
 _Last updated: 2026-09-28_
-_Current shipped release: v0.4.1_
+_Current shipped release: v0.5.0_
 _Active implementation branch: `simulation/v0.5-making-building`_
 _Branch head: `773299189d22d214b3376c72b396015a4a7a762e`_
 
@@ -207,3 +207,19 @@ Handoff source of truth:
 - next active dependency: Assets & Interface consumes the authoritative Making & Building state and finishes the v0.5 visual layer
 
 No release metadata or `update.json` was changed.
+
+
+## Shipped v0.5.0 Integration
+
+Coordinator integrated this physical core with the completed Assets v0.5 UI on `release-v0.5.0`.
+
+Immutable published runtime commit:
+`d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
+
+The assembled release passed:
+- Python compilation
+- JavaScript syntax
+- v0.4 regression smoke
+- v0.5 Simulation smoke
+- v0.5 Communication integrity smoke
+- v0.5 assembled UI integration smoke
