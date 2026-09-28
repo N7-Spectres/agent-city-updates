@@ -3068,3 +3068,316 @@ input:focus, textarea:focus { border-color: var(--accent); }
 .avatar-full.silhouette-soft .avatar-body {
   border-radius: 27px 27px 16px 16px;
 }
+
+
+/* v0.8 Stage 2 — authoritative meter-space exploration */
+#map-spatial-status {
+  max-width: 52%;
+  text-align: right;
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.legend-observation {
+  position: relative;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 1px solid rgba(104,194,224,.58);
+  border-radius: 999px;
+}
+
+.legend-observation::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #80d8ef;
+  transform: translate(-50%, -50%);
+}
+
+.route-layer line.local-movement-route {
+  stroke: rgba(104,194,224,.74);
+  stroke-width: 2;
+  stroke-dasharray: 3 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.route-layer line.local-movement-route.selected {
+  stroke: rgba(213,166,91,.92);
+  stroke-width: 2.8;
+  stroke-dasharray: none;
+}
+
+.local-movement-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  pointer-events: none;
+  border: 1px solid rgba(104,194,224,.32);
+  border-radius: 999px;
+  background: rgba(6,14,21,.90);
+  padding: 4px 7px;
+  color: #aee9f6;
+  font-size: 8px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.map-observation {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  pointer-events: none;
+}
+
+.observation-radius {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(104,194,224,.34);
+  border-radius: 999px;
+  background: rgba(104,194,224,.035);
+}
+
+.map-observation.detailed .observation-radius {
+  border-color: rgba(115,198,157,.42);
+  background: rgba(115,198,157,.035);
+}
+
+.observation-dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #80d8ef;
+  box-shadow: 0 0 10px rgba(104,194,224,.50);
+}
+
+.map-observation.detailed .observation-dot {
+  background: var(--good);
+  box-shadow: 0 0 10px rgba(115,198,157,.42);
+}
+
+.observation-label {
+  position: absolute;
+  left: 8px;
+  top: -8px;
+  min-width: max-content;
+  max-width: 170px;
+  border: 1px solid rgba(104,194,224,.18);
+  border-radius: 8px;
+  background: rgba(7,13,19,.84);
+  padding: 3px 5px;
+  color: #cdeaf2;
+  font-size: 8px;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.observation-label small {
+  color: var(--muted);
+  font-size: 7px;
+}
+
+.map-citizen.local-moving,
+.map-visitor.local-moving {
+  transition: left 3.6s linear, top 3.6s linear;
+}
+
+.map-citizen.local-moving {
+  border-color: rgba(104,194,224,.74);
+  box-shadow: 0 0 0 3px rgba(104,194,224,.08), 0 0 16px rgba(104,194,224,.20);
+}
+
+.visitor-route-card.shared-active {
+  border-color: rgba(104,194,224,.34);
+  background: rgba(104,194,224,.045);
+}
+
+.visit-scroll-stack {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.shared-action-panel {
+  display: grid;
+  gap: 7px;
+  max-height: 220px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.shared-action-card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #0d151d;
+  padding: 10px;
+}
+
+.shared-action-card.intent-only {
+  border-style: dashed;
+}
+
+.shared-action-card.status-proposed {
+  border-color: rgba(213,166,91,.34);
+  background: rgba(213,166,91,.035);
+}
+
+.shared-action-card.physical-active {
+  border-style: solid;
+  border-color: rgba(104,194,224,.42);
+  background: rgba(104,194,224,.035);
+}
+
+.shared-action-card.status-completed {
+  border-color: rgba(115,198,157,.32);
+  background: rgba(115,198,157,.025);
+}
+
+.shared-action-card.status-rejected,
+.shared-action-card.status-cancelled,
+.shared-action-card.status-expired,
+.shared-action-card.status-failed {
+  opacity: .68;
+}
+
+.shared-action-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: start;
+}
+
+.shared-action-head > div {
+  min-width: 0;
+}
+
+.shared-action-status {
+  display: block;
+  color: var(--accent);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.shared-action-card.physical-active .shared-action-status {
+  color: #aee9f6;
+}
+
+.shared-action-card.status-completed .shared-action-status {
+  color: var(--good);
+}
+
+.shared-action-head strong {
+  display: block;
+  margin-top: 3px;
+  color: var(--text);
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.shared-action-head > small {
+  color: var(--muted);
+  font-size: 8px;
+}
+
+.shared-action-card p {
+  margin: 7px 0 0;
+  color: #d7e0ea;
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.shared-action-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 7px;
+}
+
+.shared-action-meta span {
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  padding: 3px 5px;
+  color: var(--muted);
+  font-size: 7px;
+  line-height: 1.2;
+}
+
+.shared-action-progress {
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.shared-action-progress small,
+.shared-action-truth {
+  color: var(--muted);
+  font-size: 7px;
+  line-height: 1.3;
+}
+
+.shared-action-outcome {
+  margin-top: 7px;
+  color: var(--good);
+  font-size: 8px;
+  line-height: 1.35;
+}
+
+.shared-action-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.shared-action-actions button {
+  padding: 6px 9px;
+  border-radius: 8px;
+  font-size: 8px;
+}
+
+.shared-action-truth {
+  display: block;
+  margin-top: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-citizen.local-moving,
+  .map-visitor.local-moving {
+    transition: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  #map-spatial-status {
+    max-width: 100%;
+    text-align: left;
+  }
+
+  .map-legend {
+    gap: 8px;
+    max-width: calc(100% - 28px);
+    flex-wrap: wrap;
+    border-radius: 12px;
+  }
+
+  .observation-label {
+    display: none;
+  }
+
+  .shared-action-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
