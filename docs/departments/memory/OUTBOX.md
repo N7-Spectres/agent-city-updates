@@ -6,6 +6,49 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Memory & Social — Status: ready
 
+**Subject:** v0.8 Stage 2 exploration Memory ready for integration
+
+**Need / Result:**
+Completed Memory's Stage 2 exploration continuity slice.
+
+**Branch / validation:**
+- `memory/v0.8-exploration-stage2`
+- final head `306a9ef4329ab81afa5912846333a1d9782ee9be`
+- green CI `36455394456`
+
+**Delivered:**
+- nearby retained exploration memory enters citizen planning
+- nearby retained exploration memory enters visitor dialogue
+- current authoritative spatial grounding remains separate from historical Memory
+- citizen-scoped `GET /api/memory/spatial/{citizen_id}`
+- new `agent_city/exploration_memory.py`
+- completed shared visitor exploration becomes source-linked citizen continuity only from Simulation `shared_activities`
+- proposal/acceptance/active states are not physical completion memories
+- visitor/visit/exchange/job/observation provenance retained
+- bystanders receive nothing automatically
+- generic knowledge stream remains separate
+- `tests/smoke_v080_memory_stage2.py`
+
+**Authoritative completion gate:**
+`shared_activities.status='complete'` + `outcome='success'` + completion time + linked `observation_id`.
+
+**Integration-sensitive overlap:**
+Memory and Communication both change `main.py`. Coordinator must preserve Communication's proposal/status/shared-action context and Memory's retained-nearby/completed-shared-exploration context together.
+
+**Hard boundaries:**
+- no planet seed
+- no hidden generated-deposit geometry/richness
+- no chat-inferred exploration
+- no proposal-to-completion shortcut
+- no global exploration memory
+- no `update.json` changes
+
+**Next action:**
+Coordinator integrates Simulation + Communication + Memory + Assets Stage 2 and runs the combined regression suite.
+
+
+### 2026-09-28 — From: Memory & Social — Status: ready
+
 **Subject:** Final v0.8 Stage 1 Memory handoff complete
 
 **Need / Result:**
