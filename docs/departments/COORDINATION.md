@@ -20,10 +20,13 @@ Departments should read this file at the beginning of a work session in addition
 
 ### ACTIVE
 
-- [Assets & Interface] Map readability pass and Control Room layout planning
-- [Memory & Social] v0.4.0 relationship-memory architecture planning
-- [Communication & Perception] Information-boundary and last-known knowledge design
-- [World & Simulation] Parallel survey behavior, travel-turnaround design, and support data for UI
+- [Memory & Social] Lead v0.4.0 relationship-memory architecture and implementation
+- [Assets & Interface] v0.4 Control Room + map readability pass
+- [Communication & Perception] Information provenance / last-known knowledge support for v0.4
+
+### STANDBY
+
+- [World & Simulation] Wait for concrete dependencies from Memory, Communication, or Assets before changing core physical rules
 
 ### WAITING
 
