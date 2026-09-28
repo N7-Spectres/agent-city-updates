@@ -244,6 +244,7 @@ def complete_due_jobs(now: int) -> None:
 
             action = job["action"]
             message = None
+            job_status = "complete"
 
             if action == "travel":
                 target = job["target"]
@@ -302,7 +303,19 @@ def complete_due_jobs(now: int) -> None:
 
             elif action == "talk":
                 target_id = job["target"]
-                target_citizen = conn.execute("SELECT name FROM citizens WHERE id = ?", (target_id,)).fetchone()
+                target_citizen = conn.execute(
+                    "SELECT name FROM citizens WHERE id = ?",
+                    (target_id,),
+                ).fetchone()
+                conversation = conn.execute(
+                    """
+                    SELECT id
+                    FROM citizen_conversations
+                    WHERE source_job_id = ?
+                    """,
+                    (job["id"],),
+                ).fetchone()
+
                 conn.execute(
                     """
                     UPDATE citizens
@@ -311,8 +324,19 @@ def complete_due_jobs(now: int) -> None:
                     """,
                     (c["id"], target_id, job["id"]),
                 )
+
                 target_name = target_citizen["name"] if target_citizen else target_id
-                message = f"{c['name']} and {target_name} finished talking at {c['location']}."
+                if conversation:
+                    message = (
+                        f"{c['name']} and {target_name} finished talking at "
+                        f"{c['location']} (conversation #{int(conversation['id'])})."
+                    )
+                else:
+                    job_status = "failed"
+                    message = (
+                        f"{c['name']} and {target_name}'s conversation attempt at "
+                        f"{c['location']} ended without a recorded exchange."
+                    )
 
             elif action == "deposit_cargo":
                 cargo = conn.execute(
@@ -351,7 +375,10 @@ def complete_due_jobs(now: int) -> None:
                 conn.execute("UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?", (c["id"],))
                 message = f"{c['name']} finished observing the area."
 
-            conn.execute("UPDATE jobs SET status = 'complete' WHERE id = ?", (job["id"],))
+            conn.execute(
+                "UPDATE jobs SET status = ? WHERE id = ?",
+                (job_status, job["id"]),
+            )
             if message:
                 add_history(conn, now, "activity", message)
 
