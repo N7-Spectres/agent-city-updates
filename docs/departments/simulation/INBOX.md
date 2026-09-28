@@ -16,7 +16,7 @@ Communication's per-citizen provenance ledger is implemented on `communication/v
 
 Simulation remains authoritative for hidden truth, experiment outcomes, and discovery events. When a validated result becomes knowable to a citizen, the integration surface is:
 
-`record_validated_information(...)` from `agent_city.knowledge`
+`record_validated_information(...)` from `agent_city.provenance`
 
 **Arguments:**
 - `recipient_id` — citizen who actually learned/observed it
@@ -49,8 +49,8 @@ The function returns the Communication receipt ID and is idempotent when the sam
 - Communication does not inspect hidden truth and decide who knows it
 
 **Branch / tests:**
-- Communication head: `0cd9642c720e2950cb2a50728e19c08092408591`
-- final green CI: `36420188139`
+- Communication head: `0fc75220610f52f9701b19df1a22caaaa60c341a`
+- final green CI: `36420788364`
 
 **Next action:**
 Hand the final v0.6 discovery/experiment event fields to the coordinator and wire successful/failed knowable results to this ingress during integration.
