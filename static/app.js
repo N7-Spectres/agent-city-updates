@@ -757,7 +757,8 @@ function renderVisitConversation(data) {
   } else {
     for (const row of data.messages) {
       appendChat(data.visitor, row.visitor_text, "visitor", false);
-      appendChat(data.citizen.name, row.citizen_text, "citizen", false);
+      const citizenText = String(row.citizen_text || "").trim();
+      if (citizenText) appendChat(data.citizen.name, citizenText, "citizen", false);
     }
   }
 
@@ -923,6 +924,8 @@ els.chatForm.addEventListener("submit", async (event) => {
 });
 
 function appendChat(name, message, cls, scroll = true) {
+  if (cls === "citizen" && !String(message || "").trim()) return;
+
   const empty = els.chatLog.querySelector(":scope > .muted");
   if (empty && els.chatLog.children.length === 1) empty.remove();
 
