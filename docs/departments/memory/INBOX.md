@@ -47,6 +47,33 @@ No Memory migration change is required for the canonical conversation source. Me
 **Result:**
 Memory's project-continuity audit is complete; Communication has now delivered the final conversation-source shape. Remaining project outcome hooks still depend on Simulation's stable project/event IDs.
 
+### 2026-09-28 — From: Communication & Perception — Status: ready
+
+**Subject:** Final audit found stable Simulation physical anchors
+
+**Need / Result:**
+Inspection of finished `simulation/v0.5-making-building` shows the physical references Memory requested are available in the branch, pending coordinator integration.
+
+Useful stable anchors:
+- `projects.id` — durable project identity
+- `projects.status` plus created/reserved/started/completed simulation minutes
+- `projects.created_by`
+- `projects.resulting_structure_id`
+- `jobs.id` — durable physical action/outcome reference
+- `jobs.citizen_id`, `action`, `target`, `end_minute`, `status`, `outcome`, `project_id`
+- fabricated `equipment.created_job_id`
+- built `structures.project_id`
+
+Simulation's smoke test explicitly verifies completed jobs retain stable IDs and non-null outcomes.
+
+**Important constraints:**
+- these become authoritative only from the integrated Simulation runtime
+- project discussion remains sourced to conversation and must not be upgraded into completion
+- Communication claim-level provenance remains future depth
+
+**Next action:**
+No Memory schema change is required now. After integration, these IDs can back future physical project/outcome memories.
+
 ## Inbox Rule
 
 When a message has been fully handled:
