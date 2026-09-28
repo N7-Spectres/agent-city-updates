@@ -2,6 +2,7 @@
 
 _Last updated: 2026-09-28_
 _Current release: v0.3.0_
+_Current department branch: `assets-v0.4-control-room`_
 
 ## Mission
 
@@ -9,84 +10,68 @@ Make Agent City visually understandable and increasingly feel like a living plac
 
 ## Current Implementation
 
-Main layout:
+Shipped v0.3.0:
 
 - left: six citizen cards
 - center: known-region map
 - right: visitor conversation
 - bottom drawer: Region / Stores / Structures / History / Updates
-
-v0.3.0 added:
-
-- live job progress bars
-- simulated-minute progress
-- job ETA
+- live job progress bars and ETA
 - citizen movement along map routes
-- N7 visitor marker
-- visitor travel progress
+- N7 visitor marker and visitor travel progress
 - field cargo vs settlement Stores comparison
 - citizen conversation display in History
 - expandable citizen conversation exchanges
 
-## Current Visual Problems
+## v0.4 Interface Pass — Review Ready
+
+Implemented on `assets-v0.4-control-room`, based from `release-v0.3.0`.
+
+### Control Room
+
+- Visit remains permanently visible in the right rail.
+- Region / Stores / Structures / History / Updates now live in a second persistent right-side Control Room.
+- The giant bottom detail drawer is removed from the branch.
+- Existing visitor/chat DOM IDs and API behavior are preserved.
 
 ### Map readability
 
-The map is becoming crowded as more state appears.
+- location layout now derives radial spacing from existing `state.routes[].distance_km`
+- route lines are rendered from the same computed geometry
+- route distance labels are shown on the map
+- the selected citizen's active travel route is highlighted
+- citizen dots are upgraded to initial-bearing tokens
+- citizens at the same location occupy a dedicated compact cluster zone
+- traveler tokens use route-relative lane offsets when multiple travelers share a route
+- visitor markers use a separate presentation offset when stationary
+- location labels have explicit above/below placement rather than sharing the marker center
+- focused and selected-citizen locations receive stronger visual treatment
 
-Observed issues:
+No simulation durations, travel rules, resource state, discoveries, or action legality were changed.
 
-- location circles, labels, citizen dots, and the visitor badge overlap
-- route lengths do not communicate distance strongly enough
-- citizen clusters are difficult to parse at a glance
-- traveler markers can compete visually with location markers
-- current star-shaped layout is functional but increasingly cramped
+## Verification Performed
 
-### Bottom drawer
+Static structural verification on the department branch:
 
-History / Stores / Structures / Region / Updates open below the main layout.
+- 45 HTML IDs
+- 45 JavaScript `getElementById` references
+- zero missing referenced IDs
+- zero duplicate IDs
+- zero stale `detail-drawer`, `close-drawer`, `openDrawer`, `closeDrawer`, or `LOCATION_POSITIONS` references
+- JavaScript parsed successfully during patch generation
 
-This requires excessive scrolling on taller pages.
+Still required before incorporation:
 
-## Planned Direction
+- browser/runtime visual test with a running Agent City instance
+- responsive sanity check at desktop, tablet, and narrow widths
+- verify route-distance geometry against real `/api/state` values
+- verify visitor travel, citizen travel, chat persistence, updater controls, and pause controls still behave normally
 
-### Control Room layout
-
-Move the bottom drawer into a persistent right-side utility area.
-
-Desired structure:
-
-- left: citizens
-- center: world
-- right: Visit + utility views
-
-Potential utility tabs:
-
-- Visit
-- History
-- Stores
-- Structures
-- Region
-- Updates
-
-A future version may keep Visit visible while switching a secondary right-side panel.
-
-### Map readability pass
-
-- increase spacing between region nodes
-- make route length more visually proportional to travel time/distance
-- give location labels dedicated positions
-- give citizen clusters dedicated positions around/near locations
-- keep traveling citizens clearly on route lines
-- keep visitor marker visually separate
-- improve symbol hierarchy and legend
-- prepare for citizen initials/avatar tokens
-
-## Files Commonly Owned
+## Files Owned / Changed
 
 - `static/index.html`
 - `static/app.js`
 - `static/styles.css`
-- visual-only roadmap sections
+- visual-only roadmap / department documentation
 
-Changes to simulation timing, action legality, or physical outcomes belong to World & Simulation.
+Changes to simulation timing, action legality, resource outcomes, or physical outcomes belong to World & Simulation.
