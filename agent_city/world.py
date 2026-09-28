@@ -1,7 +1,7 @@
 import asyncio
 import time
 from .db import connect, get_meta, set_meta
-from .simulation import complete_due_jobs
+from .simulation import apply_passive_wear, complete_due_jobs
 from .visitors import complete_due_visitor_travel
 
 class WorldClock:
@@ -39,6 +39,7 @@ class WorldClock:
 
             if whole_minutes > 0:
                 complete_due_jobs(new_minute)
+                apply_passive_wear(new_minute)
                 complete_due_visitor_travel(new_minute)
 
     def stop(self) -> None:
