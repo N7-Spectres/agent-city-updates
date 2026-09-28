@@ -16,19 +16,24 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-_None._
+- [World & Simulation] v0.8 Stage 1: persistent planet seed, deterministic meter-scale spatial truth, stable generated deposit identity/extent, additive migration
+- [Communication & Perception] v0.8 Stage 1: visitor RP grounding, known-vs-hypothesis capability language, tool/shared-action dialogue boundaries
+- [Memory & Social] v0.8 Stage 1: spatial-knowledge continuity audit and minimal source-linked support after Simulation contract
+- [Assets & Interface] v0.8 Stage 1: citizen concept refinement/base-body system, restored progress bars + Enter-to-send, asset-worker/render-tier architecture
 
 ### WAITING
 
-_None._
+- [Memory & Social] runtime spatial ingestion waits on World & Simulation stable coordinate/deposit/observation IDs
+- [Communication & Perception] real visitor-linked shared physical actions wait on World & Simulation action/coordinate contract
+- [Assets & Interface] continuous-world UI wiring waits on World & Simulation spatial read model; independent concept/UI/asset-worker groundwork may proceed
 
 ### READY
 
-_None._
+_None yet._
 
 ### REVIEW
 
-_None._
+_None yet._
 
 ### DONE
 
@@ -43,19 +48,6 @@ _None._
 - [Memory & Social] v0.6 bounded per-citizen/location knowledge read model
 - [Assets & Interface] v0.6 Home/Citizens/Locations/Records UI and safe knowledge presentation
 - [Coordinator] v0.5.0 assembled on `release-v0.5.0`, full smoke suite passed, versioned, and published from `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
-- [World & Simulation] v0.5 Making & Building physical core + energy reserve + coordinate groundwork
-- [Assets & Interface] v0.5 bounded Visit/History + Making state UI
-- [Communication & Perception] v0.5 source-linked talk integrity
-- [Memory & Social] v0.5 project/source continuity audit
-- [Coordinator] v0.4.0 assembled/tested/published
-- [Coordinator] v0.4.1 conversation hotfix tested/published
-- [Memory & Social] durable directional conversation memory + bounded social context
-- [Assets & Interface] Control Room redesign + distance-aware map readability
-- [Communication & Perception] anti-omniscience architecture + provenance contract
-- [Communication & Perception] same-location citizen talk
-- [World & Simulation] visitor physical presence/travel
-- [Assets & Interface] v0.3.0 live job progress/moving map markers
-- [Memory & Social] persistent visitor visits/bounded conversation context
 
 ## v0.7 Coordination Goal
 
@@ -189,3 +181,18 @@ Coordinator integration must preserve:
 7. `GET /api/memory/maintenance/{citizen_id}` is citizen-scoped history, not physical admin truth.
 8. Memory synchronization safely no-ops before Simulation's maintenance table exists, preserving merge compatibility.
 9. Preserve `tests/smoke_v070_memory.py` in the assembled v0.7 suite.
+
+
+## v0.8 Stage 1 Coordination Goal
+
+Stage 1 establishes contracts and substrate before the larger Living World integration.
+
+Order of authority:
+1. Simulation defines seeded coordinate/world truth and stable physical subjects.
+2. Communication grounds what citizens/visitors may claim and defines conversational/shared-action boundaries.
+3. Memory retains only observations/claims that reached a citizen through valid sources.
+4. Assets renders only validated state and prepares asynchronous visual-generation infrastructure.
+
+The planned v0.7.1 progress/chat/RP polish is folded into v0.8.0.
+
+Stage 1 is intentionally not the full v0.8 release. Departments should stop after their scoped foundation/handoff work so the coordinator can review interfaces before Stage 2.
