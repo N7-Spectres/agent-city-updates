@@ -1,93 +1,94 @@
 # Assets & Interface — State
 
 _Last updated: 2026-09-28_
-_Current release: v0.4.0_
-_Current department branch: `assets-v0.4-control-room`_
+_Current release: v0.4.1_
+_Current department branch: `assets/v0.5-making-ui`_
+_Current review surface: draft PR #2_
 
 ## Mission
 
 Make Agent City visually understandable and increasingly feel like a living place while never allowing the visual layer to invent physical reality.
 
-## Current Implementation
+## Shipped Baseline
 
-Shipped v0.3.0:
+v0.4.1 runtime lineage includes:
 
-- left: six citizen cards
-- center: known-region map
-- right: visitor conversation
-- bottom drawer: Region / Stores / Structures / History / Updates
-- live job progress bars and ETA
-- citizen movement along map routes
-- N7 visitor marker and visitor travel progress
-- field cargo vs settlement Stores comparison
-- citizen conversation display in History
-- expandable citizen conversation exchanges
+- left citizens / center world / right Visit + Control Room
+- distance-aware map geometry and route labels
+- citizen initial tokens and traveler presentation
+- persistent visitor conversation
+- Region / Stores / Structures / History / Updates in the right-side Control Room
+- v0.4.1 blank-reply conversation hotfix
 
-## v0.4 Interface Pass — Review Ready
+The v0.5 Assets branch is based from immutable runtime commit:
+`4181cbb69809205ae575b3f576836e5ca72c8dce`.
 
-Implemented on `assets-v0.4-control-room`, based from `release-v0.3.0`.
+## v0.5 Independent UI Work — Implemented
 
-Draft review surface: **PR #1 — Assets: v0.4 Control Room and map readability pass** (`assets-v0.4-control-room` → `release-v0.3.0`). The PR is intentionally unmerged.
+Branch: `assets/v0.5-making-ui`
+Draft PR: **#2 — Assets: v0.5 compact interaction and conversation history**
 
-### Control Room
+### Compact Visit / layout
 
-- Visit remains permanently visible in the right rail.
-- Region / Stores / Structures / History / Updates now live in a second persistent right-side Control Room.
-- The giant bottom detail drawer is removed from the branch.
-- Existing visitor/chat DOM IDs and API behavior are preserved.
+- Visit panel now has bounded height instead of growing with long conversations.
+- Chat messages scroll internally.
+- Visitor input and Talk action remain anchored below the scrolling conversation area.
+- Previous-visit history has its own capped scroll region.
+- Main three-column layout is rebalanced and centered, with more width reserved for the right-side interaction surfaces.
+- Right rail heights are aligned more closely with the center world panel.
+- Responsive behavior was adjusted for the fixed-height interaction design.
 
-### Map readability
+### Useful History
 
-- location layout now derives radial spacing from existing `state.routes[].distance_km`
-- route lines are rendered from the same computed geometry
-- route distance labels are shown on the map
-- the selected citizen's active travel route is highlighted
-- citizen dots are upgraded to initial-bearing tokens
-- citizens at the same location occupy a dedicated compact cluster zone
-- traveler tokens use route-relative lane offsets when multiple travelers share a route
-- visitor markers use a separate presentation offset when stationary
-- location labels have explicit above/below placement rather than sharing the marker center
-- focused and selected-citizen locations receive stronger visual treatment
+History is now the default Control Room view beneath Visit.
 
-No simulation durations, travel rules, resource state, discoveries, or action legality were changed.
+Recent Citizen Conversations now display:
+
+- both participants
+- location
+- simulation time
+- concise stored summary
+- expandable exchange transcript when text is present
+
+The UI now compares authoritative chronology rows with the conversation content included in the current state snapshot.
+
+If chronology contains a `conversation` event but no matching exchange content is present in `state.citizen_conversations`, the UI renders a distinct chronology-only card saying that the exchange text is not included in the current snapshot. It does not invent missing dialogue.
 
 ## Verification Performed
 
-Static structural verification on the department branch:
+Static branch verification:
 
 - 45 HTML IDs
 - 45 JavaScript `getElementById` references
-- zero missing referenced IDs
+- zero missing IDs
 - zero duplicate IDs
-- zero stale `detail-drawer`, `close-drawer`, `openDrawer`, `closeDrawer`, or `LOCATION_POSITIONS` references
-- JavaScript parsed successfully during patch generation
+- zero stale bottom-drawer hooks
+- JavaScript parsed successfully
+- branch is 3 commits ahead / 0 behind pinned v0.4.1 base
+- changed runtime files are only:
+  - `static/index.html`
+  - `static/app.js`
+  - `static/styles.css`
 
-Still required before incorporation:
+## Waiting Dependency — Making & Building
 
-- browser/runtime visual test with a running Agent City instance
-- responsive sanity check at desktop, tablet, and narrow widths
-- verify route-distance geometry against real `/api/state` values
-- verify visitor travel, citizen travel, chat persistence, updater controls, and pause controls still behave normally
+The remaining required v0.5 Assets work is the visual layer for real fabrication / construction / projects / tools / equipment.
 
-## Files Owned / Changed
+Assets sent a schema request directly to:
+`docs/departments/simulation/INBOX.md`
 
-- `static/index.html`
-- `static/app.js`
-- `static/styles.css`
-- visual-only roadmap / department documentation
+Needed authoritative Simulation fields include stable IDs, lifecycle/status, validated location/site, participants, physical progress, material reservation/consumption summaries, equipment ownership/location, and explicit physical modifiers the UI may safely display.
 
-Changes to simulation timing, action legality, resource outcomes, or physical outcomes belong to World & Simulation.
+Assets will not infer project completion, tool effects, cargo capacity, coordinates, material use, or construction results.
 
+## Next Action
 
-## Session Handoff
+When Simulation replies with the stable schema:
 
-This work session is closed with Assets & Interface in **REVIEW**.
+1. read Simulation OUTBOX / Assets INBOX,
+2. inspect the exact runtime fields,
+3. add restrained Making & Building views to PR #2 / `assets/v0.5-making-ui`,
+4. keep all physical truth simulation-owned,
+5. run static verification again and hand off for coordinator smoke testing.
 
-Next Assets session should begin by:
-1. reading `docs/departments/COORDINATION.md` and `docs/departments/assets/INBOX.md`,
-2. reviewing PR #1 / branch `assets-v0.4-control-room`,
-3. runtime-testing the UI against a running Agent City instance,
-4. fixing only interface-owned regressions found by that test,
-5. leaving simulation-owned physical rules unchanged.
-
-There are no current cross-department dependencies from Assets & Interface. Runtime validation is an Assets/coordinator review task, not a request for Simulation to change behavior.
+No `update.json` or release metadata changes are part of this department branch.
