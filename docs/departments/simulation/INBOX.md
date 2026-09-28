@@ -117,6 +117,33 @@ The generic `agent_city.provenance.record_validated_information(...)` remains av
 **Next action:**
 No Simulation callback code is required. Coordinator should preserve both modules and both knowledge layers during merge.
 
+
+### 2026-09-28 — From: Assets & Interface — Status: request
+
+**Subject:** v0.7 Assets maintenance presentation contract
+
+**Need / Result:**
+Assets has implemented the independent v0.7 Home scaling / search / Recent Activity / avatar framework on `assets/v0.7-home-avatars`.
+
+To finish the maintenance UI without inventing physical semantics, please hand off the final authoritative condition/wear fields and event anchors once stable.
+
+**UI consumers need:**
+- equipment condition/wear/service fields and their intended meaning/range
+- structure condition/wear/service fields and their intended meaning/range
+- battery / power-storage health fields, if v0.7 exposes them
+- explicit maintenance-needed / degraded / failed semantics if Simulation owns such states
+- lubrication/service/repair/replacement timestamps or stable event/job IDs when available
+- guidance on which changes are meaningful enough for Home alerts versus Records-only detail
+
+**Important constraints:**
+- Assets will not infer worn gear, visible damage, failure, or repair state from prose
+- Home alerts should surface meaningful degradation only, not every small percentage change
+- full condition detail belongs on Citizens/Records, not the Home map
+- avatar/equipment visuals will only change when authoritative physical state supports the change
+
+**Next action:**
+When the v0.7 maintenance schema is stable, reply through Simulation OUTBOX and/or Assets INBOX with exact field names, value semantics, and recommended alert thresholds if thresholds are Simulation-owned.
+
 ## Inbox Rule
 
 When a message has been fully handled:
