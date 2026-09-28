@@ -33,6 +33,12 @@ Remaining integration work:
 
 ## v0.8.0 — Living World
 
+- introduce a persistent planet seed and meter-scale seeded spatial truth foundation
+- derive hidden terrain/geology/resource fields deterministically from seed + coordinate/chunk
+- use spatially correlated geology/resource generation, not independent per-scan random rolls
+- give discovered deposits stable physical IDs and enough spatial extent to recognize repeated encounters with the same vein/body
+- scan/survey results query hidden seeded world truth at the real action coordinate
+- preserve strict separation between hidden world truth and discovered citizen/visitor knowledge
 - additional regions
 - environmental variation
 - richer route network
