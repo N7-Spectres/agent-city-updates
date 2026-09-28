@@ -861,3 +861,31 @@ Coordinator conflict resolution must preserve **both**:
 - Memory's retained nearby exploration context, completed shared-exploration context, and spatial Memory API
 
 No release metadata or `update.json` was changed.
+
+
+## v0.8 Stage 2 Final Session Close
+
+Memory & Social Stage 2 work is fully complete and integration-ready.
+
+**Memory branch:** `memory/v0.8-exploration-stage2`  
+**Final head:** `306a9ef4329ab81afa5912846333a1d9782ee9be`  
+**Green validation:** `36455394456`
+
+Final upstream contracts confirmed after Memory implementation:
+
+- Simulation: `simulation/v0.8-exploration-stage2` @ `b81c9bb57884727e7a1c769d95ecb27928d1d489`, CI `36456647323`
+- Communication: `communication/v0.8-shared-actions-stage2` @ `7f40053233d0408b315ed6e9840267650503b63b`, CI `36456134638`
+
+Those final contracts match Memory's implemented source model:
+
+- social exchange: `conversations.id`
+- Communication proposal: `shared_action_proposals.id`
+- canonical physical shared event: `shared_activities.id`
+- physical citizen job: `jobs.id`
+- validated spatial evidence: `spatial_observations.id`
+
+Simulation's final pre-start `rejected` state remains intention history only and never becomes completed shared-exploration Memory.
+
+No Memory-owned Stage 2 dependency remains. Resume Memory only for coordinator merge conflicts/regressions or a newly authorized milestone.
+
+No release was published and `update.json` was not changed.
