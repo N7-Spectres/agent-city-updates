@@ -20,7 +20,11 @@ Human users such as N7 are **visitors**, not gods, rulers, or omniscient operato
 
 ## Current Milestone
 
-v0.4.0 shipped the Memory & Relationships / Control Room milestone. v0.4.1 is a tested conversation hotfix published from immutable runtime commit `4181cbb69809205ae575b3f576836e5ca72c8dce`.
+**v0.5.0 — Making & Building is now the active development milestone.**
+
+v0.4.0 shipped the Memory & Relationships / Control Room milestone. v0.4.1 is the current tested conversation-hotfix release, published from immutable runtime commit `4181cbb69809205ae575b3f576836e5ca72c8dce`.
+
+v0.5.0 is being developed from the shipped v0.4.1 runtime lineage. The milestone adds fabrication, construction, physically useful tools/carry equipment, multi-step projects, energy-return safety, coordinate groundwork for later continuous geography, and the chat/history UI corrections identified during live use.
 
 Major shipped changes:
 
