@@ -636,3 +636,22 @@ For v0.8.1:
 - temporary validation workflows must be removed before handoff
 - official release workflow is preserved from `release-v0.8.1`
 - coordinator performs the final full regression at VERSION bump before publication
+
+
+## v0.8.1 Final Handoff Rule
+
+Once the v0.8.1 Assets branch is:
+- aligned 0-behind the official hotfix base,
+- fully regression-tested,
+- marked ready for review,
+- and all Assets-owned dependencies are resolved,
+
+Assets stops implementation and hands release ownership to the coordinator.
+
+The coordinator owns:
+- PR integration
+- VERSION bump
+- the definitive release smoke
+- release metadata / updater publication
+
+Assets must not publish `update.json` or continue changing the hotfix after handoff unless review feedback identifies an interface-owned regression.
