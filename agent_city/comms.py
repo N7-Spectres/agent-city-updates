@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 from typing import Any
 
 import httpx
@@ -8,9 +9,18 @@ import httpx
 from .db import add_history, connect, get_meta
 from .provenance import knowledge_context_for, record_face_to_face_claims
 from .memory import record_conversation_memory, social_context_for
+from .talk_diagnostics import record_talk_diagnostic
 from .world import format_sim_time
 
 OLLAMA_URL = "http://127.0.0.1:11434"
+
+
+def _diag(source_job_id: int, **kwargs: Any) -> None:
+    """Diagnostics must never become a new reason for a valid talk to fail."""
+    try:
+        record_talk_diagnostic(source_job_id, **kwargs)
+    except Exception:
+        pass
 
 
 def visible_citizens(citizen_id: str) -> list[dict[str, Any]]:
@@ -267,20 +277,372 @@ def record_dialogue(
 
     return conversation_id
 
+def _parse_json_object(raw: str) -> dict[str, Any] | None:
+    text = str(raw or "").strip()
+    if not text:
+        return None
+
+    if text.startswith("```"):
+        lines = text.splitlines()
+        if lines and lines[0].lstrip().startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        text = "\n".join(lines).strip()
+
+    try:
+        parsed = json.loads(text)
+        return parsed if isinstance(parsed, dict) else None
+    except json.JSONDecodeError:
+        pass
+
+    first = text.find("{")
+    last = text.rfind("}")
+    if first < 0 or last <= first:
+        return None
+    try:
+        parsed = json.loads(text[first:last + 1])
+        return parsed if isinstance(parsed, dict) else None
+    except json.JSONDecodeError:
+        return None
+
+
+def _dialogue_payload(data: dict[str, Any] | None) -> dict[str, str] | None:
+    if not data:
+        return None
+    initiator_text = str(data.get("initiator_text") or "").strip()
+    target_text = str(data.get("target_text") or "").strip()
+    summary = str(data.get("summary") or "").strip()
+    if not initiator_text or not target_text or not summary:
+        return None
+    return {
+        "initiator_text": initiator_text,
+        "target_text": target_text,
+        "summary": summary,
+    }
+
+
+async def _generate_raw_exchange(
+    *,
+    model: str,
+    prompt: str,
+    source_job_id: int,
+) -> dict[str, str]:
+    """
+    Generate only the physical conversation payload.
+
+    Provenance enrichment is intentionally not part of this schema. A malformed
+    claim list must never erase an otherwise valid exchange.
+    """
+    last_code = "dialogue_generation_failed"
+    last_detail = ""
+
+    async with httpx.AsyncClient(timeout=90.0) as client:
+        for attempt in range(2):
+            final_attempt = attempt == 1
+            try:
+                response = await client.post(
+                    f"{OLLAMA_URL}/api/chat",
+                    json={
+                        "model": model,
+                        "messages": [
+                            {
+                                "role": "system",
+                                "content": (
+                                    "Return only one valid JSON object with exactly "
+                                    "initiator_text, target_text, and summary. "
+                                    "Preserve local information boundaries."
+                                ),
+                            },
+                            {"role": "user", "content": prompt},
+                        ],
+                        "stream": False,
+                        "think": False,
+                        "format": "json",
+                        "options": {
+                            "temperature": 0.55 if attempt == 0 else 0.35,
+                            "num_ctx": 4096,
+                            "num_predict": 260 if attempt == 0 else 340,
+                        },
+                    },
+                )
+                response.raise_for_status()
+            except httpx.HTTPStatusError as exc:
+                last_code = "ollama_http_failure"
+                last_detail = f"HTTP {exc.response.status_code}"
+                _diag(
+                    source_job_id,
+                    stage="dialogue_generation",
+                    outcome="failure" if final_attempt else "retry",
+                    code=last_code,
+                    detail=last_detail,
+                )
+                if final_attempt:
+                    raise RuntimeError("Citizen dialogue request failed.") from exc
+                continue
+            except httpx.RequestError as exc:
+                last_code = "ollama_network_failure"
+                last_detail = type(exc).__name__
+                _diag(
+                    source_job_id,
+                    stage="dialogue_generation",
+                    outcome="failure" if final_attempt else "retry",
+                    code=last_code,
+                    detail=last_detail,
+                )
+                if final_attempt:
+                    raise RuntimeError("Citizen dialogue request could not reach Ollama.") from exc
+                continue
+
+            try:
+                envelope = response.json()
+            except (ValueError, TypeError):
+                envelope = None
+            if not isinstance(envelope, dict):
+                last_code = "ollama_response_malformed"
+                last_detail = "Ollama HTTP response was not a JSON object."
+                _diag(
+                    source_job_id,
+                    stage="dialogue_generation",
+                    outcome="failure" if final_attempt else "retry",
+                    code=last_code,
+                    detail=last_detail,
+                )
+                if final_attempt:
+                    raise RuntimeError("Ollama returned a malformed response envelope.")
+                continue
+
+            message = envelope.get("message") or {}
+            raw = str(message.get("content") or "").strip()
+            if not raw:
+                last_code = "ollama_empty_response"
+                last_detail = "Ollama returned no dialogue content."
+                _diag(
+                    source_job_id,
+                    stage="dialogue_generation",
+                    outcome="failure" if final_attempt else "retry",
+                    code=last_code,
+                    detail=last_detail,
+                )
+                if final_attempt:
+                    raise RuntimeError("Citizen dialogue generation returned empty content.")
+                continue
+
+            data = _parse_json_object(raw)
+            if data is None:
+                last_code = "dialogue_malformed_json"
+                last_detail = "Response was not a parseable JSON object."
+                _diag(
+                    source_job_id,
+                    stage="dialogue_generation",
+                    outcome="failure" if final_attempt else "retry",
+                    code=last_code,
+                    detail=last_detail,
+                )
+                if final_attempt:
+                    raise RuntimeError("Citizen dialogue generation returned malformed JSON.")
+                continue
+
+            dialogue = _dialogue_payload(data)
+            if dialogue is None:
+                last_code = "dialogue_schema_incomplete"
+                last_detail = "Required dialogue fields were blank or missing."
+                _diag(
+                    source_job_id,
+                    stage="dialogue_generation",
+                    outcome="failure" if final_attempt else "retry",
+                    code=last_code,
+                    detail=last_detail,
+                )
+                if final_attempt:
+                    raise RuntimeError("Citizen dialogue generation returned an incomplete exchange.")
+                continue
+
+            _diag(
+                source_job_id,
+                stage="dialogue_generation",
+                outcome="success",
+                code="dialogue_generated",
+                detail=f"Valid raw exchange on attempt {attempt + 1}.",
+            )
+            return dialogue
+
+    raise RuntimeError(f"Citizen dialogue generation failed: {last_code} {last_detail}".strip())
+
+
+async def _extract_claims_best_effort(
+    *,
+    model: str,
+    source_job_id: int,
+    conversation_id: int,
+    initiator_text: str,
+    target_text: str,
+) -> None:
+    """
+    Enrich a durable exchange with claim provenance.
+
+    This phase is intentionally non-fatal. The raw stored conversation is the
+    information-transfer event even when claim classification is unavailable.
+    """
+    prompt = f"""
+Extract concrete factual assertions from this ALREADY STORED face-to-face exchange.
+
+INITIATOR:
+{initiator_text}
+
+TARGET:
+{target_text}
+
+Return JSON only:
+{{
+  "claims": [
+    {{
+      "speaker": "initiator or target",
+      "subject_type": "location, material, citizen, project, or other",
+      "subject_id": "known stable id if clearly present, otherwise null",
+      "topic": "short factual topic key",
+      "value": "an exact sentence or clause copied verbatim from that speaker's text"
+    }}
+  ]
+}}
+
+Rules:
+- Do not invent or paraphrase the claim value.
+- Include only factual assertions literally present in the stored text.
+- Questions, greetings, suggestions, guesses, and implications are not claims.
+- An empty claims array is valid.
+""".strip()
+
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            response = await client.post(
+                f"{OLLAMA_URL}/api/chat",
+                json={
+                    "model": model,
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": "Return only valid JSON claim metadata for the supplied stored transcript.",
+                        },
+                        {"role": "user", "content": prompt},
+                    ],
+                    "stream": False,
+                    "think": False,
+                    "format": "json",
+                    "options": {
+                        "temperature": 0.15,
+                        "num_ctx": 2048,
+                        "num_predict": 300,
+                    },
+                },
+            )
+            response.raise_for_status()
+    except httpx.HTTPStatusError as exc:
+        _diag(
+            source_job_id,
+            stage="claim_extraction",
+            outcome="degraded",
+            code="claim_ollama_http_failure",
+            detail=f"HTTP {exc.response.status_code}; raw exchange remains stored.",
+        )
+        return
+    except httpx.RequestError as exc:
+        _diag(
+            source_job_id,
+            stage="claim_extraction",
+            outcome="degraded",
+            code="claim_ollama_network_failure",
+            detail=f"{type(exc).__name__}; raw exchange remains stored.",
+        )
+        return
+
+    try:
+        envelope = response.json()
+    except (ValueError, TypeError):
+        envelope = None
+    if not isinstance(envelope, dict):
+        _diag(
+            source_job_id,
+            stage="claim_extraction",
+            outcome="degraded",
+            code="claim_response_malformed",
+            detail="Claim response envelope was malformed; raw exchange remains stored.",
+        )
+        return
+
+    raw = str((envelope.get("message") or {}).get("content") or "").strip()
+    data = _parse_json_object(raw)
+    if data is None:
+        _diag(
+            source_job_id,
+            stage="claim_extraction",
+            outcome="degraded",
+            code="claim_malformed_json",
+            detail="Claim metadata was not parseable; raw exchange remains stored.",
+        )
+        return
+
+    claims = data.get("claims")
+    if not isinstance(claims, list):
+        _diag(
+            source_job_id,
+            stage="claim_extraction",
+            outcome="degraded",
+            code="claim_schema_incomplete",
+            detail="Claims field was missing/not a list; raw exchange remains stored.",
+        )
+        return
+
+    try:
+        receipt_ids = record_face_to_face_claims(conversation_id, claims)
+    except sqlite3.DatabaseError as exc:
+        _diag(
+            source_job_id,
+            stage="claim_persistence",
+            outcome="degraded",
+            code="claim_persistence_failure",
+            detail=f"{type(exc).__name__}; raw exchange remains stored.",
+        )
+        return
+    except Exception as exc:
+        _diag(
+            source_job_id,
+            stage="claim_persistence",
+            outcome="degraded",
+            code="claim_projection_failure",
+            detail=f"{type(exc).__name__}; raw exchange remains stored.",
+        )
+        return
+
+    _diag(
+        source_job_id,
+        stage="claim_extraction",
+        outcome="success",
+        code="claims_projected" if receipt_ids else "claims_empty",
+        detail=f"{len(receipt_ids)} provenance receipt(s) created.",
+    )
+
+
 async def generate_dialogue(
     initiator_id: str,
     target_id: str,
     reason: str | None,
     model: str,
     source_job_id: int,
-) -> dict[str, str]:
-    """Generate one short, grounded, face-to-face exchange and persist it."""
+) -> dict[str, Any]:
+    """Generate, persist, and then best-effort enrich one face-to-face exchange."""
     with connect() as conn:
         initiator = conn.execute("SELECT * FROM citizens WHERE id = ?", (initiator_id,)).fetchone()
         target = conn.execute("SELECT * FROM citizens WHERE id = ?", (target_id,)).fetchone()
         job = conn.execute("SELECT * FROM jobs WHERE id = ?", (source_job_id,)).fetchone()
 
         if not initiator or not target:
+            _diag(
+                source_job_id,
+                stage="physical_validation",
+                outcome="failure",
+                code="citizen_record_missing",
+            )
             raise ValueError("Citizen record missing")
         if (
             not job
@@ -289,16 +651,36 @@ async def generate_dialogue(
             or str(job["citizen_id"]) != initiator_id
             or str(job["target"]) != target_id
         ):
+            _diag(
+                source_job_id,
+                stage="physical_validation",
+                outcome="failure",
+                code="physical_talk_invalid_before_generation",
+            )
             raise ValueError("Talk job is not active or no longer matches these participants")
         if (
             initiator["location_id"] != target["location_id"]
             or int(initiator["active_job_id"] or 0) != source_job_id
             or int(target["active_job_id"] or 0) != source_job_id
         ):
+            _diag(
+                source_job_id,
+                stage="physical_validation",
+                outcome="failure",
+                code="physical_talk_invalid_before_generation",
+            )
             raise ValueError("Citizens are no longer in the same active face-to-face talk")
+
         now = int(job["start_minute"])
-        location_id = initiator["location_id"]
+        location_id = str(initiator["location_id"])
         location = conn.execute("SELECT * FROM locations WHERE id = ?", (location_id,)).fetchone()
+
+    _diag(
+        source_job_id,
+        stage="physical_validation",
+        outcome="success",
+        code="physical_talk_valid",
+    )
 
     initiator_context = _citizen_private_context(initiator_id)
     target_context = _citizen_private_context(target_id)
@@ -322,87 +704,73 @@ Why the initiator chose to speak:
 INFORMATION RULES:
 - A citizen may state their OWN current status, plans, personal discoveries, or things they actually heard in prior conversations.
 - They may directly observe the other citizen because they are at the same location.
-- They do NOT know the current status of citizens at other locations unless somebody previously told them.
+- They do NOT know current remote status unless that information actually reached them.
 - Do not invent completed work, discoveries, resources, remote events, or communication technology.
-- Conversation can transfer information: after this exchange, both participants may remember what was said.
 - Keep it natural and brief: one statement from the initiator and one response from the target.
 
 Return JSON only:
-{
+{{
   "initiator_text": "1-2 natural sentences",
   "target_text": "1-2 natural sentences",
-  "summary": "one concise factual summary of what these two actually communicated",
-  "claims": [
-    {
-      "speaker": "initiator or target",
-      "subject_type": "location, material, citizen, project, or other",
-      "subject_id": "known stable id if the assertion clearly refers to one, otherwise null",
-      "topic": "short factual topic key",
-      "value": "an exact sentence or clause copied verbatim from that speaker's dialogue text"
-    }
-  ]
-}
-
-CLAIM EXTRACTION RULES:
-- Include only concrete factual assertions that literally appear in initiator_text or target_text.
-- The value MUST be copied verbatim from the relevant speaker's dialogue text; do not paraphrase it.
-- Do not turn questions, greetings, suggestions, guesses, or unstated implications into claims.
-- Do not invent facts merely to populate the claims array.
-- An empty claims array is valid.
-- Claims will be stored as UNVERIFIED speaker claims until a separate physical observation or experiment verifies them.
+  "summary": "one concise factual summary of what these two actually communicated"
+}}
 """.strip()
 
-    try:
-        async with httpx.AsyncClient(timeout=120.0) as client:
-            response = await client.post(
-                f"{OLLAMA_URL}/api/chat",
-                json={
-                    "model": model,
-                    "messages": [
-                        {
-                            "role": "system",
-                            "content": "Return only valid JSON. Preserve local information boundaries; do not invent remote knowledge.",
-                        },
-                        {"role": "user", "content": prompt},
-                    ],
-                    "stream": False,
-                    "think": False,
-                    "format": "json",
-                    "options": {
-                        "temperature": 0.6,
-                        "num_ctx": 4096,
-                        "num_predict": 260,
-                    },
-                },
-            )
-            response.raise_for_status()
-            data = json.loads(response.json()["message"]["content"])
-    except Exception as exc:
-        raise RuntimeError("Citizen dialogue generation failed; no exchange was recorded.") from exc
-
-    result = {
-        "initiator_text": str(data.get("initiator_text") or "").strip(),
-        "target_text": str(data.get("target_text") or "").strip(),
-        "summary": str(data.get("summary") or "").strip(),
-        "claims": data.get("claims") if isinstance(data.get("claims"), list) else [],
-    }
-    if not result["initiator_text"] or not result["target_text"] or not result["summary"]:
-        raise RuntimeError("Citizen dialogue generation returned an incomplete exchange; nothing was recorded.")
-
-    conversation_id = record_dialogue(
-        now,
-        location_id,
-        initiator_id,
-        target_id,
-        result["initiator_text"],
-        result["target_text"],
-        result["summary"],
+    dialogue = await _generate_raw_exchange(
+        model=model,
+        prompt=prompt,
         source_job_id=source_job_id,
-        claims=result["claims"],
     )
+
+    try:
+        conversation_id = record_dialogue(
+            now,
+            location_id,
+            initiator_id,
+            target_id,
+            dialogue["initiator_text"],
+            dialogue["target_text"],
+            dialogue["summary"],
+            source_job_id=source_job_id,
+            claims=None,
+        )
+    except sqlite3.DatabaseError as exc:
+        _diag(
+            source_job_id,
+            stage="raw_persistence",
+            outcome="failure",
+            code="persistence_database_failure",
+            detail=type(exc).__name__,
+        )
+        raise RuntimeError("Citizen dialogue could not be persisted.") from exc
+
     if conversation_id is None:
+        _diag(
+            source_job_id,
+            stage="raw_persistence",
+            outcome="failure",
+            code="physical_talk_invalid_before_persistence",
+        )
         raise RuntimeError("Talk was invalidated before the generated exchange could be committed.")
 
+    _diag(
+        source_job_id,
+        stage="raw_persistence",
+        outcome="success",
+        code="exchange_persisted",
+        detail=f"conversation #{conversation_id}",
+    )
+
+    await _extract_claims_best_effort(
+        model=model,
+        source_job_id=source_job_id,
+        conversation_id=conversation_id,
+        initiator_text=dialogue["initiator_text"],
+        target_text=dialogue["target_text"],
+    )
+
+    result: dict[str, Any] = dict(dialogue)
     result["conversation_id"] = str(conversation_id)
     result["source_job_id"] = str(source_job_id)
     return result
+

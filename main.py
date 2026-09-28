@@ -23,6 +23,7 @@ from agent_city.provenance import (
     knowledge_payload,
 )
 from agent_city.planner import planning_loop
+from agent_city.talk_diagnostics import ensure_talk_diagnostic_schema
 from agent_city.simulation import cargo_capacity as physical_cargo_capacity
 from agent_city.memory import (
     ensure_memory_schema,
@@ -58,6 +59,7 @@ async def lifespan(app: FastAPI):
     ensure_visit_schema()
     ensure_memory_schema()
     ensure_information_schema()
+    ensure_talk_diagnostic_schema()
     clock_task = asyncio.create_task(clock.run())
     planner_task = asyncio.create_task(planning_loop())
     yield
