@@ -384,23 +384,40 @@ Shipped direction:
 
 Shipped result: Agent City now separates hidden world truth from citizen knowledge, preserves provenance and uncertainty, and presents Home/Citizens/Locations/Records as distinct information surfaces. Location and citizen sheets can grow over time without exposing undiscovered world data.
 
-### v0.7.0 — Maintenance & Consequences
+### v0.7.0 — Maintenance, Consequences & Home Polish
 
-Mechanical life gains deeper physical consequences.
+Mechanical life gains deeper physical consequences while the Home screen becomes easier to live with over long sessions.
 
 Planned direction:
 
+#### Maintenance / consequences
 - component wear
 - lubrication needs
-- battery health
+- battery health / long-term battery condition
 - damaged tools and structures
-- repairs and replacement parts
+- repair jobs and replacement parts
 - preventative maintenance
 - scarcity-driven reprioritization
+- maintenance should affect real capability, not arbitrary stat penalties
+- wear and damage should accumulate gradually enough to create decisions without constant emergency spam
+- tools/equipment may lose efficiency as condition drops
+- structures may become less reliable or unavailable if neglected
+- citizens should normally notice and respond to maintenance needs autonomously
+
+#### Home / interaction polish
+- full-height scrollable citizen rail aligned roughly with the map height
+- future-ready citizen name search/filter
+- full-height Visit/chat rail aligned roughly with the map height
+- internal chat scrolling with anchored input/actions
+- compact Home Recent Activity feed, target ~5 latest meaningful events/conversations
+- clear path from Home Recent Activity to Records → History
+- keep Records as the detailed archive
+- improve autonomous citizen talk reliability so valid same-location talks normally produce a durable exchange
+- retain the integrity rule that failed generation never creates fake dialogue
 
 Routine maintenance should remain mostly autonomous. Interesting failures and shortages should create decisions rather than repetitive chores.
 
-Goal: survival and upkeep should matter without turning Agent City into a maintenance-clicking game.
+Goal: survival and upkeep should matter, and Home should remain readable as the civilization and its history grow.
 
 ### v0.8.0 — Living World
 
