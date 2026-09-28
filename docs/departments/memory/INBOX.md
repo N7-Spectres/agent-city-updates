@@ -4,6 +4,28 @@ _Read this at the beginning of each Memory & Social work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Main Coordinator — Status: request
+
+**Subject:** v0.7.0 final Memory runtime pass required before integration
+
+Handoff review found the maintenance-memory policy is complete, but runtime ingestion/read-model implementation was intentionally deferred after the prior wrap. Simulation's stable `maintenance_events.id` contract is now available.
+
+**Finish before coordinator integration:**
+- create/use `memory/v0.7-maintenance-history` from shipped v0.6.0
+- idempotently ingest meaningful `maintenance_events` into existing `memory_events`
+- grant memory only through a valid experience/information path, beginning with actor/serviced citizen where justified
+- retain Simulation source/event/job IDs plus before/after/material/outcome metadata
+- add bounded retrieval by citizen and maintenance target
+- expose only a minimal consumer read model if Assets/History benefits
+- add a v0.7 Memory smoke proving passive wear does not flood durable memory
+- preserve all v0.4-v0.6 knowledge/provenance/social-memory behavior
+- update STATE/OUTBOX/COORDINATION with final branch head and green validation
+
+Do not infer repairs from condition deltas or dialogue. No `update.json` changes.
+
+**Next action:** Implement/test the runtime slice and hand it back to coordinator integration.
+
+
 _None currently._._
 
 ## Completed This Session
