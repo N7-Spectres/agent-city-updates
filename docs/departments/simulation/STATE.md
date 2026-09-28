@@ -2,8 +2,8 @@
 
 _Last updated: 2026-09-28_
 _Current shipped release: v0.6.0_
-_Active implementation branch: `simulation/v0.6-research-discovery`_
-_Branch head: `d1ae3faf0095d22e7a730cf50b3ad6fdbcdc4b94`_
+_Active implementation branch: `simulation/v0.7-maintenance`_
+_Branch head: `54f5d838f674d0b278a51382f3a880cc0738b417`_
 
 ## Mission
 
@@ -11,265 +11,211 @@ Own physical truth.
 
 > **The AI may decide intent. The simulation decides reality.**
 
-For v0.6 this also means:
-
-> **World truth may exist before any citizen knows it.**
-
 ## Shipped Foundation Preserved
 
-The v0.6 branch starts from immutable shipped v0.5.0 commit:
+The v0.7 branch starts from immutable shipped v0.6.0 commit:
 
-`d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
+`6092aeafd685a3ba4cb8e9d455e586771d3f6d26`
 
-It preserves:
+All v0.5/v0.6 physical-production, energy-return, hidden-truth, discovery, provenance-layer compatibility, and knowledge-boundary rules remain intact.
 
-- travel / survey / extract / deposit / charge / wait
-- face-to-face talk with source-linked conversation integrity
-- fabrication and equipment
-- construction projects and structures
-- cargo-capacity and extraction-tool effects
-- return-energy reserve
-- stable job/project IDs
-- local coordinate groundwork
+## v0.7 Maintenance & Consequences — Implemented
 
-## v0.6 Research & Discovery — Implemented on Department Branch
+### Citizen Mechanical State
 
-### Hidden World Truth
+Citizens now persist:
 
-New internal table:
+- `battery_health` — long-term pack health, distinct from current `energy`
+- existing `joint_wear` now accumulates from real work
+- `last_service_minute`
 
-- `world_properties`
+Safe snapshot adds:
 
-It stores physical facts that may exist before discovery.
+- `battery_state`
+- `usable_energy_capacity`
+- `battery_replacement_due`
+- `chassis_service_state`
+- `chassis_service_due`
 
-Examples currently include:
+Battery health physically caps usable charge. A citizen with 70% battery health cannot recharge above 70% until the pack is replaced.
 
-- material response properties
-- location field properties
+Real completed work applies small battery-health and joint-wear increments. Wear is gradual and threshold history is sparse.
 
-This table is deliberately **not included** in ordinary `/api/state`.
+### Equipment Wear
 
-### Discovery Events
+Equipment now persists:
 
-New persisted table:
+- `condition`
+- `last_service_minute`
+- `use_count`
 
-- `discoveries`
+Real use degrades relevant equipment:
 
-Stable fields:
+- extraction work wears extraction equipment
+- loaded travel wears cargo equipment
 
-- `id`
-- `discovery_kind` — currently `deposit` or `world_property`
-- `subject_type`
-- `subject_id`
-- `property_id` when applicable
-- `citizen_id`
-- `location_id`
-- `source_job_id`
-- `discovered_minute`
-- `summary`
+Condition affects capability continuously:
 
-A survey or experiment may produce a validated discovery. A discovery is an event/knowledge anchor, not a global mind-meld.
+- cargo bonus scales with condition
+- extraction speed bonus scales with condition
+- condition <= 20 makes equipment non-operational
 
-### Citizen Knowledge
+A critical tool remains visible in state so it can be repaired.
 
-New persisted table:
+Snapshot exposes:
 
-- `citizen_knowledge`
+- `condition_state`
+- `operational`
+- `service_due`
+- `effective_cargo_bonus`
+- `effective_extraction_speed_multiplier`
 
-Stable fields:
+UI/other departments should use the effective fields, not recompute condition math from the raw base modifiers.
 
-- `citizen_id`
-- `discovery_id`
-- `learned_minute`
-- `acquisition_kind`
-- `source_type`
-- `source_id`
-- `verification_state`
+### Structure Wear
 
-Direct survey/experiment discoveries grant knowledge only to the discovering citizen.
+Structures now persist:
 
-No other citizen receives that knowledge automatically.
+- `condition`
+- `last_service_minute`
+- `use_count`
 
-New helper module:
+Wear comes from:
 
-- `agent_city/knowledge.py`
+- gradual simulated-time aging while the world clock runs
+- actual structure use
 
-Useful interfaces:
+Examples:
 
-- `grant_citizen_knowledge(...)`
-- `known_properties_for(citizen_id)`
-- `known_deposits_for_citizen(citizen_id)`
-- `knowledge_payload_for(citizen_id)`
+- workbench wear from fabrication/experiments
+- charger wear from charging
+- storage wear from cargo deposit
 
-Communication may later use `grant_citizen_knowledge` only after a real transfer event and only when the transferred fact can be tied to a validated discovery.
+Time stops while Agent City is closed, so passive wear also stops.
 
-### Experiments
+Snapshot exposes:
 
-New legal action:
+- `condition_state`
+- `operational`
+- `service_due`
+- `efficiency_multiplier`
 
-- `experiment`
+Badly degraded structures have physical consequences:
 
-Current generic physical methods:
+- condition <= 20 => non-operational
+- degraded workbench => longer fabrication/experiment jobs
+- degraded charger => longer charging jobs
+- non-operational storage => cargo deposit cannot complete
 
-- thermal-response assay
-- electrical-response assay
-- mechanical-response assay
+Charging capability remains generic through `provides_charging = 1`; citizen-built future chargers are supported without relying on the literal starter name.
 
-These methods are not technologies and do not reveal which hidden property exists.
+### Maintenance Actions
 
-Experiment requirements:
+New autonomous legal actions:
 
-- citizen at Seed Site
-- real stored native material sample
-- real sample consumption
-- energy cost
-- timed job
+- `service_chassis`
+- `replace_battery`
+- `service_equipment`
+- `service_structure`
 
-Experiment results persist in:
+Actions appear only after meaningful thresholds:
 
-- `experiment_results`
+- equipment/structure service due below 90 condition
+- battery replacement due below 85 health
+- chassis service due at joint wear >= 12
 
-Fields include:
+Routine maintenance therefore remains occasional rather than constant.
 
-- stable result `id`
-- `job_id`
-- `citizen_id`
-- `location_id`
-- `material`
-- `method`
-- `outcome`
-- `discovery_id` when successful
-- `summary`
-- `completed_minute`
+Service consumes real materials before start, takes real simulation time, and restores validated physical state.
 
-Current outcomes:
+Examples of service inputs include:
 
-- `discovery`
-- `verified`
-- `inconclusive`
+- Lubricant
+- Fasteners
+- Mechanical components
+- Processed structural material
+- Battery cells
 
-An inconclusive experiment is a real persisted result, not erased failure.
+More severe degradation requires more replacement material.
 
-### Reproducible Learned Processes
+Current structure/equipment service uses Seed Site stored materials. Remote maintenance waits for physical remote material logistics rather than teleporting settlement stock.
 
-A successful property discovery creates a citizen-scoped verification process in:
+### Stable Maintenance Events
 
-- `learned_processes`
+New durable table:
+
+- `maintenance_events`
 
 Fields:
 
-- `id`
+- `id` — stable maintenance event ID
+- `job_id` — physical action/job anchor
 - `citizen_id`
-- `process_key`
-- `name`
-- `process_kind`
-- `source_discovery_id`
-- `learned_minute`
+- `event_type`
+- `target_type`
+- `target_id`
+- `before_value`
+- `after_value`
+- `materials_json`
+- `outcome`
+- `sim_minute`
+- `summary`
 
-These are repeatable verification procedures derived from real discoveries, not a visible technology tree and not automatic fabrication unlocks.
+Jobs additionally expose:
 
-### Survey / Location Knowledge
+- `maintenance_event_id`
 
-Field surveys can now be repeated.
+Successful service/repair/replacement creates one maintenance event.
 
-A survey may:
+Routine per-use wear does **not** create a separate Memory-grade event every time. Condition state itself is authoritative, and History only notes meaningful degradation threshold crossings.
 
-- reveal a previously hidden deposit
-- independently confirm a deposit another citizen found
-- reveal a hidden location property
-- produce no new finding
+### Event Types
 
-Repeated surveys remain legal rather than using hidden truth to decide whether the action is offered.
+Current maintenance event types:
 
-Locations now expose safe accumulated facts through:
+- `chassis_service`
+- `battery_replacement`
+- `equipment_service`
+- `structure_service`
 
-- `state.locations[].known_facts`
+### Migration
 
-Unknown facts are absent.
+v0.6 saves migrate additively.
 
-### Ordinary State Boundary
+New citizen/equipment/structure/job fields and `maintenance_events` are added without reset.
 
-`snapshot()` is now explicitly civilization-facing safe state.
+The maintenance wear clock initializes from the current simulation minute, preventing old saves from receiving retroactive wear for time that was never simulated under v0.7.
 
-Important changes:
+### Planner Context
 
-- `world_properties` is never returned
-- undiscovered deposits are never returned
-- discovered deposits no longer expose hidden reserve quantity
-- `state.discoveries[]` contains only validated discovery events
-- `state.citizen_knowledge[]` contains only knowledge that actually reached that citizen
-- `state.experiment_results[]` contains persisted experiment history
-- `state.learned_processes[]` contains learned repeatable procedures
-- `state.locations[].known_facts` contains validated accumulated location facts
+Autonomous citizens now receive their own:
 
-The UI may display absence as absence. It must not render placeholders that imply a hidden fact exists.
+- current charge
+- battery health
+- integrity
+- joint wear
 
-### Planner Boundary
-
-Citizen planner context now receives:
-
-- personally confirmed deposits
-- personally validated material/world properties
-- actual local observations/conversations
-- legal experiment choices without hidden outcome hints
-
-The planner is explicitly instructed not to infer a hidden property from experiment availability.
-
-## Migration
-
-Existing v0.5 saves migrate additively.
-
-Pre-v0.6 discovered deposits are backfilled into:
-
-- `discoveries`
-- `citizen_knowledge`
-
-No destructive reset is required.
+Maintenance choices appear in the same legal-action list as other physical work. The LLM chooses intent; Simulation validates material/time/condition rules.
 
 ## Validation
 
-GitHub Actions run `36419824468` passed:
+Final runtime hardening was validated in GitHub Actions run:
+
+`36429729279`
+
+Passed:
 
 - Python compilation
 - JavaScript syntax
 - v0.4 regression smoke
-- v0.5 Simulation smoke
-- v0.5 Communication integrity smoke
-- v0.5 UI integration smoke
-- v0.6 Research/Discovery smoke
+- all v0.5 smoke suites
+- all v0.6 Simulation/Communication/Memory/UI smoke suites
+- v0.7 maintenance smoke
 
-The release-only workflow trigger was restored afterward.
+The only subsequent branch commit restored the normal release-only workflow; runtime code is unchanged.
 
 ## Status
 
-World & Simulation v0.6 core is ready for coordinator/cross-department review.
+World & Simulation v0.7 maintenance core is ready for coordinator/cross-department review.
 
 No `update.json` or release metadata was changed.
-
-
-## v0.6 Session Close
-
-World & Simulation work for this session is complete.
-
-Authoritative handoff:
-- branch: `simulation/v0.6-research-discovery`
-- head: `d1ae3faf0095d22e7a730cf50b3ad6fdbcdc4b94`
-- base: shipped v0.5.0 commit `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
-- validation: GitHub Actions run `36419824468`
-
-The final v0.6 Simulation contract has been delivered to:
-- Communication & Perception
-- Memory & Social
-- Assets & Interface
-
-No further Simulation implementation is pending in this work session. Resume only for coordinator merge conflicts, new inbox requests, or a later milestone.
-
-No release metadata or `update.json` was changed.
-
-
-## Shipped v0.6.0 Integration
-
-Simulation v0.6 work is included in the published runtime:
-`6092aeafd685a3ba4cb8e9d455e586771d3f6d26`.
-
-The assembled release passed the full cross-department smoke suite. Coordinator integration preserved Simulation truth, Communication provenance, Memory bounded retrieval, and Assets safe presentation as distinct layers.
