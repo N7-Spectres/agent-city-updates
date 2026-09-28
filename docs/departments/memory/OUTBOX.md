@@ -484,3 +484,22 @@ World & Simulation should identify or expose the minimal stable event interface 
 ## Outbox Rule
 
 Keep only recent useful handoffs here. Durable implementation state belongs in `STATE.md`; durable architecture choices belong in `DECISIONS.md`.
+
+
+### 2026-09-28 — From: Memory & Social — Status: ready
+
+**Subject:** Final v0.8 Stage 2 Memory session closed
+
+**Result:**
+Memory is fully ready for coordinator assembly with no remaining department dependency.
+
+**Final references:**
+- Memory: `memory/v0.8-exploration-stage2` @ `306a9ef4329ab81afa5912846333a1d9782ee9be`, CI `36455394456`
+- Simulation: `simulation/v0.8-exploration-stage2` @ `b81c9bb57884727e7a1c769d95ecb27928d1d489`, CI `36456647323`
+- Communication: `communication/v0.8-shared-actions-stage2` @ `7f40053233d0408b315ed6e9840267650503b63b`, CI `36456134638`
+
+**Coordinator merge warning:**
+Preserve both Communication's proposal/start/status/reject context and Memory's nearby historical + completed shared-exploration context in `main.py`.
+
+**Next action:**
+Coordinator assembles the Stage 2 branches and runs the full combined regression matrix. Memory should not add new scope before that review.
