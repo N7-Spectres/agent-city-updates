@@ -46,6 +46,12 @@
             </div>
             <button class="panel-link" data-open-view="citizens">Open sheets</button>
           </div>
+
+          <label class="citizen-search-wrap" for="citizen-search">
+            <span>Find citizen</span>
+            <input id="citizen-search" type="search" placeholder="Search by name…" autocomplete="off" />
+          </label>
+
           <div id="citizens" class="citizen-stack compact-citizen-stack"></div>
         </aside>
 
@@ -72,9 +78,26 @@
           </div>
 
           <div class="world-footer">
-            <div id="world-focus" class="focus-card">
-              <strong>Seed Site</strong>
-              <p>Select a citizen or location to focus the map.</p>
+            <div class="home-summary-grid">
+              <div id="world-focus" class="focus-card">
+                <strong>Seed Site</strong>
+                <p>Select a citizen or location to focus the map.</p>
+              </div>
+
+              <section class="recent-activity-card">
+                <div id="maintenance-alerts" class="maintenance-alerts hidden"></div>
+
+                <div class="recent-activity-head">
+                  <div>
+                    <div class="eyebrow">RECENT ACTIVITY</div>
+                    <strong>Latest city beats</strong>
+                  </div>
+                  <button id="view-all-history" class="panel-link">View all history</button>
+                </div>
+                <div id="recent-activity" class="recent-activity-list">
+                  <div class="muted">Loading recent activity…</div>
+                </div>
+              </section>
             </div>
             <div id="region-strip" class="region-strip"></div>
           </div>
@@ -132,9 +155,15 @@
 
           <section class="card citizen-sheet">
             <div class="citizen-sheet-hero">
-              <div id="citizen-portrait-slot" class="identity-slot" aria-hidden="true">
-                <span id="citizen-portrait-initials">?</span>
-                <small>Visual identity slot</small>
+              <div id="citizen-portrait-slot" class="identity-slot">
+                <div id="citizen-portrait-art" class="citizen-avatar avatar-full state-idle" aria-hidden="true">
+                  <span class="avatar-fallback-figure">
+                    <i class="avatar-head"></i>
+                    <i class="avatar-body"></i>
+                  </span>
+                  <span id="citizen-portrait-initials" class="avatar-initials">?</span>
+                </div>
+                <small>2D identity slot • interface fallback until unique art is supplied</small>
               </div>
               <div class="citizen-sheet-title">
                 <div class="eyebrow">CITIZEN RECORD</div>
@@ -241,6 +270,9 @@
 
               <div class="history-section-label making-section-label">STRUCTURES</div>
               <div id="structures" class="structure-list"></div>
+
+              <div class="history-section-label making-section-label">MAINTENANCE HISTORY</div>
+              <div id="maintenance-events" class="maintenance-event-list"></div>
             </div>
 
             <div id="detail-history" class="detail-view">
