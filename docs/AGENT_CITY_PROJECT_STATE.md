@@ -4,7 +4,7 @@ _Last updated: 2026-09-28_
 
 ## Current Release
 
-**v0.7.0 — Maintenance, Consequences & Home Polish**
+**v0.8.0 — Living World**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -20,41 +20,50 @@ Human users such as N7 are **visitors**, not gods, rulers, or omniscient operato
 
 ## Current Milestone
 
-v0.7.0 is assembled, tested, and published from immutable runtime commit `d81a85bf03b69b969532016f59bbbed2233949ee`.
+v0.8.0 — Living World is assembled, fully regression-tested, versioned, and published from immutable runtime commit `a870982ba947fcc5af08ca190de396ae4308b645`.
 
-Final assembled release validation:
-- GitHub Actions run `36436548845`
+Final release validation:
+- GitHub Actions run `36462126434`
 - Python compilation passed
 - JavaScript syntax passed
 - all v0.4 regressions passed
-- all v0.5 Simulation / Communication / UI smoke suites passed
-- all v0.6 Simulation / Communication / Memory / UI smoke suites passed
-- v0.7 Simulation maintenance smoke passed
-- v0.7 Communication talk-reliability smoke passed
-- v0.7 Memory maintenance-history smoke passed
-- v0.7 Assets / UI smoke passed
+- all v0.5 smoke suites passed
+- all v0.6 smoke suites passed
+- all v0.7 smoke suites passed
+- all four v0.8 Stage 1 smokes passed
+- v0.8 Stage 2 Simulation smoke passed
+- v0.8 Stage 2 Communication smoke passed
+- v0.8 Stage 2 Memory smoke passed
+- v0.8 Stage 2 Assets/UI smoke passed
 
-Major shipped v0.7 changes:
+Major shipped v0.8 changes:
 
-- gradual equipment use wear and structure aging/use wear
-- long-term battery health distinct from current energy charge
-- citizen chassis/joint wear and service state
-- condition-scaled equipment capability with critical non-operational state
-- structure condition, efficiency, service needs, and non-operational failure state
-- material/time-consuming chassis, battery, equipment, and structure maintenance jobs
-- stable `maintenance_events.id` physical maintenance history anchors
-- bounded citizen maintenance memory sourced only from validated Simulation events
-- raw citizen conversation persistence now happens before best-effort claim/provenance enrichment
-- talk generation has one bounded retry and explicit diagnostics without fabricated fallback dialogue
-- full-height Home citizen/world/Visit layout on desktop
-- citizen search/filter groundwork for future population growth
-- compact Recent Activity with real stored conversation summaries and meaningful events
-- lightweight 2D/static avatar framework with validated-state animation and reduced-motion support
-- Citizens/Records maintenance presentation using authoritative Simulation condition/effective-capability fields
-- bounded Home maintenance alerts
-- final coordinator integration fixed the avatar fallback semantic-lock comment so the assembled Assets smoke matched the intended presentation-only identity rule
+- persistent hidden planet seed
+- deterministic meter-scale local world truth derived from seed + coordinate
+- spatially coherent terrain/geology/resource generation instead of per-scan rerolls
+- stable spatial deposit bodies with repeat-encounter identity
+- additive migration of existing named landmarks/deposits into the spatial model
+- authoritative local x/y positions for citizens, visitors, structures, projects, and locations
+- real local exploration/movement jobs with distance/terrain/energy consequences
+- coordinate-aware return-energy reserve
+- validated local observations with bounded uncertainty and stable evidence IDs
+- explicit visitor-linked shared walk/inspect lifecycle with separate proposal, accept, start, reject, active, and complete states
+- Communication grounding for visitor RP, hypotheses, capabilities, and tool use
+- bounded spatial Memory for nearby prior observations and completed shared exploration
+- continuous meter-space map presentation using only authoritative movement fields
+- shared-action proposal/accept/reject/progress UI
+- observation uncertainty rings and baseline privacy
+- restored citizen job progress bars and Enter-to-send chat
+- six-citizen visual-profile framework with removable equipment layers
+- presentation-only local AssetQueue scaffold and render-tier contract
+- no Blender/3D runtime dependency yet
 
-v0.8.0 — Living World has completed **Stage 2 integration**. The unified runtime is `release-v0.8.0` at `022f7655e9e958e3c35866d90679166a5b1c21e6`; GitHub Actions run `36461596122` passed the complete v0.4-v0.8 Stage 2 regression matrix. Stage 2 adds real local meter-space movement, validated coordinate observations, visitor-linked shared walk/inspect activities with explicit acceptance, bounded exploration continuity, continuous-world UI, and a presentation-only local AssetQueue scaffold. v0.8.0 is not published yet; the next decision is additional v0.8 scope versus release hardening.
+The release preserves the authority chain:
+- conversation/exchange = social source
+- Communication proposal = intent/UI projection
+- Simulation shared activity = canonical physical shared event
+- Simulation job = active physical movement
+- spatial observation = validated exploration evidence
 
 
 The richer provenance layer for individual claims, source reliability, promises, help, and validated cooperation remains future depth. Those features must wait for explicit Communication provenance and Simulation event references rather than being inferred from ordinary conversation.
@@ -272,6 +281,7 @@ Important boundary:
 - The local Agent City SQLite save remains authoritative for the civilization's changing physical state. Do not copy transient citizen positions/cargo/activity into GitHub as if they were current forever.
 
 Recent coordinator decisions already captured in the repository include:
+- v0.8.0 Living World shipped from immutable runtime commit `a870982ba947fcc5af08ca190de396ae4308b645`
 - the planned v0.7.1 follow-up scope is folded into v0.8.0; there will not be a separate 0.7.1 release unless a critical hotfix appears
 - v0.8 Living World should begin with a persistent planet seed and meter-scale deterministic spatial truth: the hidden world is derived from seed + coordinate, scans reveal rather than reroll reality, and discovered deposits retain stable physical identity/spatial extent
 - v0.7.1 visitor roleplay grounding should keep natural face-to-face RP while treating visitor-described physical details as claims/observations until Simulation validates them; chat must not become a hidden world editor
