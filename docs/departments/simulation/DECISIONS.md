@@ -458,3 +458,20 @@ Threshold crossings may appear in physical History, while Memory should normally
 Charging functionality is capability-based through `structures.provides_charging`, not hard-coded to the starter Charging Station name.
 
 Maintenance/degradation logic must preserve that capability model for future citizen-built chargers/outposts.
+
+
+## v0.7 Integration Handoff Lock
+
+Coordinator integration must preserve the v0.7 maintenance model as one physical system:
+
+- battery health remains distinct from current charge
+- condition-scaled equipment capability remains Simulation-authoritative
+- degraded structures may slow or block supported work
+- critical equipment/structures remain visible and repairable
+- future chargers remain capability-based through `provides_charging`
+- passive wear advances only with simulation time
+- service/repair consumes real materials and real job time
+- remote maintenance cannot consume Seed Site stock until physical logistics exist
+- `maintenance_events.id` remains the stable completed-maintenance anchor
+- routine wear does not become one durable event per tiny decrement
+- all v0.6 hidden-truth/provenance/knowledge boundaries remain unchanged
