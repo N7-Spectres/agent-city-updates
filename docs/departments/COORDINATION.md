@@ -20,23 +20,24 @@ Departments should read this file at the beginning of a work session in addition
 
 ### ACTIVE
 
-- [Memory & Social] Continue v0.4.0 relationship-memory integration; social-memory core implemented on `memory/v0.4-social-memory-core`
+_None recorded at Memory & Social session close._
 
 ### STANDBY
 
-- [World & Simulation] Wait for concrete dependencies from Memory, Communication, or Assets before changing core physical rules
+_None recorded._
 
 ### WAITING
 
-- [Communication & Perception] Runtime provenance persistence is waiting for the v0.3 communication/database/simulation source files to be present on the default branch
+- [Memory & Social] Next social-memory layer waits for Communication provenance and Simulation validated-event interfaces
 
 ### READY
 
-- [Memory & Social] Communication provenance contract is ready for memory integration
-- [World & Simulation] Communication request for authoritative time/co-location/event interfaces is in Simulation inbox
+- [Communication & Perception] Full v0.3.0 runtime source located at commit `40f9704b7e84e2dd6279932223105ae93d9fef49`; provenance runtime work can resume from that lineage
+- [World & Simulation] Full v0.3.0 runtime source located; Memory and Communication event/interface requests are in Simulation inbox
 
 ### REVIEW
 
+- [Memory & Social] v0.4 social-memory core on `memory/v0.4-social-memory-core` at `eb1ccc17e2fc7a44a15fbb73c44fc2b87d47f997`; runtime migration/Ollama tests required before release
 - [Communication & Perception] Planner anti-omniscience patch + v0.4 provenance contract
 - [Assets & Interface] v0.4 Control Room + map readability pass on `assets-v0.4-control-room`; static checks passed, runtime UI test required
 
