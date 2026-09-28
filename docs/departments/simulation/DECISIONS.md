@@ -381,3 +381,80 @@ If the civilization eventually develops sufficient materials science, orbital me
 A Dyson-style project should emerge from citizen needs and engineering history rather than being scripted. A distributed Dyson swarm / orbital collector network is the more physically plausible default than a rigid solid shell, though the simulation should not force a specific design if citizens discover another workable world-specific solution.
 
 The development team should provide the physical substrate for orbital construction and energy collection, not a "Build Dyson Sphere" button.
+
+
+## v0.7 Maintenance Model
+
+Maintenance is physical consequence, not an RPG debuff system.
+
+Use four primary signals:
+
+- equipment condition
+- structure condition
+- citizen joint wear
+- citizen battery health
+
+Avoid adding many overlapping abstract condition meters unless a future physical system genuinely requires them.
+
+## Gradual Wear
+
+Wear should come from simulated time and real use.
+
+Routine use makes small changes. Maintenance should become relevant over meaningful stretches of simulated life rather than after every task.
+
+Time-based wear advances only while simulation time advances.
+
+## Condition and Capability
+
+Equipment condition scales its real physical modifiers.
+
+Current rule:
+
+- above 20 condition: equipment may function
+- lower condition proportionally weakens its bonus
+- at/below 20: non-operational until repaired
+
+Structures use the same critical operational boundary.
+
+Degraded supporting structures may increase job duration rather than inventing arbitrary success penalties.
+
+## Maintenance Thresholds
+
+Current planner-facing thresholds:
+
+- equipment/structure service due below 90
+- battery replacement due below 85 health
+- chassis lubrication/service due at joint wear >= 12
+- critical equipment/structure at condition <= 20
+
+These thresholds are Simulation rules. Assets should consume the exposed derived fields rather than duplicating them.
+
+## Battery Health vs Energy
+
+`energy` is current usable charge.
+
+`battery_health` is long-term usable capacity.
+
+Battery health caps maximum recharge. Replacing the battery restores health but does not grant free charge.
+
+## Maintenance Material Locality
+
+Service consumes real materials.
+
+Current v0.7 maintenance using settlement stores is limited to Seed Site. Do not allow remote repairs to consume Seed Site inventory magically.
+
+Remote service can expand later only after explicit material transport/storage exists.
+
+## Maintenance Memory Boundary
+
+Stable `maintenance_events.id` represents meaningful completed service/repair/replacement.
+
+Do not create a durable social/memory event for every tiny wear decrement.
+
+Threshold crossings may appear in physical History, while Memory should normally retain meaningful maintenance events, failures, shortages, or major degradation rather than routine microscopic wear.
+
+## Future Charger Compatibility
+
+Charging functionality is capability-based through `structures.provides_charging`, not hard-coded to the starter Charging Station name.
+
+Maintenance/degradation logic must preserve that capability model for future citizen-built chargers/outposts.
