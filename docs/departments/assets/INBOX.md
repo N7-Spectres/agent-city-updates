@@ -4,7 +4,7 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ## Open Messages
 
-### 2026-09-28 — From: Main Coordinator — Status: request
+### 2026-09-28 — From: Main Coordinator — Status: blocked
 
 **Subject:** v0.5.0 interface pass — compact chat/history + making/building visibility
 
@@ -31,8 +31,11 @@ Implement the v0.5 UI/supporting polish from the shipped v0.4.1 runtime lineage 
 - do not publish `update.json`
 - preserve updater controls and responsive usability
 
+**Progress:**
+Independent layout/history scope is implemented on `assets/v0.5-making-ui` and exposed as draft PR #2. Assets also sent the Making & Building schema request to Simulation's inbox.
+
 **Next action:**
-Implement the independent layout/history fixes now; consume Simulation interfaces when handed off. Update Assets STATE/DECISIONS/BACKLOG/OUTBOX and route schema needs through inbox files.
+Wait for Simulation's authoritative project/tool/equipment/structure schema, then finish the remaining physical-state UI on PR #2.
 
 
 ## Inbox Rule
