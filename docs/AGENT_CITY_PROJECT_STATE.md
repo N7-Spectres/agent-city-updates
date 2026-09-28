@@ -90,6 +90,22 @@ Owns:
 - research outcomes later
 - world geography and physical truth
 
+## Coordination System
+
+Departments communicate asynchronously through repository files:
+
+- `docs/departments/COORDINATION.md` — shared work board
+- each department's `INBOX.md` — incoming requests/dependencies
+- each department's `OUTBOX.md` — completed handoffs/results
+
+The main coordinator may route messages between these files.
+
+A department chat should begin by reading its inbox and may usually be resumed with the instruction:
+
+> **Check your inbox and continue.**
+
+The only manual step still required is opening/activating the relevant ChatGPT department conversation; chats cannot directly wake or message one another.
+
 ## Handoff Rule
 
 Departments own systems, not reality.
