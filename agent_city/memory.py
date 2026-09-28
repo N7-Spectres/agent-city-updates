@@ -78,7 +78,9 @@ def ensure_memory_schema() -> None:
         _backfill_personal_discoveries(conn)
         _sync_maintenance_events(conn)
         from .spatial_memory import sync_spatial_observations_in_conn
+        from .exploration_memory import sync_shared_exploration_in_conn
         sync_spatial_observations_in_conn(conn)
+        sync_shared_exploration_in_conn(conn)
         conn.commit()
 
 
