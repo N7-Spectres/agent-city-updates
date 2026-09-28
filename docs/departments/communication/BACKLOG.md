@@ -2,6 +2,8 @@
 
 ## Integration / Follow-Up
 
+- investigate visitor access/status wording when a selected citizen is already occupied in a talk; current UI can show a self-referential message such as "Vale is currently speaking with Vale" instead of naming the actual counterpart
+
 - coordinator integration must preserve the v0.5 talk invariant when merging with `simulation/v0.5-making-building`:
   - `citizen_conversations.source_job_id` remains available
   - source-linked talk completion succeeds only when the conversation row exists
