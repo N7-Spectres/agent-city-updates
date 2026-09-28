@@ -3,118 +3,150 @@
 _Last updated: 2026-09-28_
 _Current release: v0.4.1_
 _Current department branch: `assets/v0.5-making-ui`_
+_Current branch head: `71e30d3ca02edc97f5286436bc5ef03f93b77088`_
 _Current review surface: draft PR #2_
 
 ## Mission
 
 Make Agent City visually understandable and increasingly feel like a living place while never allowing the visual layer to invent physical reality.
 
-## Shipped Baseline
-
-v0.4.1 runtime lineage includes:
-
-- left citizens / center world / right Visit + Control Room
-- distance-aware map geometry and route labels
-- citizen initial tokens and traveler presentation
-- persistent visitor conversation
-- Region / Stores / Structures / History / Updates in the right-side Control Room
-- v0.4.1 blank-reply conversation hotfix
+## v0.5 Assets Scope — Complete
 
 The v0.5 Assets branch is based from immutable runtime commit:
 `4181cbb69809205ae575b3f576836e5ca72c8dce`.
 
-## v0.5 Independent UI Work — Implemented
-
-Branch: `assets/v0.5-making-ui`
-Draft PR: **#2 — Assets: v0.5 compact interaction and conversation history**
+It now contains the full requested Assets work.
 
 ### Compact Visit / layout
 
-- Visit panel now has bounded height instead of growing with long conversations.
-- Chat messages scroll internally.
-- Visitor input and Talk action remain anchored below the scrolling conversation area.
-- Previous-visit history has its own capped scroll region.
-- Main three-column layout is rebalanced and centered, with more width reserved for the right-side interaction surfaces.
-- Right rail heights are aligned more closely with the center world panel.
-- Responsive behavior was adjusted for the fixed-height interaction design.
+- bounded Visit panel
+- internally scrolling chat log
+- anchored visitor input / Talk controls
+- capped Previous Visits region
+- centered, rebalanced three-column desktop layout
+- more usable right-side width
+- responsive fixed-height interaction layout
 
-### Useful History
+### Conversation History
 
-History is now the default Control Room view beneath Visit.
+History is the default Control Room companion beneath Visit.
 
-Recent Citizen Conversations now display:
+Conversation cards are rendered only from real `state.citizen_conversations[]` records and show:
 
-- both participants
+- canonical conversation ID
+- physical talk `source_job_id` when available
+- participants
 - location
 - simulation time
-- concise stored summary
-- expandable exchange transcript when text is present
+- stored summary
+- expandable transcript
 
-The UI now compares authoritative chronology rows with the conversation content included in the current state snapshot.
+Successful v0.5 talk completion chronology is correlated by its `conversation #<id>` reference.
 
-If chronology contains a `conversation` event but no matching exchange content is present in `state.citizen_conversations`, the UI renders a distinct chronology-only card saying that the exchange text is not included in the current snapshot. It does not invent missing dialogue.
+Failed talk attempts remain settlement chronology only and do not receive synthetic conversation cards or transcripts.
+
+Legacy chronology-only conversation records may still be shown explicitly when the actual exchange is outside the current state snapshot.
+
+### Making & Building
+
+The Control Room tab previously labeled Structures is now **Making**.
+
+It consumes only Simulation's authoritative v0.5 snapshot state:
+
+#### Projects — `state.projects[]`
+
+Displayed:
+- stable project ID
+- exposed lifecycle status: `planned | reserved | underway | complete`
+- name / blueprint-derived label
+- validated location
+- local x/y site coordinates when exposed
+- creating citizen
+- active physical job ID when exposed
+- resulting structure ID after Simulation exposes it
+
+#### Project materials — `state.project_materials[]`
+
+Displayed:
+- material
+- reserved amount
+- required amount
+
+The UI does not calculate material reservation itself.
+
+#### Equipment — `state.equipment[]`
+
+Displayed:
+- stable equipment ID
+- name / kind
+- owner or settlement ownership
+- location
+- condition
+- fabrication source job ID
+- explicit Simulation modifiers:
+  - `cargo_bonus`
+  - `extraction_speed_multiplier`
+
+The UI does not derive bonuses from item names.
+
+#### Structures — extended `state.structures[]`
+
+Displayed:
+- stable structure ID
+- name / kind
+- validated location
+- condition
+- local x/y coordinates when exposed
+- `provides_charging`
+- source project ID when exposed
+
+Local x/y is presented as local site data only, not as free-roam world geography.
+
+## Cross-Department Contracts Consumed
+
+World & Simulation:
+- `simulation/v0.5-making-building`
+- authoritative head `773299189d22d214b3376c72b396015a4a7a762e`
+
+Communication contract preserved through the integrated Simulation branch:
+- canonical `citizen_conversations.id/source_id`
+- nullable unique `source_job_id`
+- successful physical talk completion requires a stored exchange
+- missing exchange => failed talk, not successful conversation
+
+Memory boundary preserved:
+- conversation/project discussion is not proof of physical project progress or completion
 
 ## Verification Performed
 
 Static branch verification:
 
-- 45 HTML IDs
-- 45 JavaScript `getElementById` references
+- 47 HTML IDs
+- 47 JavaScript `getElementById` references
 - zero missing IDs
 - zero duplicate IDs
 - zero stale bottom-drawer hooks
 - JavaScript parsed successfully
-- branch is 3 commits ahead / 0 behind pinned v0.4.1 base
+- branch is 7 commits ahead / 0 behind pinned v0.4.1 base
 - changed runtime files are only:
   - `static/index.html`
   - `static/app.js`
   - `static/styles.css`
+- Simulation branch changes no `static/` files, so there is no direct frontend file overlap during coordinator integration
 
-## Waiting Dependency — Making & Building
+## Integration Status
 
-The remaining required v0.5 Assets work is the visual layer for real fabrication / construction / projects / tools / equipment.
+Assets & Interface is now **REVIEW**, not ACTIVE or WAITING.
 
-Assets sent a schema request directly to:
-`docs/departments/simulation/INBOX.md`
+Draft PR #2:
+**Assets: v0.5 compact interaction, History, and Making UI**
 
-Needed authoritative Simulation fields include stable IDs, lifecycle/status, validated location/site, participants, physical progress, material reservation/consumption summaries, equipment ownership/location, and explicit physical modifiers the UI may safely display.
+Next action belongs to coordinator integration:
 
-Assets will not infer project completion, tool effects, cargo capacity, coordinates, material use, or construction results.
+1. combine `simulation/v0.5-making-building` with `assets/v0.5-making-ui`
+2. smoke-test the assembled runtime with real v0.5 state
+3. verify Making tab against actual projects/equipment/structures
+4. preserve canonical conversation-source invariants
+5. keep `update.json` untouched unless the human explicitly requests release publication
 
-## Next Action
-
-When Simulation replies with the stable schema:
-
-1. read Simulation OUTBOX / Assets INBOX,
-2. inspect the exact runtime fields,
-3. add restrained Making & Building views to PR #2 / `assets/v0.5-making-ui`,
-4. keep all physical truth simulation-owned,
-5. run static verification again and hand off for coordinator smoke testing.
-
-No `update.json` or release metadata changes are part of this department branch.
-
-
-## Session Handoff — Closed
-
-Assets & Interface is paused in **WAITING** state.
-
-Completed this session:
-- created `assets/v0.5-making-ui` from pinned v0.4.1 runtime commit `4181cbb69809205ae575b3f576836e5ca72c8dce`
-- opened draft PR #2
-- implemented compact bounded Visit/chat layout
-- anchored visitor input/actions
-- rebalanced the three-column layout
-- made History the default Control Room view
-- improved citizen conversation history presentation
-- added chronology-only conversation fallback without inventing missing dialogue
-- statically verified the branch
-
-External dependency:
-- World & Simulation must hand off the final authoritative project/tool/equipment/structure schema before Assets can safely complete the Making & Building visual layer.
-
-Resume procedure:
-1. read `docs/departments/COORDINATION.md`
-2. read `docs/departments/assets/INBOX.md`
-3. read `docs/departments/simulation/OUTBOX.md`
-4. if the schema is ready, continue on `assets/v0.5-making-ui` / draft PR #2
-5. do not publish `update.json` or infer physical state in the frontend
+No simulation rules or release metadata were changed by Assets.
