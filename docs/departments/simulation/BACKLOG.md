@@ -87,3 +87,14 @@ Until that gate is complete, the v0.7 Simulation core is feature-complete and ha
 - unique identity-bearing objects remain individual
 - future asset worker should consume authoritative quantity/specification and choose an efficient render tier
 - never tie object count in the renderer directly to fungible inventory count
+
+
+## v0.8 Emergent Invention Bridge
+
+- connect citizen process/design proposals to validated Simulation capability
+- proposal text alone never creates a recipe or machine capability
+- candidate processes should reference known material properties, available structures/tools, inputs, and intended function
+- Simulation decides whether a proposed experiment/design can actually be attempted and what outcome occurs
+- successful validated development may create a persistent citizen-created process or blueprint
+- an existing structure such as the Crude Smelter cannot be assumed to support a new material/process until that capability has been validated
+- preserve proposal/hypothesis history even when a proposed process does not work
