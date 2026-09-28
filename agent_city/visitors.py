@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from .db import add_history, connect, get_meta
+from .exploration import shared_activity_payload
 
 
 def _location_name(conn, location_id: str) -> str:
@@ -92,8 +93,24 @@ def presence_payload(visitor: str) -> dict[str, Any]:
         from_name = _location_name(conn, presence["from_location_id"]) if presence.get("from_location_id") else None
         to_name = _location_name(conn, presence["to_location_id"]) if presence.get("to_location_id") else None
 
+        active_shared = conn.execute(
+            """
+            SELECT id FROM shared_activities
+            WHERE visitor = ? AND status = 'active'
+            ORDER BY id DESC LIMIT 1
+            """,
+            (visitor,),
+        ).fetchone()
+        shared_payload = (
+            shared_activity_payload(conn, int(active_shared["id"]), now)
+            if active_shared else None
+        )
+        if shared_payload and shared_payload.get("movement"):
+            presence["x_m"] = shared_payload["movement"]["x_m"]
+            presence["y_m"] = shared_payload["movement"]["y_m"]
+
         destinations = []
-        if not presence.get("travel_end_minute"):
+        if not presence.get("travel_end_minute") and not active_shared:
             rows = conn.execute(
                 """
                 SELECT r.b AS id, r.distance_km, l.name
@@ -129,6 +146,8 @@ def presence_payload(visitor: str) -> dict[str, Any]:
         "total_minutes": total,
         "remaining_minutes": remaining,
         "destinations": destinations,
+        "shared_activity_id": int(active_shared["id"]) if active_shared else None,
+        "shared_activity": shared_payload,
     }
 
 
@@ -145,6 +164,16 @@ def start_visitor_travel(visitor: str, target: str) -> tuple[bool, str]:
             return False, "Visitor presence could not be created."
         if row["travel_end_minute"] is not None:
             return False, "You are already traveling."
+        active_shared = conn.execute(
+            """
+            SELECT 1 FROM shared_activities
+            WHERE visitor = ? AND status = 'active'
+            LIMIT 1
+            """,
+            (visitor,),
+        ).fetchone()
+        if active_shared:
+            return False, "You are already participating in an active shared physical activity."
 
         origin = row["location_id"]
         if target == origin:
@@ -248,10 +277,11 @@ def visit_access_payload(visitor: str, citizen_id: str) -> dict[str, Any]:
         citizen = conn.execute(
             """
             SELECT c.id, c.name, c.location_id, c.location, c.current_activity,
-                   c.active_job_id,
+                   c.active_job_id, c.position_x_m, c.position_y_m,
                    j.action AS active_action,
                    j.citizen_id AS job_initiator_id,
-                   j.target AS active_target
+                   j.target AS active_target,
+                   j.shared_activity_id
             FROM citizens c
             LEFT JOIN jobs j ON j.id = c.active_job_id
             WHERE c.id = ?
@@ -273,11 +303,11 @@ def visit_access_payload(visitor: str, citizen_id: str) -> dict[str, Any]:
                 "reason": "You are currently traveling.",
             }
 
-        if citizen["active_action"] == "travel":
+        if citizen["active_action"] in ("travel", "local_move"):
             target_name = (
                 _location_name(conn, citizen["active_target"])
-                if citizen["active_target"]
-                else "another location"
+                if citizen["active_action"] == "travel" and citizen["active_target"]
+                else "a nearby local point"
             )
             return {
                 "accessible": False,
@@ -292,6 +322,35 @@ def visit_access_payload(visitor: str, citizen_id: str) -> dict[str, Any]:
                 "accessible": False,
                 "status": "remote",
                 "reason": f"{citizen['name']} is at {citizen['location']}; you are not there.",
+            }
+
+        active_shared = conn.execute(
+            """
+            SELECT * FROM shared_activities
+            WHERE visitor = ? AND citizen_id = ? AND status = 'active'
+            ORDER BY id DESC LIMIT 1
+            """,
+            (visitor, citizen_id),
+        ).fetchone()
+        if active_shared:
+            return {
+                "accessible": False,
+                "status": "shared_activity_active",
+                "reason": f"You and {citizen['name']} are currently moving together in shared activity #{active_shared['id']}.",
+                "shared_activity_id": int(active_shared["id"]),
+            }
+
+        visitor_x = float(presence.get("x_m") or 0.0)
+        visitor_y = float(presence.get("y_m") or 0.0)
+        citizen_x = float(citizen["position_x_m"] or 0.0)
+        citizen_y = float(citizen["position_y_m"] or 0.0)
+        separation = ((visitor_x - citizen_x) ** 2 + (visitor_y - citizen_y) ** 2) ** 0.5
+        if separation > 2.0:
+            return {
+                "accessible": False,
+                "status": "remote",
+                "reason": f"{citizen['name']} is about {separation:.0f} m away within {citizen['location']}.",
+                "distance_m": round(separation, 2),
             }
 
         if citizen["active_action"] == "talk":
