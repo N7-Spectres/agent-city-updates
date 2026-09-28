@@ -6,23 +6,15 @@ _Read this at the beginning of each Communication & Perception work session._
 
 _None requiring additional Communication-owned code right now._
 
-## Waiting on Upstream Dependency
+## Upstream Dependency Resolved
 
-### 2026-09-28 — From: Communication & Perception — Status: blocked
+Simulation now provides canonical pre-start rejection through:
 
-**Subject:** Simulation canonical shared-activity cancellation
+- `POST /api/shared-activities/{id}/reject`
+- allowed from `proposed` or `accepted`
+- no physical job, movement, or observation is created
 
-**Need / Result:**
-Stage 2 proposal/start/status wiring is complete and tested.
-
-Communication is waiting only for World & Simulation to provide a cancellation/rejection primitive for unstarted canonical `shared_activities.status='proposed'` rows.
-
-Without it, Communication correctly refuses to mark its projection rejected/expired while Simulation still reports the canonical proposal as proposed.
-
-Requested function:
-`cancel_shared_activity(conn, activity_id, visitor, now=..., reason=...)`
-
-The request is already in World & Simulation INBOX.
+Communication is no longer blocked on World & Simulation for Stage 2 reject handling.
 
 ## Completed This Session
 
