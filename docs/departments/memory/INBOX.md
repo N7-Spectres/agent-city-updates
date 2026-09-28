@@ -4,6 +4,49 @@ _Read this at the beginning of each Memory & Social work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Main Coordinator — Status: request
+
+**Subject:** v0.8.0 Stage 2 — Exploration memory enters real planning/dialogue
+
+**Unified Stage 1 base:**
+- `release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`
+- combined CI `36453177128` — PASS
+- create/use: `memory/v0.8-exploration-stage2` if runtime changes are needed
+
+**Stage 2 goal:**
+Use the Stage 1 spatial-memory foundation now that real local movement/shared inspection will begin producing observations.
+
+**Required scope:**
+- consume Simulation Stage 2 exploration/shared-action source IDs when handed off
+- wire bounded spatial memory into citizen planning where it materially helps:
+  - current local area
+  - nearby previously observed stable subjects
+  - previous observations of the same deposit/body
+- wire bounded spatial continuity into visitor/citizen dialogue only for facts that citizen personally observed or legitimately received
+- preserve `radius_m`/precision limits in model-facing text
+- same-body repeat observations should strengthen continuity without flooding context
+- meaningful shared exploration may become a durable social/spatial experience for the participating citizen; do not grant it to bystanders
+- visitor participation may be remembered as a shared event only when a real Simulation shared-action record exists
+- keep generic research/location knowledge and spatial-observation memory distinct where semantics differ
+- remain conservative about every-meter movement; movement ticks are not memories
+- expose a minimal safe consumer view for Assets only if useful for known-map markers/history
+
+**Do NOT:**
+- ingest planet seed or generated-deposit hidden geometry
+- create global omniscient exploration memory
+- infer exploration from chat agreement
+- publish `update.json`
+
+**Acceptance direction:**
+- a citizen returning near a previously observed deposit can receive bounded memory of that prior encounter
+- a citizen who never observed/heard about the deposit does not
+- real shared visitor exploration can become source-linked continuity
+- context remains bounded under repeated movement/inspection
+
+**Next action:**
+Consume Simulation/Communication Stage 2 contracts, implement only evidence-backed runtime changes, add focused smoke coverage, update STATE/DECISIONS/BACKLOG/OUTBOX, then stop.
+
+
 _None currently._
 
 
