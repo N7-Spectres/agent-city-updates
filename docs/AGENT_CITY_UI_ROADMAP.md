@@ -446,6 +446,10 @@ Scope:
 - progress derives only from Simulation job timing
 - preserve v0.7 full-height scrollable citizen rail, search/filter, avatars, and responsive layout
 - no simulation-rule changes
+- **Visitor roleplay grounding:** visitors may describe their own gestures, questions, observations, and suggestions, but visitor chat must not silently create authoritative objects, deposits, transfers, terrain facts, history, or completed physical actions
+- citizen replies should treat visitor-provided physical details as observations/claims to inspect, not automatically confirmed truth
+- encourage natural phrasing such as "that looks promising," "we could inspect it," or "I would need to verify that" when the world state is not yet validated
+- preserve playful face-to-face RP without letting the text box become a world editor
 - visitor chat keyboard behavior: **Enter sends**, while **Shift+Enter inserts a new line**
 - preserve the visible Talk/send button for mouse/touch users
 - do not submit on IME/composition Enter events
