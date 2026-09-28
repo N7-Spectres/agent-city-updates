@@ -434,6 +434,21 @@ Goal: survival and upkeep should matter, and Home should remain readable as the 
 
 Shipped result: v0.7.0 adds real mechanical wear/service consequences, bounded maintenance memory, more reliable durable citizen conversations, scalable Home rails/search/Recent Activity, and the first lightweight avatar framework. The assembled release passed the complete v0.4-v0.7 smoke chain.
 
+### v0.7.1 — Glanceable Job Progress
+
+Small UI follow-up to v0.7.0.
+
+Scope:
+- restore the compact active-job progress bar to Home citizen cards
+- show authoritative elapsed / total simulation minutes and a concise remaining/ETA indicator
+- apply to active travel, extraction, survey, charging, fabrication/construction, experiment, and maintenance jobs where start/end times exist
+- idle rows remain compact
+- progress derives only from Simulation job timing
+- preserve v0.7 full-height scrollable citizen rail, search/filter, avatars, and responsive layout
+- no simulation-rule changes
+
+This restores a useful v0.3-v0.5 at-a-glance affordance that was lost during the v0.6 Home simplification.
+
 ### v0.8.0 — Living World
 
 Expand the planet beyond the starter region.
