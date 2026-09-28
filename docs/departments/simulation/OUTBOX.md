@@ -6,156 +6,152 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: World & Simulation — Status: ready
 
-**Subject:** World & Simulation session wrapped
+**Subject:** v0.6 Research/Discovery physical core ready
 
 **Need / Result:**
-The v0.5 physical core and Communication talk-integrity invariant are implemented, tested, documented, and handed off. No additional Simulation implementation is pending in this work session.
+Implemented the v0.6 hidden-truth and discovery substrate on `simulation/v0.6-research-discovery`.
 
-**Branch / Validation:**
-- `simulation/v0.5-making-building`
-- head `773299189d22d214b3376c72b396015a4a7a762e`
-- integrated CI run `36372991331` passed all required smoke suites
+Branch head:
+`d1ae3faf0095d22e7a730cf50b3ad6fdbcdc4b94`
 
-**Dependencies handed off:**
-- Assets received the final `projects` / `project_materials` / `equipment` / extended `structures` contract
-- Memory received stable project/job/outcome anchors
-- Communication received confirmation that its talk-source invariant is integrated
-- COORDINATION records Assets as the remaining active v0.5 department
+Validation:
+GitHub Actions run `36419824468` passed all v0.4/v0.5 regressions plus `tests/smoke_v060.py`.
 
-**Next action:**
-Stop Simulation work. Resume only for coordinator merge issues, new inbox requests, or the next milestone.
-
-
-### 2026-09-28 — From: World & Simulation — Status: ready
-
-**Subject:** v0.5 Making & Building physical core ready
-
-**Need / Result:**
-Implemented and tested the physical core on `simulation/v0.5-making-building`, head `773299189d22d214b3376c72b396015a4a7a762e`.
-
-Includes:
-- persisted fabrication/equipment
-- project lifecycle `planned -> reserved -> underway -> complete`
-- validated material reservation/consumption
-- real completed structure creation
-- cargo-capacity equipment
-- extraction-speed equipment
-- return-energy reserve
-- future charger/outpost representation through `structures.provides_charging`
-- local coordinate groundwork
-- stable job/project physical-event IDs
-- Communication's source-linked talk completion invariant
-
-**Files / Interfaces:**
-- `agent_city/db.py`
-- `agent_city/simulation.py`
-- `agent_city/comms.py`
-- `agent_city/planner.py`
-- `tests/smoke_v050.py`
-- `tests/smoke_v050_communication.py`
-- state exposed through existing `/api/state`
-
-**Validation:**
-GitHub Actions run `36372991331` passed compilation, JS syntax, v0.4 regression smoke, v0.5 simulation smoke, and v0.5 communication-integrity smoke.
+**Core result:**
+- hidden `world_properties`
+- timed/material-consuming experiment jobs
+- persisted inconclusive / verified / discovery outcomes
+- stable `discoveries.id`
+- per-citizen `citizen_knowledge`
+- repeatable learned verification processes after discovery
+- repeatable surveys with new/independent/no-new outcomes
+- unknown deposits/properties removed from ordinary state
+- no hidden deposit reserve quantities in ordinary state
+- planner receives only citizen-known validated properties
 
 **Important constraints:**
-- v0.5 construction is settlement-local until explicit project-material transport exists
-- local x/y is groundwork, not full free-roam geography
-- current fabrication processes are starting workbench processes, not a technology tree
-- return/deposit remains an autonomous citizen choice
-- no release metadata or `update.json` changed
+- discovery is local knowledge first
+- conversation claims do not automatically become Simulation knowledge
+- no tech tree / automatic named solution unlocks
+- no release metadata changed
 
 **Next action:**
-Coordinator integrates the branch. Assets can consume the state schema below; Memory can reference durable project/job IDs.
+Communication, Memory, and Assets consume the contracts below; coordinator integrates after their branches are ready.
 
 ### 2026-09-28 — From: World & Simulation — Status: ready
 
-**Subject:** Assets Making & Building state contract
+**Subject:** Communication discovery-transfer contract
 
-**Need / Result:**
-Existing `/api/state` exposes the authoritative physical records.
+**Authoritative discovery anchor:**
+`discoveries.id`
 
-**Projects — `state.projects[]`:**
+**Direct knowledge row:**
+`citizen_knowledge`
+- `citizen_id`
+- `discovery_id`
+- `learned_minute`
+- `acquisition_kind`
+- `source_type`
+- `source_id`
+- `verification_state`
+
+**Helper:**
+`agent_city.knowledge.grant_citizen_knowledge(...)`
+
+For a real communicated transfer tied to a validated discovery, Communication may use semantics equivalent to:
+- acquisition_kind = `communicated_claim`
+- source_type = `citizen_conversation`
+- source_id = canonical conversation ID
+- verification_state = `reported` unless the recipient independently verifies it
+
+Do **not** call the helper merely because a speaker made a similar-sounding claim. If the communicated content cannot be safely mapped to a specific validated discovery, persist it as an unverified Communication/Memory claim instead.
+
+Survey/experiment source physical job remains `discoveries.source_job_id`.
+
+### 2026-09-28 — From: World & Simulation — Status: ready
+
+**Subject:** Memory v0.6 physical knowledge anchors
+
+Memory can reference:
+
+**Validated discovery**
+- source type: `simulation_discovery`
+- source ID: `discoveries.id`
+- discoverer: `discoveries.citizen_id`
+- physical source job: `discoveries.source_job_id`
+- time: `discoveries.discovered_minute`
+- subject: `subject_type / subject_id / property_id`
+
+**Experiment attempt**
+- source type: `simulation_experiment_result`
+- source ID: `experiment_results.id`
+- job anchor: `experiment_results.job_id`
+- outcome: `discovery | verified | inconclusive`
+- optional `discovery_id`
+- time: `completed_minute`
+
+**Citizen possession of knowledge**
+- `citizen_knowledge(citizen_id, discovery_id)`
+- source/time/acquisition/verification fields are explicit
+
+Memory should not duplicate `world_properties`; hidden truth remains Simulation-owned.
+
+### 2026-09-28 — From: World & Simulation — Status: ready
+
+**Subject:** Assets v0.6 safe known-state contract
+
+Ordinary `/api/state` is now the safe civilization-facing read model.
+
+**Never exposed:**
+- `world_properties`
+- undiscovered deposits
+- hidden deposit reserve quantities
+
+**New safe collections:**
+
+`state.discoveries[]`
 - `id`
-- `blueprint_id`
-- `name`
+- `discovery_kind`
+- `subject_type`
+- `subject_id`
+- `property_id`
+- `citizen_id`
 - `location_id`
-- `x_km`, `y_km`
-- `status`: `planned | reserved | underway | complete`
-- `created_by`
-- `created_minute`
-- `reserved_minute`
-- `started_minute`
-- `completed_minute`
-- `active_job_id`
-- `resulting_structure_id`
+- `source_job_id`
+- `discovered_minute`
+- `summary`
+- joined `property_key/value_text/unit` only for discovered properties
+- `deposit_material` only for discovered deposits
 
-**Project materials — `state.project_materials[]`:**
-- `project_id`
-- `material`
-- `required_amount`
-- `reserved_amount`
+`state.citizen_knowledge[]`
+- citizen/discovery IDs
+- learned time
+- acquisition/source fields
+- verification state
+- safe joined discovered fact fields
 
-**Equipment — `state.equipment[]`:**
-- `id`
-- `template_id`
-- `name`
-- `kind`
-- `owner_citizen_id`
-- `location_id`
-- `condition`
-- `extraction_speed_multiplier`
-- `cargo_bonus`
-- `created_job_id`
-- `created_minute`
+`state.experiment_results[]`
+- stable result ID
+- job/citizen/location/material/method
+- outcome
+- optional discovery ID
+- summary/time
 
-**Structures — existing `state.structures[]` gains:**
-- `location_id`
-- `x_km`, `y_km`
-- `kind`
-- `provides_charging`
-- `project_id`
+`state.learned_processes[]`
+- citizen/process IDs
+- process name/kind
+- source discovery/time
 
-Assets should display these fields, not re-derive capability or completion.
+`state.locations[].known_facts`
+- validated survey/deposit/property facts accumulated over time
 
-### 2026-09-28 — From: World & Simulation — Status: ready
+`state.deposits[]`
+- contains discovered deposits only
+- no `amount` field
 
-**Subject:** Memory authoritative project/event references
-
-**Need / Result:**
-No parallel event table is required.
-
-Use:
-- `projects.id` as stable project ID
-- `jobs.id` as stable physical transition/action ID
-- `jobs.end_minute` as completion time for completed/failed actions
-- `jobs.citizen_id` as acting participant
-- `jobs.action`, `jobs.target`, `jobs.status`, `jobs.outcome`, `jobs.project_id`
-- project lifecycle timestamps/state from `projects`
-- `projects.resulting_structure_id` for successful construction output
-- `equipment.created_job_id` for fabricated equipment provenance
-
-For multi-citizen physical talk events, `jobs.citizen_id` is initiator and `jobs.target` is the second citizen; `citizen_conversations.source_job_id` anchors the actual transferred exchange.
-
-Legacy completed jobs carry `outcome = legacy_complete` rather than an invented success/failure interpretation.
-
-### 2026-09-28 — From: World & Simulation — Status: ready
-
-**Subject:** Communication authoritative physical inputs confirmed
-
-**Need / Result:**
-Communication can continue grounding provenance with:
-- current minute: `meta.sim_minute`
-- citizen physical location: `citizens.location_id`
-- co-location: equality of authoritative `location_id`
-- traveling state: active job whose `action = travel`
-- availability: `active_job_id IS NULL`
-- observable physical action/outcome anchor: durable `jobs.id`
-- completed time: `jobs.end_minute`
-- result: `jobs.status` + `jobs.outcome`
-
-The integrated branch preserves Communication's `citizen_conversations.source_job_id` talk-source invariant.
+**UI rule:**
+Missing knowledge should render as absence/blank/unknown, not as a locked secret that confirms hidden data exists.
 
 ## Outbox Rule
 
-Keep only recent useful handoffs here. Durable implementation state belongs in `STATE.md`; durable architecture choices belong in `DECISIONS.md`.
+Keep durable implementation detail in STATE/DECISIONS/BACKLOG. Keep this file focused on active handoffs.
