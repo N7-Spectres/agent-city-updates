@@ -23,6 +23,8 @@ This file is the shared project task board.
 
 ### READY
 
+- [Memory & Social] Stage 1 safe spatial-observation consumer contract ready: observation ID = evidence, deposit ID = stable subject, radius = precision; hidden seed/geometry excluded
+
 - [Communication & Perception] v0.8 Stage 1 grounding ready on `communication/v0.8-grounding-stage1` @ `a95e7af23eddaeb018bd6b2b6f19681a227e92af`; CI `36450386273` passed the full v0.4-v0.7 regression chain + Communication Stage 1 smoke
 
 - [World & Simulation] v0.8 Stage 1 seeded spatial foundation ready on `simulation/v0.8-seeded-world-stage1` @ `7473b6612ea23cf8d22b31176149da188476690e`; runtime CI `36449582788` passed complete v0.4-v0.7 regression chain + Stage 1 smoke
@@ -165,3 +167,16 @@ Coordinator integration must preserve:
 12. preserve `tests/smoke_v080_communication.py` in Stage 1 integration testing
 
 Stage 2 dependency is recorded in World & Simulation INBOX and does not block Stage 1 review.
+
+
+## Memory v0.8 Stage 1 Integration Locks
+
+1. Memory reads `spatial_observations`, never `planet_seed` or hidden `generated_deposits` geometry/richness.
+2. `spatial_observations.id` is evidence identity; `deposit_id` is stable physical subject identity.
+3. Same-body repeat encounters keep the same subject and are not automatically separate durable memories.
+4. First encounters, new methods, materially improved precision, and explicit milestones may be retained.
+5. Routine meter movement / passive scans without new information are suppressed.
+6. Stored coordinate precision must never exceed observation `radius_m`.
+7. Spatial memories remain per-citizen and do not create a global map memory.
+8. `simulation_spatial_observation` stays separate from generic knowledge-fact retrieval.
+9. Preserve `tests/smoke_v080_memory.py` during Stage 1 coordinator integration.
