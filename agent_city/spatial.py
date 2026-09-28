@@ -1,0 +1,294 @@
+from __future__ import annotations
+
+import hashlib
+import math
+from typing import Any
+
+CHUNK_SIZE_M = 160.0
+TERRAIN_NOISE_SCALE_M = 320.0
+SPATIAL_FRAME_ID = "seed_site_local"
+
+MATERIAL_FIELDS = (
+    ("Ferrite Stone", "ferric"),
+    ("Veyra Ore", "veyra"),
+    ("Silicate", "silicate"),
+    ("Copper-like Ore", "conductive"),
+    ("Carbonaceous Rock", "carbon"),
+    ("Clay", "clay"),
+    ("Plant Fiber", "fiber"),
+    ("Native Resin", "resin"),
+)
+
+
+def _hash_bytes(seed: str, namespace: str, *parts: object) -> bytes:
+    payload = "|".join([seed, namespace, *(str(part) for part in parts)])
+    return hashlib.sha256(payload.encode("utf-8")).digest()
+
+
+def _u01(seed: str, namespace: str, *parts: object) -> float:
+    raw = int.from_bytes(_hash_bytes(seed, namespace, *parts)[:8], "big")
+    return raw / float(2**64 - 1)
+
+
+def _stable_id(seed: str, namespace: str, *parts: object, prefix: str) -> str:
+    digest = hashlib.sha256(
+        "|".join([seed, namespace, *(str(part) for part in parts)]).encode("utf-8")
+    ).hexdigest()
+    return f"{prefix}_{digest[:20]}"
+
+
+def _smooth(value: float) -> float:
+    return value * value * (3.0 - 2.0 * value)
+
+
+def _value_noise(seed: str, namespace: str, x_m: float, y_m: float, scale_m: float) -> float:
+    gx = math.floor(x_m / scale_m)
+    gy = math.floor(y_m / scale_m)
+    tx = _smooth((x_m / scale_m) - gx)
+    ty = _smooth((y_m / scale_m) - gy)
+
+    n00 = _u01(seed, namespace, gx, gy)
+    n10 = _u01(seed, namespace, gx + 1, gy)
+    n01 = _u01(seed, namespace, gx, gy + 1)
+    n11 = _u01(seed, namespace, gx + 1, gy + 1)
+
+    nx0 = n00 + (n10 - n00) * tx
+    nx1 = n01 + (n11 - n01) * tx
+    return nx0 + (nx1 - nx0) * ty
+
+
+def _planet_seed(conn) -> str:
+    row = conn.execute("SELECT value FROM meta WHERE key = 'planet_seed'").fetchone()
+    if not row:
+        raise RuntimeError("Planet seed is not initialized.")
+    return str(row["value"])
+
+
+def chunk_for_coordinate(x_m: float, y_m: float) -> tuple[int, int]:
+    return (math.floor(x_m / CHUNK_SIZE_M), math.floor(y_m / CHUNK_SIZE_M))
+
+
+def _terrain_at(seed: str, x_m: float, y_m: float) -> dict[str, Any]:
+    broad = _value_noise(seed, "terrain_broad", x_m, y_m, TERRAIN_NOISE_SCALE_M * 2.0)
+    local = _value_noise(seed, "terrain_local", x_m, y_m, TERRAIN_NOISE_SCALE_M)
+    rough = _value_noise(seed, "terrain_rough", x_m, y_m, 120.0)
+    moisture = _value_noise(seed, "surface_moisture", x_m, y_m, 420.0)
+
+    elevation_m = round((broad - 0.5) * 70.0 + (local - 0.5) * 24.0, 3)
+    roughness = round(rough, 5)
+
+    if rough > 0.72:
+        terrain_class = "broken"
+    elif elevation_m > 22:
+        terrain_class = "ridge"
+    elif elevation_m < -18:
+        terrain_class = "basin"
+    elif moisture > 0.68:
+        terrain_class = "low_growth"
+    else:
+        terrain_class = "open_ground"
+
+    geology_scores = {
+        key: _value_noise(seed, f"geology_{key}", x_m, y_m, 520.0)
+        for _, key in MATERIAL_FIELDS
+    }
+    geology_class = max(geology_scores.items(), key=lambda item: item[1])[0]
+
+    return {
+        "elevation_m": elevation_m,
+        "roughness": roughness,
+        "terrain_class": terrain_class,
+        "geology_class": geology_class,
+    }
+
+
+def _candidate_body(seed: str, chunk_x: int, chunk_y: int, slot: int) -> dict[str, Any] | None:
+    presence = _u01(seed, "deposit_presence", chunk_x, chunk_y, slot)
+    threshold = 0.44 if slot == 0 else 0.79
+    if presence < threshold:
+        return None
+
+    chunk_origin_x = chunk_x * CHUNK_SIZE_M
+    chunk_origin_y = chunk_y * CHUNK_SIZE_M
+    center_x = chunk_origin_x + CHUNK_SIZE_M * (0.15 + 0.70 * _u01(seed, "deposit_x", chunk_x, chunk_y, slot))
+    center_y = chunk_origin_y + CHUNK_SIZE_M * (0.15 + 0.70 * _u01(seed, "deposit_y", chunk_x, chunk_y, slot))
+
+    geology_scores = [
+        (
+            material,
+            _value_noise(seed, f"geology_{field}", center_x, center_y, 520.0)
+            + (_u01(seed, "deposit_material_bias", chunk_x, chunk_y, slot, field) - 0.5) * 0.10,
+        )
+        for material, field in MATERIAL_FIELDS
+    ]
+    material = max(geology_scores, key=lambda item: item[1])[0]
+
+    radius_m = 22.0 + 58.0 * _u01(seed, "deposit_radius", chunk_x, chunk_y, slot)
+    long_axis_m = radius_m * (1.15 + 0.85 * _u01(seed, "deposit_long_axis", chunk_x, chunk_y, slot))
+    short_axis_m = radius_m * (0.55 + 0.35 * _u01(seed, "deposit_short_axis", chunk_x, chunk_y, slot))
+    angle_rad = math.tau * _u01(seed, "deposit_angle", chunk_x, chunk_y, slot)
+    richness = 0.25 + 0.75 * _u01(seed, "deposit_richness", chunk_x, chunk_y, slot)
+
+    return {
+        "id": _stable_id(seed, "deposit", chunk_x, chunk_y, slot, prefix="gdep"),
+        "material": material,
+        "source_chunk_x": chunk_x,
+        "source_chunk_y": chunk_y,
+        "center_x_m": round(center_x, 4),
+        "center_y_m": round(center_y, 4),
+        "long_axis_m": round(long_axis_m, 4),
+        "short_axis_m": round(short_axis_m, 4),
+        "angle_rad": round(angle_rad, 7),
+        "richness": round(richness, 6),
+    }
+
+
+def _inside_body(body: dict[str, Any], x_m: float, y_m: float) -> bool:
+    dx = x_m - float(body["center_x_m"])
+    dy = y_m - float(body["center_y_m"])
+    angle = float(body["angle_rad"])
+    cos_a = math.cos(angle)
+    sin_a = math.sin(angle)
+    local_x = dx * cos_a + dy * sin_a
+    local_y = -dx * sin_a + dy * cos_a
+    long_axis = max(1.0, float(body["long_axis_m"]))
+    short_axis = max(1.0, float(body["short_axis_m"]))
+    return (local_x / long_axis) ** 2 + (local_y / short_axis) ** 2 <= 1.0
+
+
+def _materialize_body(conn, body: dict[str, Any]) -> None:
+    conn.execute(
+        """
+        INSERT OR IGNORE INTO generated_deposits
+        (id, material, source_chunk_x, source_chunk_y, center_x_m, center_y_m,
+         long_axis_m, short_axis_m, angle_rad, richness)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            body["id"],
+            body["material"],
+            body["source_chunk_x"],
+            body["source_chunk_y"],
+            body["center_x_m"],
+            body["center_y_m"],
+            body["long_axis_m"],
+            body["short_axis_m"],
+            body["angle_rad"],
+            body["richness"],
+        ),
+    )
+
+
+def query_hidden_world(conn, x_m: float, y_m: float) -> dict[str, Any]:
+    """
+    Authoritative hidden-world query.
+
+    This function may be called by Simulation-owned future survey/scanner/shared-
+    exploration actions. Its result is hidden truth and must not be passed
+    directly to UI/LLM surfaces.
+    """
+    seed = _planet_seed(conn)
+    x_m = float(x_m)
+    y_m = float(y_m)
+    chunk_x, chunk_y = chunk_for_coordinate(x_m, y_m)
+
+    bodies: list[dict[str, Any]] = []
+    # Search neighboring source chunks so an ellipse crossing a chunk edge keeps
+    # the same identity when queried from either side.
+    for source_x in range(chunk_x - 1, chunk_x + 2):
+        for source_y in range(chunk_y - 1, chunk_y + 2):
+            for slot in (0, 1):
+                body = _candidate_body(seed, source_x, source_y, slot)
+                if not body:
+                    continue
+                _materialize_body(conn, body)
+                if _inside_body(body, x_m, y_m):
+                    bodies.append(body)
+
+    bodies.sort(key=lambda body: body["id"])
+    terrain = _terrain_at(seed, x_m, y_m)
+    return {
+        "frame_id": SPATIAL_FRAME_ID,
+        "x_m": round(x_m, 4),
+        "y_m": round(y_m, 4),
+        "chunk_x": chunk_x,
+        "chunk_y": chunk_y,
+        **terrain,
+        "deposit_bodies": bodies,
+    }
+
+
+def record_validated_observation(
+    conn,
+    *,
+    observer_id: str,
+    x_m: float,
+    y_m: float,
+    observed_minute: int,
+    source_job_id: int | None = None,
+    observation_kind: str = "field_observation",
+    radius_m: float = 1.0,
+) -> int:
+    """
+    Convert a hidden query into one safe, persisted physical observation.
+
+    The observation reveals only what was validated at the queried point. It does
+    not expose planet seed, hidden richness, or full hidden deposit geometry.
+    """
+    hidden = query_hidden_world(conn, x_m, y_m)
+    primary = hidden["deposit_bodies"][0] if hidden["deposit_bodies"] else None
+
+    summary_parts = [
+        f"Terrain {hidden['terrain_class']}",
+        f"elevation {hidden['elevation_m']:.1f} m",
+        f"geology {hidden['geology_class']}",
+    ]
+    if primary:
+        summary_parts.append(f"contact with {primary['material']} body {primary['id']}")
+
+    cur = conn.execute(
+        """
+        INSERT INTO spatial_observations
+        (observer_id, source_job_id, observation_kind, frame_id,
+         x_m, y_m, radius_m, observed_minute, terrain_class, elevation_m,
+         geology_class, deposit_id, material, summary)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            observer_id,
+            source_job_id,
+            observation_kind,
+            SPATIAL_FRAME_ID,
+            round(float(x_m), 4),
+            round(float(y_m), 4),
+            max(0.1, float(radius_m)),
+            int(observed_minute),
+            hidden["terrain_class"],
+            hidden["elevation_m"],
+            hidden["geology_class"],
+            primary["id"] if primary else None,
+            primary["material"] if primary else None,
+            "; ".join(summary_parts),
+        ),
+    )
+    return int(cur.lastrowid)
+
+
+def safe_observation_payload(row: Any) -> dict[str, Any]:
+    return {
+        "id": int(row["id"]),
+        "observer_id": row["observer_id"],
+        "source_job_id": row["source_job_id"],
+        "observation_kind": row["observation_kind"],
+        "frame_id": row["frame_id"],
+        "x_m": float(row["x_m"]),
+        "y_m": float(row["y_m"]),
+        "radius_m": float(row["radius_m"]),
+        "observed_minute": int(row["observed_minute"]),
+        "terrain_class": row["terrain_class"],
+        "elevation_m": float(row["elevation_m"]),
+        "geology_class": row["geology_class"],
+        "deposit_id": row["deposit_id"],
+        "material": row["material"],
+        "summary": row["summary"],
+    }
