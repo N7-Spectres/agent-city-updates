@@ -168,3 +168,22 @@ Prefer omission or a neutral empty state.
 ## v0.6 Records Separation Rule
 
 Making, Stores, History, Region, and Updates/Admin remain accessible, but they live outside Home in a dedicated Records view so secondary state does not compete with the world/visit experience.
+
+
+## v0.6 Consumer Layering Rule
+
+Use each department's read model for its own layer:
+
+- **Simulation safe public state** for current validated physical/world facts
+- **Memory bounded APIs** for normal citizen/location knowledge surfaces
+- **Communication availability/provenance** for how information arrived and why a visit is or is not accessible
+
+Do not replace Memory's bounded consumer knowledge view with Communication's lower-level provenance/debug surface.
+
+Do not reconstruct hidden Simulation truth from missing fields.
+
+## v0.6 Visit Privacy Rule
+
+When the visitor is remote from a citizen, the UI must not reveal that citizen's local busy/talking counterpart merely because Communication knows it.
+
+Render the backend-provided `status/reason/availability` as bounded by Communication's privacy logic rather than independently inspecting remote citizen jobs.
