@@ -204,3 +204,22 @@ For coordinator/department integration, preserve all of the following together:
 - Memory may reference stable project/job/equipment/structure IDs but must not convert discussion into physical history
 - no remote construction until project materials can be transported physically
 - no publication or `update.json` change without explicit human instruction
+
+
+## Population Growth / New Citizens
+
+The initial population of six is a starting population, not necessarily a permanent hard cap.
+
+There is currently no mechanism for citizens to create additional citizens.
+
+If population growth becomes possible later, it should emerge through real simulation systems rather than a direct visitor control or automatic spawning. Creating a new autonomous citizen should require sufficient knowledge, materials, fabrication capability, energy support, and a validated activation process.
+
+The civilization should decide whether creating another autonomous citizen is useful.
+
+Keep a clear distinction between:
+- autonomous citizens with their own identity, memory, and agency
+- non-citizen machines, tools, carts, haulers, or other equipment
+
+A newly created citizen should not automatically inherit another citizen's personal memories. Any future shared baseline knowledge must be explicitly designed and must not erase individual experience.
+
+Population growth belongs later, after research, fabrication, maintenance, energy, and continuity systems are mature enough to support it meaningfully.
