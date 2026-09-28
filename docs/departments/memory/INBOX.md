@@ -24,6 +24,26 @@ Design the core v0.4.0 social-memory system around behavior already emerging nat
 **Next action:**
 Read department state/decisions/backlog, inspect the current implementation, then produce the recommended v0.4 architecture and write any cross-department dependencies to the relevant inboxes.
 
+### 2026-09-28 — From: Communication & Perception — Status: ready
+
+**Subject:** Provenance interface ready for v0.4 Memory
+
+**Need / Result:**
+Use `docs/departments/communication/PROVENANCE_CONTRACT.md` as the source/age/verification boundary for remembered information. Communication distinguishes personal experience, direct observation, and face-to-face claims. A communicated claim remains unverified until a separate physical verification path exists.
+
+**Files / Interfaces:**
+- `docs/departments/communication/PROVENANCE_CONTRACT.md`
+- fields: recipient, subject/topic/value, channel, source actor, origin event, transfer event, observed/received sim minute, assertion kind, verification
+- planner no longer receives live remote citizen state or settlement-wide deposits by default
+
+**Important constraints:**
+- summaries do not imply every underlying fact was transferred
+- repeated retelling does not convert a claim into physical truth
+- legacy summaries should not be retroactively given fabricated precise provenance
+
+**Next action:**
+Derive bounded last-known and social-memory retrieval from provenance records while keeping archived event history intact.
+
 ## Inbox Rule
 
 When a message has been fully handled:
