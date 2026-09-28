@@ -4,7 +4,7 @@ _Last updated: 2026-09-28_
 _Current published release: v0.7.0_
 _Stage 2 unified base: `release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`_
 _Active implementation branch: `simulation/v0.8-exploration-stage2`_
-_Branch head: `7a47da8638351b251f65ff3661dc440e67d9da58`_
+_Branch head: `b81c9bb57884727e7a1c769d95ecb27928d1d489`_
 
 ## Mission
 
@@ -208,7 +208,7 @@ Simulation lifecycle is explicitly:
 
 `proposed -> accepted -> active -> complete`
 
-Failure can be represented separately.
+A pre-start proposal may also become `rejected`. Failure can be represented separately.
 
 Important:
 - `proposed`: intent/proposal only
@@ -295,6 +295,16 @@ Transitions:
 
 No movement.
 
+### Reject
+`POST /api/shared-activities/{id}/reject`
+
+Body:
+- visitor
+
+Allowed only from `proposed` or `accepted`.
+
+Transitions to `rejected` with no physical movement, no citizen job, and no observation.
+
 ### Start
 `POST /api/shared-activities/{id}/start`
 
@@ -353,9 +363,9 @@ No save reset is required.
 
 ## Validation
 
-Runtime Stage 2 code passed GitHub Actions:
+Final Stage 2 code passed GitHub Actions:
 
-`36455861367`
+`36456647323`
 
 Passed:
 - Python compilation
@@ -366,10 +376,23 @@ Passed:
 
 A first run correctly exposed a v0.5 legacy-location compatibility issue; the fix preserves legacy route semantics only when no real Stage 2 local offset exists.
 
-The final branch commit only restored the release-only workflow.
+The final runtime hardening added a visitor-owned pre-start rejection transition and re-ran the complete regression matrix successfully. The final branch commit only restored the release-only workflow.
 
 ## Status
 
 World & Simulation Stage 2 physical exploration/shared-activity core is ready for dependent department integration/review.
 
 No `update.json` or release metadata was changed.
+
+
+## Stage 2 Session Close
+
+World & Simulation Stage 2 implementation is complete.
+
+Authoritative handoff:
+- branch: `simulation/v0.8-exploration-stage2`
+- head: `b81c9bb57884727e7a1c769d95ecb27928d1d489`
+- unified Stage 1 base: `017b417386f4f4e0f957dfb66285431223283739`
+- final CI: `36456647323`
+
+Dependent contracts are being routed to Communication, Memory, and Assets. Simulation should resume only for integration conflicts or a new coordinator request.
