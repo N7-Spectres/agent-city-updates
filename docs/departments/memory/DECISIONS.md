@@ -426,3 +426,82 @@ The Memory department's v0.7 runtime scope is complete.
 No additional Memory feature work should be added before coordinator integration unless integration reveals a concrete regression or contract conflict.
 
 The assembled release must preserve the existing Memory source and epistemic boundaries rather than broadening maintenance knowledge during merge.
+
+
+## v0.8 Spatial Observation Rule
+
+Memory records what a citizen actually observed, at the precision their observation mechanism supports.
+
+Do not copy the Simulation's exact hidden coordinate merely because Memory can technically query it.
+
+A spatial memory should preserve:
+- observed coordinate
+- observation precision/uncertainty
+- method/source
+- stable physical subject ID
+- observation time
+
+If later evidence improves precision, preserve the earlier observation and add/link the improved evidence rather than rewriting historical perception.
+
+## Stable Physical Subject Rule
+
+A generated deposit/body/place candidate needs one durable Simulation-owned identity independent of:
+- current citizen position
+- chunk loading
+- UI tile/cell
+- current name
+- repeated scans
+- discovery order
+
+Memory uses that stable subject ID to connect repeated encounters.
+
+Discovery-event IDs describe **encounters/evidence**.
+Stable subject IDs describe **the physical thing**.
+
+Do not conflate them.
+
+## Spatial Salience Rule
+
+Do not create durable memory for:
+- every meter walked
+- every position tick
+- every low-value scan with no new information
+- repeated identical observations with no meaningful precision/content change
+
+Durable spatial memory is appropriate for:
+- first meaningful encounter with a stable body/place
+- materially improved localization/precision
+- new validated property/sample from an existing body
+- route/landmark milestone that changes future planning
+- named-place creation/recognition when socially meaningful
+- meaningful contradiction between prior location belief and new evidence
+
+## Coordinate Precision Rule
+
+Memory precision must be bounded by the source.
+
+Examples:
+- visual estimate may retain a broad radius
+- field survey may support tighter coordinates
+- instrument scan may support meter-scale or better precision if Simulation says so
+
+Never report more decimal precision than the source justifies.
+
+## Hidden Seed Boundary
+
+Planet seed/chunk generation data remains Simulation-only hidden truth.
+
+Memory may reference stable generated subjects and validated observations derived from that truth, but must never receive:
+- raw seed
+- unexplored chunk contents
+- deterministic future deposit placements
+- undiscovered extent/quantity
+- exact hidden geometry beyond what was observed
+
+## Place Naming Rule
+
+Names are labels/knowledge, not physical identity.
+
+A citizen-created place name should point to a stable subject/region ID where possible.
+
+Multiple aliases may coexist. Communication determines how names spread; Memory retains which label reached which citizen.
