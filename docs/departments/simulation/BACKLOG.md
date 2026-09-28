@@ -1,96 +1,70 @@
 # World & Simulation — Backlog
 
-## v0.8 Stage 1 Handoff
+## v0.8 Stage 2 Handoff
 
-Implemented on `simulation/v0.8-seeded-world-stage1`:
+Implemented on `simulation/v0.8-exploration-stage2`:
 
-- persistent hidden planet seed
-- local meter coordinate frame
-- additive landmark/citizen/visitor/structure/project migration
-- deterministic spatial terrain/geology query
-- stable procedural deposit bodies with coherent extent
-- legacy deposit spatial anchoring
-- safe validated spatial observations
-- observation range/source-job legality
-- safe spatial read-model contract
+- terrain-costed local meter movement
+- coordinate return-energy reserve
+- server-derived active movement position/progress
+- baseline direct inspection jobs
+- meter-aware talk/visit/infrastructure legality
+- explicit shared proposal/accept/start/complete lifecycle
+- stable shared activity/job/observation source IDs
+- shared visitor+citizen movement/inspection
+- legacy route compatibility
+- additive migration
 
-Cross-department Stage 1 follow-on:
-- Communication consumes coordinate/observation contracts for grounding and future shared-action design
-- Memory consumes stable observation/deposit subject IDs without ingesting hidden generated world
-- Assets may consume safe coordinates/observations but must not infer free-roam or hidden bodies
-- coordinator reviews Stage 1 interfaces before Stage 2
+Cross-department integration remaining:
+- Communication binds `shared_action_proposals.simulation_action_id` to Simulation `shared_activities.id`
+- Communication maps Simulation `active` to its safe UI `started` state and completion/failure fields
+- Communication updates same-region citizen visibility to use meter proximity now that local movement exists
+- Memory consumes `shared_activities.id` only for successful completed shared exploration
+- Assets consumes `local_movement`, shared lifecycle, visitor shared position, and observation radius
+- coordinator merges Stage 2 branches and runs all Stage 1 + Stage 2 smokes
 
-## v0.8 Stage 2 Candidates
+## v0.8 Next Physical Depth
 
-### Continuous movement
-- citizen meter-scale move/travel actions
-- path segment identity
-- terrain-aware distance/energy/time
-- continuous in-transit position
-- return-energy reserve against coordinate-based charger reachability
-- visitor/citizen shared movement only after Simulation owns the joint action
+### Generated resource lifecycle
+- turn observed `gdep_*` bodies into citizen-known discoverable resource subjects
+- finite extraction quantity without exposing hidden richness
+- extraction position/range requirements
+- independent verification of same body by multiple citizens
 
-### Spatial discovery
-- integrate existing survey jobs with real action coordinates
-- scanner/tool capability only when physically invented/fabricated
-- generated-deposit discovery records using stable body IDs
-- generated-deposit extraction/quantity accounting
-- observation footprints and repeated scan merging
-- spatial independent verification by multiple citizens
+### Richer movement
+- continuous coordinate travel beyond current 300 m local steps
+- coordinate-based charger routing over larger areas
+- path/terrain obstacles instead of straight local segment only
+- fully coordinate-based replacement for legacy routes when ready
+- visitor local independent movement if explicitly designed without becoming admin control
+
+### Shared activities
+- cancellation/expiration
+- explicit failed/cancelled completion records
+- additional Simulation-owned activity kinds only when physically justified
+- multi-citizen cooperative exploration later
+- tool-capability-specific observations after real equipment/process discovery
+
+### Place/site creation
+- convert significant observation clusters/worksites into persistent physical place IDs
+- social naming remains separate from physical site identity
 
 ### Global geography
-- persistent planet/body reference frame
-- map local tangent plane to global latitude/longitude
-- deterministic additional regions and distant sites
-- terrain-aware routes that can emerge from movement/construction
-- citizen-created places between starter landmarks
-
-### Emergent naming
-- separate physical place identity from citizen/social names
-- persistent aliases/adoption history
-- no culturally meaningful Simulation-generated names
-
-### Living environment
-- atmosphere/weather/terrain properties only as physical substrate
-- environmental effects on travel/maintenance when modeled
-- vegetation/material distributions from the seeded world
-- cultivation only if citizens discover/develop a reason/process
-
-### Visitor-linked physical actions
-- validated participant list
-- co-location
-- real duration/path/energy
-- real outcome
-- normal observation/provenance rules
-- no chat-as-admin-control
+- local tangent-frame to global lat/lon mapping
+- distant regions / additional tangent frames
+- globe-scale travel only after coordinate/path model is ready
 
 ## Existing Follow-On Depth
 
 - cooperative multi-citizen jobs
-- project-material transport for remote construction/maintenance
+- project-material transport for remote building/maintenance
 - equipment transfer/shared caches
-- visitor turn-around/cancel travel
-- explicit resource-quantity measurement only after valid capability exists
+- route turn-around/cancel
+- explicit resource quantity measurement only through earned capability
 
 ## Open Questions
 
-- what minimum continuous-movement primitive best preserves current route behavior?
-- how should generated bodies connect to finite extraction quantity without exposing hidden reserve estimates?
-- when should a cluster of observations become a new physical place/site record?
-- how should local tangent frames transition between distant settlements on the later spherical world?
-
-
-## v0.8 Stage 1 Integration Gate
-
-Do not start Stage 2 Simulation feature work until coordinator review confirms the Stage 1 contracts across all departments.
-
-Coordinator review must verify:
-
-1. Simulation hidden seeded world remains hidden.
-2. Communication uses safe observations/coordinates only and keeps RP claims separate from validated facts.
-3. Memory retains safe observation evidence without ingesting hidden generated-world tables.
-4. Assets uses the safe spatial read model and does not infer continuous movement yet.
-5. All v0.4-v0.7 regressions plus Simulation/Communication/Memory/Assets Stage 1 smoke tests pass after integration.
-6. Any conflict that changes spatial identity, hidden/public boundaries, coordinate semantics, or observation legality returns to World & Simulation for review.
-
-After that gate, Stage 2 may introduce continuous movement, coordinate-based exploration/survey actions, generated-deposit discovery/extraction, and shared visitor actions as separate validated systems.
+- when should a local exploratory coordinate become a persistent site/place record?
+- how should hidden deposit richness map to finite extractable quantity without leaking reserve estimates?
+- when is the legacy route network ready to become fully coordinate-native?
+- should visitor-only local walking exist, and if so how is intent exposed without a direct-control feel?
