@@ -613,3 +613,22 @@ Keep these retrieval streams distinct:
 - maintenance history
 
 This prevents one broad Memory feed from becoming an omniscient context dump.
+
+
+## v0.8 Stage 2 Final Contract Confirmation
+
+Final Simulation and Communication Stage 2 handoffs confirm the Memory implementation without requiring code changes.
+
+Canonical sequence remains:
+
+1. durable conversation may create social proposal intent
+2. Communication proposal projection may exist
+3. Simulation validates/persists canonical `shared_activities.id`
+4. acceptance remains pre-start intent/state
+5. only Simulation physical start creates `jobs.id`
+6. successful completion creates/links `spatial_observations.id`
+7. only then may Memory create verified `simulation_shared_activity` continuity
+
+Simulation `rejected` is a pre-start terminal state with no movement/job/observation and must never be classified as completed exploration.
+
+Memory's current implementation is therefore contract-complete for Stage 2.
