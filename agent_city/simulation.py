@@ -141,6 +141,15 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             if distance is None:
                 return False, "No known route exists."
             duration = max(25, int(distance * 45))
+            # A citizen physically departing ends any open face-to-face visitor sessions with them.
+            conn.execute(
+                """
+                UPDATE conversation_visits
+                SET ended_minute = COALESCE(ended_minute, ?)
+                WHERE citizen_id = ? AND ended_minute IS NULL
+                """,
+                (now, citizen_id),
+            )
             energy_cost = max(2.0, distance * 3.0)
             conn.execute("UPDATE citizens SET energy = MAX(0, energy - ?) WHERE id = ?", (energy_cost, citizen_id))
             detail = f"travel:{c['location_id']}->{target}"
