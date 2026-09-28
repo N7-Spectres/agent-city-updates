@@ -394,7 +394,25 @@ async def _generate_raw_exchange(
                     raise RuntimeError("Citizen dialogue request could not reach Ollama.") from exc
                 continue
 
-            message = response.json().get("message") or {}
+            try:
+                envelope = response.json()
+            except (ValueError, TypeError):
+                envelope = None
+            if not isinstance(envelope, dict):
+                last_code = "ollama_response_malformed"
+                last_detail = "Ollama HTTP response was not a JSON object."
+                _diag(
+                    source_job_id,
+                    stage="dialogue_generation",
+                    outcome="failure" if final_attempt else "retry",
+                    code=last_code,
+                    detail=last_detail,
+                )
+                if final_attempt:
+                    raise RuntimeError("Ollama returned a malformed response envelope.")
+                continue
+
+            message = envelope.get("message") or {}
             raw = str(message.get("content") or "").strip()
             if not raw:
                 last_code = "ollama_empty_response"
@@ -538,7 +556,21 @@ Rules:
         )
         return
 
-    raw = str((response.json().get("message") or {}).get("content") or "").strip()
+    try:
+        envelope = response.json()
+    except (ValueError, TypeError):
+        envelope = None
+    if not isinstance(envelope, dict):
+        _diag(
+            source_job_id,
+            stage="claim_extraction",
+            outcome="degraded",
+            code="claim_response_malformed",
+            detail="Claim response envelope was malformed; raw exchange remains stored.",
+        )
+        return
+
+    raw = str((envelope.get("message") or {}).get("content") or "").strip()
     data = _parse_json_object(raw)
     if data is None:
         _diag(
