@@ -472,3 +472,23 @@ The Stage 1 coordinate substrate does not itself grant arbitrary movement or sca
 The absence of `move_meter`, `free_roam`, and `scan` legal actions is meaningful.
 
 Communication must not simulate those actions narratively.
+
+## v0.8 Stage 1 Session Close Integration Invariants
+
+Coordinator integration must preserve all of these together:
+
+- visitor-described details remain claims/reports until validated
+- known fact / current observation / reported claim / hypothesis / validated capability remain distinct
+- personality may improvise style, but factual nouns/capabilities need evidence
+- concept art and visual assets never create equipment or capability
+- operational capability comes from authoritative runtime state
+- legal action availability means attemptability, not outcome
+- remote citizens do not receive live Seed Site storage quantities
+- safe spatial dialogue context uses only meter positions and validated `spatial_observations`
+- hidden spatial query output never becomes dialogue evidence
+- coordinate decimals do not imply sensor precision
+- chat agreement never mutates coordinates, creates jobs, or creates observations
+- real visitor-linked shared activity remains Simulation-owned
+- v0.7 raw-exchange-first reliability and v0.6 provenance/anti-omniscience remain intact
+
+If integration makes chat itself a physical command surface, Stage 1 grounding has been violated.
