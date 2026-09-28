@@ -17,13 +17,14 @@ This file is the shared project task board.
 ### ACTIVE
 
 - [Assets & Interface] v0.7.0: finish maintenance presentation on top of the ready Home scaling/search/Recent Activity/avatar slice
-- [Memory & Social] v0.7.0: stable Simulation maintenance-event anchors are now available for bounded maintenance/repair history
 
 ### WAITING
 
 - [Coordinator / Integration] final v0.7 assembly waits for Assets + Memory completion, then must integrate Simulation + Communication + Memory + Assets and run the full regression suite
 
 ### READY
+
+- [Memory & Social] v0.7 maintenance-memory implementation is unblocked; Simulation `maintenance_events.id` contract received, next session starts runtime ingestion on `memory/v0.7-maintenance-history`
 
 - [World & Simulation] v0.7 Maintenance & Consequences core ready on `simulation/v0.7-maintenance` @ `54f5d838f674d0b278a51382f3a880cc0738b417`; runtime CI `36429729279` passed all v0.4-v0.7 smoke suites
 - [World & Simulation] authoritative condition/effective-capability fields delivered to Assets
@@ -33,6 +34,8 @@ This file is the shared project task board.
 - [Assets & Interface] independent v0.7 Home scaling/search/Recent Activity/avatar framework is already prepared
 
 ### REVIEW
+
+- [Memory & Social] v0.7 maintenance-memory policy/audit complete; runtime implementation intentionally deferred to next Memory session after user-requested wrap
 
 - [World & Simulation] v0.7 gradual equipment/structure wear, battery health, chassis wear, service/repair/replacement jobs, condition-scaled capability, passive structure aging, additive migration, and stable maintenance events complete
 - [Communication & Perception] v0.7 raw-exchange-first persistence, bounded retry, non-fatal claim enrichment, diagnostics, and failure classification complete
