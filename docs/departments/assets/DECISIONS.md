@@ -240,3 +240,25 @@ Do not create maintenance alarms from guessed thresholds.
 Use Simulation-owned degraded/maintenance/failure semantics or explicitly handed-off threshold guidance.
 
 Home should show only meaningful exceptions. Detailed condition belongs on Citizens/Records.
+
+
+## v0.7 Maintenance Field Consumption Rule
+
+Use Simulation's v0.7 condition semantics directly.
+
+- show `condition_state`, `service_due`, `operational`, battery/chassis service fields as authoritative
+- show `effective_cargo_bonus` and `effective_extraction_speed_multiplier` as current equipment capability
+- do not substitute pristine design modifiers for current effective capability
+- do not rederive maintenance thresholds in JavaScript
+- critical/non-operational equipment and structures remain visible
+- a condition percentage alone does not authorize invented visible damage
+
+## v0.7 Maintenance History Rule
+
+`maintenance_events[]` is the physical maintenance history source.
+
+Home Recent Activity should favor meaningful completed maintenance events or threshold-level exceptions, not microscopic wear.
+
+Communication `diagnostic` rows are debug/system records, not citizen speech and not conversation summaries.
+
+Memory guidance remains separate: a physical maintenance event does not automatically mean a citizen remembers it.
