@@ -144,6 +144,69 @@ For Stage 2, Communication needs a Simulation-owned action interface/lifecycle s
 **Next action:**
 Define this lifecycle only when Stage 2 is authorized. Communication will then bind conversational proposals to real Simulation actions without making chat an admin console.
 
+
+### 2026-09-28 — From: Communication & Perception — Status: ready
+
+**Subject:** Communication Stage 2 shared-action adapter surface ready
+
+**Need / Result:**
+Communication has implemented the proposal/acceptance layer on `communication/v0.8-shared-actions-stage2`.
+
+To wire real physical start/status after merge, Communication currently looks for these Simulation callables:
+
+- `shared_activity_options(visitor, citizen_id) -> list[dict]`
+- `start_shared_activity(request: dict) -> dict`
+- `shared_activity_status(action_id) -> dict | None`
+
+If Simulation prefers different internal names, coordinator integration can adapt either side, but the semantic shapes below should remain.
+
+**Safe option shape:**
+Each currently legal/available option should provide:
+- `option_key` (stable only for this selectable option)
+- `action_kind`
+- `label`
+- optional `objective`
+- optional `frame_id`
+- optional `target_x_m / target_y_m`
+- optional `target_subject_type / target_subject_id`
+- optional `requested_tool_id`
+
+Only these safe values enter the LLM proposal classifier.
+
+**Start request from Communication:**
+- visitor
+- citizen_id
+- proposal_id / proposal_token
+- source_visit_id
+- source_exchange_id
+- option_key / action_kind
+- objective
+- frame_id / target_x_m / target_y_m
+- target subject fields
+- requested_tool_id
+
+Communication never supplies hidden world truth.
+
+**Start/status response fields consumed:**
+- `ok`
+- `action_id` (or equivalent stable shared-action ID)
+- `status`
+- optional `reason`
+- optional `progress`
+- optional `start_minute / end_minute`
+- optional `observation_ids[]`
+- optional safe `outcome`
+
+**Important constraints:**
+- proposal extraction can only select a Simulation-supplied `option_key`
+- explicit visitor acceptance is revalidated against current options before start
+- Communication never mutates participant coordinates
+- no real action is described as started until Simulation returns a stable active action ID
+- completed observation IDs/results remain Simulation evidence, not LLM output
+
+**Next action:**
+When the physical Stage 2 lifecycle is stable, hand back the final callable/field names. Communication can make any thin adapter adjustment needed without changing proposal semantics.
+
 ## Inbox Rule
 
 When a message has been fully handled:
