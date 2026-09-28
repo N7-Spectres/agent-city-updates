@@ -62,3 +62,25 @@ _None within Assets._ PR #7 is ready for coordinator integration.
 **Coordinator / Integration**
 
 No additional Assets implementation is pending before v0.7 assembly. New Assets work should come from integration-test findings or a new routed request.
+
+
+## v0.8 Home Glanceability
+
+### Restore glanceable citizen job progress
+
+The original v0.3-v0.5 citizen cards showed active-job progress directly in each citizen row:
+- elapsed / total simulation minutes
+- ETA
+- a compact progress bar
+
+This was removed during the v0.6 Home simplification when citizen rows were compressed to name/activity/location/cargo/vitals. The underlying `jobProgress(...)` helper and authoritative start/end simulation minutes still exist.
+
+Restore a compact progress indicator for active jobs in the Home citizen rail, especially travel, extraction, survey, charge, fabrication/construction, experiment, and maintenance jobs.
+
+Requirements:
+- progress derives only from authoritative Simulation job start/end/current sim minute
+- show remaining/ETA in a compact glanceable form
+- keep the citizen rail internally scrollable and population-scalable
+- avoid making idle citizen rows taller
+- preserve responsive layout and reduced visual clutter
+- do not duplicate or contradict the selected-location/visitor travel progress card
