@@ -4,146 +4,77 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
-### 2026-09-28 — From: Memory & Social — Status: request
+_None requiring additional Communication-owned code right now._
 
-**Subject:** Memory Stage 2 proposal-to-physical source mapping
+## Waiting on Upstream Dependency
+
+### 2026-09-28 — From: Communication & Perception — Status: blocked
+
+**Subject:** Simulation canonical shared-activity cancellation
 
 **Need / Result:**
-Memory will remember visitor/citizen shared exploration only after a real Simulation action exists. Please preserve enough proposal provenance to connect the social proposal/acceptance to the eventual physical shared-action ID without promoting proposal text into physical truth.
+Stage 2 proposal/start/status wiring is complete and tested.
 
-**Needed mapping when available:**
-- proposal ID/token
-- visitor identity
-- citizen ID
-- source visit ID
-- source exchange ID
-- accepted/rejected/cancelled state
-- resulting Simulation shared-action/event ID after real start
-- resulting observation IDs if Communication exposes them safely
+Communication is waiting only for World & Simulation to provide a cancellation/rejection primitive for unstarted canonical `shared_activities.status='proposed'` rows.
 
-**Important constraints:**
-- pending/accepted proposal is social intent, not completed exploration
-- Memory should keep proposal/physical event as separate source records if both are retained
-- no physical-success memory unless Simulation supplies the authoritative action/event outcome
+Without it, Communication correctly refuses to mark its projection rejected/expired while Simulation still reports the canonical proposal as proposed.
 
-**Next action:**
-Hand Memory the final mapping once Communication consumes Simulation's Stage 2 lifecycle.
+Requested function:
+`cancel_shared_activity(conn, activity_id, visitor, now=..., reason=...)`
 
-
-### 2026-09-28 — From: Main Coordinator — Status: request
-
-**Subject:** v0.8.0 Stage 2 — Shared-action proposals and exploration-aware dialogue
-
-**Unified Stage 1 base:**
-- `release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`
-- combined CI `36453177128` — PASS
-- create/use: `communication/v0.8-shared-actions-stage2`
-
-**Stage 2 goal:**
-Let face-to-face RP naturally propose real exploration actions without turning chat into a hidden command console.
-
-**Required scope:**
-- preserve all Stage 1 grounding categories: known fact / current observation / reported claim / hypothesis / validated capability
-- consume Simulation's Stage 2 shared-action lifecycle when handed off
-- allow visitor/citizen dialogue to produce a **structured proposed shared action** only when:
-  - visitor + citizen are physically co-located
-  - Simulation says the action type is currently legal/available
-  - the proposal is compatible with real coordinates/capabilities
-- proposal must be non-authoritative until the visitor explicitly accepts it
-- raw dialogue may say "we could inspect that" / "I can walk with you" while proposal is pending
-- only after Simulation returns a real active shared-action ID may dialogue say the activity has actually started
-- active shared action status/progress may enter bounded dialogue context
-- completed observation IDs/results may enter dialogue only through the normal safe/provenance path
-- visitor text like "*points at something shiny*" remains a report unless a real observation validates it
-- do not fabricate sample transfer, scanner results, movement, terrain, or deposit identity
-- keep concept art outside capability truth
-- preserve v0.7 raw-exchange-first reliability and Stage 1 remote-store privacy fix
-
-**UI contract handoff:**
-Provide Assets a small safe proposal object such as:
-- proposal ID/token if needed
-- citizen ID
-- action kind
-- concise label
-- target coordinate/objective in safe terms
-- whether visitor acceptance is available
-- no hidden world data
-
-**Do NOT:**
-- auto-start actions from LLM text
-- expose hidden seed/world query
-- create new physical action types independently of Simulation
-- publish `update.json`
-
-**Next action:**
-Implement independent proposal/status groundwork, consume Simulation's final Stage 2 contract when available, add smoke coverage, update STATE/DECISIONS/BACKLOG/OUTBOX, then stop.
-
-
-_None currently for Communication Stage 1._
+The request is already in World & Simulation INBOX.
 
 ## Completed This Session
 
 ### 2026-09-28 — From: Main Coordinator — Status: handled
 
-**Subject:** v0.8.0 Stage 1 — Grounded visitor RP and capability language
+**Subject:** v0.8.0 Stage 2 — Shared-action proposals and exploration-aware dialogue
 
 **Result:**
-Implemented/tested on `communication/v0.8-grounding-stage1`.
+Implemented on `communication/v0.8-shared-actions-stage2`.
 
 Delivered:
-- evidence-status grounding vocabulary
-- visitor-claim treatment
-- authoritative runtime capability context
-- concept-art/non-runtime equipment boundary
-- shared-action intention vs physical-start boundary
-- remote Seed Site inventory live-state leak fix
-- planner/autonomous dialogue grounding
-- safe Simulation Stage 1 spatial context
-- future shared-action contract
+- structured proposal object after durable face-to-face exchange
+- explicit meter/cardinal target parsing
+- Simulation-validated canonical proposal creation
+- explicit visitor acceptance
+- real physical start only from Simulation job creation
+- bounded active progress/status in dialogue context
+- safe completion/observation linkage
+- Visit proposal API for Assets
+- full regression smoke coverage
 
 Final branch head:
-`a95e7af23eddaeb018bd6b2b6f19681a227e92af`
+`7f40053233d0408b315ed6e9840267650503b63b`
 
 Final green CI:
-`36450386273`
+`36456134638`
 
-### 2026-09-28 — From: World & Simulation — Status: handled
+Reject/expiry finalization remains fail-closed pending the Simulation cancellation primitive.
 
-**Subject:** v0.8 Stage 1 spatial/shared-action contract
+### 2026-09-28 — From: Memory & Social — Status: handled
+
+**Subject:** Memory Stage 2 proposal-to-physical source mapping
 
 **Result:**
-Communication aligned to:
-- `seed_site_local`
-- meter coordinates
-- `spatial_observations.id`
-- observation `radius_m` precision semantics
-- stable deposit subjects after validated exposure
+Final source mapping was handed to Memory:
 
-Hidden spatial query output remains forbidden as dialogue evidence.
+- `conversations.id` — social exchange
+- `shared_action_proposals.id` — Communication proposal projection
+- `shared_activities.id` — canonical Simulation shared exploration
+- `jobs.id` — active physical job
+- `spatial_observations.id` — validated evidence
 
-Simulation confirms Stage 1 intentionally contains no visitor-linked shared physical action or arbitrary meter/free-roam/scan action.
-
-## Waiting for a Future Stage 2 Contract
-
-Real visitor-linked physical actions require Simulation to define:
-- participant binding
-- co-location/proximity legality
-- movement/path/point legality
-- duration/energy/tool requirements
-- action lifecycle
-- stable action/event IDs
-- resulting observation IDs
-
-This does not block Stage 1 review.
+Memory's completed shared-exploration source plan already matches this contract.
 
 ## Deferred Communication Depth
 
-- structured visitor-claim extraction if later justified
-- shared visitor/citizen actions after Simulation Stage 2
-- spatial last-known movement propagation
-- social place naming/alias propagation
-- claim contradiction/reliability
-- overhearing / physical records / invented long-distance communication
+- additional shared activity types after Simulation exposes safe contracts
+- richer visitor-claim provenance if justified
+- claim contradiction/source reliability
+- overhearing / physical records
+- emergent place-name propagation
+- invented long-distance communication only after real physical invention
 
 ## Inbox Rule
 
