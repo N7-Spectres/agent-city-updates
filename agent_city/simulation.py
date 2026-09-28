@@ -1764,41 +1764,66 @@ def complete_due_jobs(now: int) -> None:
                     )
 
             elif action == "deposit_cargo":
-                cargo = conn.execute(
-                    "SELECT material, amount FROM citizen_inventory WHERE citizen_id = ? AND amount > 0",
-                    (c["id"],),
-                ).fetchall()
-                materials = []
-                for row in cargo:
-                    materials.append(f"{row['amount']:g} {row['material']}")
+                if not structure_operational(conn, "Storage Unit", c["location_id"]):
+                    job_status = "failed"
+                    outcome = "failed"
                     conn.execute(
-                        """
-                        INSERT INTO resources(name, amount) VALUES (?, ?)
-                        ON CONFLICT(name) DO UPDATE SET amount = amount + excluded.amount
-                        """,
-                        (row["material"], row["amount"]),
+                        "UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?",
+                        (c["id"],),
                     )
-                conn.execute("DELETE FROM citizen_inventory WHERE citizen_id = ?", (c["id"],))
-                conn.execute("UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?", (c["id"],))
-                message = (
-                    f"{c['name']} deposited " + ", ".join(materials) + " into Seed Site storage."
-                    if materials else f"{c['name']} had no cargo to deposit."
-                )
+                    message = f"{c['name']} could not unload cargo because the Storage Unit is non-operational."
+                else:
+                    cargo = conn.execute(
+                        "SELECT material, amount FROM citizen_inventory WHERE citizen_id = ? AND amount > 0",
+                        (c["id"],),
+                    ).fetchall()
+                    materials = []
+                    for row in cargo:
+                        materials.append(f"{row['amount']:g} {row['material']}")
+                        conn.execute(
+                            """
+                            INSERT INTO resources(name, amount) VALUES (?, ?)
+                            ON CONFLICT(name) DO UPDATE SET amount = amount + excluded.amount
+                            """,
+                            (row["material"], row["amount"]),
+                        )
+                    conn.execute("DELETE FROM citizen_inventory WHERE citizen_id = ?", (c["id"],))
+                    conn.execute(
+                        "UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?",
+                        (c["id"],),
+                    )
+                    message = (
+                        f"{c['name']} deposited " + ", ".join(materials) + " into Seed Site storage."
+                        if materials else f"{c['name']} had no cargo to deposit."
+                    )
 
             elif action == "charge":
+                current = conn.execute(
+                    "SELECT energy, battery_health FROM citizens WHERE id = ?",
+                    (c["id"],),
+                ).fetchone()
+                battery_health = float(current["battery_health"] or 100) if current else 100.0
+                energy_now = float(current["energy"] or 0) if current else 0.0
+                charged_to = min(battery_health, energy_now + 25.0)
                 conn.execute(
                     """
                     UPDATE citizens
-                    SET energy = MIN(100, energy + 25), current_activity = 'Available', active_job_id = NULL
+                    SET energy = ?, current_activity = 'Available', active_job_id = NULL
                     WHERE id = ?
                     """,
-                    (c["id"],),
+                    (charged_to, c["id"]),
                 )
-                message = f"{c['name']} completed a charging cycle."
+                message = (
+                    f"{c['name']} completed a charging cycle "
+                    f"to {charged_to:.0f}% usable charge at {battery_health:.0f}% battery health."
+                )
 
             else:
                 conn.execute("UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?", (c["id"],))
                 message = f"{c['name']} finished observing the area."
+
+            _apply_citizen_job_wear(conn, c, job, now)
+            _apply_post_job_asset_wear(conn, c, job, now)
 
             conn.execute(
                 "UPDATE jobs SET status = ?, outcome = ? WHERE id = ?",
