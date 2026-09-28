@@ -676,3 +676,26 @@ Example:
 - settlement owns 80 logs → do not render 80 separate log meshes
 
 This policy should guide the local asset worker and future procedural 3D system.
+
+
+## v0.8 Citizen Visual Identity System
+
+Assets planning reference:
+`docs/departments/assets/V080_CITIZEN_VISUAL_SYSTEM.md`
+
+Direction:
+
+- six citizens share one mechanical species/civilization language
+- each keeps a distinct silhouette and accent identity
+- clean base bodies contain no optional equipment
+- Home/map uses expressive head tokens
+- token visor system supports neutral / blink / happy / focused / curious frames
+- Citizens page uses full-body art
+- real equipment is rendered as removable modular visual layers only when validated state supports it
+- Cato remains the intentionally heavy logistics citizen
+- Iri remains especially slim/elegant and construction-oriented
+- later 3D models should preserve the same silhouette/color canon and keep optional gear as separate meshes
+
+Core rule:
+
+> **Identity stays. Equipment changes. Expressions live. Simulation remains truth.**
