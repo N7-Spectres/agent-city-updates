@@ -43,7 +43,7 @@ Published v0.5.0 base:
 
 **Branch:** `communication/v0.6-knowledge-provenance`  
 **Base:** shipped v0.5.0 commit `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`  
-**Branch head:** `0fc75220610f52f9701b19df1a22caaaa60c341a`
+**Branch head:** `6a483fcc4d143606f3e401218002e06ae43076d1`
 
 ### Information receipt ledger
 
@@ -190,7 +190,7 @@ Remote access is checked before exposing local busy/talk detail, so visitor stat
 
 Final hardened GitHub Actions run:
 
-`36420788364`
+`36421263078`
 
 Passed:
 
@@ -204,11 +204,31 @@ The temporary branch CI workflow was removed after the green run.
 
 ## Current Integration Dependencies
 
+### Layered v0.6 knowledge architecture
+
+1. **Simulation** owns physical truth, validated `discoveries`, and current validated `citizen_knowledge`.
+2. **Communication** owns immutable receipt/transfer provenance in `information_receipts`, including unverified face-to-face claims.
+3. **Memory** owns durable bounded retention/retrieval and citizen/location summaries.
+4. **Assets** consumes safe bounded read models and structured availability, not hidden truth.
+
+
 ### Simulation
 
-Simulation should call Communication's validated ingress once per citizen who actually receives/observes a discovery or experiment result.
+Simulation's final v0.6 branch owns:
+- `agent_city/knowledge.py`
+- `discoveries`
+- `citizen_knowledge`
+- `experiment_results`
+- hidden world truth and experiment outcomes
 
-Communication does not decide experiment truth.
+Communication deliberately uses a separate module:
+- `agent_city/provenance.py`
+
+At integration time, Communication idempotently mirrors only recipient-local **verified** `citizen_knowledge` rows and persisted experiment results into receipt history. It never reads `world_properties` alone to manufacture knowledge.
+
+This removes the need for Simulation to call Communication on every event and avoids a module-name collision.
+
+The generic `record_validated_information(...)` ingress remains available for validated observations that do not naturally live in Simulation's discovery tables.
 
 ### Memory
 
