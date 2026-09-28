@@ -8,6 +8,7 @@ import httpx
 
 from .comms import generate_dialogue, known_deposits_for, recent_dialogues_for, visible_citizens
 from .db import connect, get_meta, snapshot
+from .knowledge import knowledge_context_for
 from .memory import social_context_for
 from .simulation import possible_actions, start_action
 from .world import format_sim_time
@@ -34,6 +35,7 @@ def citizen_context(citizen: dict[str, Any], state: dict[str, Any], actions: lis
     ) or "none personally confirmed"
 
     dialogues = recent_dialogues_for(citizen["id"], limit=5)
+    provenance_knowledge = knowledge_context_for(citizen["id"], limit=10)
     social_history = social_context_for(
         citizen["id"],
         preferred_counterparties=[c["id"] for c in visible],
@@ -68,7 +70,10 @@ DIRECTLY OBSERVABLE CITIZENS AT YOUR LOCATION:
 DEPOSITS YOU PERSONALLY CONFIRMED:
 {discovery_text}
 
-THINGS YOU ACTUALLY HEARD OR SAID IN RECENT FACE-TO-FACE CITIZEN CONVERSATIONS:
+PROVENANCE-BACKED FACTS AND CLAIMS THAT ACTUALLY REACHED YOU:
+{provenance_knowledge}
+
+RECENT FACE-TO-FACE CONVERSATION SUMMARIES FOR SOCIAL CONTINUITY ONLY:
 {dialogue_text}
 
 DURABLE SOCIAL HISTORY FROM YOUR OWN RECORDED ENCOUNTERS:
@@ -78,7 +83,9 @@ INFORMATION BOUNDARY:
 - You know the other five citizens exist.
 - You can directly observe citizens at your own location.
 - You do NOT know the current location, activity, discoveries, or condition of a citizen elsewhere unless that information reached you through an actual recorded conversation.
-- A conversation memory is something somebody said, not automatic proof that their claim was physically true.
+- A speaker claim is something somebody said and remains unverified unless a separate physical observation or experiment verifies it.
+- Conversation summaries are social continuity, not authoritative physical world state.
+- Use provenance-backed records for last-known remote facts and state their source/uncertainty naturally.
 - No radio, network, telepathy, shared status channel, or remote communication exists yet.
 
 LEGAL ACTIONS:
