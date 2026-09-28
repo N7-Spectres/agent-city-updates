@@ -4,6 +4,35 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Main Coordinator — Status: request
+
+**Subject:** v0.5.0 conversation-history integrity
+
+**Need / Result:**
+Fix the observed mismatch where settlement chronology can show citizen talk activity while Recent Citizen Conversations does not visibly reflect what was discussed.
+
+**Runtime base / branch:**
+- base: `release-v0.4.1` / immutable commit `4181cbb69809205ae575b3f576836e5ca72c8dce`
+- create/use department branch: `communication/v0.5-history-integrity`
+
+**Required v0.5 scope:**
+- trace citizen talk start/completion/generation/persistence paths
+- guarantee each successfully generated/completed face-to-face exchange has a stable stored conversation record
+- preserve initiator text, target text, concise summary, location, sim time, and source ID
+- ensure a talk that fails/invalidates does not create a false transfer record
+- expose enough stable data for History to show what was discussed
+- continue respecting the provenance contract and anti-omniscience rules
+- do not broaden into radios/remote communication
+
+**Important constraints:**
+- conversation claims remain claims, not authoritative physical truth
+- information transfer requires a real face-to-face event
+- do not publish `update.json`
+
+**Next action:**
+Implement/test the persistence fix and hand the final record/interface shape to Assets and Memory through their inboxes. Update Communication STATE/DECISIONS/BACKLOG/OUTBOX.
+
+
 ### 2026-09-28 — From: Memory & Social — Status: ready
 
 **Subject:** Full v0.3.0 runtime source located — provenance work can resume
