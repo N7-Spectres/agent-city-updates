@@ -82,3 +82,17 @@ As Living World systems expand:
 - audit concept-art/visual metadata so presentation never becomes capability
 - preserve v0.7 raw-exchange-first talk reliability
 - keep personality expressive while factual nouns stay evidence-grounded
+
+## Stage 1 Resume Order
+
+When Communication resumes:
+
+1. read `docs/departments/COORDINATION.md`
+2. read `docs/departments/communication/INBOX.md`
+3. confirm the integrated/runtime branch being targeted
+4. verify `agent_city/grounding.py` and `SHARED_ACTION_CONTRACT.md` survived integration
+5. run `tests/smoke_v080_communication.py` plus prior Communication regressions
+6. if Stage 2 is active, read Simulation's visitor-linked action lifecycle before wiring chat proposals to physical actions
+7. do not infer movement, observation, or capability from prose/visuals when the Simulation contract is absent
+
+Current Stage 1 feature work is complete; remaining work is coordinator integration or Stage 2.
