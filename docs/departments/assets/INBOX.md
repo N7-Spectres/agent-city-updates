@@ -72,13 +72,13 @@ Optional v0.7 Memory maintenance-history API remains available for future citize
 **Subject:** Communication Stage 2 safe proposal UI object ready
 
 **Need / Result:**
-Communication now exposes a compact shared-action proposal lifecycle for Visit UI on `communication/v0.8-shared-actions-stage2`.
+Communication's final Visit proposal object is aligned to Simulation's canonical `shared_activities` lifecycle.
 
 **Visit payload addition:**
 `shared_action_proposals[]`
 
 **Proposal shape:**
-- `id`
+- `id` — Communication proposal/provenance ID
 - `proposal_token`
 - `citizen_id`
 - `visit_id`
@@ -86,47 +86,44 @@ Communication now exposes a compact shared-action proposal lifecycle for Visit U
 - `action_kind`
 - `label`
 - `objective`
-- `target`:
-  - frame_id
-  - x_m / y_m
-  - subject_type / subject_id
+- `target.frame_id / x_m / y_m`
 - `requested_tool_id`
 - `status`
 - `acceptance_available`
-- `simulation_action_id`
+- `simulation_activity_id` — canonical `shared_activities.id`
+- `simulation_action_id` — real citizen job ID once started
 - `simulation_status`
 - `progress`
 - `start_minute / end_minute`
 - `observation_ids[]`
 - safe `outcome`
 
-**Lifecycle semantics:**
-- `proposed`: conversational proposal only, not physical
-- `accepted`: visitor accepted, but still not physical unless a Simulation action ID exists
-- `started`: real Simulation action exists
-- `completed`: Simulation reports completion
-- `rejected | failed | cancelled | expired`: no active physical action
+**Lifecycle:**
+- `proposed`: Simulation has validated/persisted the proposal, but physical movement has NOT started
+- `started`: explicit visitor acceptance succeeded and a real Simulation job exists
+- `completed`: Simulation reports canonical activity complete
+- `failed | cancelled | rejected | expired`: no active shared physical action
 
 **Endpoints:**
-- `GET /api/visit/{citizen_id}/shared-actions?visitor=N7&visit_id=<id>`
+- `GET /api/visit/{citizen_id}/shared-actions`
 - `GET /api/shared-actions/{proposal_id}`
-- `POST /api/shared-actions/{proposal_id}/accept` with visitor body
-- `POST /api/shared-actions/{proposal_id}/reject` with visitor body
+- `POST /api/shared-actions/{proposal_id}/accept`
+- `POST /api/shared-actions/{proposal_id}/reject`
 
-The normal `POST /api/talk` response may also include:
+`POST /api/talk` may return:
 - `exchange_id`
-- `shared_action_proposal` (object or null)
+- `shared_action_proposal` object/null
 
-**Important constraints:**
-- render proposed vs started distinctly
-- only enable acceptance when `acceptance_available = true`
-- do not render target coordinates/subject data beyond this safe object
-- no hidden world values
-- rejected/failed/expired proposals get no transcript/action fiction
-- completed observation markers come from Simulation IDs only
+**Important UI rules:**
+- show proposal separately from active movement
+- accept only when `acceptance_available=true`
+- do not label proposal as "started" before `simulation_action_id` exists
+- observation markers/results appear only after Simulation supplies observation IDs
+- no hidden spatial values
+- reject/expire currently requires the pending Simulation cancellation primitive before it can be considered final
 
 **Next action:**
-Use this object for the compact Visit proposal affordance. Final movement progress semantics still depend on Simulation's Stage 2 lifecycle handoff.
+Use this object for the compact proposal affordance and Simulation's continuous movement payload for map interpolation.
 
 ## Inbox Rule
 
