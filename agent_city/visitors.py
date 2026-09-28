@@ -57,12 +57,19 @@ def ensure_visitor(visitor: str) -> dict[str, Any]:
             (visitor,),
         ).fetchone()
         if not row:
+            seed = conn.execute(
+                "SELECT x_m, y_m FROM locations WHERE id = 'seed_site'"
+            ).fetchone()
             conn.execute(
                 """
-                INSERT INTO visitor_presence(visitor, location_id)
-                VALUES (?, 'seed_site')
+                INSERT INTO visitor_presence(visitor, location_id, x_m, y_m)
+                VALUES (?, 'seed_site', ?, ?)
                 """,
-                (visitor,),
+                (
+                    visitor,
+                    seed["x_m"] if seed else 0.0,
+                    seed["y_m"] if seed else 0.0,
+                ),
             )
             conn.commit()
             row = conn.execute(
@@ -196,17 +203,28 @@ def complete_due_visitor_travel(now: int) -> None:
             if not target:
                 continue
             target_name = _location_name(conn, target)
+            target_loc = conn.execute(
+                "SELECT x_m, y_m FROM locations WHERE id = ?",
+                (target,),
+            ).fetchone()
             conn.execute(
                 """
                 UPDATE visitor_presence
                 SET location_id = ?,
+                    x_m = COALESCE(?, x_m),
+                    y_m = COALESCE(?, y_m),
                     from_location_id = NULL,
                     to_location_id = NULL,
                     travel_start_minute = NULL,
                     travel_end_minute = NULL
                 WHERE visitor = ?
                 """,
-                (target, row["visitor"]),
+                (
+                    target,
+                    target_loc["x_m"] if target_loc else None,
+                    target_loc["y_m"] if target_loc else None,
+                    row["visitor"],
+                ),
             )
             add_history(
                 conn,
