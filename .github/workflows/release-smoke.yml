@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "release-v*"
+      - "simulation/v0.7-maintenance"
 
 jobs:
   smoke:
@@ -51,3 +52,6 @@ jobs:
       - name: Run v0.6 assembled UI integration smoke
         run: python tests/smoke_v060_ui.py
 
+
+      - name: Run v0.7 maintenance smoke
+        run: python tests/smoke_v070.py
