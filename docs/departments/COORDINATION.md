@@ -16,22 +16,23 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-- [Communication & Perception] consume Simulation's final reject/start/status contract and finish Stage 2 bridge/handoff
 - [Assets & Interface] finish Stage 2 continuous local map/shared-action UI using final Simulation + Communication contracts
 
 ### WAITING
 
-- [Coordinator / Stage 2 Integration] final assembly waits for Communication and Assets Stage 2 completion, then must merge Simulation + Communication + Memory + Assets and run the full regression matrix
+- [Coordinator / Stage 2 Integration] final assembly waits for Assets Stage 2 completion, then must merge Simulation + Communication + Memory + Assets and run the full regression matrix
 
 ### READY
 
 - [World & Simulation] Stage 2 local exploration/shared physical activity ready on `simulation/v0.8-exploration-stage2` @ `b81c9bb57884727e7a1c769d95ecb27928d1d489`; final CI `36456647323` passed all v0.4-v0.7 regressions, all Stage 1 department smokes, and `tests/smoke_v080_stage2.py`
 - [World & Simulation] Communication's canonical pre-start reject dependency is resolved by `POST /api/shared-activities/{id}/reject`
-- [Communication & Perception] Stage 2 proposal/start/status bridge ready on `communication/v0.8-shared-actions-stage2` @ `7f40053233d0408b315ed6e9840267650503b63b`; CI `36456134638` passed before final reject-adapter consumption
+- [Communication & Perception] Stage 2 shared-action proposal/accept/start/reject bridge ready on `communication/v0.8-shared-actions-stage2` @ `ddab4bd445d5eb9f7d6354eb86e58afc0dc53332`; final CI `36457633293` passed unified Stage 1 regressions + Communication Stage 2 smoke + final Simulation adapter signature checks
 - [Memory & Social] no remaining Stage 2 department dependency; ready for coordinator assembly
 - [Coordinator] Stage 1 unified base remains green: `release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`, Actions `36453177128`
 
 ### REVIEW
+
+- [Communication & Perception] Stage 2 conversational-to-physical bridge complete: explicit meter/cardinal proposals, canonical Simulation proposal validation, separate accept/start, canonical pre-start reject, bounded progress/status dialogue context, and final source-chain handoff
 
 - [World & Simulation] Stage 2 continuous local movement, terrain/energy cost, local inspection, meter-aware proximity, shared proposal/accept/start/reject/complete lifecycle, stable physical source IDs, and additive migration complete
 - [Memory & Social] Stage 2 exploration Memory complete on `memory/v0.8-exploration-stage2` @ `306a9ef4329ab81afa5912846333a1d9782ee9be`; CI `36455394456` passed
@@ -276,5 +277,5 @@ Coordinator integration must preserve:
 15. Preserve `tests/smoke_v080_communication_stage2.py` in assembled Stage 2 regression testing.
 
 Final dependency resolution:
-- Simulation now provides visitor-owned `POST /api/shared-activities/{id}/reject` for canonical `proposed` or `accepted` rows; it creates no job, movement, or observation.
-- Communication should consume this primitive before final Stage 2 assembly.
+- Simulation provides canonical pre-start reject for `proposed`/`accepted` rows with no job, movement, or observation.
+- Communication now consumes and tests the final accept -> start -> reject lifecycle. No Communication Stage 2 dependency remains.
