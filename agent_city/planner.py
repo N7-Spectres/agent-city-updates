@@ -8,8 +8,9 @@ import httpx
 
 from .comms import generate_dialogue, known_deposits_for, recent_dialogues_for, visible_citizens
 from .db import connect, get_meta, snapshot
-from .memory import social_context_for
+from .memory import knowledge_context_for as memory_knowledge_context_for, social_context_for
 from .knowledge import known_properties_for
+from .provenance import knowledge_context_for as provenance_context_for
 from .simulation import possible_actions, start_action
 from .world import format_sim_time
 
@@ -41,10 +42,16 @@ def citizen_context(citizen: dict[str, Any], state: dict[str, Any], actions: lis
     ) or "none personally validated"
 
     dialogues = recent_dialogues_for(citizen["id"], limit=5)
+    provenance_knowledge = provenance_context_for(citizen["id"], limit=10)
     social_history = social_context_for(
         citizen["id"],
         preferred_counterparties=[c["id"] for c in visible],
         limit=4,
+    )
+    local_knowledge = memory_knowledge_context_for(
+        citizen["id"],
+        location_id=citizen["location_id"],
+        limit=6,
     )
     dialogue_text = "\n".join(
         f"- {d['summary']}"
@@ -78,17 +85,26 @@ DEPOSITS YOU PERSONALLY CONFIRMED:
 MATERIAL / WORLD PROPERTIES YOU PERSONALLY VALIDATED:
 {property_text}
 
-THINGS YOU ACTUALLY HEARD OR SAID IN RECENT FACE-TO-FACE CITIZEN CONVERSATIONS:
+PROVENANCE-BACKED FACTS AND CLAIMS THAT ACTUALLY REACHED YOU:
+{provenance_knowledge}
+
+RECENT FACE-TO-FACE CONVERSATION SUMMARIES FOR SOCIAL CONTINUITY ONLY:
 {dialogue_text}
 
 DURABLE SOCIAL HISTORY FROM YOUR OWN RECORDED ENCOUNTERS:
 {social_history}
 
+RETAINED KNOWLEDGE ABOUT YOUR CURRENT LOCATION:
+{local_knowledge}
+
 INFORMATION BOUNDARY:
 - You know the other five citizens exist.
 - You can directly observe citizens at your own location.
-- You do NOT know the current location, activity, discoveries, or condition of a citizen elsewhere unless that information reached you through an actual recorded conversation.
-- A conversation memory is something somebody said, not automatic proof that their claim was physically true.
+- You do NOT know the current location, activity, discoveries, research results, or condition of a citizen elsewhere unless that information reached you through a real mechanism.
+- A speaker claim is something somebody said and remains unverified unless a separate physical observation, survey/measurement, or experiment verifies it.
+- Conversation summaries are social continuity, not authoritative physical world state.
+- Use provenance-backed records for last-known remote facts and state their source/uncertainty naturally.
+- Retained local knowledge may include validated personal discoveries and clearly labeled unverified reports; do not promote an unverified report into physical truth.
 - No radio, network, telepathy, shared status channel, or remote communication exists yet.
 
 LEGAL ACTIONS:
