@@ -54,6 +54,8 @@ const els = {
   locations: document.getElementById("locations"),
   resourceBalance: document.getElementById("resource-balance"),
   citizenCargo: document.getElementById("citizen-cargo"),
+  projects: document.getElementById("projects"),
+  equipment: document.getElementById("equipment"),
   structures: document.getElementById("structures"),
   history: document.getElementById("history"),
   citizenConversations: document.getElementById("citizen-conversations"),
@@ -554,6 +556,143 @@ function renderRegionStrip() {
   }).join("");
 }
 
+function citizenNameById(id) {
+  return state?.citizens?.find(c => String(c.id) === String(id))?.name || id || "Unassigned";
+}
+
+function locationNameById(id) {
+  return state?.locations?.find(loc => String(loc.id) === String(id))?.name || id || "Unknown location";
+}
+
+function projectMaterialsFor(projectId) {
+  return (state?.project_materials || []).filter(row => String(row.project_id) === String(projectId));
+}
+
+function statusLabel(status) {
+  const labels = {
+    planned: "Planned",
+    reserved: "Materials reserved",
+    underway: "Underway",
+    complete: "Complete",
+  };
+  return labels[status] || String(status || "Unknown");
+}
+
+function localCoordinateText(x, y) {
+  const xNum = Number(x);
+  const yNum = Number(y);
+  if (!Number.isFinite(xNum) || !Number.isFinite(yNum)) return "";
+  return `Local site ${trimNumber(xNum)} km x / ${trimNumber(yNum)} km y`;
+}
+
+function renderMakingBuilding() {
+  const projects = state?.projects || [];
+  const equipment = state?.equipment || [];
+  const structures = state?.structures || [];
+
+  els.projects.innerHTML = projects.length ? projects.map(project => {
+    const materials = projectMaterialsFor(project.id);
+    const coords = localCoordinateText(project.x_km, project.y_km);
+    const creator = citizenNameById(project.created_by);
+    const location = locationNameById(project.location_id);
+    const status = String(project.status || "unknown");
+
+    const materialMarkup = materials.length ? `
+      <div class="project-materials">
+        ${materials.map(row => `
+          <div class="project-material-row">
+            <span>${escapeHtml(row.material)}</span>
+            <strong>${trimNumber(row.reserved_amount || 0)} / ${trimNumber(row.required_amount || 0)}</strong>
+          </div>
+        `).join("")}
+      </div>
+    ` : '<div class="making-empty-note">No material requirement rows are exposed for this project.</div>';
+
+    const completion = status === "complete" && project.resulting_structure_id != null
+      ? `<span>Structure #${escapeHtml(String(project.resulting_structure_id))}</span>`
+      : "";
+
+    const activeJob = project.active_job_id != null
+      ? `<span>Active job #${escapeHtml(String(project.active_job_id))}</span>`
+      : "";
+
+    return `
+      <article class="project-card status-${escapeHtml(status)}" data-project-id="${escapeHtml(String(project.id))}">
+        <div class="making-card-head">
+          <div>
+            <strong>${escapeHtml(project.name || project.blueprint_id || "Project")}</strong>
+            <span>Project #${escapeHtml(String(project.id))}</span>
+          </div>
+          <span class="status-chip status-${escapeHtml(status)}">${escapeHtml(statusLabel(status))}</span>
+        </div>
+        <div class="making-meta">
+          <span>${escapeHtml(location)}</span>
+          <span>Created by ${escapeHtml(creator)}</span>
+          ${coords ? `<span>${escapeHtml(coords)}</span>` : ""}
+          ${activeJob}
+          ${completion}
+        </div>
+        ${materialMarkup}
+      </article>
+    `;
+  }).join("") : '<div class="muted making-empty">No construction projects exist yet.</div>';
+
+  els.equipment.innerHTML = equipment.length ? equipment.map(item => {
+    const owner = item.owner_citizen_id
+      ? citizenNameById(item.owner_citizen_id)
+      : "Settlement equipment";
+    const location = locationNameById(item.location_id);
+    const cargoBonus = Number(item.cargo_bonus || 0);
+    const extractionMultiplier = Number(item.extraction_speed_multiplier || 1);
+    const effects = [];
+    if (cargoBonus !== 0) effects.push(`Cargo capacity ${cargoBonus > 0 ? "+" : ""}${trimNumber(cargoBonus)}`);
+    if (extractionMultiplier !== 1) effects.push(`Extraction speed ${trimNumber(extractionMultiplier)}×`);
+
+    return `
+      <article class="equipment-card" data-equipment-id="${escapeHtml(String(item.id))}">
+        <div class="making-card-head">
+          <div>
+            <strong>${escapeHtml(item.name || item.template_id || "Equipment")}</strong>
+            <span>Equipment #${escapeHtml(String(item.id))} • ${escapeHtml(item.kind || "equipment")}</span>
+          </div>
+          <span class="condition-chip">${Math.round(Number(item.condition) || 0)}%</span>
+        </div>
+        <div class="making-meta">
+          <span>${escapeHtml(owner)}</span>
+          <span>${escapeHtml(location)}</span>
+          ${item.created_job_id != null ? `<span>Created by job #${escapeHtml(String(item.created_job_id))}</span>` : ""}
+        </div>
+        <div class="effect-row">
+          ${effects.length ? effects.map(effect => `<span>${escapeHtml(effect)}</span>`).join("") : '<span>No non-default modifier exposed.</span>'}
+        </div>
+      </article>
+    `;
+  }).join("") : '<div class="muted making-empty">No fabricated equipment exists yet.</div>';
+
+  els.structures.innerHTML = structures.length ? structures.map(structure => {
+    const location = locationNameById(structure.location_id);
+    const coords = localCoordinateText(structure.x_km, structure.y_km);
+    const charging = Number(structure.provides_charging || 0) === 1;
+    return `
+      <article class="structure-card" data-structure-id="${escapeHtml(String(structure.id))}">
+        <div class="making-card-head">
+          <div>
+            <strong>${escapeHtml(structure.name)}</strong>
+            <span>Structure #${escapeHtml(String(structure.id))} • ${escapeHtml(structure.kind || "structure")}</span>
+          </div>
+          <span class="condition-chip">${Math.round(Number(structure.condition) || 0)}%</span>
+        </div>
+        <div class="making-meta">
+          <span>${escapeHtml(location)}</span>
+          ${coords ? `<span>${escapeHtml(coords)}</span>` : ""}
+          ${charging ? "<span>Provides charging</span>" : ""}
+          ${structure.project_id != null ? `<span>From project #${escapeHtml(String(structure.project_id))}</span>` : ""}
+        </div>
+      </article>
+    `;
+  }).join("") : '<div class="muted making-empty">No structures are currently exposed.</div>';
+}
+
 function normalizedConversationKey(simMinute, personA, personB, locationName) {
   const people = [String(personA || "").trim().toLowerCase(), String(personB || "").trim().toLowerCase()]
     .filter(Boolean)
@@ -728,9 +867,7 @@ function renderDrawerLists() {
     ? carriers.join("")
     : '<div class="muted cargo-empty">No materials are currently being carried in the field.</div>';
 
-  els.structures.innerHTML = state.structures.map(s => `
-    <div class="list-row"><span>${escapeHtml(s.name)}</span><strong>${Math.round(s.condition)}%</strong></div>
-  `).join("");
+  renderMakingBuilding();
 
   renderCitizenConversationHistory();
 
@@ -977,7 +1114,7 @@ els.visitorName.addEventListener("change", async () => {
 
 els.toggleRegion.addEventListener("click", () => openControlRoomView("region", "Known region", "REGION"));
 els.toggleResources.addEventListener("click", () => openControlRoomView("resources", "Seed Site stores", "STORES"));
-els.toggleStructures.addEventListener("click", () => openControlRoomView("structures", "Structures", "STRUCTURES"));
+els.toggleStructures.addEventListener("click", () => openControlRoomView("structures", "Making & building", "PHYSICAL STATE"));
 els.toggleHistory.addEventListener("click", () => openControlRoomView("history", "Settlement history", "HISTORY"));
 els.toggleUpdates.addEventListener("click", () => openControlRoomView("updates", "Admin • Updates", "ADMIN"));
 
