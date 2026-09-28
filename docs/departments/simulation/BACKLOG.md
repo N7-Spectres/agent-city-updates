@@ -22,6 +22,8 @@
 - allow tools to improve work through physical capability rather than abstract level bonuses
 - extraction tools may affect speed, usable yield, energy cost, or material suitability
 - citizen experience may later contribute modestly and separately from tool quality
+- carry-capacity equipment such as backpacks, cargo frames, carts, or other citizen-invented transport gear can increase how much material a citizen can physically carry
+- carrying upgrades must be real fabricated equipment with tradeoffs such as weight, energy use, speed, suitability, or wear when those systems exist
 - keep efficiency rules understandable; avoid turning the system into a dense engineering simulator
 
 ## v0.6.0 — Research & Discovery
