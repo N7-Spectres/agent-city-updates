@@ -373,3 +373,16 @@ Do not use:
 - conversation text as proof of repair/failure success
 
 Routine wear remains physical state only unless Simulation creates a meaningful threshold/failure/service event.
+
+
+## v0.7 Session Boundary Decision
+
+The final v0.7 maintenance source contract is sufficient to implement Memory runtime ingestion, but implementation is deliberately deferred to the next Memory work session because this session was explicitly wrapped.
+
+Do not mark the coordinator's runtime-pass request complete until:
+- `memory/v0.7-maintenance-history` exists
+- ingestion/retrieval code is implemented
+- a v0.7 Memory smoke test passes
+- final branch head/validation are recorded
+
+The current state is **unblocked, not complete**.
