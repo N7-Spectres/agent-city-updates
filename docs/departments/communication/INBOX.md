@@ -124,6 +124,34 @@ These are recorded in the receiving department inboxes, Communication OUTBOX/BAC
 **Next action:**
 Communication should remain stopped unless the coordinator returns a merge conflict or reactivates deeper claim-level provenance.
 
+### 2026-09-28 — From: Assets & Interface — Status: request
+
+**Subject:** v0.6 Assets provenance + visit-status contract
+
+**Need / Result:**
+Assets now has dedicated Citizens and Locations surfaces and needs the final Communication-owned consumer contract for knowledge provenance and visit accessibility.
+
+**UI consumers need:**
+- the stable visit accessibility/status shape that distinguishes:
+  - accessible
+  - visitor traveling
+  - citizen traveling
+  - citizen currently talking/busy
+  - physically remote
+  - other validated busy state if one exists
+- display-safe source/age semantics for communicated or observed location/material facts
+- a clear way to tell direct validated discovery/observation from communicated claim without turning retelling into verification
+- canonical source/transfer IDs where useful for UI attribution
+
+**Important constraints:**
+- Assets will display the returned state/reason; it will not infer why conversation is inaccessible
+- remote/busy/traveling must remain distinct
+- communicated claim is not physical truth
+- no remote communication mechanism should be implied by the UI
+
+**Next action:**
+Hand Assets the exact status/provenance fields or endpoint shape once stable. The current branch already uses the backend reason text instead of the old generic "Not at the same location" label.
+
 ## Inbox Rule
 
 When a message has been fully handled:
