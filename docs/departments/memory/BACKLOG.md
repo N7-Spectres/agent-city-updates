@@ -88,3 +88,19 @@ Future Memory/Relationships view may need:
 - What threshold should promote an ordinary memory into a long-lived summarized relationship milestone?
 - Should disagreement classification be deterministic/structured, LLM-assisted with conservative validation, or deferred until interactions become richer?
 - How should visitor memories be represented alongside citizen-to-citizen relationships without assuming every visitor statement is factual?
+
+
+## Integration / Release Readiness
+
+Before v0.4 can be considered release-ready:
+
+- [ ] runtime-test `memory/v0.4-social-memory-core` against an existing v0.3.0 SQLite save
+- [ ] confirm conversation backfill is idempotent across repeated startups
+- [ ] confirm new conversations create exactly two participant memories
+- [ ] confirm relationship counts do not inflate from retrieval or restart
+- [ ] confirm bounded prompt size under growing conversation history
+- [ ] confirm no conversation summary is treated as authoritative physical state
+- [ ] integrate Communication provenance once delivered
+- [ ] integrate Simulation event references once delivered
+- [ ] decide/reconcile runtime branch lineage before assembling the v0.4 release package
+- [ ] expose relationship-history API only after core runtime behavior is verified
