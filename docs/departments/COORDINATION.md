@@ -32,8 +32,9 @@ _None._
 
 ### DONE
 
-- [Coordinator] v0.8.1 Citizen Visual Assets + Map Readability published from `fa27c942d08a9a97a2dbca5e86ab77dc7b9b7cc0`; final CI `36468997929` passed the complete release matrix including `tests/smoke_v081_assets.py`
-- [Assets & Interface] v0.8.1 approved citizen runtime art + map zoom/readability hotfix integrated
+- [Coordinator] v0.8.2 Live State Readability published from `9a11b2bc21ba2338d6b231924036bf6d5935475c`; final CI `36473856852` passed the complete matrix including `tests/smoke_v082_vitals.py`
+- [Assets & Interface] compact synchronized Energy/Integrity micro-bars integrated without enlarging Home citizen cards
+- [Coordinator] v0.8.1 Citizen Visual Assets + Map Readability published from `fa27c942d08a9a97a2dbca5e86ab77dc7b9b7cc0`
 - [Coordinator] v0.8.0 Living World published from `a870982ba947fcc5af08ca190de396ae4308b645`
 
 ## v0.8 Stage 1 Coordination Goal
@@ -422,3 +423,21 @@ Shipped:
 - improved cluster readability at closer zoom
 
 No Simulation, Communication, or Memory semantics changed in v0.8.1.
+
+
+## v0.8.2 Release Result
+
+Published runtime:
+- branch: `release-v0.8.2`
+- immutable commit: `9a11b2bc21ba2338d6b231924036bf6d5935475c`
+- final GitHub Actions run: `36473856852`
+- result: **PASS**
+
+Shipped:
+- compact Energy/Integrity micro-bars on Home citizen cards
+- exact percentages retained
+- Citizen sheet uses the same live values
+- long-term battery health/capacity is visually and semantically separated from current charge
+- Home card geometry preserved
+
+No Simulation, Communication, or Memory behavior changed.
