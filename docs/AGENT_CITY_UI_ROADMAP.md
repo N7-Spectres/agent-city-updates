@@ -69,6 +69,34 @@ Keep Home visually light:
 - visitor's own current location shown as a small map-corner badge rather than a large dedicated status surface
 - surface only meaningful exceptions/alerts when they require attention; do not fill Home with every available statistic
 
+### Home panel sizing / glanceable history
+
+The Home screen should use the full map-height column space more intentionally.
+
+**Citizen rail**
+- extend the citizen panel to approximately the same visual height as the world/map panel
+- keep the citizen rows inside an internally scrollable list
+- reserve a stable header area above the list
+- add a name search/filter control when population growth makes scrolling less convenient
+- this is future-proofing for more than six citizens; Home should not become vertically longer just because population grows
+
+**Visit / chat rail**
+- extend the Visit panel to approximately match the map/world panel height on desktop
+- keep the conversation log internally scrollable
+- keep input/actions anchored
+- do not let long conversations push the page downward
+- responsive layouts may relax the hard height on smaller screens
+
+**Recent activity on Home**
+- restore a compact History summary to Home as an at-a-glance surface
+- show only a small recent window, target: latest ~5 meaningful items
+- include both citizen conversations and significant settlement events in chronological order
+- conversation entries should show a concise summary when a real stored exchange exists
+- failed talk attempts may appear as events but must not masquerade as successful conversations
+- provide a clear "View all history" action that opens Records → History
+
+Records remains the deep archive. Home only answers "What just happened?"
+
 ### Citizen detail page
 
 A separate Citizens page/view may hold deeper per-citizen information such as:
