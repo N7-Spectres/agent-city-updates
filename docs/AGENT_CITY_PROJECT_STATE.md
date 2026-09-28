@@ -18,6 +18,22 @@ Information law:
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
 
+## Planned Hotfix
+
+**v0.8.1 — Citizen Visual Assets**
+
+Small visual follow-up to v0.8.0.
+
+Scope:
+- add approved runtime-ready citizen art files for Aris, Bex, Cato, Iri, Noma, and Vale
+- wire the existing full / bust / token asset slots
+- keep base-body identity separate from optional equipment overlays
+- do not treat concept-art props as owned equipment
+- preserve all v0.8.0 Simulation/Communication/Memory behavior unchanged
+- run the full regression suite before publication
+
+The v0.8.0 framework shipped correctly, but the actual citizen image files were not included in the immutable release. v0.8.1 exists specifically to complete that visual handoff without rewriting v0.8.0.
+
 ## Current Milestone
 
 v0.8.0 — Living World is assembled, fully regression-tested, versioned, and published from immutable runtime commit `a870982ba947fcc5af08ca190de396ae4308b645`.
