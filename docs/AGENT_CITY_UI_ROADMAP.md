@@ -85,18 +85,35 @@ Selecting a citizen on Home should remain fast and map-centric; detailed inspect
 
 ### Locations page
 
-A dedicated Locations page/view should provide deeper place summaries discovered by the civilization:
+A dedicated Locations page/view should provide deeper place summaries discovered by the civilization.
 
+### Knowledge-bound Locations view
+
+The Locations page must never become an omniscient strategy map.
+
+It should show only what citizens have actually observed, measured, surveyed, tested, built, or communicated through a valid information path.
+
+New/poorly known locations may begin mostly blank.
+
+As knowledge accumulates, the location sheet fills in over time:
 - survey/discovery state
 - known deposits/resources
 - structures and projects at the site
-- citizens currently present
-- route/distance information
+- citizens currently present when directly/authoritatively known to the visitor UI
+- route/distance information already mapped
 - local coordinates where meaningful
-- later environmental/terrain/atmospheric observations
-- historical significance or accumulated activity where supported by real records
+- environmental/terrain/atmospheric observations only after measurement
+- historical significance or accumulated activity from real records
 
-Home should show where places are. Locations should explain what is known about them.
+Example:
+- Resin Grove initially: description + mapped route, most fields unknown
+- after survey: Plant Fiber appears under Known Resources
+- after later testing: additional material properties or environmental notes may appear
+- unknown resources remain hidden, not shown as locked/greyed "secrets"
+
+The visual should feel like a field notebook/data sheet gradually being completed by the civilization, not a god-view database.
+
+Home should show where places are. Locations should explain only what is actually known about them.
 
 ### Secondary system views
 
@@ -292,20 +309,50 @@ Shipped direction:
 
 Shipped result: the civilization can now begin altering its environment and capabilities through real fabrication/construction state. Equipment changes physical carrying/extraction behavior, projects persist through explicit lifecycle states, and the UI exposes those authoritative records without inventing outcomes.
 
-### v0.6.0 — Research & Discovery
+### v0.6.0 — Research, Discovery & Knowledge UI
 
-Research becomes experimental rather than a fixed technology tree.
+v0.6.0 is a large milestone combining the research/discovery substrate with a major information-architecture pass.
 
 Planned direction:
 
+#### Research / discovery substrate
 - hidden world-specific material properties
-- experiments with simulation-determined outcomes
-- successful and failed experiments become knowledge
+- experiment actions with simulation-determined outcomes
+- successful and failed experiments become persistent knowledge
 - citizens can reproduce learned processes
-- research can unlock new fabrication possibilities without exposing predetermined recipes
+- research can unlock new fabrication possibilities without exposing a predetermined technology tree
 - communication technology is **not granted**; it may emerge only if citizen need, experimentation, materials, and fabrication capability make it possible
+- knowledge must remain local/provenanced: a citizen or UI surface should not know a discovery until it was observed, measured, or communicated through a real mechanism
 
-Goal: knowledge should be discovered through interaction with this particular world.
+#### Knowledge model / data sheets
+- add a clear distinction between **world truth** and **known truth**
+- location records exposed to ordinary UI must be knowledge-filtered rather than raw hidden simulation state
+- locations begin sparse and fill in as surveys, experiments, measurements, and conversations add evidence
+- unknown resources/properties remain absent rather than displayed as hidden slots
+- retain source/provenance and discovery time where useful
+- support later environmental, atmospheric, terrain, and material-property observations without inventing them early
+
+#### UI / navigation
+- simplify Home around: map, citizen quick list, selected-citizen chat, and only high-value live status
+- move deeper citizen information into a dedicated **Citizens** view / character sheet
+- add a dedicated **Locations** view / field notebook
+- Locations should include a simple visual/scene representation of the place plus its gradually filled knowledge sheet
+- keep Making, Stores, History, and Updates as secondary/system views rather than crowding Home
+- visitor current location may be reduced to a compact map badge
+- support meaningful alerts/requests without turning Home into an admin dashboard
+
+#### Citizen character sheets
+- full-body visual identity slot
+- appearance / current physical configuration
+- currently equipped physical gear
+- activity/location/travel state
+- cargo and capacity
+- energy/integrity
+- recent work and projects
+- known discoveries / relevant memory
+- later specialization/skills when those systems become real
+
+Goal: Agent City should stop feeling like a raw simulation console and start feeling like a window into what the citizens themselves know about their world.
 
 ### v0.7.0 — Maintenance & Consequences
 
