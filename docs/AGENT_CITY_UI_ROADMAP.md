@@ -309,11 +309,11 @@ Shipped direction:
 
 Shipped result: the civilization can now begin altering its environment and capabilities through real fabrication/construction state. Equipment changes physical carrying/extraction behavior, projects persist through explicit lifecycle states, and the UI exposes those authoritative records without inventing outcomes.
 
-### v0.6.0 — Research, Discovery & Knowledge UI
+### Shipped milestone — v0.6.0 Research, Discovery & Knowledge UI
 
-v0.6.0 is a large milestone combining the research/discovery substrate with a major information-architecture pass.
+v0.6.0 shipped as a large combined research/discovery and information-architecture milestone.
 
-Planned direction:
+Shipped direction:
 
 #### Research / discovery substrate
 - hidden world-specific material properties
@@ -354,7 +354,7 @@ Planned direction:
 - known discoveries / relevant memory
 - later specialization/skills when those systems become real
 
-Goal: Agent City should stop feeling like a raw simulation console and start feeling like a window into what the citizens themselves know about their world.
+Shipped result: Agent City now separates hidden world truth from citizen knowledge, preserves provenance and uncertainty, and presents Home/Citizens/Locations/Records as distinct information surfaces. Location and citizen sheets can grow over time without exposing undiscovered world data.
 
 ### v0.7.0 — Maintenance & Consequences
 
