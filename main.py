@@ -35,6 +35,7 @@ from agent_city.exploration import (
     accept_shared_activity,
     propose_shared_activity,
     shared_activity_payload,
+    start_shared_activity,
 )
 from agent_city.memory import (
     ensure_memory_schema,
@@ -400,7 +401,25 @@ def accept_shared_activity_endpoint(activity_id: int, req: SharedActivityAcceptR
     visitor = req.visitor.strip()[:40] or "Visitor"
     with connect() as conn:
         now = int(get_meta(conn, "sim_minute") or "360")
-        ok, job_id, message = accept_shared_activity(
+        ok, _, message = accept_shared_activity(
+            conn,
+            int(activity_id),
+            visitor,
+            now=now,
+        )
+        if not ok:
+            raise HTTPException(409, message)
+        conn.commit()
+        payload = shared_activity_payload(conn, int(activity_id), now)
+    return {"ok": True, "message": message, "activity": payload}
+
+
+@app.post("/api/shared-activities/{activity_id}/start")
+def start_shared_activity_endpoint(activity_id: int, req: SharedActivityAcceptRequest):
+    visitor = req.visitor.strip()[:40] or "Visitor"
+    with connect() as conn:
+        now = int(get_meta(conn, "sim_minute") or "360")
+        ok, job_id, message = start_shared_activity(
             conn,
             int(activity_id),
             visitor,
