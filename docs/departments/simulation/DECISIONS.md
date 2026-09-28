@@ -343,3 +343,41 @@ Examples:
 Do not have the Simulation invent a culturally meaningful name merely because a coordinate was generated. The physical feature can exist first; naming is a social/civilizational act.
 
 Future place names should be persistent history. Once adopted and used, they should survive restart and remain part of maps/records unless citizens intentionally rename the place.
+
+
+## Deterministic Procedural Universe
+
+Long-term world generation should be deterministic from a persistent random seed so the universe feels discovered rather than invented on demand.
+
+Preferred hierarchy:
+- universe seed
+- star-system seed(s) derived from universe seed
+- planet/moon seed(s) derived from system seed
+- regional/local terrain seeds derived from body seed
+
+The simulation may generate distant content lazily for performance, but the result must be deterministic from the stored seed. Observing a location should reveal what was already determined by the seed, not reroll reality.
+
+Seeded generation may define hidden physical truth such as:
+- stellar type, luminosity, age, and orbital layout
+- planetary radius, gravity, rotation/orbit
+- atmosphere and climate tendencies
+- terrain/geology
+- water/ice distribution
+- native materials/chemistry
+- moons/rings
+- resource distributions
+- later distant star systems
+
+Citizens must still discover this truth through real observation/research. The seed is an implementation mechanism, not in-world omniscience.
+
+If citizens eventually create spaceflight, the same deterministic system can reveal additional planets, moons, asteroids, or neighboring stars without requiring handcrafted content.
+
+## Stellar-Scale Engineering
+
+Do not grant megastructures as tech-tree unlocks.
+
+If the civilization eventually develops sufficient materials science, orbital mechanics, fabrication, automation, energy demand, and space industry, stellar-scale power collection may become physically possible.
+
+A Dyson-style project should emerge from citizen needs and engineering history rather than being scripted. A distributed Dyson swarm / orbital collector network is the more physically plausible default than a rigid solid shell, though the simulation should not force a specific design if citizens discover another workable world-specific solution.
+
+The development team should provide the physical substrate for orbital construction and energy collection, not a "Build Dyson Sphere" button.
