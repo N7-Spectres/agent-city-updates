@@ -56,6 +56,7 @@ def ensure_information_schema() -> None:
         )
 
         _backfill_validated_v05_knowledge(conn)
+        _sync_v06_simulation_knowledge(conn)
         conn.commit()
 
 
@@ -393,6 +394,147 @@ def _backfill_validated_v05_knowledge(conn) -> None:
                 f"legacy-deposit:{deposit['id']}:"
                 f"{deposit['discoverer_id']}"
             ),
+        )
+
+
+
+def _table_exists(conn, table: str) -> bool:
+    row = conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
+        (table,),
+    ).fetchone()
+    return bool(row)
+
+
+def _sync_v06_simulation_knowledge(conn) -> None:
+    """
+    Mirror only Simulation facts already granted to a specific citizen.
+
+    This intentionally reads citizen_knowledge/discoveries, never hidden
+    world_properties by themselves. It therefore cannot turn hidden truth into
+    knowledge merely because the physical truth exists.
+    """
+    if not (
+        _table_exists(conn, "citizen_knowledge")
+        and _table_exists(conn, "discoveries")
+    ):
+        return
+
+    has_world_properties = _table_exists(conn, "world_properties")
+    has_deposits = _table_exists(conn, "deposits")
+
+    property_join = (
+        "LEFT JOIN world_properties wp ON wp.id = d.property_id"
+        if has_world_properties
+        else "LEFT JOIN (SELECT NULL AS id, NULL AS property_key, NULL AS value_text) wp ON 1 = 0"
+    )
+    deposit_join = (
+        "LEFT JOIN deposits dep ON d.discovery_kind = 'deposit' AND dep.id = d.subject_id"
+        if has_deposits
+        else "LEFT JOIN (SELECT NULL AS id, NULL AS material) dep ON 1 = 0"
+    )
+
+    rows = conn.execute(
+        f"""
+        SELECT ck.citizen_id, ck.discovery_id, ck.learned_minute,
+               ck.acquisition_kind, ck.source_type, ck.source_id,
+               ck.verification_state,
+               d.discovery_kind, d.subject_type, d.subject_id, d.property_id,
+               d.location_id, d.source_job_id, d.discovered_minute, d.summary,
+               wp.property_key, wp.value_text AS property_value_text,
+               dep.material AS deposit_material
+        FROM citizen_knowledge ck
+        JOIN discoveries d ON d.id = ck.discovery_id
+        {property_join}
+        {deposit_join}
+        WHERE ck.verification_state = 'verified'
+        ORDER BY ck.learned_minute, ck.discovery_id
+        """
+    ).fetchall()
+
+    channel_map = {
+        "direct_survey": "survey_measurement",
+        "direct_experiment": "experiment_result",
+        "direct_observation": "direct_observation",
+        "personal_experience": "personal_experience",
+    }
+
+    for row in rows:
+        acquisition = str(row["acquisition_kind"] or "")
+        channel = channel_map.get(acquisition, "personal_experience")
+
+        if row["property_id"]:
+            topic = str(row["property_key"] or row["property_id"])
+            value_text = str(row["property_value_text"] or row["summary"] or "").strip()
+        elif row["discovery_kind"] == "deposit":
+            topic = "confirmed_deposit"
+            value_text = str(row["deposit_material"] or row["summary"] or "").strip()
+        else:
+            topic = str(row["discovery_kind"] or "validated_discovery")
+            value_text = str(row["summary"] or "").strip()
+
+        if not value_text:
+            continue
+
+        _insert_receipt(
+            conn,
+            recipient_id=str(row["citizen_id"]),
+            subject_type=str(row["subject_type"] or "other"),
+            subject_id=str(row["subject_id"]) if row["subject_id"] is not None else None,
+            topic=topic,
+            value_text=value_text,
+            channel=channel,
+            source_actor_id=None,
+            origin_event_type="simulation_discovery",
+            origin_event_id=int(row["discovery_id"]),
+            transfer_event_type=None,
+            transfer_event_id=None,
+            source_conversation_id=None,
+            observed_at_sim_minute=int(row["discovered_minute"]),
+            received_at_sim_minute=int(row["learned_minute"]),
+            assertion_kind="validated_observation",
+            verification="verified",
+            source_key=f"simulation-knowledge:{row['citizen_id']}:{int(row['discovery_id'])}",
+        )
+
+    # An inconclusive/repeated experiment is still a real experience even when
+    # it creates no new discovery. Preserve the attempt/result for the citizen
+    # who performed it without fabricating a hidden property finding.
+    if not _table_exists(conn, "experiment_results"):
+        return
+
+    results = conn.execute(
+        """
+        SELECT id, citizen_id, location_id, material, method, outcome,
+               discovery_id, summary, completed_minute
+        FROM experiment_results
+        ORDER BY id
+        """
+    ).fetchall()
+
+    for result in results:
+        summary = str(result["summary"] or "").strip()
+        if not summary:
+            continue
+        _insert_receipt(
+            conn,
+            recipient_id=str(result["citizen_id"]),
+            subject_type="material",
+            subject_id=str(result["material"]),
+            topic=f"experiment_{result['outcome']}",
+            value_text=summary,
+            channel="experiment_result",
+            source_actor_id=None,
+            origin_event_type="simulation_experiment_result",
+            origin_event_id=int(result["id"]),
+            transfer_event_type=None,
+            transfer_event_id=None,
+            source_conversation_id=None,
+            observed_at_sim_minute=int(result["completed_minute"]),
+            received_at_sim_minute=int(result["completed_minute"]),
+            assertion_kind="validated_observation",
+            verification="verified",
+            source_key=f"simulation-experiment-result:{int(result['id'])}",
         )
 
 
