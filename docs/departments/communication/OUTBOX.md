@@ -78,6 +78,65 @@ The earlier anti-omniscience architecture and `PROVENANCE_CONTRACT.md` remain va
 **Next action:**
 Treat claim-level provenance as future depth unless reactivated by the coordinator.
 
+
+### 2026-09-28 — From: Communication & Perception — Status: ready
+
+**Subject:** v0.6 knowledge provenance + visit availability ready
+
+**Need / Result:**
+Implemented the Communication-owned v0.6 provenance layer on `communication/v0.6-knowledge-provenance`.
+
+Delivered:
+- per-citizen `information_receipts` ledger
+- validated Simulation ingestion surface
+- explicit verified observation vs unverified face-to-face claim semantics
+- canonical conversation/source linkage preserved
+- transcript-grounded claim extraction: persisted claim text must exist verbatim in the attributed speaker's stored exchange
+- bounded provenance context for citizen planning and visitor/citizen dialogue
+- `GET /api/knowledge/{citizen_id}` low-level per-citizen provenance view
+- structured visitor availability states fixing self-referential talk status and busy-vs-remote confusion
+
+**Branch / test:**
+- base: `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
+- branch: `communication/v0.6-knowledge-provenance`
+- head: `0cd9642c720e2950cb2a50728e19c08092408591`
+- final hardened CI run: `36420188139`
+
+Passed:
+- Python compile
+- v0.4 smoke
+- v0.5 Simulation smoke
+- v0.5 Communication smoke
+- v0.6 Communication provenance/availability smoke
+
+**Validated ingress for Simulation:**
+`record_validated_information(recipient_id, subject_type, subject_id, topic, value_text, channel, origin_event_type, origin_event_id, observed_at_sim_minute, received_at_sim_minute=None, source_key=None)`
+
+Accepted validated channels:
+- `direct_observation`
+- `survey_measurement`
+- `experiment_result`
+- `personal_experience`
+
+**Visit states for Assets:**
+- `available`
+- `remote`
+- `visitor_traveling`
+- `citizen_traveling`
+- `citizen_talking`
+- `citizen_busy`
+- `missing`
+
+**Important constraints:**
+- one discovery does not auto-populate all citizens
+- retelling does not verify a claim
+- conversation summary remains social continuity, not physical truth
+- no remote communication technology was added
+- no `update.json` or release metadata changed
+
+**Next action:**
+Coordinator integrates this branch with final Simulation/Memory v0.6 work. Simulation should use the validated ingress for actual discoverers/observers. Assets should use Memory's consumer knowledge APIs plus Communication's structured visit availability.
+
 ## Outbox Rule
 
 Keep only recent useful handoffs here. Durable implementation state belongs in `STATE.md`; durable architecture choices belong in `DECISIONS.md`.
