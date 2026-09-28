@@ -17,7 +17,7 @@ This department covers:
 - last-known knowledge
 - future signaling / communication systems
 
-## Current Implementation
+## Current Shipped Behavior
 
 ### Citizen awareness
 
@@ -25,16 +25,15 @@ Citizens know the other five citizens exist.
 
 They do **not** receive live omniscient status for remote citizens.
 
-The checked-in planner previously leaked every citizen's live location/activity and all discovered deposits into every citizen prompt. That leak has now been removed from `agent_city/planner.py`.
-
-Planner context now exposes:
+Planner context exposes:
 
 - the citizen's own state
-- co-located, non-traveling citizens as directly observable presence
-- discovered deposits at the citizen's current location only
+- co-located citizens as directly observable presence
+- personally known/local information permitted by the communication boundary
 - legal actions supplied by Simulation
+- bounded social history sourced from real stored encounters
 
-Remote live status is not injected into the prompt.
+Remote live status is not injected into citizen prompts.
 
 ### Direct observation
 
@@ -48,41 +47,79 @@ Direct observation does not expose private plans, hidden internal state, or remo
 
 Same-location available citizens may autonomously choose a face-to-face `talk` action.
 
-A talk action:
+The shipped v0.4.1 runtime creates a physical talk job, generates a short exchange, stores `citizen_conversations`, and later completes the job.
 
-- requires physical co-location
-- occupies both citizens
-- generates a short two-way exchange through Ollama
-- stores the exchange and summary in SQLite
-- becomes something both participants can later remember
+## v0.5 Conversation-History Integrity Slice
 
-The default branch does not currently contain `agent_city/comms.py`, `agent_city/db.py`, or `agent_city/simulation.py`, so the live v0.3 conversation schema and transfer implementation could not be audited or patched here.
+**Branch:** `communication/v0.5-history-integrity`  
+**Base:** shipped v0.4.1 commit `4181cbb69809205ae575b3f576836e5ca72c8dce`  
+**Branch head after cleanup:** `672f221c0a2e796ba30d685d2cad68a5552c8333`
 
-### Provenance contract
+The observed mismatch was traced to the talk job and dialogue record not being physically linked. A talk job could exist in chronology even when dialogue generation/persistence failed before `citizen_conversations` was created.
 
-`docs/departments/communication/PROVENANCE_CONTRACT.md` defines the minimum v0.4 information-transfer record for:
+The v0.5 branch now enforces:
 
-- direct observation
-- personal experience
-- face-to-face claims
-- source actor
-- origin event
-- transfer event
-- observed / received simulation time
-- assertion kind
-- verification state
+- every new stored autonomous citizen conversation may carry `source_job_id`, the physical talk job that produced it
+- `source_job_id` is unique when present, so retries cannot duplicate the same exchange
+- before a generated exchange is committed, Communication revalidates:
+  - the source job still exists
+  - it is an active `talk` job
+  - initiator/target match the job
+  - both citizens are still bound to that job
+  - both are still physically co-located
+- the authoritative conversation `sim_minute` and `location_id` come from the validated talk job/current physical state, not untrusted generated text
+- model/network/JSON failure no longer creates a fabricated fallback exchange
+- a talk job is marked `complete` only if a source-linked conversation exists
+- a talk job that reaches completion without a stored exchange is marked `failed`, releases both citizens, and records that the attempt ended without a recorded exchange
+- stale generated text cannot be inserted after a talk has failed/invalidated
+- Memory projection failure cannot erase an already durable conversation record
 
-Memory may derive compact last-known views from those records.
+### Stable conversation / History record shape
 
-### Visitor conversation
+`snapshot()["citizen_conversations"]` exposes:
 
-v0.3.0 gives N7 a physical location.
+- `id` — canonical immutable conversation source ID
+- `source_type` — `citizen_conversation`
+- `source_id` — alias of canonical `id`
+- `transfer_event_id` — alias of canonical conversation `id`
+- `source_job_id` — physical talk job ID for new source-linked records; nullable for legacy rows
+- `sim_minute`
+- `location_id`, `location_name`
+- `initiator_id`, `initiator_name`
+- `target_id`, `target_name`
+- `initiator_text`
+- `target_text`
+- `summary`
 
-Face-to-face visitor conversation requires the visitor and citizen to be physically co-located.
+Successful talk-completion chronology also includes the canonical conversation number, allowing the UI to connect a physical talk completion to the corresponding discussion record.
+
+### Test status
+
+A branch-only CI check passed:
+
+- Python compilation
+- existing `tests/smoke_v040.py`
+- new `tests/smoke_v050_communication.py`
+
+GitHub Actions run: `36372479310`.
+
+The temporary branch-only workflow was removed after the green run, so the final branch contains only runtime/test changes.
+
+## Provenance Contract
+
+`docs/departments/communication/PROVENANCE_CONTRACT.md` remains the deeper Communication-owned provenance interface for future claim-level work.
+
+v0.5 conversation integrity adds a stable physical source link, but it does **not** yet extract individual claims/topics into separate provenance records.
+
+Memory may continue treating conversation content as remembered claims rather than authoritative physical truth.
+
+## Visitor Conversation
+
+Face-to-face visitor conversation still requires the visitor and citizen to be physically co-located.
 
 A visitor cannot converse face-to-face while traveling.
 
-Visitor prompt context should obey the same provenance boundary as citizen prompts once the v0.3 conversation source is available in the repository.
+The v0.4.1 blank-reply hotfix remains intact.
 
 ## Current Communication Technology
 
@@ -96,32 +133,10 @@ There is currently:
 - no shared live status channel
 - no automatic remote messaging
 
-Long-distance communication must be invented by the civilization if its research, materials, fabrication capability, and perceived need eventually support it.
+Long-distance communication must be invented by the civilization if research, materials, fabrication capability, physical construction, and actual need eventually support it.
 
-## Current Observation
+## Current Status
 
-Citizens are already using conversation strategically as part of autonomous planning.
+The v0.5 conversation-history integrity slice is ready for coordinator integration/review.
 
-The next implementation step is wiring the provenance contract into the actual conversation/database runtime once those source files are available on the branch.
-
-## Session Handoff — 2026-09-28
-
-This session is closed with the planner anti-omniscience patch verified on the default branch.
-
-Completed:
-- removed live remote citizen location/activity from citizen planner context
-- removed settlement-wide discovered deposits from citizen planner context
-- limited immediate planner perception to co-located non-traveling citizens and local discovered deposits
-- documented the v0.4 provenance contract for observation, claims, source, age, and verification
-- handed Memory the provenance interface
-- requested authoritative time/co-location/event inputs from Simulation
-
-Current blocker:
-- the default branch still lacks `agent_city/comms.py`, `agent_city/db.py`, and `agent_city/simulation.py`, so provenance persistence cannot be safely wired into the actual v0.3 conversation runtime yet
-
-Next session should begin by reading `COORDINATION.md`, this department's `INBOX.md`, and any Simulation/Memory responses, then verify whether the missing runtime source has been synchronized.
-
-
-### v0.4.1 blank-reply hotfix
-
-A post-v0.4 runtime bug could render a citizen name with an empty reply. The integrated release now requests direct non-thinking output from Ollama for conversation/JSON calls, retries an empty visitor response once, refuses to persist a still-empty reply, skips blank legacy assistant turns in model context, and hides legacy blank citizen bubbles in the UI.
+The next deeper Communication work is claim-level provenance / last-known propagation, which is intentionally outside this v0.5 integrity slice unless the coordinator reactivates it.
