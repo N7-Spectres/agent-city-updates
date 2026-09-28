@@ -3,7 +3,7 @@ name: Agent City release smoke test
 on:
   push:
     branches:
-      - release-v0.4.0
+      - "release-v*"
 
 jobs:
   smoke:
