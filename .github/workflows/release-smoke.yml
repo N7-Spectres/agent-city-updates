@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "release-v*"
+      - "simulation/v0.5-making-building"
 
 jobs:
   smoke:
@@ -28,4 +29,4 @@ jobs:
         run: node --check static/app.js
 
       - name: Run release smoke test
-        run: python tests/smoke_v040.py
+        run: python tests/smoke_v040.py && python tests/smoke_v050.py && python tests/smoke_v050_communication.py
