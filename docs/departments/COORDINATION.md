@@ -18,11 +18,10 @@ This file is the shared project task board.
 
 - [World & Simulation] v0.6.0 lead: hidden material/world properties, experiments, persistent discoveries, knowledge-filtered world state
 - [Communication & Perception] v0.6.0: discovery/claim provenance, local information flow, anti-omniscience audits, visitor busy/talk status fix
-- [Assets & Interface] v0.6.0: simplified Home, Citizens character sheets, Locations field notebook, knowledge-bound visuals
 
 ### WAITING
 
-- [Assets & Interface] final knowledge/read-model contracts from Simulation, Communication, and Memory will be needed for the data-driven portions after independent navigation/layout work
+- [Assets & Interface] independent Home/Citizens/Locations/Records shell is ready in draft PR #3; waiting on final Simulation, Communication, and Memory knowledge/read-model contracts to finish data-driven views
 - [Memory & Social] core branch is complete; richer ingestion waits for final Simulation discovery/experiment IDs and Communication transfer provenance
 
 ### READY
