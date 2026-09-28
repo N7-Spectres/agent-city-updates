@@ -434,6 +434,37 @@ def accept_shared_activity(conn, activity_id: int, visitor: str, *, now: int) ->
     if visitor_name != row["visitor"]:
         return False, None, "Only the proposed visitor may accept this activity."
 
+    conn.execute(
+        """
+        UPDATE shared_activities
+        SET status = 'accepted', accepted_minute = ?
+        WHERE id = ?
+        """,
+        (int(now), int(activity_id)),
+    )
+    add_history(
+        conn,
+        int(now),
+        "activity",
+        f"{visitor_name} accepted shared activity #{activity_id}; no physical movement has started yet.",
+    )
+    return True, None, "Shared activity accepted; a separate Simulation start is still required."
+
+
+def start_shared_activity(conn, activity_id: int, visitor: str, *, now: int) -> tuple[bool, int | None, str]:
+    row = conn.execute(
+        "SELECT * FROM shared_activities WHERE id = ?",
+        (int(activity_id),),
+    ).fetchone()
+    if not row:
+        return False, None, "Shared activity not found."
+    if row["status"] != "accepted":
+        return False, None, f"Shared activity must be accepted before start; current status is {row['status']}."
+
+    visitor_name = (visitor or "Visitor").strip()[:40] or "Visitor"
+    if visitor_name != row["visitor"]:
+        return False, None, "Only the accepted visitor may start this activity."
+
     citizen = conn.execute("SELECT * FROM citizens WHERE id = ?", (row["citizen_id"],)).fetchone()
     presence = conn.execute(
         "SELECT * FROM visitor_presence WHERE visitor = ?",
@@ -452,6 +483,25 @@ def accept_shared_activity(conn, activity_id: int, visitor: str, *, now: int) ->
     vy = float(presence["y_m"] or 0.0)
     if math.hypot(cx - vx, cy - vy) > 2.0:
         return False, None, "Participants are no longer physically together."
+
+    if row["tool_equipment_id"] is not None:
+        tool = conn.execute(
+            "SELECT * FROM equipment WHERE id = ? AND condition > 20",
+            (int(row["tool_equipment_id"]),),
+        ).fetchone()
+        tool_available = bool(tool and tool["owner_citizen_id"] == citizen["id"])
+        if tool and tool["owner_citizen_id"] is None and tool["location_id"] == citizen["location_id"]:
+            landmark = conn.execute(
+                "SELECT x_m, y_m FROM locations WHERE id = ?",
+                (citizen["location_id"],),
+            ).fetchone()
+            if landmark:
+                tool_available = math.hypot(
+                    cx - float(landmark["x_m"] or 0.0),
+                    cy - float(landmark["y_m"] or 0.0),
+                ) <= 5.0
+        if not tool_available:
+            return False, None, "Requested equipment is no longer physically available."
 
     target_x = float(row["target_x_m"])
     target_y = float(row["target_y_m"])
@@ -498,12 +548,11 @@ def accept_shared_activity(conn, activity_id: int, visitor: str, *, now: int) ->
         """
         UPDATE shared_activities
         SET status = 'active',
-            accepted_minute = ?,
             started_minute = ?,
             citizen_job_id = ?
         WHERE id = ?
         """,
-        (int(now), int(now), job_id, int(activity_id)),
+        (int(now), job_id, int(activity_id)),
     )
     conn.execute(
         """
@@ -524,9 +573,9 @@ def accept_shared_activity(conn, activity_id: int, visitor: str, *, now: int) ->
         conn,
         int(now),
         "activity",
-        f"{visitor_name} explicitly accepted shared activity #{activity_id}; physical movement began.",
+        f"Shared activity #{activity_id} physically started for {visitor_name} and {citizen['name']}.",
     )
-    return True, job_id, "Shared activity accepted and physically started."
+    return True, job_id, "Shared activity physically started."
 
 
 def shared_activity_payload(conn, activity_id: int, now: int | None = None) -> dict[str, Any] | None:
