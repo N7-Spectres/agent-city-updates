@@ -109,3 +109,16 @@ Refinement:
 - when a comparison basis is not known, use neutral language such as "doesn't match materials I've verified" or "I can't identify it from appearance alone"
 - spatial suggestions should reference real mapped/known locations or clearly remain hypothetical
 - personality may improvise style; factual nouns and physical claims need provenance
+
+
+## v0.7.1 Validated tool-assisted perception
+
+Grounded dialogue should leave room for citizens to use real equipped/available tools to learn more.
+
+If Simulation says a citizen has access to a scanner, probe, assay device, tablet, sensor, or other relevant instrument:
+- dialogue may suggest using it
+- once a real validated scan/test action runs, the citizen may discuss the resulting observation
+- tool output can support stronger claims only to the level actually measured
+- having a tool in concept art is not sufficient; the tool must exist in authoritative runtime state and be available to that citizen
+- if no such tool exists, the citizen should not pretend to scan/analyze
+- tool-assisted observations should retain normal provenance/source links
