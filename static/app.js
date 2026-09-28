@@ -7,6 +7,7 @@ let currentView = "home";
 let sheetCitizenId = null;
 let citizenSearchQuery = "";
 let currentVisitAccessKey = null;
+let chatSubmitting = false;
 const citizenKnowledgeCache = new Map();
 const locationKnowledgeCache = new Map();
 const knowledgeLoading = new Set();
@@ -723,8 +724,21 @@ function renderCitizens() {
   els.citizens.innerHTML = visible.length ? visible.map(c => {
     const cargo = inventoryFor(c.id);
     const job = activeJobFor(c.id);
+    const progress = job ? jobProgress(job) : null;
     const destination = job?.action === "travel" ? locationById(job.target)?.name : null;
     const where = destination ? `${c.location} → ${destination}` : c.location;
+    const progressMarkup = job && progress ? `
+      <div class="citizen-job-progress" aria-label="${escapeHtml(c.current_activity)} progress ${progress.percent}%">
+        <div class="citizen-job-progress-meta">
+          <span>${progress.elapsed} / ${progress.total} sim min</span>
+          <span>${progress.remaining} remaining • ETA ${escapeHtml(formatMinute(job.end_minute))}</span>
+        </div>
+        <div class="citizen-job-progress-track">
+          <span style="width:${progress.percent}%"></span>
+        </div>
+      </div>
+    ` : "";
+
     return `
       <button class="citizen-row compact-citizen-row ${selectedCitizen === c.id ? "selected" : ""}" onclick="selectCitizen('${c.id}')">
         <div class="compact-citizen-main">
@@ -735,6 +749,7 @@ function renderCitizens() {
             <div class="location-line">${escapeHtml(where)}${cargo ? ` • ${escapeHtml(cargo)}` : ""}</div>
           </div>
         </div>
+        ${progressMarkup}
         <div class="compact-vitals">
           <span>⚡ ${Math.round(c.energy)}%</span>
           <span>⛭ ${Math.round(c.integrity)}%</span>
@@ -2100,14 +2115,31 @@ els.pauseButton.addEventListener("click", async () => {
   await loadState();
 });
 
+els.chatInput.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" || event.shiftKey) return;
+  if (event.isComposing || event.keyCode === 229) return;
+
+  event.preventDefault();
+
+  if (
+    chatSubmitting ||
+    els.chatInput.disabled ||
+    els.sendButton.disabled ||
+    !selectedCitizen
+  ) return;
+
+  els.chatForm.requestSubmit(els.sendButton);
+});
+
 els.chatForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  if (!selectedCitizen) return;
+  if (!selectedCitizen || chatSubmitting) return;
 
   const message = els.chatInput.value.trim();
   const visitor = els.visitorName.value.trim() || "Visitor";
   if (!message) return;
 
+  chatSubmitting = true;
   appendChat(visitor, message, "visitor");
   els.chatInput.value = "";
   els.chatInput.disabled = true;
@@ -2127,6 +2159,7 @@ els.chatForm.addEventListener("submit", async (event) => {
   } catch (error) {
     appendChat("System", error.message, "system");
   } finally {
+    chatSubmitting = false;
     els.chatInput.disabled = false;
     els.sendButton.disabled = false;
     els.sendButton.textContent = "Talk";
