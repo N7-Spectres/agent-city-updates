@@ -255,3 +255,15 @@ Before v0.4 can be considered release-ready:
 - [x] Assets presentation guidance handed off
 - [x] no stale dependency remains
 - [ ] runtime ingestion/read-model implementation begins next Memory session
+
+
+### Immediate resume order
+
+1. create `memory/v0.7-maintenance-history` from `release-v0.6.0`
+2. inspect final `simulation/v0.7-maintenance` schema at `54f5d838f674d0b278a51382f3a880cc0738b417`
+3. ingest `maintenance_events.id` idempotently into existing `memory_events`
+4. preserve actor/target/source/job/before-after/material/outcome metadata
+5. add bounded subject-specific maintenance retrieval
+6. add `tests/smoke_v070_memory.py`
+7. run all Memory/regression smoke tests
+8. only then mark the coordinator request handled and move Memory to REVIEW
