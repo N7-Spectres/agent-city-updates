@@ -41,7 +41,7 @@ _None. v0.5.0 work packet is active._
 
 ### REVIEW
 
-_None yet for v0.5.0. Departments should stop after their branch work/handoffs so the coordinator can integrate and smoke-test the milestone._
+- [Memory & Social] v0.5 project-continuity contract/audit ready for coordinator review; no runtime branch required yet
 
 ### DONE
 
