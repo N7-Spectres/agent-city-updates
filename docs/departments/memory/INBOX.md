@@ -250,8 +250,11 @@ Your existing v0.6 Memory endpoints remain the preferred bounded consumer read m
 - later contradiction/reliability derivation should preserve historical claim + later evidence rather than rewriting history
 
 **Branch / tests:**
-- Communication head: `0fc75220610f52f9701b19df1a22caaaa60c341a`
-- CI: `36420788364`
+- Communication head: `6a483fcc4d143606f3e401218002e06ae43076d1`
+- CI: `36421263078`
+
+**Layering note:**
+Simulation `agent_city/knowledge.py` remains authoritative for validated discoveries/current validated citizen knowledge. Communication `agent_city/provenance.py` supplies immutable receipt/claim provenance beneath Memory's bounded read model.
 
 **Next action:**
 During coordinator integration, map/consume these receipts as the Communication provenance source beneath Memory's bounded read model. Communication is no longer blocking the v0.6 Memory contract.
