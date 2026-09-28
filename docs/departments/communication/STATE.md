@@ -43,11 +43,11 @@ Published v0.5.0 base:
 
 **Branch:** `communication/v0.6-knowledge-provenance`  
 **Base:** shipped v0.5.0 commit `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`  
-**Branch head:** `0cd9642c720e2950cb2a50728e19c08092408591`
+**Branch head:** `0fc75220610f52f9701b19df1a22caaaa60c341a`
 
 ### Information receipt ledger
 
-New `agent_city/knowledge.py` adds Communication-owned `information_receipts`.
+New `agent_city/provenance.py` adds Communication-owned `information_receipts`.
 
 A receipt means:
 
@@ -190,7 +190,7 @@ Remote access is checked before exposing local busy/talk detail, so visitor stat
 
 Final hardened GitHub Actions run:
 
-`36420188139`
+`36420788364`
 
 Passed:
 
