@@ -64,3 +64,29 @@ Assets may request additional state fields from Simulation but should not alter 
 The v0.4 interface work remains presentation-only until runtime-tested.
 
 Do not merge or publish the interface branch solely because static structural checks pass. Runtime behavior must confirm that visitor travel, citizen travel, selection, chat persistence, pause controls, updater controls, and responsive layout still work with real application state.
+
+
+## v0.5 Conversation Viewport Rule
+
+Long visitor conversations must scroll inside a bounded Visit panel.
+
+The message log may grow historically, but the page layout should not become taller simply because a conversation is long. Visitor input/actions remain visible and usable outside the scrolling message viewport.
+
+## v0.5 History Presentation Rule
+
+History should distinguish:
+
+- stored conversation content actually present in the current state snapshot, and
+- authoritative chronology events whose exchange content is not present in that snapshot.
+
+When only chronology is available, show the confirmed event metadata and explicitly say the exchange text is unavailable. Do not reconstruct or invent missing dialogue.
+
+History is the default Control Room view for v0.5 because it is the most directly useful companion to persistent Visit interaction; Region remains available as a tab and physical region state remains centered in the world view.
+
+## v0.5 Making & Building UI Rule
+
+Fabrication, projects, equipment, tool modifiers, cargo-capacity effects, structures, sites, and construction progress may only be shown from authoritative Simulation state.
+
+Assets must not derive physical bonuses or infer completion from names, LLM text, chronology prose, or frontend calculations when Simulation exposes a validated field instead.
+
+Stable physical IDs should be preserved in UI data attributes / future links where useful so project, structure, tool, and history surfaces can refer to the same real object.
