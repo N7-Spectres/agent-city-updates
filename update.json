@@ -1,6 +1,6 @@
 {
-  "version": "0.8.2",
-  "notes": "Live State Readability: Home citizen cards now use compact micro-bars for current Energy and Integrity without increasing card size, while the Citizen sheet uses the same authoritative live values and matching compact meters. Long-term battery health/capacity is now labeled separately from current charge to avoid confusion. This is a UI-only patch; Simulation, Communication, Memory, and physical state semantics are unchanged.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/9a11b2bc21ba2338d6b231924036bf6d5935475c",
+  "version": "0.8.3",
+  "notes": "Citizen Personality + Natural Dialogue: Aris, Bex, Cato, Iri, Noma, and Vale now have distinct stable personality tendencies and conversational voices. Personality may bias preferences, tone, curiosity, caution, and cooperation, but never grants authority, rank, command rights, extra capability, or extra knowledge. Visitor and citizen-to-citizen dialogue now keeps planner/system vocabulary backstage, translating status and shared-action availability into more natural speech. Simulation, Memory, and physical authority rules are unchanged.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/e4d216b133a18dc4c68e1bba1ceb0457e952efb6",
   "sha256": ""
 }
