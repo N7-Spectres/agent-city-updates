@@ -16,21 +16,27 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-- [World & Simulation] v0.6.0 lead: hidden material/world properties, experiments, persistent discoveries, knowledge-filtered world state
 - [Communication & Perception] v0.6.0: discovery/claim provenance, local information flow, anti-omniscience audits, visitor busy/talk status fix
+- [Assets & Interface] v0.6.0: finish data-driven Home/Citizens/Locations using safe Simulation/Memory/Communication contracts
 
 ### WAITING
 
-- [Assets & Interface] Home/Citizens/Locations/Records shell + Memory bounded knowledge UI are ready in draft PR #3; waiting only on final Simulation safe-world and Communication provenance/visit-status contracts
-- [Memory & Social] core branch is complete; richer ingestion waits for final Simulation discovery/experiment IDs and Communication transfer provenance
+- [Assets & Interface] Simulation safe known-state contract is now ready; final UI semantics still depend on Communication's provenance/status shape and Memory's bounded consumer read model
+- [Memory & Social] Simulation discovery/result IDs are now stable; any richer ingestion that depends on transferred claims still waits on Communication's final provenance shape
+- [Coordinator / Integration] final v0.6 assembly waits for Communication + Assets completion
 
 ### READY
 
-- [Communication & Perception] Deeper claim-level `PROVENANCE_CONTRACT.md` remains ready for a later milestone.
+- [World & Simulation] v0.6 Research/Discovery core ready on `simulation/v0.6-research-discovery` @ `d1ae3faf0095d22e7a730cf50b3ad6fdbcdc4b94`
+- [World & Simulation] CI run `36419824468` passed Python compile, JS syntax, all v0.4/v0.5 regressions, and `tests/smoke_v060.py`
+- [World & Simulation] stable discovery/knowledge/result/read-model contracts delivered to Communication, Memory, and Assets
+- [Memory & Social] v0.6 per-citizen knowledge core on `memory/v0.6-location-knowledge` @ `89c0a3e2d49c4c9236342c10559f92b93b1b7601`; CI run `36419352645` passed
+- [Communication & Perception] deeper claim-level `PROVENANCE_CONTRACT.md` remains available as design reference
 
 ### REVIEW
 
-- [Memory & Social] v0.6 per-citizen knowledge core on `memory/v0.6-location-knowledge` at `89c0a3e2d49c4c9236342c10559f92b93b1b7601`; CI run `36419352645` passed all regressions + v0.6 Memory smoke
+- [World & Simulation] hidden world truth, experiments, persistent discoveries, citizen-local knowledge, learned verification processes, safe public state, and migration are complete for v0.6
+- [Memory & Social] v0.6 per-citizen knowledge core ready; final transferred-claim integration may consume Communication provenance after it stabilizes
 
 ### DONE
 
@@ -51,31 +57,32 @@ This file is the shared project task board.
 
 ## v0.6 Coordination Goal
 
-v0.6.0 is the active coordinated milestone.
-
 Primary rule:
+
 > **The UI may show what the civilization knows, not everything the Simulation secretly knows.**
 
-Department order does not need to be strictly serial, but the integration dependency is:
+Integration dependency:
 
-1. Simulation defines hidden world truth + validated discovery/experiment records.
-2. Communication defines how discoveries/claims can move between citizens and fixes visit-status wording.
-3. Memory retains/retrieves per-citizen knowledge without creating a global omniscient encyclopedia.
-4. Assets renders Home/Citizens/Locations only from the safe known-state interfaces.
+1. Simulation defines hidden world truth + validated discovery/experiment records. **READY**
+2. Communication defines how discoveries/claims move between citizens and fixes visit-status wording. **ACTIVE**
+3. Memory retains/retrieves per-citizen knowledge without creating a global encyclopedia. **CORE READY; transfer provenance pending**
+4. Assets renders Home/Citizens/Locations only from safe known-state interfaces. **ACTIVE**
 5. Coordinator assembles all branches and runs regression + v0.6 smoke tests before publication.
 
-No department should publish `update.json`.
+## Simulation v0.6 Contract Locks
 
-## v0.5 Integration Result
+Coordinator integration must preserve:
 
-v0.5.0 passed the assembled release gate on `release-v0.5.0`.
-
-Preserved invariants:
-1. canonical `citizen_conversations.id` and nullable unique `source_job_id`
-2. talk with no stored exchange fails instead of falsely completing
-3. project/equipment/structure UI comes only from Simulation state
-4. Memory keeps project discussion separate from validated physical outcomes
-5. v0.4 regression, v0.5 Simulation, v0.5 Communication, and v0.5 UI integration smoke suites all passed
+1. `world_properties` remains hidden from ordinary `/api/state`
+2. undiscovered deposits are absent from ordinary state
+3. discovered deposits do not expose hidden reserve quantity
+4. `discoveries.id` is the stable validated discovery anchor
+5. direct discovery grants knowledge only to the discovering citizen
+6. communicated claims do not become verified Simulation knowledge automatically
+7. `experiment_results` persists `discovery | verified | inconclusive` outcomes
+8. learned processes descend from validated discoveries and are not tech-tree nodes
+9. missing knowledge renders as absence, not a UI hint that hidden content exists
+10. no `update.json` publication by departments
 
 ## Handoff Protocol
 
