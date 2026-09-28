@@ -38,6 +38,7 @@ from agent_city.shared_actions import (
     proposals_for_visit,
     reject_proposal,
     shared_action_context,
+    shared_action_option_context,
 )
 from agent_city.talk_diagnostics import ensure_talk_diagnostic_schema
 from agent_city.simulation import cargo_capacity as physical_cargo_capacity
@@ -544,6 +545,7 @@ async def talk(req: TalkRequest):
     else:
         current_intent = "- no active job"
 
+    shared_activity_options = shared_action_option_context(visitor, req.citizen_id)
     shared_activity_context = shared_action_context(
         visitor,
         req.citizen_id,
@@ -601,6 +603,8 @@ YOUR CONFIRMED PERSONAL ACTIVITY HISTORY:
 
 YOUR CURRENT RECORDED INTENT:
 {current_intent}
+
+{shared_activity_options}
 
 {shared_activity_context}
 
