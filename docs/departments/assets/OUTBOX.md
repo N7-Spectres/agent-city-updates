@@ -6,6 +6,20 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Assets & Interface — Status: ready
 
+**Subject:** Assets work session wrapped — v0.5 ready for assembly
+
+**Need / Result:**
+Assets implementation is complete and stopped at REVIEW. The finished branch is `assets/v0.5-making-ui` at `71e30d3ca02edc97f5286436bc5ef03f93b77088`, exposed through draft PR #2.
+
+**Dependencies:**
+None remain for Assets. Simulation's authoritative schema and Communication's conversation-integrity contract have both been consumed.
+
+**Next action:**
+Coordinator integrates Assets with `simulation/v0.5-making-building`, runs the combined smoke/runtime checks, and routes any discovered UI regressions back through Assets INBOX.
+
+
+### 2026-09-28 — From: Assets & Interface — Status: ready
+
 **Subject:** Complete v0.5 Assets branch ready for coordinator integration
 
 **Need / Result:**
