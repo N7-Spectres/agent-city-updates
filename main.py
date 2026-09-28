@@ -114,7 +114,7 @@ def get_state():
 
 
 @app.get("/api/knowledge/citizens/{citizen_id}")
-def get_citizen_memory_knowledge(
+def get_citizen_knowledge(
     citizen_id: str,
     location_id: str | None = None,
     material: str | None = None,
@@ -284,7 +284,7 @@ def get_visitor_presence(visitor: str = "N7"):
 
 
 @app.get("/api/knowledge/{citizen_id}")
-def get_citizen_knowledge(citizen_id: str):
+def get_provenance_knowledge(citizen_id: str):
     payload = knowledge_payload(citizen_id)
     if not payload.get("exists"):
         raise HTTPException(404, "Citizen not found")
