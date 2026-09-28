@@ -441,3 +441,37 @@ The next Memory session should create `memory/v0.7-maintenance-history` from pub
 Do not infer failures or repairs from conversation or from condition deltas alone.
 
 No Memory runtime code was changed this session. No release metadata or `update.json` was changed.
+
+
+## v0.7 Wrap Status — Runtime Pass Still Open
+
+This work session is closed, but the coordinator's final v0.7 Memory runtime request is **not complete yet**.
+
+The blocker is resolved. Simulation delivered the stable maintenance event contract:
+
+- branch: `simulation/v0.7-maintenance`
+- head: `54f5d838f674d0b278a51382f3a880cc0738b417`
+- CI: `36429729279`
+- canonical source: `maintenance_events.id`
+
+The next Memory session should immediately implement the runtime slice on:
+
+`memory/v0.7-maintenance-history`
+
+from published base:
+
+`release-v0.6.0` / `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`
+
+Required implementation remains:
+
+- idempotent ingestion of meaningful `maintenance_events` into existing `memory_events`
+- valid experience-path assignment, beginning with the actor and directly serviced citizen where justified
+- Simulation source/event/job IDs and before/after/material/outcome metadata retained
+- bounded retrieval by citizen and maintenance target
+- minimal consumer read model only if useful to Assets/History
+- v0.7 Memory smoke proving passive wear does not flood durable memory
+- preservation of all v0.4-v0.6 social/knowledge/provenance behavior
+
+Do not infer maintenance from condition deltas, History strings, or dialogue.
+
+No Memory runtime branch was created in this session. No release metadata or `update.json` was changed.
