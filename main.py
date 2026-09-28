@@ -23,6 +23,7 @@ from agent_city.visits import (
     close_visit, ensure_visit_schema, get_or_create_active_visit,
     get_recent_exchanges, previous_visits, summarize_visit_if_needed, visit_payload,
 )
+from agent_city.visitors import can_visit_citizen, presence_payload, start_visitor_travel
 from agent_city.updater import (
     PROJECT_ROOT, check_for_update, current_version, fetch_manifest,
     load_settings, make_backup, save_settings, stage_update
@@ -71,6 +72,11 @@ class TalkRequest(BaseModel):
     visitor: str = Field(default="N7", min_length=1, max_length=40)
     citizen_id: str = Field(min_length=1, max_length=40)
     message: str = Field(min_length=1, max_length=1200)
+
+
+class VisitorTravelRequest(BaseModel):
+    visitor: str = Field(default="N7", min_length=1, max_length=40)
+    target: str = Field(min_length=1, max_length=80)
 
 
 @app.get("/")
@@ -194,6 +200,19 @@ async def install_update():
         raise HTTPException(500, f"Update failed safely. Nothing was installed. {exc}")
 
 
+@app.get("/api/visitor/presence")
+def get_visitor_presence(visitor: str = "N7"):
+    return presence_payload(visitor)
+
+
+@app.post("/api/visitor/travel")
+def visitor_travel(req: VisitorTravelRequest):
+    ok, message = start_visitor_travel(req.visitor, req.target)
+    if not ok:
+        raise HTTPException(400, message)
+    return {"ok": True, "message": message, "presence": presence_payload(req.visitor)}
+
+
 @app.get("/api/visit/{citizen_id}")
 def get_visit(citizen_id: str, visitor: str = "N7"):
     state = snapshot()
@@ -202,13 +221,34 @@ def get_visit(citizen_id: str, visitor: str = "N7"):
         raise HTTPException(404, "Citizen not found")
 
     visitor = visitor.strip()[:40] or "Visitor"
+    presence = presence_payload(visitor)
+
+    with connect() as conn:
+        old_visits = previous_visits(conn, visitor, citizen_id, limit=3)
+
+    accessible, reason = can_visit_citizen(visitor, citizen_id)
+    if not accessible:
+        return {
+            "accessible": False,
+            "reason": reason,
+            "citizen": citizen,
+            "visitor": visitor,
+            "presence": presence,
+            "messages": [],
+            "previous_visits": old_visits,
+            "has_earlier": False,
+            "visit": None,
+        }
+
     with connect() as conn:
         visit = get_or_create_active_visit(conn, visitor, citizen_id, state["sim_minute"])
         payload = visit_payload(conn, int(visit["id"]))
-        payload["previous_visits"] = previous_visits(conn, visitor, citizen_id, limit=3)
+        payload["previous_visits"] = old_visits
 
+    payload["accessible"] = True
     payload["citizen"] = citizen
     payload["visitor"] = visitor
+    payload["presence"] = presence
     return payload
 
 
@@ -246,6 +286,10 @@ async def leave_visit(citizen_id: str, req: VisitorRequest):
 
 @app.post("/api/talk")
 async def talk(req: TalkRequest):
+    accessible, reason = can_visit_citizen(req.visitor, req.citizen_id)
+    if not accessible:
+        raise HTTPException(409, reason)
+
     state = snapshot()
     citizen = next((c for c in state["citizens"] if c["id"] == req.citizen_id), None)
     if not citizen:
