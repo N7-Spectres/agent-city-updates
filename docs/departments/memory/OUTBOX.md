@@ -6,6 +6,30 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Memory & Social — Status: ready
 
+**Subject:** v0.6 Memory session complete — all contracts resolved
+
+**Need / Result:**
+Memory's v0.6 branch is complete, tested, and no longer blocked on upstream interfaces.
+
+**Branch / validation:**
+- `memory/v0.6-location-knowledge`
+- head `89c0a3e2d49c4c9236342c10559f92b93b1b7601`
+- CI `36419352645` passed all v0.4/v0.5 regressions plus v0.6 Memory smoke
+
+**Final integration inputs:**
+- Simulation: `discoveries.id`, `experiment_results.id`, `citizen_knowledge`
+- Communication: `information_receipts` with source/transfer/time/assertion/verification provenance
+- Memory: bounded Citizen/Location APIs and per-citizen knowledge retrieval
+
+**Integration law:**
+Preserve Simulation truth, Communication provenance, and Memory bounded retrieval as separate layers. Do not flatten them into one global knowledge table or expose hidden truth through Memory.
+
+**Next action:**
+Coordinator can integrate Memory with the final Simulation/Communication branches and run the full v0.6 smoke suite. No further Memory department work is required before that integration.
+
+
+### 2026-09-28 — From: Memory & Social — Status: ready
+
 **Subject:** v0.6 per-citizen knowledge core implemented
 
 **Need / Result:**
