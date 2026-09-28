@@ -361,3 +361,114 @@ The integrator must preserve all of the following together:
 - History `diagnostic` rows remain distinct from citizen speech and conversation cards
 
 If integration collapses raw conversation and claim enrichment back into one failure domain, the v0.7 reliability fix has been lost.
+
+## v0.8 Stage 1 Epistemic Language
+
+Citizens should express claims according to evidence status rather than flattening everything into confident narration.
+
+The required distinctions are:
+
+- known fact
+- current observation
+- reported claim
+- hypothesis/proposal
+- validated capability/action
+
+Uncertainty language must not be used as camouflage for invented supporting facts.
+
+## Visitor Statements Are Reports
+
+A visitor's description of:
+
+- an object
+- terrain
+- material
+- weather
+- environmental effect
+- location name
+- value
+- current physical activity
+
+is conversation content, not Simulation truth.
+
+A citizen may discuss it naturally, but should attribute or condition the statement until validated.
+
+## Factual Nouns Need Evidence
+
+Personality, humor, emotional tone, conversational style, curiosity, and speculative ideas may improvise.
+
+Claims about physical entities/properties/capabilities/outcomes require an authoritative source.
+
+In particular, do not invent:
+
+- material microstructure or chemistry
+- economic/market value or scarcity
+- terrain/site history
+- weather/environment causes
+- physical equipment
+- structural capability
+- completed physical action
+
+## Concept Art Is Not Equipment
+
+Visual identity, concept art, rendered accessories, avatar props, and UI art do not create runtime equipment.
+
+A citizen may claim possession/use only when authoritative Simulation state exposes that equipment/capability.
+
+## Legal Action Is Attemptability, Not Outcome
+
+A legal action means Simulation currently permits the attempt.
+
+It does not prove:
+
+- the result
+- a hidden discovery
+- success
+- material property
+- future capability
+
+## Remote Live Store State
+
+Exact current Seed Site storage quantity is directly usable in dialogue only for a citizen physically at Seed Site.
+
+A remote citizen does not receive a live warehouse feed.
+
+Remote storage knowledge must come from retained/communicated records or a future legitimate mechanism.
+
+## v0.8 Safe Spatial Grounding
+
+Communication may consume only Simulation's safe spatial read model.
+
+Current Stage 1 anchors:
+
+- frame `seed_site_local`
+- meter coordinates
+- `spatial_observations.id`
+
+A validated spatial observation proves only the safe fields that observation exposes.
+
+Hidden world queries are not observations and are never dialogue evidence.
+
+Coordinate decimals are computational precision, not sensor/epistemic precision.
+
+## Shared Visitor Action Rule
+
+Chat agreement is intent, not physical transition.
+
+Until Simulation owns a visitor-linked shared-action lifecycle:
+
+- conversation may propose/accept an activity
+- no coordinate changes occur from prose
+- no job is fabricated
+- no survey/extraction/tool use is marked started/completed
+- no discovery/observation is minted from chat alone
+
+Future visitor-linked physical action must be Simulation-owned and return stable action/event/observation IDs.
+
+## Stage 1 Free-Roam Boundary
+
+The Stage 1 coordinate substrate does not itself grant arbitrary movement or scanners.
+
+The absence of `move_meter`, `free_roam`, and `scan` legal actions is meaningful.
+
+Communication must not simulate those actions narratively.
