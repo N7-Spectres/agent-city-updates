@@ -273,6 +273,38 @@ button:disabled {
   overflow: hidden;
 }
 
+body[data-day-phase="dawn"] .world-stage {
+  background:
+    radial-gradient(circle at 75% 18%, rgba(236,177,116,.16), transparent 25%),
+    radial-gradient(circle at 48% 56%, rgba(115,198,157,.07), transparent 20%),
+    linear-gradient(180deg, rgba(116,128,164,.12), rgba(18,27,38,.04)),
+    #101925;
+}
+
+body[data-day-phase="day"] .world-stage {
+  background:
+    radial-gradient(circle at 72% 18%, rgba(213,166,91,.10), transparent 26%),
+    radial-gradient(circle at 50% 52%, rgba(115,198,157,.08), transparent 20%),
+    linear-gradient(180deg, rgba(93,128,153,.08), transparent 48%),
+    var(--world);
+}
+
+body[data-day-phase="dusk"] .world-stage {
+  background:
+    radial-gradient(circle at 76% 22%, rgba(213,121,91,.16), transparent 26%),
+    radial-gradient(circle at 44% 58%, rgba(115,198,157,.05), transparent 22%),
+    linear-gradient(180deg, rgba(89,65,101,.16), rgba(13,20,30,.06)),
+    #0d1620;
+}
+
+body[data-day-phase="night"] .world-stage {
+  background:
+    radial-gradient(circle at 74% 16%, rgba(126,159,205,.09), transparent 20%),
+    radial-gradient(circle at 48% 58%, rgba(75,119,126,.05), transparent 20%),
+    linear-gradient(180deg, rgba(25,37,61,.28), rgba(6,12,20,.16)),
+    #08111c;
+}
+
 .route-layer {
   position: absolute;
   inset: 0;
