@@ -220,3 +220,21 @@ Coordinator should:
 5. publish/update release metadata only after that green run
 
 No remaining Assets-owned blocker exists.
+
+
+## Work Session Closure — v0.8.1
+
+This Assets & Interface work session is closed.
+
+Final handoff state:
+- status: **REVIEW**
+- branch: `assets/v0.8.1-citizen-visuals-map`
+- head: `588dd08558a3b9aaed4a0ab8fe1d6e45a7838337`
+- base: `release-v0.8.1@c55eb76b89b35a660275ac97f095dcc4f511683e`
+- PR #19: ready for review and mergeable
+- full branch regression: `36467360376` — PASS
+- Assets INBOX: empty
+- remaining Assets blockers: none
+- next owner: **Coordinator / v0.8.1 Release**
+
+Do not resume implementation from this chat history. Future Assets work should begin from the repository handoff files and only continue if coordinator review feedback or a new milestone arrives.
