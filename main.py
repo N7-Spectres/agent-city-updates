@@ -34,6 +34,7 @@ from agent_city.simulation import cargo_capacity as physical_cargo_capacity
 from agent_city.exploration import (
     accept_shared_activity,
     propose_shared_activity,
+    reject_shared_activity,
     shared_activity_payload,
     start_shared_activity,
 )
@@ -402,6 +403,24 @@ def accept_shared_activity_endpoint(activity_id: int, req: SharedActivityAcceptR
     with connect() as conn:
         now = int(get_meta(conn, "sim_minute") or "360")
         ok, _, message = accept_shared_activity(
+            conn,
+            int(activity_id),
+            visitor,
+            now=now,
+        )
+        if not ok:
+            raise HTTPException(409, message)
+        conn.commit()
+        payload = shared_activity_payload(conn, int(activity_id), now)
+    return {"ok": True, "message": message, "activity": payload}
+
+
+@app.post("/api/shared-activities/{activity_id}/reject")
+def reject_shared_activity_endpoint(activity_id: int, req: SharedActivityAcceptRequest):
+    visitor = req.visitor.strip()[:40] or "Visitor"
+    with connect() as conn:
+        now = int(get_meta(conn, "sim_minute") or "360")
+        ok, message = reject_shared_activity(
             conn,
             int(activity_id),
             visitor,
