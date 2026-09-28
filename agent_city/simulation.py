@@ -280,14 +280,27 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
         cargo = carried_amount(conn, citizen_id)
         capacity = cargo_capacity(conn, citizen_id, location_id)
 
+        if location_id in charging_locations(conn) and energy < 95:
+            actions.append({
+                "action": "charge",
+                "target": location_id,
+                "label": f"Recharge at an operational charging structure here at {location_name(conn, location_id)}.",
+            })
+
         if location_id == "seed_site":
-            if energy < 95:
-                actions.append({"action": "charge", "target": "seed_site", "label": "Recharge at the Seed Site charging station."})
             if cargo > 0:
                 actions.append({"action": "deposit_cargo", "target": "seed_site", "label": f"Deposit {cargo:g} carried material into Seed Site storage."})
 
             for process_id, process in FABRICATION_PROCESSES.items():
-                if resources_available(conn, process["materials"]) and action_energy_safe(
+                already_owned = conn.execute(
+                    """
+                    SELECT 1 FROM equipment
+                    WHERE template_id = ? AND owner_citizen_id = ? AND condition > 0
+                    LIMIT 1
+                    """,
+                    (process_id, citizen_id),
+                ).fetchone()
+                if not already_owned and resources_available(conn, process["materials"]) and action_energy_safe(
                     conn, location_id, energy, float(process["energy_cost"])
                 ):
                     actions.append({
@@ -297,11 +310,20 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
                     })
 
             for blueprint_id, blueprint in CONSTRUCTION_BLUEPRINTS.items():
-                actions.append({
-                    "action": "plan_project",
-                    "target": blueprint_id,
-                    "label": f"Plan a {blueprint['name']} project at Seed Site.",
-                })
+                unfinished = conn.execute(
+                    """
+                    SELECT 1 FROM projects
+                    WHERE blueprint_id = ? AND location_id = ? AND status != 'complete'
+                    LIMIT 1
+                    """,
+                    (blueprint_id, location_id),
+                ).fetchone()
+                if not unfinished:
+                    actions.append({
+                        "action": "plan_project",
+                        "target": blueprint_id,
+                        "label": f"Plan a {blueprint['name']} project at Seed Site.",
+                    })
 
             planned = conn.execute(
                 "SELECT id, name FROM projects WHERE status = 'planned' AND location_id = ? ORDER BY id",
@@ -541,9 +563,11 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             activity = "Unloading material into Seed Site storage"
 
         elif action == "charge":
+            if c["location_id"] not in charging_locations(conn):
+                return False, "No operational charging structure is available here."
             duration = 60
-            detail = "charge"
-            activity = "Charging at Seed Site"
+            detail = f"charge:{c['location_id']}"
+            activity = f"Charging at {location_name(conn, c['location_id'])}"
 
         else:
             duration = 45
