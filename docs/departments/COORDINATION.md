@@ -21,7 +21,6 @@ Departments should read this file at the beginning of a work session in addition
 ### ACTIVE
 
 - [World & Simulation] v0.5.0 lead: fabrication, construction, project state, physical tool/carry effects, energy-return reserve, coordinate groundwork
-- [Communication & Perception] v0.5.0: citizen conversation-history persistence/integrity
 
 ### STANDBY
 
@@ -29,17 +28,20 @@ _None. v0.5.0 work packet is active._
 
 ### WAITING
 
-- [Memory & Social] v0.5 project-continuity audit complete; waiting for Communication final conversation-source shape and Simulation stable project/event IDs before any runtime hook code
-
-- [Assets & Interface] independent v0.5 chat/layout/History slice is ready in draft PR #2; waiting on World & Simulation's final project/tool/equipment/structure schema to complete Making & Building UI
+- [Memory & Social] conversation-source audit dependency is satisfied by Communication; still waiting for Simulation stable project/event IDs before any project-outcome runtime hooks
+- [Assets & Interface] independent v0.5 chat/layout/History slice is ready in draft PR #2; Communication History shape is now available, but Assets still waits on World & Simulation's final project/tool/equipment/structure schema for Making & Building UI
 
 ### READY
 
-- [Communication & Perception] Provenance contract is ready for a later deeper social-memory pass.
-- [World & Simulation] Stable completed job IDs remain available as candidate authoritative event references for later cooperation/help memories.
+- [Assets & Interface] Communication delivered stable citizen-conversation History shape and success/failure semantics
+- [Memory & Social] Communication preserved canonical `citizen_conversations.id` and added optional physical `source_job_id`
+- [World & Simulation] Communication talk-completion invariant is ready to preserve during `simulation.py` integration
+- [Communication & Perception] Provenance contract remains ready for a later deeper claim/last-known pass
+- [World & Simulation] Stable completed job IDs remain candidate authoritative event references for later cooperation/help memories
 
 ### REVIEW
 
+- [Communication & Perception] v0.5 conversation-history integrity ready on `communication/v0.5-history-integrity` head `672f221c0a2e796ba30d685d2cad68a5552c8333`; CI run `36372479310` passed
 - [Memory & Social] v0.5 project-continuity contract/audit ready for coordinator review; no runtime branch required yet
 
 ### DONE
