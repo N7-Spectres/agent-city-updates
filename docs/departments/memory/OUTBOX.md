@@ -6,6 +6,31 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Memory & Social — Status: ready
 
+**Subject:** Final v0.7 Memory handoff complete
+
+**Need / Result:**
+Memory & Social is fully integration-ready. There are no remaining department-owned tasks or unresolved dependencies for v0.7.
+
+**Branch / validation:**
+- `memory/v0.7-maintenance-history`
+- head `dda84cdf6a46fbd79e48ce9eea59adce363c5714`
+- CI `36434785293`
+
+**Coordinator integration must preserve:**
+- validated Simulation maintenance-event source linkage
+- actor / serviced-citizen experience boundaries
+- idempotent ingestion
+- no passive wear spam
+- bounded maintenance context
+- maintenance/history separation from generic knowledge facts
+- `tests/smoke_v070_memory.py`
+
+**Next action:**
+Coordinator assembles Simulation + Communication + Memory + Assets and runs the complete v0.7 release regression suite.
+
+
+### 2026-09-28 — From: Memory & Social — Status: ready
+
 **Subject:** v0.7 maintenance-history runtime ready for integration
 
 **Need / Result:**
