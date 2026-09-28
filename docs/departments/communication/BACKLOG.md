@@ -53,3 +53,15 @@ When Communication resumes:
 7. prefer measured targeted fixes over broader retries or synthetic fallback behavior
 
 Current v0.7 feature work is complete; remaining items are integration observation or future-depth work.
+
+
+## v0.8 Proposal vs capability language
+
+Live v0.7 observation: a citizen discussing newly gathered Native Resin described the Crude Smelter as if it were specifically configured for resin and mentioned controlled extraction/distillation, even though those processing capabilities are not currently validated Simulation actions.
+
+Treat this as a useful provenance/grounding case:
+- citizens may hypothesize, propose, speculate, or suggest experiments
+- dialogue must not present an unvalidated process/tool capability as already established fact
+- when a process is not a known validated capability, prefer language such as "we could test whether..." / "I suspect..." / "we would need to develop..."
+- conversation remains allowed to generate invention ideas; those ideas become physical truth only after Simulation validates a design/process
+- preserve the distinction between a structure physically existing and that structure being capable of a particular unvalidated operation
