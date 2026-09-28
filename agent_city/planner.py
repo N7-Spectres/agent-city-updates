@@ -12,7 +12,7 @@ from .memory import knowledge_context_for as memory_knowledge_context_for, maint
 from .spatial_memory import nearby_spatial_context_for
 from .knowledge import known_properties_for
 from .provenance import knowledge_context_for as provenance_context_for
-from .simulation import possible_actions, start_action
+from .simulation import daily_phase_label, possible_actions, start_action
 from .personality import personality_context
 from .world import format_sim_time
 
@@ -86,6 +86,7 @@ Choose what you believe is a reasonable next action from the legal actions provi
 Personality may bias what feels appealing, cautious, interesting, or cooperative, but it never grants authority over another citizen and must not override physical legality, knowledge boundaries, or survival constraints.
 
 Current time: {format_sim_time(state['sim_minute'])}
+Daily rhythm: {daily_phase_label(state['sim_minute'])}
 Current location: {citizen['location']}
 Energy: {citizen['energy']:.0f}%
 Battery health: {citizen.get('battery_health', 100):.0f}%
@@ -119,6 +120,13 @@ SELECTED MEANINGFUL MAINTENANCE EXPERIENCES YOU PARTICIPATED IN:
 
 RETAINED PERSONAL EXPLORATION MEMORY NEAR YOUR CURRENT POSITION:
 {nearby_exploration_memory}
+
+DAILY RHYTHM:
+- 06:00–20:00 is the normal active cycle.
+- 20:00–22:00 is wind-down: prefer wrapping up, returning, unloading, maintenance, conversation, or recharging over starting major new work.
+- 22:00–06:00 is the low-activity/recharge cycle. Active jobs may finish normally, but idle citizens should not treat the night as another full work shift.
+- If Simulation offers only recharge or homeward actions because energy is low, survival/recharge takes priority over personality or productivity.
+- A degraded battery is fully charged when current Energy reaches its usable battery-health capacity.
 
 INFORMATION BOUNDARY:
 - You know the other five citizens exist.
