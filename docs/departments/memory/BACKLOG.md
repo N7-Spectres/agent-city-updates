@@ -213,3 +213,35 @@ Before v0.4 can be considered release-ready:
 - [x] Communication final contract received
 - [x] no remaining department-owned v0.6 implementation blocker
 - [ ] coordinator integration and combined release smoke
+
+
+## v0.7.0 — Maintenance Continuity
+
+### Audited / ready
+
+- [x] audit v0.6 Memory/event model
+- [x] confirm existing `memory_events` can store maintenance history without a new table
+- [x] define maintenance salience/noise policy
+- [x] define physical-truth vs citizen-knowledge boundary
+- [x] avoid speculative runtime branch before Simulation event semantics exist
+
+### Waiting on Simulation v0.7
+
+- [ ] stable maintenance/failure event or completed-job ID
+- [ ] event kind/lifecycle semantics
+- [ ] actor/participant citizen ID
+- [ ] subject type + stable subject ID
+- [ ] location ID
+- [ ] validated outcome
+- [ ] condition before/after where naturally tracked
+- [ ] replacement/resulting equipment/component/structure ID where applicable
+- [ ] enough semantics to distinguish routine upkeep from failure/repair/replacement
+
+### After Simulation contract arrives
+
+- [ ] add idempotent maintenance-event ingestion using existing `memory_events`
+- [ ] record memories only for citizens with a valid experience/information path
+- [ ] add bounded maintenance history retrieval by citizen/subject
+- [ ] expose minimal read model for Assets Citizen/History surfaces if useful
+- [ ] add smoke tests ensuring passive wear does not flood Memory
+- [ ] preserve all v0.4-v0.6 social/knowledge/provenance regressions
