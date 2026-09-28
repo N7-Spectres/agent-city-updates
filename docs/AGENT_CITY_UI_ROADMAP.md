@@ -1,6 +1,6 @@
 # Agent City UI Roadmap
 
-_Last updated: 2026-09-27_
+_Last updated: 2026-09-28_
 
 ## Locked Direction
 
@@ -51,6 +51,19 @@ Secondary views include:
 The UI should feel like **visiting a place**, not operating a spreadsheet.
 
 ## Visual Roadmap
+
+### Shipped milestone — v0.3.0 World Presence
+
+- live progress and ETA for active jobs
+- traveling citizens move along their actual route based on simulation time
+- pausing freezes movement because visuals derive from simulation time
+- N7 has a physical visitor location and can travel between connected regions
+- face-to-face visits require physical co-location
+- citizen-to-citizen conversations are visible in History with expandable exchanges
+- Stores shows settlement inventory beside material still being carried in the field
+
+This is the first step from a status dashboard toward a visibly inhabited world.
+
 
 ### Phase 1 — Current Map Polish
 
