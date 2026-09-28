@@ -23,6 +23,8 @@ This file is the shared project task board.
 
 ### READY
 
+- [Memory & Social] no remaining v0.7 department-owned dependency; branch and smoke are ready for coordinator assembly
+
 - [World & Simulation] v0.7 Maintenance & Consequences core ready on `simulation/v0.7-maintenance` @ `54f5d838f674d0b278a51382f3a880cc0738b417`; runtime CI `36429729279` passed all v0.4-v0.7 smoke suites
 - [World & Simulation] authoritative condition/effective-capability fields delivered to Assets
 - [World & Simulation] stable `maintenance_events.id` physical anchors delivered to Memory
