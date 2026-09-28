@@ -4,7 +4,7 @@ _Last updated: 2026-09-28_
 
 ## Current Release
 
-**v0.8.1 — Citizen Visual Assets + Map Readability**
+**v0.8.5 — Daily Rhythm & Recharge**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -18,7 +18,7 @@ Information law:
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
 
-## Planned Hotfix
+## Recent Visual Foundation
 
 **v0.8.1 — Citizen Visual Assets + Map Readability**
 
@@ -40,6 +40,31 @@ Delivered:
 - Simulation/Communication/Memory semantics unchanged
 
 ## Current Milestone
+
+**v0.8.5 — Daily Rhythm & Recharge**
+
+Published autonomy/energy rhythm release:
+- branch: `release-v0.8.5`
+- immutable runtime commit: `5b2395d7e7643a3d7ac9a82ac68090fc97b5f0b7`
+- final CI: `36498819565` — PASS
+
+Delivered:
+- 06:00–20:00 normal autonomous active cycle
+- 20:00–22:00 wind-down that favors wrapping up, returning, unloading, maintenance, conversation, and recharge over starting major new work
+- 22:00–06:00 low-activity/recharge cycle that prevents idle citizens from treating night as another full work shift
+- critically low autonomous citizens prioritize a physically legal charger or safe return toward charging
+- overnight charging repeats real charge jobs until current Energy reaches true usable battery capacity
+- degraded battery health is treated as the full-charge ceiling; no pointless charge cycle is offered at that ceiling
+- existing active jobs are allowed to finish normally rather than being cancelled by time-of-day
+- `possible_actions()` remains the physical-legality contract; daily rhythm is applied only through the autonomous-planning layer
+- charger availability requires both physical proximity and matching named location
+- world presentation now reflects dawn / daylight / dusk / night without changing Simulation truth
+- all v0.4–v0.8.4 regressions plus `tests/smoke_v085_daily_rhythm.py` pass
+
+The release preserves the authority split:
+- Simulation defines physical legality and energy truth
+- autonomous planning applies daily rhythm to legal choices
+- presentation reflects simulated time but never changes reality
 
 **v0.8.4 — Conversation Summary Truth**
 
