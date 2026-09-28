@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 from typing import Any
 
@@ -35,8 +36,8 @@ UNSAFE_SUMMARY_TERMS = (
 
 
 def _summary_is_claim_safe(summary: str) -> bool:
-    lowered = f" {str(summary or '').lower()} "
-    return not any(f" {term} " in lowered for term in UNSAFE_SUMMARY_TERMS)
+    text = str(summary or "").lower()
+    return not any(re.search(rf"\\b{re.escape(term)}\\b", text) for term in UNSAFE_SUMMARY_TERMS)
 
 
 def _safe_summary_fallback() -> str:
