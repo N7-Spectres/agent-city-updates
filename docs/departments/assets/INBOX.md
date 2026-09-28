@@ -4,6 +4,57 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Main Coordinator — Status: request
+
+**Subject:** v0.8.0 Stage 2 — Continuous local map, shared-action UI, and citizen art integration
+
+**Unified Stage 1 base:**
+- `release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`
+- combined CI `36453177128` — PASS
+- create/use: `assets/v0.8-exploration-ui-stage2`
+
+**Stage 2 goal:**
+Make the new meter-space exploration legible and enjoyable while keeping every visual tied to authoritative Simulation state.
+
+**Required scope:**
+- consume Simulation's final Stage 2 movement fields
+- render authoritative local x/y citizen and visitor positions
+- for active local movement, interpolate/render only from real Simulation start/target/progress fields
+- preserve existing named landmarks as recognizable anchors
+- show validated discovered spatial observations/deposit contacts only; never hidden seeded content
+- use uncertainty/extent/radius visually when practical instead of implying false point precision
+- provide a compact shared-action proposal affordance in/near Visit chat:
+  - clearly separate "proposed" from "active"
+  - visitor must explicitly accept/start
+  - button/action calls the Simulation/Communication-approved endpoint
+  - active state shows real progress/status
+- retain restored citizen progress bars and Enter-to-send behavior from Stage 1
+- preserve responsive/reduced-motion behavior
+
+**Citizen visual identity:**
+- continue the approved six-citizen base-body/token system
+- if the refined/approved art files from the concept session are available to this department, prepare runtime-safe full-body/head-token exports and wire them into the manifest
+- keep optional equipment as separate layers
+- if final art files are not actually available, do not invent substitutes; leave the runtime slots ready and document exact export requirements
+- visor expression animation may use approved neutral/blink/happy/focused/curious frames only when art exists; otherwise keep current fallback animation
+
+**Asset-worker Stage 2 scaffold:**
+- turn the Stage 1 worker contract into a minimal local queue/spec scaffold if it can be done without crossing Simulation authority
+- no Blender dependency yet
+- no generated 3D required yet
+- fallback visual must always exist
+- bulk-resource render tiers remain aggregation-only presentation
+
+**Do NOT:**
+- infer continuous paths from Stage 1 data if Simulation has not handed final Stage 2 lifecycle fields
+- render hidden deposits
+- treat concept-art gear as owned inventory
+- publish `update.json`
+
+**Next action:**
+Implement independent UI/art/worker groundwork, consume Simulation + Communication Stage 2 contracts as they arrive, add smoke/static validation, update STATE/DECISIONS/BACKLOG/OUTBOX, then stop.
+
+
 _None._
 
 The v0.8 Stage 1 coordinator request is complete on:
