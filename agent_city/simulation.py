@@ -5,9 +5,33 @@ import math
 from typing import Any
 
 from .db import add_history, connect, get_meta
+from .knowledge import citizen_knows_property, record_discovery
 
 BASE_CARRY_CAPACITY = 20.0
 RETURN_ENERGY_MARGIN = 5.0
+
+# Generic starter assays are physical methods, not technologies or unlock nodes.
+# Simulation knows which hidden property (if any) responds to each method; citizens do not.
+EXPERIMENT_METHODS: dict[str, dict[str, Any]] = {
+    "thermal_assay": {
+        "label": "thermal-response assay",
+        "duration": 120,
+        "energy_cost": 5.0,
+        "sample_amount": 1.0,
+    },
+    "electrical_assay": {
+        "label": "electrical-response assay",
+        "duration": 105,
+        "energy_cost": 4.0,
+        "sample_amount": 1.0,
+    },
+    "mechanical_assay": {
+        "label": "mechanical-response assay",
+        "duration": 90,
+        "energy_cost": 4.0,
+        "sample_amount": 1.0,
+    },
+}
 
 # These are starting mechanical processes supported by the already-existing Seed Site
 # workbench/material stock. They are not a technology tree and do not imply future research.
@@ -291,6 +315,31 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
             if cargo > 0:
                 actions.append({"action": "deposit_cargo", "target": "seed_site", "label": f"Deposit {cargo:g} carried material into Seed Site storage."})
 
+            assay_materials = conn.execute(
+                """
+                SELECT DISTINCT wp.subject_id AS material
+                FROM world_properties wp
+                JOIN resources r ON r.name = wp.subject_id
+                WHERE wp.subject_type = 'material'
+                  AND r.amount >= 1
+                ORDER BY wp.subject_id
+                """
+            ).fetchall()
+            for row in assay_materials:
+                for method_id, method in EXPERIMENT_METHODS.items():
+                    if action_energy_safe(conn, location_id, energy, float(method["energy_cost"])):
+                        material_name = str(row["material"])
+                        actions.append({
+                            "action": "experiment",
+                            "target": f"{method_id}:{material_name}",
+                            "material": material_name,
+                            "experiment_method": method_id,
+                            "label": (
+                                f"Run a {method['label']} on "
+                                f"{method['sample_amount']:g} unit of stored {material_name}."
+                            ),
+                        })
+
             for process_id, process in FABRICATION_PROCESSES.items():
                 already_owned = conn.execute(
                     """
@@ -380,8 +429,13 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
 
         if location_id != "seed_site":
             loc = conn.execute("SELECT surveyed, name FROM locations WHERE id = ?", (location_id,)).fetchone()
-            if loc and not loc["surveyed"] and action_energy_safe(conn, location_id, energy, 8.0):
-                actions.append({"action": "survey", "target": location_id, "label": f"Survey {loc['name']} for geological or biological material."})
+            if loc and action_energy_safe(conn, location_id, energy, 8.0):
+                survey_label = (
+                    f"Repeat a field survey of {loc['name']} for additional validated observations."
+                    if loc["surveyed"]
+                    else f"Survey {loc['name']} for geological or biological material."
+                )
+                actions.append({"action": "survey", "target": location_id, "label": survey_label})
 
         free_capacity = max(0.0, capacity - cargo)
         if location_id != "seed_site" and free_capacity >= 1 and action_energy_safe(conn, location_id, energy, 7.0):
@@ -454,6 +508,7 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
         duration = 30
         detail = ""
         project_id = None
+        experiment_method = None
 
         if action == "travel":
             distance = route_distance(conn, c["location_id"], target)
@@ -492,6 +547,33 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             conn.execute("UPDATE citizens SET energy = MAX(0, energy - 7) WHERE id = ?", (citizen_id,))
             detail = f"extract:{target}:speed={speed:.2f}"
             activity = f"Extracting {material}"
+
+        elif action == "experiment":
+            experiment_method = str(chosen.get("experiment_method") or "")
+            protocol = EXPERIMENT_METHODS.get(experiment_method)
+            material = str(chosen.get("material") or "")
+            if not protocol or not material or c["location_id"] != "seed_site":
+                return False, "That experiment is not physically available here."
+            if not action_energy_safe(
+                conn,
+                c["location_id"],
+                float(c["energy"]),
+                float(protocol["energy_cost"]),
+            ):
+                return False, "That experiment would leave insufficient energy reserve."
+            sample_amount = float(protocol["sample_amount"])
+            if not consume_resources(conn, {material: sample_amount}):
+                return False, "The required physical sample is no longer available."
+            duration = int(protocol["duration"])
+            conn.execute(
+                "UPDATE citizens SET energy = MAX(0, energy - ?) WHERE id = ?",
+                (float(protocol["energy_cost"]), citizen_id),
+            )
+            detail = "experiment:" + json.dumps(
+                {"method": experiment_method, "material": material, "sample": sample_amount},
+                separators=(",", ":"),
+            )
+            activity = f"Testing {material} with a {protocol['label']}"
 
         elif action == "fabricate":
             process = FABRICATION_PROCESSES.get(str(target))
@@ -577,10 +659,14 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
         cur = conn.execute(
             """
             INSERT INTO jobs
-            (citizen_id, action, target, material, amount, start_minute, end_minute, status, detail, intent_reason, project_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?)
+            (citizen_id, action, target, material, amount, start_minute, end_minute,
+             status, detail, intent_reason, project_id, experiment_method)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?)
             """,
-            (citizen_id, action, target, material, amount, now, now + duration, detail, intent_reason, project_id),
+            (
+                citizen_id, action, target, material, amount, now, now + duration,
+                detail, intent_reason, project_id, experiment_method,
+            ),
         )
         job_id = int(cur.lastrowid)
 
@@ -653,24 +739,96 @@ def complete_due_jobs(now: int) -> None:
                 loc_id = job["target"]
                 loc_name = location_name(conn, loc_id)
                 conn.execute("UPDATE locations SET surveyed = 1 WHERE id = ?", (loc_id,))
-                undiscovered = conn.execute(
-                    "SELECT * FROM deposits WHERE location_id = ? AND discovered = 0 ORDER BY id",
-                    (loc_id,),
-                ).fetchall()
-                if undiscovered:
-                    dep = undiscovered[0]
-                    conn.execute(
-                        """
-                        UPDATE deposits
-                        SET discovered = 1, discoverer_id = ?, discovered_minute = ?
-                        WHERE id = ?
-                        """,
-                        (c["id"], now, dep["id"]),
+                findings: list[str] = []
+
+                # A repeat survey may independently confirm a deposit that another
+                # citizen found earlier, or reveal a deposit still hidden globally.
+                dep = conn.execute(
+                    """
+                    SELECT d.*
+                    FROM deposits d
+                    WHERE d.location_id = ?
+                      AND d.amount > 0
+                      AND NOT EXISTS (
+                          SELECT 1
+                          FROM citizen_knowledge ck
+                          JOIN discoveries dx ON dx.id = ck.discovery_id
+                          WHERE ck.citizen_id = ?
+                            AND dx.discovery_kind = 'deposit'
+                            AND dx.subject_id = d.id
+                      )
+                    ORDER BY d.discovered ASC, d.id
+                    LIMIT 1
+                    """,
+                    (loc_id, c["id"]),
+                ).fetchone()
+                if dep:
+                    if not dep["discovered"]:
+                        conn.execute(
+                            """
+                            UPDATE deposits
+                            SET discovered = 1, discoverer_id = ?, discovered_minute = ?
+                            WHERE id = ?
+                            """,
+                            (c["id"], now, dep["id"]),
+                        )
+                    discovery_id = record_discovery(
+                        conn,
+                        discovery_kind="deposit",
+                        subject_type="deposit",
+                        subject_id=str(dep["id"]),
+                        citizen_id=str(c["id"]),
+                        location_id=str(loc_id),
+                        source_job_id=int(job["id"]),
+                        discovered_minute=now,
+                        summary=f"Confirmed deposit of {dep['material']} at {loc_name}.",
+                        acquisition_kind="direct_survey",
                     )
-                    message = f"{c['name']} surveyed {loc_name} and confirmed a deposit of {dep['material']}."
+                    findings.append(f"confirmed a deposit of {dep['material']} (discovery #{discovery_id})")
+
+                prop = None
+                for candidate in conn.execute(
+                    """
+                    SELECT *
+                    FROM world_properties
+                    WHERE subject_type = 'location'
+                      AND subject_id = ?
+                      AND assay_method = 'field_survey'
+                    ORDER BY id
+                    """,
+                    (loc_id,),
+                ).fetchall():
+                    if not citizen_knows_property(conn, str(c["id"]), str(candidate["id"])):
+                        prop = candidate
+                        break
+
+                if prop:
+                    discovery_id = record_discovery(
+                        conn,
+                        discovery_kind="world_property",
+                        subject_type="location",
+                        subject_id=str(loc_id),
+                        property_id=str(prop["id"]),
+                        citizen_id=str(c["id"]),
+                        location_id=str(loc_id),
+                        source_job_id=int(job["id"]),
+                        discovered_minute=now,
+                        summary=f"{loc_name}: {prop['property_key']} — {prop['value_text']}.",
+                        acquisition_kind="direct_survey",
+                    )
+                    findings.append(
+                        f"recorded {prop['property_key']}: {prop['value_text']} (discovery #{discovery_id})"
+                    )
+
+                if findings:
+                    message = f"{c['name']} surveyed {loc_name} and " + "; ".join(findings) + "."
                 else:
-                    message = f"{c['name']} completed a survey of {loc_name}; no new deposit was confirmed."
-                conn.execute("UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?", (c["id"],))
+                    outcome = "no_new_finding"
+                    message = f"{c['name']} completed a survey of {loc_name}; it produced no new validated finding."
+                conn.execute(
+                    "UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?",
+                    (c["id"],),
+                )
 
             elif action == "extract":
                 dep = conn.execute("SELECT * FROM deposits WHERE id = ?", (job["target"],)).fetchone()
@@ -693,6 +851,106 @@ def complete_due_jobs(now: int) -> None:
                     outcome = "no_yield"
                     message = f"{c['name']}'s extraction attempt produced no usable material."
                 conn.execute("UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?", (c["id"],))
+
+            elif action == "experiment":
+                method = str(job["experiment_method"] or "")
+                material_name = str(job["material"] or "")
+                protocol = EXPERIMENT_METHODS.get(method)
+                matching = conn.execute(
+                    """
+                    SELECT *
+                    FROM world_properties
+                    WHERE subject_type = 'material'
+                      AND subject_id = ?
+                      AND assay_method = ?
+                    ORDER BY id
+                    """,
+                    (material_name, method),
+                ).fetchall()
+
+                new_property = None
+                for candidate in matching:
+                    if not citizen_knows_property(conn, str(c["id"]), str(candidate["id"])):
+                        new_property = candidate
+                        break
+
+                discovery_id = None
+                if new_property:
+                    discovery_id = record_discovery(
+                        conn,
+                        discovery_kind="world_property",
+                        subject_type="material",
+                        subject_id=material_name,
+                        property_id=str(new_property["id"]),
+                        citizen_id=str(c["id"]),
+                        location_id=str(c["location_id"]),
+                        source_job_id=int(job["id"]),
+                        discovered_minute=now,
+                        summary=(
+                            f"{material_name}: {new_property['property_key']} — "
+                            f"{new_property['value_text']}."
+                        ),
+                        acquisition_kind="direct_experiment",
+                    )
+                    outcome = "discovery"
+                    conn.execute(
+                        """
+                        INSERT OR IGNORE INTO learned_processes
+                        (citizen_id, process_key, name, process_kind, source_discovery_id, learned_minute)
+                        VALUES (?, ?, ?, 'verification', ?, ?)
+                        """,
+                        (
+                            c["id"],
+                            f"verify:{new_property['id']}",
+                            (
+                                f"Repeatable {protocol['label'] if protocol else method} "
+                                f"for {material_name}"
+                            ),
+                            discovery_id,
+                            now,
+                        ),
+                    )
+                    summary = (
+                        f"{c['name']} discovered {new_property['property_key']} in {material_name}: "
+                        f"{new_property['value_text']}."
+                    )
+                    message = summary + f" Discovery #{discovery_id} is now a validated knowledge anchor."
+                elif matching:
+                    outcome = "verified"
+                    summary = (
+                        f"{c['name']} repeated the {protocol['label'] if protocol else method} "
+                        f"on {material_name} and reproduced a property already known to them."
+                    )
+                    message = summary
+                else:
+                    outcome = "inconclusive"
+                    summary = (
+                        f"{c['name']}'s {protocol['label'] if protocol else method} on "
+                        f"{material_name} produced no validated new property."
+                    )
+                    message = summary
+
+                cur_result = conn.execute(
+                    """
+                    INSERT INTO experiment_results
+                    (job_id, citizen_id, location_id, material, method, outcome,
+                     discovery_id, summary, completed_minute)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        int(job["id"]), c["id"], c["location_id"], material_name, method,
+                        outcome, discovery_id, summary, now,
+                    ),
+                )
+                if discovery_id is not None:
+                    conn.execute(
+                        "UPDATE jobs SET result_discovery_id = ? WHERE id = ?",
+                        (discovery_id, job["id"]),
+                    )
+                conn.execute(
+                    "UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?",
+                    (c["id"],),
+                )
 
             elif action == "fabricate":
                 process = FABRICATION_PROCESSES.get(str(job["target"]))
