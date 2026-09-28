@@ -396,3 +396,20 @@ Authoritative handoff:
 - final CI: `36456647323`
 
 Dependent contracts are being routed to Communication, Memory, and Assets. Simulation should resume only for integration conflicts or a new coordinator request.
+
+
+## Final Stage 2 Work-Session Handoff
+
+This World & Simulation work session is complete.
+
+Authoritative branch:
+- `simulation/v0.8-exploration-stage2`
+- head `b81c9bb57884727e7a1c769d95ecb27928d1d489`
+- final CI `36456647323`
+
+All Simulation-owned Stage 2 dependencies have been handed off:
+- Communication has final proposal/accept/start/reject/status mapping
+- Memory has final physical action/evidence source IDs
+- Assets has final continuous movement/shared-action read model
+
+Simulation status remains REVIEW. No additional Simulation work is pending unless coordinator integration exposes a conflict or a new inbox task arrives.
