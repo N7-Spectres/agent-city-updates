@@ -90,3 +90,10 @@ Fabrication, projects, equipment, tool modifiers, cargo-capacity effects, struct
 Assets must not derive physical bonuses or infer completion from names, LLM text, chronology prose, or frontend calculations when Simulation exposes a validated field instead.
 
 Stable physical IDs should be preserved in UI data attributes / future links where useful so project, structure, tool, and history surfaces can refer to the same real object.
+
+
+## Dependency Gate Rule
+
+When a requested UI surface depends on new Simulation-owned physical state, Assets should complete independent presentation work first, then stop at a clear dependency boundary.
+
+Do not mock, infer, or temporarily synthesize project/tool/structure state merely to finish the interface ahead of the authoritative schema.
