@@ -1,301 +1,222 @@
 # Assets & Interface — State
 
 _Last updated: 2026-09-28_
-_Current integration base: `release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`_
-_Current department branch: `assets/v0.8-exploration-ui-stage2`_
-_Current branch head: `7f5294efaab738b44af116514a65d22478851ad0`_
-_Current review surface: PR #15 — ready for review_
+_Current published release: v0.8.0 @ `a870982ba947fcc5af08ca190de396ae4308b645`_
+_Current hotfix base: `release-v0.8.1` @ `c55eb76b89b35a660275ac97f095dcc4f511683e`_
+_Current department branch: `assets/v0.8.1-citizen-visuals-map`_
+_Current branch head: `588dd08558a3b9aaed4a0ab8fe1d6e45a7838337`_
+_Current review surface: PR #19 — ready for review_
 
 ## Mission
 
 Make Agent City visually understandable and alive while never allowing presentation, animation, or generated assets to invent physical reality, hidden knowledge, equipment, quantity, capability, or spatial truth.
 
-Core rendering law:
-
 > **Simulation defines reality. Assets renders reality.**
 
-## v0.8 Stage 2 — Assets Complete
+## v0.8.1 Citizen Visual Assets + Map Readability — Complete
 
-Assets & Interface has completed its Stage 2 implementation.
-
-Base:
-`release-v0.8.0` / `017b417386f4f4e0f957dfb66285431223283739`
-
-Final branch:
-`assets/v0.8-exploration-ui-stage2` / `7f5294efaab738b44af116514a65d22478851ad0`
-
-PR:
-**#15 — Assets: v0.8 Stage 2 continuous local map and shared-action UI**
+Assets & Interface completed the requested v0.8.1 visual hotfix.
 
 Status:
 **REVIEW**
 
-### Continuous local meter-space map
+### Citizen runtime art
 
-The Home world view now consumes Simulation's safe Stage 2 spatial state:
+Approved runtime-ready art is now committed for all six founding citizens:
 
-- `state.spatial_frame`
-- location `x_m / y_m`
-- citizen `position_x_m / position_y_m`
-- citizen `local_movement`
-- authoritative visitor `x_m / y_m`
-- `state.spatial_observations[]`
+- Aris
+- Bex
+- Cato
+- Iri
+- Noma
+- Vale
 
-Presentation behavior:
+Per citizen:
+- equipment-free base-body full render
+- matching head/token render
 
-- normal view is a physically scaled meter-space regional map
-- +x is east
-- +y is north
-- named locations remain recognizable physical anchors
-- when a selected citizen/shared activity moves only tens of meters, the map automatically switches to a local meter focus so movement remains readable
-- this local focus changes only viewport/scale, never physical coordinates
-- if safe meter-space data is absent, the older map presentation remains a compatibility fallback
+Runtime files:
 
-### Continuous movement truth
+`static/assets/citizens/<citizen>/full.webp`
+`static/assets/citizens/<citizen>/token.webp`
 
-For Stage 2 local/shared movement, Assets renders only Simulation's authoritative segment:
+Web sizing:
+- full body: 200×300 WebP
+- token: 96×96 WebP
 
-- start x/y
-- target x/y
-- authoritative current x/y
-- start/end timing
-- progress
-- path distance
+The existing `CITIZEN_VISUAL_PROFILES` now points:
+- `full` → approved full-body file
+- `bust` → approved token file
+- `token` → approved token file
 
-CSS may visually smooth between authoritative refreshes.
+The explicit semantic expression slots remain unfilled:
+- neutral
+- blink
+- happy
+- focused
+- curious
 
-Assets does **not**:
+A static token image is not treated as a semantic expression frame.
 
-- invent waypoints
-- choose an alternate route
-- extrapolate beyond the authoritative segment
-- expose hidden terrain used internally for movement cost
+Optional equipment remains separate. All six `equipment_layers` stay empty.
 
-`prefers-reduced-motion` disables the smoothing transition.
+Concept-art props still do not create:
+- backpacks
+- tools
+- scanners
+- medical gear
+- cargo rigs
+- capability
+- inventory
 
-Legacy named-route travel keeps its existing compatibility representation.
+Cato retains the intentionally heavy logistics silhouette.
+Iri retains the slimmer/elegant construction silhouette.
 
-### Validated exploration observations
+### Character sheet rendering
 
-Map evidence comes only from:
-`state.spatial_observations[]`
+Approved full-body art uses:
+`object-fit: contain`
 
-Each visible observation may use:
+Small Home/directory/map tokens use:
+`object-fit: cover`
 
-- stable observation ID
-- observed x/y
-- `radius_m`
-- safe terrain
-- safe detail level
-- safe discovered material/geology only when actually exposed
-- safe stable deposit/contact ID when present
+The Citizens identity-slot copy now describes approved base-body identity rather than a placeholder.
 
-Uncertainty is rendered as a radius ring rather than a falsely precise point.
+### Map zoom/readability hotfix
 
-Baseline observations explicitly do **not** reveal:
+Home now has explicit map controls:
 
-- material
-- classified geology
-- hidden deposit center
-- hidden deposit axes/orientation
-- richness
+- zoom out
+- zoom level
+- zoom in
+- Region reset
+
+State is presentation-only:
+
+- `mapZoomLevel`
+- `mapCenterOverride`
+
+Zoom/focus changes only viewport center and scale.
+
+It never writes:
+- citizen x/y
+- visitor x/y
+- location x/y
+- Simulation jobs
+- observations
+- any API physical state
+
+Location-node click behavior:
+- selects/focuses the location normally
+- centers the viewport on that location's authoritative x/y
+- moves to a closer presentation zoom
+- never changes the location itself
+
+### Location-node rectangle fix
+
+The existing generous location-button hit target remains:
+
+- width: 132 px
+- minimum height: 56 px
+
+But hover/focus no longer paints that rectangle.
+
+Visual feedback is now only on:
+- node dot
+- node label
+
+Keyboard `:focus-visible` remains obvious.
+
+The node hit target explicitly preserves its center transform on hover/focus so the global button-hover rule cannot shift the location.
+
+### Cluster readability
+
+Citizen pixel separation grows modestly with presentation zoom, improving dense Seed Site readability without changing physical meter coordinates.
+
+### Reduced motion
+
+Zoom is an immediate presentation transform.
+
+Node focus transitions and existing map movement smoothing continue to obey `prefers-reduced-motion`.
+
+## Authority / Privacy Preserved
+
+v0.8.1 does not change Simulation, Communication, or Memory semantics.
+
+Assets still does not consume/expose:
+
+- `planet_seed`
+- hidden `generated_deposits`
+- hidden body centers/axes/orientation
+- hidden richness
 - undiscovered procedural resources
 
-The Assets JavaScript contains no dependency on:
-- `planet_seed`
-- `generated_deposits`
-- hidden body geometry/richness
-
-### Shared visitor physical activity
-
-Visit now consumes Communication's final:
-`shared_action_proposals[]`
-
-Identity separation is preserved:
-
-1. Communication proposal ID = social/provenance projection
-2. Simulation `shared_activities.id` = canonical shared physical event
-3. Simulation `jobs.id` = actual physical movement job
-
-Proposal presentation:
-
-- `proposed` = intent, visually nonphysical
-- accepted without a real job = intent, visually nonphysical
-- `started` + `simulation_action_id` = active physical activity
-- `completed` = Simulation-completed activity
-- rejected / failed / cancelled / expired = no active movement
-
-Visitor controls use Communication's final endpoints:
-
-- `POST /api/shared-actions/{proposal_id}/accept`
-- `POST /api/shared-actions/{proposal_id}/reject`
-
-A proposal card explicitly states that proposal is not movement.
-
-Accept/start visuals appear only after Communication returns the real Simulation job identity.
-
-Canonical Simulation rejection is preferred for the visible "Declined" label even if a broader Communication sync state later buckets it as failed.
-
-### Visitor physical marker
-
-During a real shared activity, the visitor marker uses authoritative visitor-presence x/y supplied by Simulation.
-
-Chat agreement alone never moves the visitor.
-
-### Stage 1 UI preserved
-
-Stage 2 retains:
-
-- Home active-job progress bars
-- elapsed / total / remaining / ETA
-- Enter-to-send
-- Shift+Enter newline
-- IME-safe submission
-- duplicate-submit guard
-- six runtime citizen visual profiles
-- v0.7 maintenance/history truth boundaries
-
-## Citizen Art Status
-
-The approved concept direction remains canonical presentation reference through:
-
-`docs/departments/assets/V080_CITIZEN_VISUAL_SYSTEM.md`
-
-Assets checked the expected repository locations for runtime-ready citizen art.
-
-No approved base-body/head-token files are currently present.
-
-Therefore:
-
-- visual-profile asset slots remain intentionally empty
-- no chat-generated image was silently committed as canon
-- no substitute citizen art was invented
-- no concept-art backpack/tool/medical/cargo gear was treated as physical equipment
-
-When real source art is added later, required exports remain:
-
-- transparent equipment-free full-body base
-- matching head token
-- neutral / blink / happy / focused / curious visor frames as available
-- consistent canvas/body anchors
-- optional equipment as separate layers
-
-## Local Asset Worker Scaffold
-
-Added:
-`agent_city/asset_worker.py`
-
-This is a presentation-only asynchronous scaffold.
-
-It uses a separate local database:
-`data/asset_worker.db`
-
-It does not import or mutate Agent City's Simulation database.
-
-Implemented:
-
-- `AssetSpec`
-- persistent source type / ID / revision / spec version
-- render tiers:
-  - `individual`
-  - `bundle`
-  - `storage`
-- persistent `asset_specs`
-- persistent `asset_jobs`
-- status lifecycle:
-  - queued
-  - working
-  - ready
-  - failed
-- atomic worker claim using `BEGIN IMMEDIATE`
-- attempt count
-- output path / format
-- content hash
-- generator version
-- error metadata
-- idempotent reuse of the same queued/working/ready physical revision
-
-No Blender dependency exists yet.
-No 3D generation is required yet.
-A missing rich asset never blocks or changes the physical object.
-
-Full architecture:
-`docs/departments/assets/V080_ASSET_WORKER_CONTRACT.md`
+The hotfix does not modify `update.json`.
 
 ## Validation
 
-Final static audit:
+Dedicated hotfix test:
+`tests/smoke_v081_assets.py`
 
-- 73 HTML IDs
-- 69 JavaScript `getElementById` refs
-- zero missing DOM refs
+Final static audit at branch head:
+
+- 77 HTML IDs
+- 73 JavaScript DOM refs
+- zero missing refs
 - zero duplicate IDs
-- JavaScript parses successfully
-- hidden seeded-truth identifiers absent from Assets JS
-- branch 10 commits ahead / 0 behind unified Stage 1 base
-- final branch contains only five changed files
+- JavaScript parses
+- all 12 runtime WebPs present
+- all six full/token profile paths wired
+- all six equipment-layer sets empty
+- all five expression slots remain null for all six citizens
+- hidden-world identifiers absent from Assets JS
+- map zoom controls present
+- node rectangular surface absent
 
-Final changed files:
+### Full regression
 
-- `agent_city/asset_worker.py`
-- `static/app.js`
-- `static/index.html`
-- `static/styles.css`
-- `tests/smoke_v080_assets_stage2.py`
-
-### Real branch CI
-
-Temporary PR-only validation workflow run:
-
-**GitHub Actions `36460454385` — PASS**
+GitHub Actions:
+**`36467360376` — PASS**
 
 Passed:
 
-- Node JavaScript syntax
-- `tests/smoke_v080_assets.py`
-- `tests/smoke_v080_assets_stage2.py`
+- Python compile
+- JavaScript syntax
+- all v0.4 regressions
+- all v0.5 smoke suites
+- all v0.6 smoke suites
+- all v0.7 smoke suites
+- all four v0.8 Stage 1 smokes
+- all four v0.8 Stage 2 smokes
+- v0.8.1 citizen-art/map hotfix smoke
 
-The Stage 2 smoke also exercised the actual temporary SQLite AssetQueue lifecycle:
-queue → claim → ready → idempotent reuse.
+The temporary PR-only workflow used for that validation was removed afterward.
 
-The temporary workflow was deleted after validation and is not part of the final branch.
+### Official v0.8.1 base alignment
 
-## Upstream Final Contracts Consumed
+Coordinator added a workflow-only CI-noise commit after v0.8.0 publication.
 
-### World & Simulation
+Assets aligned with it before handoff:
 
-- branch: `simulation/v0.8-exploration-stage2`
-- head: `b81c9bb57884727e7a1c769d95ecb27928d1d489`
-- CI: `36456647323` PASS
+- base: `release-v0.8.1`
+- base commit: `c55eb76b89b35a660275ac97f095dcc4f511683e`
+- branch: 16 ahead / 0 behind
+- merge base: `c55eb76b89b35a660275ac97f095dcc4f511683e`
+- release-smoke workflow content matches the base exactly
+- runtime/art code was unchanged by this ancestry alignment
 
-### Communication & Perception
+Per the coordinator's v0.8.1 CI policy, the definitive release matrix should run once at the final VERSION bump.
 
-- branch: `communication/v0.8-shared-actions-stage2`
-- head: `ddab4bd445d5eb9f7d6354eb86e58afc0dc53332`
-- CI: `36457633293` PASS
+## Next Owner
 
-### Memory & Social
+**Coordinator / v0.8.1 Release**
 
-- branch: `memory/v0.8-exploration-stage2`
-- head: `306a9ef4329ab81afa5912846333a1d9782ee9be`
-- CI: `36455394456` PASS
+Coordinator should:
 
-## Status / Next Owner
+1. review/merge PR #19 into `release-v0.8.1`
+2. perform any desired manual visual check
+3. bump VERSION to v0.8.1
+4. let the definitive release workflow run once
+5. publish/update release metadata only after that green run
 
-Assets & Interface is **REVIEW**.
-
-No remaining Assets-owned Stage 2 dependency exists.
-
-Next owner:
-**Coordinator / Stage 2 Integration**
-
-Coordinator should integrate Simulation + Communication + Memory + Assets onto the unified v0.8 branch and run the complete regression matrix, including:
-
-- all shipped v0.4-v0.7 smokes
-- all v0.8 Stage 1 smokes
-- `tests/smoke_v080_stage2.py`
-- `tests/smoke_v080_communication_stage2.py`
-- `tests/smoke_v080_memory_stage2.py`
-- `tests/smoke_v080_assets_stage2.py`
-
-No `update.json` or release publication changes were made by Assets.
+No remaining Assets-owned blocker exists.
