@@ -17,12 +17,11 @@ This file is the shared project task board.
 ### ACTIVE
 
 - [World & Simulation] v0.7.0 lead: equipment/structure wear, lubrication/service, battery health, repair/replacement, preventative maintenance
-- [Assets & Interface] v0.7.0: full-height Home rails, citizen search/filter, Recent Activity, lightweight avatar framework, maintenance presentation
 - [Communication & Perception] v0.7.0: autonomous talk reliability diagnostics/fixes
 
 ### WAITING
 
-- [Assets & Interface] final maintenance/condition fields from World & Simulation for data-driven condition displays
+- [Assets & Interface] independent v0.7 Home scaling/search/Recent Activity/avatar slice is ready in draft PR #7; waiting on final maintenance/condition fields from World & Simulation
 - [Memory & Social] maintenance-memory policy audit complete; waiting for stable Simulation maintenance/failure event anchors before runtime ingestion
 
 ### READY
