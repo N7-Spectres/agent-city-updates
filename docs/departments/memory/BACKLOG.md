@@ -110,3 +110,38 @@ Before v0.4 can be considered release-ready:
 - [ ] integrate Simulation event references once delivered
 - [ ] decide/reconcile runtime branch lineage before assembling the v0.4 release package
 - [ ] expose relationship-history API only after core runtime behavior is verified
+
+
+## v0.5.0 — Project Continuity
+
+### Audited / ready
+
+- [x] verify durable conversation memory is linked to raw `citizen_conversations.id`
+- [x] verify raw conversation source retains participants, time, location, utterances, and summary
+- [x] verify bounded social context labels conversation content as claims, not automatic physical facts
+- [x] define discussion/intention vs validated physical-outcome separation
+- [x] confirm current `memory_events` schema can carry future project links without schema expansion
+- [x] avoid creating a speculative v0.5 Memory runtime branch before project/event interfaces exist
+
+### Waiting on Communication
+
+- [ ] confirm/finalize conversation-history persistence path
+- [ ] preserve stable canonical conversation source ID
+- [ ] expose explicit mapping if a new transfer/provenance record supplements the raw conversation
+- [ ] ensure invalidated/failed talk never produces a false conversation/transfer source
+
+### Waiting on Simulation
+
+- [ ] stable project ID
+- [ ] stable validated project-event/job ID
+- [ ] project state transitions sufficient to distinguish planned/reserved/underway/completed/failed/cancelled
+- [ ] participant/owner IDs where socially relevant
+- [ ] validated outcome type and simulation minute
+
+### After interfaces arrive
+
+- [ ] add minimal project-intention memory helper using existing `memory_events`
+- [ ] add validated project-outcome memory helper using existing `memory_events`
+- [ ] link intention and outcome through validated project ID in metadata where useful
+- [ ] keep promise/cooperation/help success memory disabled until outcome semantics justify it
+- [ ] add bounded project-relevant retrieval only if planner/context needs it
