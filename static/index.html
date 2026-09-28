@@ -23,11 +23,6 @@
 
       <div class="header-actions">
         <span id="ollama-status" class="pill">Ollama: checking…</span>
-        <button id="toggle-region" class="tool-button">Region</button>
-        <button id="toggle-resources" class="tool-button">Stores</button>
-        <button id="toggle-structures" class="tool-button">Structures</button>
-        <button id="toggle-history" class="tool-button">History</button>
-        <button id="toggle-updates" class="tool-button">Updates</button>
         <button id="pause-button">Pause</button>
       </div>
     </div>
@@ -58,17 +53,12 @@
       </div>
 
       <div class="world-stage">
-        <svg class="route-layer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-          <line x1="50" y1="55" x2="50" y2="16" />
-          <line x1="50" y1="55" x2="78" y2="42" />
-          <line x1="50" y1="55" x2="50" y2="85" />
-          <line x1="50" y1="55" x2="23" y2="42" />
-        </svg>
+        <svg id="route-layer" class="route-layer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
 
         <div id="map-layer" class="map-layer"></div>
 
         <div class="map-legend">
-          <div><span class="legend-dot citizen-dot"></span> Citizen</div>
+          <div><span class="legend-citizen">A</span> Citizen</div>
           <div><span class="legend-visitor">YOU</span> Visitor</div>
           <div><span class="legend-dot node-dot"></span> Location</div>
         </div>
@@ -83,98 +73,117 @@
       </div>
     </section>
 
-    <aside class="panel card visit-panel">
-      <div class="panel-head">
-        <div>
-          <div class="eyebrow">VISIT</div>
-          <h2 id="selected-title">Conversation</h2>
+    <aside class="right-rail">
+      <section class="panel card visit-panel">
+        <div class="panel-head">
+          <div>
+            <div class="eyebrow">VISIT</div>
+            <h2 id="selected-title">Conversation</h2>
+          </div>
+          <div class="visit-panel-controls">
+            <span id="selected-label" class="muted">Select a citizen.</span>
+            <button id="previous-visits" class="visit-small-button" hidden>Previous visits</button>
+            <button id="leave-visit" class="visit-small-button" hidden>Leave visit</button>
+          </div>
         </div>
-        <div class="visit-panel-controls">
-          <span id="selected-label" class="muted">Select a citizen.</span>
-          <button id="previous-visits" class="visit-small-button" hidden>Previous visits</button>
-          <button id="leave-visit" class="visit-small-button" hidden>Leave visit</button>
+
+        <label>
+          Visitor name
+          <input id="visitor-name" value="N7" maxlength="40" />
+        </label>
+
+        <div id="visit-history-panel" class="visit-history-panel hidden"></div>
+
+        <div id="chat-log" class="chat-log">
+          <div class="muted">Choose a citizen on the left or on the map, then start a conversation.</div>
         </div>
-      </div>
 
-      <label>
-        Visitor name
-        <input id="visitor-name" value="N7" maxlength="40" />
-      </label>
+        <form id="chat-form">
+          <textarea id="chat-input" rows="3" maxlength="1200" placeholder="Say something…" disabled></textarea>
+          <button id="send-button" type="submit" disabled>Talk</button>
+        </form>
+      </section>
 
-      <div id="visit-history-panel" class="visit-history-panel hidden"></div>
+      <section id="control-room" class="panel card control-room-panel">
+        <div class="panel-head control-room-head">
+          <div>
+            <div class="eyebrow">CONTROL ROOM</div>
+            <h2>Settlement console</h2>
+          </div>
+          <span class="muted">Observed state</span>
+        </div>
 
-      <div id="chat-log" class="chat-log">
-        <div class="muted">Choose a citizen on the left or on the map, then start a conversation.</div>
-      </div>
+        <nav class="control-tabs" aria-label="Control Room views">
+          <button id="toggle-region" class="control-tab active">Region</button>
+          <button id="toggle-resources" class="control-tab">Stores</button>
+          <button id="toggle-structures" class="control-tab">Structures</button>
+          <button id="toggle-history" class="control-tab">History</button>
+          <button id="toggle-updates" class="control-tab">Updates</button>
+        </nav>
 
-      <form id="chat-form">
-        <textarea id="chat-input" rows="4" maxlength="1200" placeholder="Say something…" disabled></textarea>
-        <button id="send-button" type="submit" disabled>Talk</button>
-      </form>
+        <div class="control-view-head">
+          <div>
+            <div class="eyebrow" id="detail-eyebrow">REGION</div>
+            <h3 id="detail-title">Known region</h3>
+          </div>
+        </div>
+
+        <div class="control-content">
+          <div id="detail-region" class="detail-view">
+            <div id="locations" class="drawer-grid"></div>
+          </div>
+
+          <div id="detail-resources" class="detail-view hidden">
+            <div class="history-section-label">MATERIAL BALANCE</div>
+            <div id="resource-balance" class="material-balance"></div>
+            <div class="history-section-label cargo-label">FIELD CARGO</div>
+            <div id="citizen-cargo" class="citizen-cargo"></div>
+          </div>
+
+          <div id="detail-structures" class="detail-view hidden">
+            <div id="structures" class="list"></div>
+          </div>
+
+          <div id="detail-history" class="detail-view hidden">
+            <div class="history-section-label">RECENT CITIZEN CONVERSATIONS</div>
+            <div id="citizen-conversations" class="conversation-feed"></div>
+            <div class="history-section-label">SETTLEMENT CHRONOLOGY</div>
+            <div id="history" class="history"></div>
+          </div>
+
+          <div id="detail-updates" class="detail-view hidden">
+            <div class="update-grid">
+              <div>
+                <label>
+                  Update feed URL
+                  <input
+                    id="update-feed"
+                    type="url"
+                    placeholder="https://raw.githubusercontent.com/.../update.json"
+                  />
+                </label>
+                <div class="update-actions">
+                  <button id="save-update-feed">Save Feed</button>
+                  <button id="check-update">Check for Updates</button>
+                </div>
+              </div>
+
+              <div class="update-status-box">
+                <div class="status-head">
+                  <strong id="update-status-title">Updater not checked yet</strong>
+                  <span id="version-label" class="muted">Version …</span>
+                </div>
+                <p id="update-status-text" class="muted">
+                  Configure an HTTPS update feed once. After that, future releases can be installed here.
+                </p>
+                <button id="install-update" class="accent-button" hidden>Install & Restart</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </aside>
   </main>
-
-  <section id="detail-drawer" class="detail-drawer card hidden">
-    <div class="section-title">
-      <div>
-        <div class="eyebrow" id="detail-eyebrow">DETAILS</div>
-        <h2 id="detail-title">Detail drawer</h2>
-      </div>
-      <button id="close-drawer" class="tool-button">Close</button>
-    </div>
-
-    <div id="detail-region" class="detail-view hidden">
-      <div id="locations" class="drawer-grid"></div>
-    </div>
-
-    <div id="detail-resources" class="detail-view hidden">
-      <div class="history-section-label">MATERIAL BALANCE</div>
-      <div id="resource-balance" class="material-balance"></div>
-      <div class="history-section-label cargo-label">FIELD CARGO</div>
-      <div id="citizen-cargo" class="citizen-cargo"></div>
-    </div>
-
-    <div id="detail-structures" class="detail-view hidden">
-      <div id="structures" class="list"></div>
-    </div>
-
-    <div id="detail-history" class="detail-view hidden">
-      <div class="history-section-label">RECENT CITIZEN CONVERSATIONS</div>
-      <div id="citizen-conversations" class="conversation-feed"></div>
-      <div class="history-section-label">SETTLEMENT CHRONOLOGY</div>
-      <div id="history" class="history"></div>
-    </div>
-
-    <div id="detail-updates" class="detail-view hidden">
-      <div class="update-grid">
-        <div>
-          <label>
-            Update feed URL
-            <input
-              id="update-feed"
-              type="url"
-              placeholder="https://raw.githubusercontent.com/.../update.json"
-            />
-          </label>
-          <div class="update-actions">
-            <button id="save-update-feed">Save Feed</button>
-            <button id="check-update">Check for Updates</button>
-          </div>
-        </div>
-
-        <div class="update-status-box">
-          <div class="status-head">
-            <strong id="update-status-title">Updater not checked yet</strong>
-            <span id="version-label" class="muted">Version …</span>
-          </div>
-          <p id="update-status-text" class="muted">
-            Configure an HTTPS update feed once. After that, future releases can be installed here.
-          </p>
-          <button id="install-update" class="accent-button" hidden>Install & Restart</button>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <script src="/static/app.js"></script>
 </body>
