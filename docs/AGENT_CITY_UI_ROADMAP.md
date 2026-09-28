@@ -450,6 +450,8 @@ Scope:
 - citizen replies should treat visitor-provided physical details as observations/claims to inspect, not automatically confirmed truth
 - encourage natural phrasing such as "that looks promising," "we could inspect it," or "I would need to verify that" when the world state is not yet validated
 - preserve playful face-to-face RP without letting the text box become a world editor
+- citizen comparisons must stay inside their actual known properties; do not invent microstructure, material value, terrain names, landmarks, or site history as factual support
+- uncertainty language is encouraged when evidence is incomplete, but uncertainty does not license invented details
 - visitor chat keyboard behavior: **Enter sends**, while **Shift+Enter inserts a new line**
 - preserve the visible Talk/send button for mouse/touch users
 - do not submit on IME/composition Enter events
