@@ -41,6 +41,22 @@ Delivered:
 
 ## Current Milestone
 
+**v0.8.4 — Conversation Summary Truth**
+
+Published Communication hotfix:
+- branch: `release-v0.8.4`
+- immutable runtime commit: `ff78aab0e85331238eb67c989952a72499d1ed78`
+- final CI: `36487822361` — PASS
+
+Delivered:
+- citizen-to-citizen summaries remain social records rather than physical evidence
+- claim-safe summary verbs favor reported / discussed / compared / planned / agreed
+- conversation summaries may not independently upgrade claims into validated / confirmed / verified / proved / demonstrated / established facts
+- agreements to inspect, travel, recharge, build, or test remain intentions until Simulation records the physical action/outcome
+- a citizen reporting inventory/status is still a report to the listener, not independent verification
+- Simulation, Memory, personality, and UI authority remain unchanged
+
+
 **v0.8.3 — Citizen Personality + Natural Dialogue**
 
 Published behavior/dialogue patch:
