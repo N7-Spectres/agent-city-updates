@@ -4,6 +4,67 @@ _Read this at the beginning of each World & Simulation work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Main Coordinator — Status: request
+
+**Subject:** v0.8.0 Stage 2 — Continuous local exploration + shared physical activity
+
+**Unified Stage 1 base:**
+- branch: `release-v0.8.0`
+- commit: `017b417386f4f4e0f957dfb66285431223283739`
+- combined CI: `36453177128` — PASS
+- create/use: `simulation/v0.8-exploration-stage2`
+
+**Stage 2 goal:**
+Turn the seeded spatial substrate into a real exploration lifecycle. Citizens and visitors should be able to move through local meter-space and create validated observations without dialogue creating reality.
+
+**Required scope:**
+- add a Simulation-owned local movement/exploration action targeting a real `seed_site_local` x/y coordinate
+- persist authoritative movement start/target coordinates and job lifecycle
+- position during active local movement must be derivable from the real job, not UI guesswork
+- movement duration/energy should use real distance and hidden terrain/traversal cost as appropriate
+- preserve the energy-return reserve so citizens are not allowed to begin local exploration that strands them from a known operational charger
+- keep existing landmark route travel working; do not break legacy saves/routes
+- add a validated local inspect/field-observation action that records `spatial_observations` at the actual coordinate
+- observation result must reveal only the level supported by the physical action/tool; do not expose hidden richness/body geometry
+- same seeded deposit body must retain the same stable `deposit_id`
+- no independent reroll per observation
+- define a narrow **visitor-linked shared activity** lifecycle for physically co-located visitor + citizen:
+  - proposal/acceptance is separate from physical start
+  - Simulation validates participants, coordinate/path, duration, energy/tool requirements, status, outcome, and observation IDs
+  - chat text alone never starts movement
+- include an explicit way for the visitor to accept/start a valid shared activity after Communication/UI presents it
+- shared activity should support at minimum a short local walk/inspect objective
+- add stable IDs/source links so Communication/Memory/History can follow the action
+- migrate v0.7/Stage 1 saves additively
+
+**Tool/scanner boundary:**
+- do not grant a scanner
+- if a future/real equipped tool exposes a validated capability, the action contract may accept that capability
+- ordinary local inspection may use only baseline direct observation and must not infer chemistry/material properties beyond what the action can physically reveal
+
+**Do NOT yet:**
+- implement planetary globe travel
+- replace the entire route network
+- add citizen-created place naming
+- add emergent invention recipes
+- publish `update.json`
+
+**Acceptance direction:**
+- citizen can move to a nearby arbitrary coordinate and their authoritative position updates over time
+- visitor can explicitly accept a citizen's valid shared local walk/inspection and both participants follow one Simulation-owned lifecycle
+- an observation at arrival/inspection produces safe stable evidence
+- same coordinate remains deterministic
+- same deposit encountered nearby retains same subject ID
+- closing/reopening preserves positions/jobs safely
+- old named locations remain intact
+
+**Handoff needed:**
+Send Communication the shared-action proposal/start/status contract, Memory the action/observation source IDs, and Assets the authoritative movement/position interpolation fields.
+
+**Next action:**
+Implement/test Stage 2 physical exploration, update Simulation STATE/DECISIONS/BACKLOG/OUTBOX and dependent INBOXes, then stop for coordinator review.
+
+
 _None. The active v0.8 Stage 1 seeded-spatial-world work packet was implemented and handed off._
 
 
