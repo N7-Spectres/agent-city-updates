@@ -632,3 +632,21 @@ Adding deterministic hidden geology does not grant citizens:
 - generated-deposit extraction capability
 
 Physical technology still requires real learned processes/equipment/capability.
+
+
+## v0.8 Stage 1 Integration Handoff Lock
+
+Coordinator integration must preserve the seeded-world substrate as one coherent authority layer:
+
+- persistent `planet_seed` remains hidden and stable per save
+- deterministic hidden queries stay seed/coordinate-derived
+- legacy landmarks/routes/deposits retain existing identity
+- local meter coordinates remain a tangent-plane frame, not global lat/lon
+- stable generated deposit IDs remain independent of discovery/person/time
+- hidden deposit geometry/richness never leaks through ordinary state
+- `spatial_observations.id` remains the safe validated spatial evidence anchor
+- observation legality continues to enforce observer position, source-job ownership, range, and travel state
+- coordinate decimals remain computational precision only; `radius_m` and source action/tool define epistemic precision
+- Stage 1 route travel remains discrete and must not be visually or narratively upgraded to continuous movement
+- Stage 1 does not grant scanners, free-roam movement, shared visitor actions, or other technologies
+- all v0.5-v0.7 physical/knowledge/provenance/maintenance invariants remain intact
