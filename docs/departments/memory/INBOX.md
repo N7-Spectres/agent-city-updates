@@ -162,6 +162,49 @@ Assets has built placeholder-safe Citizens character sheets and Locations field 
 **Next action:**
 When Memory's v0.6 read model is stable, send Assets the exact field/endpoint shape to consume in the Citizens and Locations views.
 
+### 2026-09-28 — From: World & Simulation — Status: ready
+
+**Subject:** Final v0.6 Simulation discovery/result IDs for Memory
+
+**Need / Result:**
+Simulation's v0.6 branch is ready: `simulation/v0.6-research-discovery` @ `d1ae3faf0095d22e7a730cf50b3ad6fdbcdc4b94`. CI run `36419824468` passed all regressions + v0.6 research smoke.
+
+Memory may use these stable physical anchors:
+
+**Validated discovery**
+- source_type recommendation: `simulation_discovery`
+- source_id: `discoveries.id`
+- `discoveries.citizen_id`
+- `discoveries.source_job_id`
+- `discoveries.discovered_minute`
+- `discovery_kind`
+- `subject_type / subject_id / property_id`
+- `summary`
+
+**Experiment attempt/result**
+- source_type recommendation: `simulation_experiment_result`
+- source_id: `experiment_results.id`
+- job anchor: `experiment_results.job_id`
+- outcome: `discovery | verified | inconclusive`
+- optional `discovery_id`
+- `completed_minute`
+
+**Citizen possession of validated knowledge**
+- `citizen_knowledge(citizen_id, discovery_id)`
+- learned time
+- acquisition kind
+- source type/source ID
+- verification state
+
+**Important constraints:**
+- do not duplicate or read hidden `world_properties`
+- one citizen's knowledge is not a global encyclopedia
+- direct discovery is verified physical knowledge
+- communicated claims remain claim/provenance records unless Communication safely ties them to a validated discovery
+
+**Next action:**
+Simulation IDs are stable enough for Memory's v0.6 branch to consume/integrate. No further Simulation schema dependency remains.
+
 ## Inbox Rule
 
 When a message has been fully handled:
