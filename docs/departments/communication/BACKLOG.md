@@ -90,3 +90,22 @@ Required behavior:
 - do not invent site history, prior operations, weather effects, or material properties as settled truth unless that information has a valid source
 - keep the conversation natural and roleplay-friendly rather than replacing it with rigid refusals
 - any later real pickup/transfer/inspection/shared-action mechanic must be Simulation-owned
+
+
+## v0.7.1 Unsupported comparison/world-detail confidence
+
+Live RP test showed improved uncertainty language ("my best guess", "perhaps..."), but the citizen still inserted unsupported specifics while reasoning.
+
+Examples observed:
+- describing Native Resin as having a porous structure without validated knowledge
+- describing Conductive Wire as having a crystalline lattice without a source
+- calling an unverified deposit "high-value"
+- referring to a "northern scrub" that is not an authoritative known map feature
+
+Refinement:
+- keep natural comparative reasoning and uncertainty
+- only compare against properties the speaking citizen actually knows
+- do not invent material microstructure, economic value, terrain labels, landmarks, or site history
+- when a comparison basis is not known, use neutral language such as "doesn't match materials I've verified" or "I can't identify it from appearance alone"
+- spatial suggestions should reference real mapped/known locations or clearly remain hypothetical
+- personality may improvise style; factual nouns and physical claims need provenance
