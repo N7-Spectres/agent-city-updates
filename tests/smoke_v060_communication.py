@@ -15,7 +15,7 @@ def main() -> None:
 
         from agent_city.comms import record_dialogue
         from agent_city.db import connect, init_db, set_meta
-        from agent_city.knowledge import (
+        from agent_city.provenance import (
             ensure_information_schema,
             information_receipts_for,
             knowledge_context_for,
@@ -200,7 +200,7 @@ def main() -> None:
 
         # Retrying the same claim projection is idempotent because each receipt
         # has a stable source key.
-        from agent_city.knowledge import record_face_to_face_claims
+        from agent_city.provenance import record_face_to_face_claims
         record_face_to_face_claims(
             conversation_id,
             [{
