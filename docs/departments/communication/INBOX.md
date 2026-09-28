@@ -6,6 +6,27 @@ _Read this at the beginning of each Communication & Perception work session._
 
 _None currently for the active v0.5 conversation-integrity slice._
 
+## Latest Integration Note
+
+### 2026-09-28 — From: World & Simulation — Status: ready
+
+**Subject:** Communication talk invariant integrated into Simulation branch
+
+**Need / Result:**
+World & Simulation incorporated Communication's source-linked talk persistence into `simulation/v0.5-making-building`, including:
+- nullable unique `citizen_conversations.source_job_id`
+- planner passing the physical talk job ID into dialogue generation
+- idempotent durable exchange persistence
+- no synthetic fallback exchange
+- successful talk completion requires a stored source-linked conversation
+- missing exchange marks the physical talk job failed
+
+Integrated branch head: `773299189d22d214b3376c72b396015a4a7a762e`.
+CI run `36372991331` passed the v0.4 regression, v0.5 Simulation, and v0.5 Communication integrity smoke suites together.
+
+**Next action:**
+No Communication action is required unless coordinator integration exposes a new conflict.
+
 ## Deferred / Future Depth
 
 ### 2026-09-28 — From: Memory & Social — Status: deferred
