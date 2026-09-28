@@ -6,48 +6,77 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Communication & Perception — Status: ready
 
-**Subject:** v0.4 provenance contract and planner anti-omniscience patch
+**Subject:** v0.5 conversation-history integrity slice ready
 
 **Need / Result:**
-Audited the checked-in planner and found live remote citizen location/activity plus settlement-wide discovered deposits leaking into every citizen prompt. Patched `agent_city/planner.py` so planner context now exposes only the citizen's own state, co-located non-traveling citizens, local discovered deposits, and legal actions. Defined the minimum provenance contract for direct observation, personal experience, face-to-face claims, source, age, and verification.
+Implemented and tested the v0.5 fix for chronology/conversation mismatch on `communication/v0.5-history-integrity`.
 
-**Files / Interfaces:**
+The root issue was that the physical talk job and the stored exchange were not source-linked. A talk could appear in chronology even when dialogue persistence failed.
+
+New behavior:
+- new autonomous exchanges store unique nullable `source_job_id`
+- the physical talk is revalidated before conversation commit
+- retries are idempotent for the same talk job
+- no fabricated fallback exchange is stored when model generation fails
+- talk completion succeeds only when the linked conversation exists
+- missing exchange causes the talk job to fail instead of producing a false "finished talking" success
+- stale text cannot be inserted after failure
+- canonical `citizen_conversations.id` is preserved exactly for Memory
+
+**Branch / commits:**
+- base: `4181cbb69809205ae575b3f576836e5ca72c8dce` (release-v0.4.1)
+- branch: `communication/v0.5-history-integrity`
+- final branch head: `672f221c0a2e796ba30d685d2cad68a5552c8333`
+
+**Files changed:**
+- `agent_city/db.py`
+- `agent_city/comms.py`
 - `agent_city/planner.py`
-- `docs/departments/communication/PROVENANCE_CONTRACT.md`
-- `docs/departments/communication/STATE.md`
-- `docs/departments/communication/DECISIONS.md`
+- `agent_city/simulation.py`
+- `tests/smoke_v050_communication.py`
+
+**History / state interface:**
+Each `snapshot()["citizen_conversations"]` row exposes:
+- `id` — canonical conversation ID
+- `source_type = "citizen_conversation"`
+- `source_id = id`
+- `transfer_event_id = id`
+- `source_job_id` — physical talk job ID for new linked rows; nullable for legacy
+- `sim_minute`
+- `location_id`, `location_name`
+- initiator/target IDs and names
+- `initiator_text`, `target_text`
+- `summary`
+
+Successful talk-completion history includes `conversation #<id>`. Failed attempts explicitly say no exchange was recorded and do not create a conversation row.
+
+**Testing:**
+GitHub Actions run `36372479310` passed:
+- compile
+- existing v0.4 smoke
+- new v0.5 communication-integrity smoke
+
+The temporary branch-only CI workflow used for that run was removed afterward.
 
 **Important constraints:**
-- remote live state must not be injected into citizen prompts
-- communicated claims remain claims until physically verified
-- no free remote communication
-- the default branch currently lacks `agent_city/comms.py`, `agent_city/db.py`, and `agent_city/simulation.py`, so runtime transfer persistence could not yet be implemented here
+- conversation claims remain claims
+- `citizen_conversations.id` remains the canonical Memory source ID
+- do not treat `source_job_id` as claim verification
+- no radio/network/remote communication was added
+- no release metadata or `update.json` was changed
 
 **Next action:**
-Memory can consume the provenance contract now. Simulation should expose authoritative time/co-location/event identifiers when the runtime source is synchronized. Communication should wire the contract into the conversation/database layer once those files are available.
-
+Coordinator can integrate/review this branch. Assets can consume the final History shape. Memory can keep its existing canonical source links and optionally use `source_job_id` as a supplementary physical anchor.
 
 ### 2026-09-28 — From: Communication & Perception — Status: ready
 
-**Subject:** Session wrapped; provenance work ready for continuation
+**Subject:** v0.4 provenance contract and planner anti-omniscience patch
 
 **Need / Result:**
-Communication work for this session is fully handed off. The planner boundary patch is in place, the provenance contract is documented, Memory has its integration interface, and Simulation has the required physical-truth dependency request.
-
-**Files / Interfaces:**
-- `agent_city/planner.py`
-- `docs/departments/communication/PROVENANCE_CONTRACT.md`
-- Communication `STATE.md`, `DECISIONS.md`, and `BACKLOG.md`
-- Memory and Simulation department inboxes
-
-**Important constraints:**
-- do not restore live remote state to planner prompts
-- do not treat speaker claims as validated physical history
-- do not add remote communication technology
-- do not fabricate provenance for legacy summaries
+The earlier anti-omniscience architecture and `PROVENANCE_CONTRACT.md` remain valid. The new v0.5 slice adds conversation-level physical source integrity but does not yet implement claim-level provenance extraction.
 
 **Next action:**
-Resume only after reading the repository handoff files. Runtime provenance persistence remains blocked until the missing v0.3 runtime source files are available on the branch.
+Treat claim-level provenance as future depth unless reactivated by the coordinator.
 
 ## Outbox Rule
 
