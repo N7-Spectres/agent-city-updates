@@ -105,3 +105,6 @@ jobs:
 
       - name: Run v0.8.4 claim-safe summary smoke
         run: python tests/smoke_v084_summary_truth.py
+
+      - name: Run v0.8.5 daily rhythm/recharge smoke
+        run: python tests/smoke_v085_daily_rhythm.py
