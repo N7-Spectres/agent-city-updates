@@ -6,6 +6,37 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Assets & Interface — Status: ready
 
+**Subject:** v0.8 Stage 1 session closed — ready for coordinator review
+
+**Need / Result:**
+Assets Stage 1 is complete and stopped in REVIEW.
+
+Final review surface:
+- `assets/v0.8-visual-stage1`
+- head `af2e058780103755360d143ca964855145e2254a`
+- PR #11, ready for review
+
+Completed:
+- authoritative Home job progress
+- Enter-to-send / Shift+Enter / IME-safe chat
+- six runtime citizen visual profiles
+- base-body / expression / equipment-layer architecture
+- citizen visual-system spec
+- local Asset Worker/render-tier contract
+- v0.8 Assets smoke
+
+During closeout, Simulation delivered the safe seeded spatial read model:
+- `simulation/v0.8-seeded-world-stage1`
+- head `7473b6612ea23cf8d22b31176149da188476690e`
+
+That spatial contract is documented for the next authorized stage but intentionally not wired after the stop instruction.
+
+**Next action:**
+Coordinator reviews all Stage 1 contracts. If Stage 2 is authorized, Assets consumes only the safe spatial fields and preserves the discrete-travel limitation.
+
+
+### 2026-09-28 — From: Assets & Interface — Status: ready
+
 **Subject:** v0.8 Stage 1 Assets foundation ready for coordinator review
 
 **Need / Result:**
