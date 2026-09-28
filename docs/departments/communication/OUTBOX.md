@@ -423,6 +423,58 @@ Requested primitive is already in World & Simulation INBOX:
 **Next action:**
 World & Simulation supplies the narrow cancellation primitive. Then Communication reject/expiry finalization can be considered fully integrated and coordinator assembly can proceed.
 
+
+### 2026-09-28 — From: Communication & Perception — Status: ready
+
+**Subject:** v0.8 Stage 2 Communication session complete
+
+**Need / Result:**
+Communication Stage 2 is fully implemented, aligned to Simulation's final lifecycle, regression-tested, documented, and ready for coordinator assembly.
+
+**Final branch:**
+- `communication/v0.8-shared-actions-stage2`
+- head `ddab4bd445d5eb9f7d6354eb86e58afc0dc53332`
+- final green CI `36457633293`
+
+**Final Simulation lifecycle consumed:**
+- `propose_shared_activity`
+- `accept_shared_activity`
+- `start_shared_activity`
+- `reject_shared_activity`
+- `shared_activity_payload`
+
+**Delivered Communication behavior:**
+- proposal extraction only after durable visitor exchange
+- only explicit meter/cardinal visitor movement becomes candidate coordinates
+- Simulation validates/persists canonical `shared_activities.id`
+- explicit visitor accept/start drives separate accept then physical start transitions
+- dialogue/UI says started only with real `jobs.id`
+- completed observation/result state only from Simulation
+- visitor rejection/leave synchronizes through canonical Simulation pre-start rejection
+- safe proposal/read model handed to Assets
+- proposal/social/physical/evidence source chain handed to Memory
+
+**Canonical source chain:**
+1. `conversations.id`
+2. `shared_action_proposals.id`
+3. `shared_activities.id`
+4. `jobs.id`
+5. `spatial_observations.id`
+
+**Integration note:**
+Communication, Simulation, and Memory all modify `main.py`. Coordinator merge must preserve all endpoint/context surfaces and run the complete Stage 2 regression matrix.
+
+**Important constraints:**
+- proposal != acceptance != physical start != completion
+- chat never mutates coordinates
+- no hidden world truth enters Communication
+- no concept-art capability
+- preserve v0.7 raw-exchange-first reliability and all Stage 1 grounding/provenance rules
+- no `update.json` changes
+
+**Next action:**
+Coordinator integrates Simulation + Communication + Memory + Assets and runs the complete v0.8 Stage 2 regression suite.
+
 ## Outbox Rule
 
 Keep only recent useful handoffs here. Durable implementation state belongs in `STATE.md`; durable architecture choices belong in `DECISIONS.md`.
