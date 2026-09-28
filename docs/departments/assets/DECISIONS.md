@@ -124,3 +124,10 @@ This is a presentation grouping only. It does not merge their simulation semanti
 v0.5 `x_km/y_km` values are shown only as local site coordinates.
 
 Do not render them as proof of a continuous globe/free-roam world until Simulation actually owns that geography.
+
+
+## v0.5 Integration Ownership Rule
+
+Once the Assets branch is complete and marked REVIEW, cross-branch assembly belongs to the coordinator.
+
+Assets should not merge Simulation-owned code into its department branch merely to produce a single milestone branch. The coordinator must integrate completed department branches while preserving each department's invariants and then smoke-test the assembled runtime.
