@@ -241,3 +241,32 @@ Visitor availability messaging must correctly resolve the other participant in a
 - citizen currently busy/talking
 
 Do not display a self-reference such as "Vale is currently speaking with Vale."
+
+
+## Conversation / Coordinator Continuity
+
+The GitHub documentation is the durable handoff layer for future Agent City coordinator chats.
+
+A new coordinator conversation should begin by reading:
+1. `docs/AGENT_CITY_PROJECT_STATE.md`
+2. `docs/AGENT_CITY_UI_ROADMAP.md`
+3. `docs/departments/COORDINATION.md`
+4. the relevant department `STATE.md` / `DECISIONS.md` / `BACKLOG.md` files when planning new work
+
+Important boundary:
+- GitHub notes preserve project architecture, decisions, roadmap, release lineage, department contracts, and handoffs.
+- The local Agent City SQLite save remains authoritative for the civilization's changing physical state. Do not copy transient citizen positions/cargo/activity into GitHub as if they were current forever.
+
+Recent coordinator decisions already captured in the repository include:
+- v0.6.0 Research, Discovery & Knowledge UI shipped
+- Home should answer "What is happening right now?"
+- Citizens and Locations should hold deeper detail
+- Location notebooks reveal only knowledge actually discovered/communicated
+- future citizen creation/population growth is possible in principle but must emerge from real research/fabrication/energy/identity systems
+- full-body citizen visual/character-sheet direction is desired
+- visitor location should remain compact on the map
+- future citizen-to-visitor requests/alerts should obey real communication mechanisms
+- weather/atmosphere are future world substrate, not arbitrary punishment
+- updates should add possibility, not answers
+
+If a future chat needs to resume coordinator work, these repository files should be treated as the persistent source of truth rather than relying on old chat transcript memory alone.
