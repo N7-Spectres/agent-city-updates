@@ -6,174 +6,119 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: World & Simulation — Status: ready
 
-**Subject:** v0.6 World & Simulation session wrapped
+**Subject:** v0.7 Maintenance & Consequences core ready
 
 **Need / Result:**
-The v0.6 Research/Discovery physical core is implemented, tested, documented, and fully handed off.
-
-**Branch / Validation:**
-- `simulation/v0.6-research-discovery`
-- head `d1ae3faf0095d22e7a730cf50b3ad6fdbcdc4b94`
-- CI `36419824468` passed all prior regressions plus v0.6 Simulation smoke
-
-**Handoffs complete:**
-- Communication received stable discovery/knowledge transfer anchors
-- Memory received stable discovery and experiment-result source IDs
-- Assets received the safe known-state schema
-- COORDINATION records Simulation in REVIEW and Assets as the remaining active v0.6 department
-
-**Next action:**
-Stop Simulation work. Resume only for integration conflicts or a new routed task.
-
-
-### 2026-09-28 — From: World & Simulation — Status: ready
-
-**Subject:** v0.6 Research/Discovery physical core ready
-
-**Need / Result:**
-Implemented the v0.6 hidden-truth and discovery substrate on `simulation/v0.6-research-discovery`.
+Implemented on `simulation/v0.7-maintenance`.
 
 Branch head:
-`d1ae3faf0095d22e7a730cf50b3ad6fdbcdc4b94`
+`54f5d838f674d0b278a51382f3a880cc0738b417`
 
-Validation:
-GitHub Actions run `36419824468` passed all v0.4/v0.5 regressions plus `tests/smoke_v060.py`.
+Runtime validation:
+GitHub Actions `36429729279` passed all v0.4-v0.6 regressions plus `tests/smoke_v070.py`. The only commit after that run restored the release-only workflow.
 
-**Core result:**
-- hidden `world_properties`
-- timed/material-consuming experiment jobs
-- persisted inconclusive / verified / discovery outcomes
-- stable `discoveries.id`
-- per-citizen `citizen_knowledge`
-- repeatable learned verification processes after discovery
-- repeatable surveys with new/independent/no-new outcomes
-- unknown deposits/properties removed from ordinary state
-- no hidden deposit reserve quantities in ordinary state
-- planner receives only citizen-known validated properties
+Delivered:
+- equipment use wear + condition-scaled physical effects
+- structure passive/use wear
+- non-operational critical condition
+- long-term battery health distinct from current charge
+- chassis joint wear
+- material/time-consuming service and replacement jobs
+- preventative maintenance thresholds
+- stable `maintenance_events.id`
+- UI-ready authoritative condition/status/effective fields
+- additive v0.6 migration
 
 **Important constraints:**
-- discovery is local knowledge first
-- conversation claims do not automatically become Simulation knowledge
-- no tech tree / automatic named solution unlocks
+- no chore-spam wear events
+- repair materials remain physical
+- remote maintenance does not teleport Seed Site stores
+- all v0.6 knowledge/provenance boundaries remain intact
 - no release metadata changed
 
-**Next action:**
-Communication, Memory, and Assets consume the contracts below; coordinator integrates after their branches are ready.
-
 ### 2026-09-28 — From: World & Simulation — Status: ready
 
-**Subject:** Communication discovery-transfer contract
+**Subject:** Assets v0.7 maintenance/condition state contract
 
-**Authoritative discovery anchor:**
-`discoveries.id`
+**Citizen fields in `state.citizens[]`:**
+- `battery_health`
+- `battery_state`
+- `usable_energy_capacity`
+- `battery_replacement_due`
+- `joint_wear`
+- `chassis_service_state`
+- `chassis_service_due`
+- `last_service_minute`
+- existing authoritative `cargo_capacity` remains added by `/api/state`
 
-**Direct knowledge row:**
-`citizen_knowledge`
-- `citizen_id`
-- `discovery_id`
-- `learned_minute`
-- `acquisition_kind`
-- `source_type`
-- `source_id`
-- `verification_state`
+**Equipment fields in `state.equipment[]`:**
+- `condition`
+- `condition_state`
+- `operational`
+- `service_due`
+- `last_service_minute`
+- `use_count`
+- raw design fields `cargo_bonus`, `extraction_speed_multiplier`
+- authoritative effective fields:
+  - `effective_cargo_bonus`
+  - `effective_extraction_speed_multiplier`
 
-**Helper:**
-`agent_city.knowledge.grant_citizen_knowledge(...)`
+Use the **effective** fields for displayed current capability. Raw fields describe the pristine design.
 
-For a real communicated transfer tied to a validated discovery, Communication may use semantics equivalent to:
-- acquisition_kind = `communicated_claim`
-- source_type = `citizen_conversation`
-- source_id = canonical conversation ID
-- verification_state = `reported` unless the recipient independently verifies it
+**Structure fields in `state.structures[]`:**
+- `condition`
+- `condition_state`
+- `operational`
+- `service_due`
+- `efficiency_multiplier`
+- `last_service_minute`
+- `use_count`
+- existing `provides_charging`
 
-Do **not** call the helper merely because a speaker made a similar-sounding claim. If the communicated content cannot be safely mapped to a specific validated discovery, persist it as an unverified Communication/Memory claim instead.
-
-Survey/experiment source physical job remains `discoveries.source_job_id`.
-
-### 2026-09-28 — From: World & Simulation — Status: ready
-
-**Subject:** Memory v0.6 physical knowledge anchors
-
-Memory can reference:
-
-**Validated discovery**
-- source type: `simulation_discovery`
-- source ID: `discoveries.id`
-- discoverer: `discoveries.citizen_id`
-- physical source job: `discoveries.source_job_id`
-- time: `discoveries.discovered_minute`
-- subject: `subject_type / subject_id / property_id`
-
-**Experiment attempt**
-- source type: `simulation_experiment_result`
-- source ID: `experiment_results.id`
-- job anchor: `experiment_results.job_id`
-- outcome: `discovery | verified | inconclusive`
-- optional `discovery_id`
-- time: `completed_minute`
-
-**Citizen possession of knowledge**
-- `citizen_knowledge(citizen_id, discovery_id)`
-- source/time/acquisition/verification fields are explicit
-
-Memory should not duplicate `world_properties`; hidden truth remains Simulation-owned.
-
-### 2026-09-28 — From: World & Simulation — Status: ready
-
-**Subject:** Assets v0.6 safe known-state contract
-
-Ordinary `/api/state` is now the safe civilization-facing read model.
-
-**Never exposed:**
-- `world_properties`
-- undiscovered deposits
-- hidden deposit reserve quantities
-
-**New safe collections:**
-
-`state.discoveries[]`
+**Maintenance history:**
+`state.maintenance_events[]`
 - `id`
-- `discovery_kind`
-- `subject_type`
-- `subject_id`
-- `property_id`
+- `job_id`
 - `citizen_id`
-- `location_id`
-- `source_job_id`
-- `discovered_minute`
+- `event_type`
+- `target_type`
+- `target_id`
+- `before_value`
+- `after_value`
+- `materials_json`
+- `outcome`
+- `sim_minute`
 - `summary`
-- joined `property_key/value_text/unit` only for discovered properties
-- `deposit_material` only for discovered deposits
 
-`state.citizen_knowledge[]`
-- citizen/discovery IDs
-- learned time
-- acquisition/source fields
-- verification state
-- safe joined discovered fact fields
+**UI constraint:**
+Display these authoritative states directly. Do not rederive service thresholds/condition effectiveness in the frontend.
 
-`state.experiment_results[]`
-- stable result ID
-- job/citizen/location/material/method
+### 2026-09-28 — From: World & Simulation — Status: ready
+
+**Subject:** Memory v0.7 validated maintenance event anchors
+
+For durable maintenance/repair memory, use:
+
+- source type recommendation: `simulation_maintenance_event`
+- source ID: `maintenance_events.id`
+- physical job anchor: `maintenance_events.job_id`
+- actor: `citizen_id`
+- target: `target_type / target_id`
+- event type
+- before/after physical value
+- consumed materials JSON
 - outcome
-- optional discovery ID
-- summary/time
+- simulation minute
+- summary
 
-`state.learned_processes[]`
-- citizen/process IDs
-- process name/kind
-- source discovery/time
+Current event types:
+- `chassis_service`
+- `battery_replacement`
+- `equipment_service`
+- `structure_service`
 
-`state.locations[].known_facts`
-- validated survey/deposit/property facts accumulated over time
-
-`state.deposits[]`
-- contains discovered deposits only
-- no `amount` field
-
-**UI rule:**
-Missing knowledge should render as absence/blank/unknown, not as a locked secret that confirms hidden data exists.
+Routine wear increments intentionally have no separate maintenance-event row. Memory should prefer meaningful completed service, critical failures/shortages, and major threshold events over microscopic wear changes.
 
 ## Outbox Rule
 
-Keep durable implementation detail in STATE/DECISIONS/BACKLOG. Keep this file focused on active handoffs.
+Keep durable rules in STATE/DECISIONS/BACKLOG. Keep this file focused on current handoffs.
