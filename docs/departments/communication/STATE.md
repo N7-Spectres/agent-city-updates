@@ -1,7 +1,7 @@
 # Communication & Perception — State
 
 _Last updated: 2026-09-28_
-_Current release: v0.5.0_
+_Current release: v0.6.0_
 _Active milestone: v0.6.0 — Research & Discovery_
 
 ## Mission
@@ -290,3 +290,11 @@ Resume only if:
 4. a later milestone activates contradiction/reliability, overhearing, physical records, or long-distance communication.
 
 Before resuming, read `COORDINATION.md`, this department's `INBOX.md`, then this `STATE.md`.
+
+
+## Shipped v0.6.0 Integration
+
+Communication v0.6 work is included in the published runtime:
+`6092aeafd685a3ba4cb8e9d455e586771d3f6d26`.
+
+The assembled release passed the full cross-department smoke suite. Coordinator integration preserved Simulation truth, Communication provenance, Memory bounded retrieval, and Assets safe presentation as distinct layers.
