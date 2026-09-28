@@ -50,16 +50,92 @@ let locationPositions = {
   seed_site: { x: 50, y: 52 },
 };
 
-// Drop-in 2D art manifest. Keep values null until authoritative identity art exists.
-// Later art can be added without changing the layout/rendering contract.
-const CITIZEN_AVATAR_ASSETS = {
-  aris: { full: null, token: null },
-  bex: { full: null, token: null },
-  cato: { full: null, token: null },
-  iri: { full: null, token: null },
-  noma: { full: null, token: null },
-  vale: { full: null, token: null },
+// v0.8 Stage 1 citizen visual profiles.
+// These describe presentation canon only. They do not grant skills, equipment,
+// physical paint, dimensions, inventory, or capability.
+const CITIZEN_VISUAL_PROFILES = {
+  aris: {
+    accent_hue: 184,
+    silhouette: "lean",
+    canonical_aptitude: "extraction / prospecting",
+    assets: {
+      full: null,
+      bust: null,
+      token: null,
+      head: { neutral: null, blink: null, happy: null, focused: null, curious: null },
+    },
+    equipment_layers: { rear: [], body: [], waist: [], held: [], foreground: [] },
+  },
+  bex: {
+    accent_hue: 28,
+    silhouette: "compact",
+    canonical_aptitude: "fabrication",
+    assets: {
+      full: null,
+      bust: null,
+      token: null,
+      head: { neutral: null, blink: null, happy: null, focused: null, curious: null },
+    },
+    equipment_layers: { rear: [], body: [], waist: [], held: [], foreground: [] },
+  },
+  cato: {
+    accent_hue: 43,
+    silhouette: "heavy",
+    canonical_aptitude: "logistics / resource planning",
+    assets: {
+      full: null,
+      bust: null,
+      token: null,
+      head: { neutral: null, blink: null, happy: null, focused: null, curious: null },
+    },
+    equipment_layers: { rear: [], body: [], waist: [], held: [], foreground: [] },
+  },
+  iri: {
+    accent_hue: 270,
+    silhouette: "slim",
+    canonical_aptitude: "construction",
+    assets: {
+      full: null,
+      bust: null,
+      token: null,
+      head: { neutral: null, blink: null, happy: null, focused: null, curious: null },
+    },
+    equipment_layers: { rear: [], body: [], waist: [], held: [], foreground: [] },
+  },
+  noma: {
+    accent_hue: 92,
+    silhouette: "soft",
+    canonical_aptitude: "research / experimentation",
+    assets: {
+      full: null,
+      bust: null,
+      token: null,
+      head: { neutral: null, blink: null, happy: null, focused: null, curious: null },
+    },
+    equipment_layers: { rear: [], body: [], waist: [], held: [], foreground: [] },
+  },
+  vale: {
+    accent_hue: 4,
+    silhouette: "balanced",
+    canonical_aptitude: "generalist / cooperation",
+    assets: {
+      full: null,
+      bust: null,
+      token: null,
+      head: { neutral: null, blink: null, happy: null, focused: null, curious: null },
+    },
+    equipment_layers: { rear: [], body: [], waist: [], held: [], foreground: [] },
+  },
 };
+
+// Backward-compatible flat asset view used by the existing v0.7 renderer/smoke.
+// Real asset files can populate the profile slots later without changing layout.
+const CITIZEN_AVATAR_ASSETS = Object.fromEntries(
+  Object.entries(CITIZEN_VISUAL_PROFILES).map(([id, profile]) => [
+    id,
+    { full: profile.assets.full, token: profile.assets.token },
+  ])
+);
 
 const els = {
   simTime: document.getElementById("sim-time"),
@@ -325,11 +401,23 @@ function initialsFor(name) {
 }
 
 // UI-only interface accent, not physical paint or authoritative citizen appearance.
+function citizenVisualProfile(citizenId) {
+  return CITIZEN_VISUAL_PROFILES[String(citizenId)] || null;
+}
+
 function avatarHueFor(citizenId) {
+  const profile = citizenVisualProfile(citizenId);
+  if (profile?.accent_hue != null) return Number(profile.accent_hue);
+
   const text = String(citizenId || "");
   let hash = 0;
   for (const char of text) hash = ((hash * 31) + char.charCodeAt(0)) % 360;
   return hash;
+}
+
+function citizenSilhouetteClass(citizenId) {
+  const silhouette = citizenVisualProfile(citizenId)?.silhouette || "balanced";
+  return `silhouette-${silhouette}`;
 }
 
 function citizenVisualState(citizen) {
@@ -356,6 +444,7 @@ function citizenAvatarMarkup(citizen, variant = "token") {
     `avatar-${variant}`,
     `state-${stateClass}`,
     asset ? "has-image" : "fallback-avatar",
+    citizenSilhouetteClass(citizen.id),
   ].join(" ");
 
   if (asset) {
@@ -390,7 +479,7 @@ function applyCitizenPortrait(citizen) {
   const asset = citizenAvatarAsset(citizen.id, "full");
   const hue = avatarHueFor(citizen.id);
 
-  els.citizenPortraitArt.className = `citizen-avatar avatar-full state-${stateClass} ${asset ? "has-image" : "fallback-avatar"}`;
+  els.citizenPortraitArt.className = `citizen-avatar avatar-full state-${stateClass} ${asset ? "has-image" : "fallback-avatar"} ${citizenSilhouetteClass(citizen.id)}`;
   els.citizenPortraitArt.style.setProperty("--avatar-hue", String(hue));
   els.citizenPortraitArt.style.removeProperty("--avatar-image");
 
