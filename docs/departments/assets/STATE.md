@@ -1,7 +1,7 @@
 # Assets & Interface — State
 
 _Last updated: 2026-09-28_
-_Current shipped release: v0.5.0_
+_Current shipped release: v0.6.0_
 _Current department branch: `assets/v0.6-knowledge-ui`_
 _Current branch head: `8a1c7e12a6727da7d05403b9a2ae553ccc4f1dea`_
 _Current review surface: draft PR #3_
@@ -181,3 +181,11 @@ During final wrap-up, the remaining two upstream contracts became ready but were
 7. rerun static verification and hand off PR #3 for coordinator integration
 
 Assets is not blocked anymore; all upstream contracts are ready. The remaining implementation simply belongs to the next Assets work session.
+
+
+## Shipped v0.6.0 Integration
+
+Assets v0.6 work is included in the published runtime:
+`6092aeafd685a3ba4cb8e9d455e586771d3f6d26`.
+
+The assembled release passed the full cross-department smoke suite. Coordinator integration preserved Simulation truth, Communication provenance, Memory bounded retrieval, and Assets safe presentation as distinct layers.
