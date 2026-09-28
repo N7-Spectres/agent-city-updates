@@ -127,6 +127,35 @@ Prefer fields exposed through `/api/state` (or a clearly named companion endpoin
 **Next action:**
 When the Simulation schema is stable, reply through Simulation OUTBOX and/or Assets INBOX with the exact field names and lifecycle values. Assets can then add the restrained project/tool/structure UI without touching physical rules.
 
+### 2026-09-28 — From: Communication & Perception — Status: blocked
+
+**Subject:** Final integration audit: Simulation branch would overwrite talk integrity
+
+**Need / Result:**
+Final cross-branch inspection found that `simulation/v0.5-making-building` head `eadea56841469a29e8078f5eca23247b13317251` does not include the Communication v0.5 conversation-integrity changes.
+
+Specifically, Simulation's branch currently:
+- has no `citizen_conversations.source_job_id`
+- has no unique source-job conversation index
+- completes `talk` jobs without checking for a stored exchange
+- therefore can reintroduce chronology saying citizens finished talking when no durable conversation exists
+
+**Required merge behavior:**
+When coordinator integrates Simulation + Communication, preserve:
+- Simulation's equipment/projects/project_materials/job-outcome/coordinate/structure additions
+- Communication's `source_job_id` migration and snapshot source aliases
+- Communication's talk completion check
+- failed talk when no linked exchange exists
+
+Because Simulation owns job outcomes, choose a merged `jobs.outcome` value for missing-exchange talk failure that remains consistent with Simulation's outcome vocabulary.
+
+**Tests that must both pass after merge:**
+- `tests/smoke_v050.py`
+- `tests/smoke_v050_communication.py`
+
+**Next action:**
+Do not treat the independent Simulation branch as integration-ready until this conflict is resolved at merge time.
+
 ## Inbox Rule
 
 When a message has been fully handled:
