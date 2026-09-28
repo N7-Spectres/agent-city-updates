@@ -3,6 +3,8 @@ let visitorPresence = null;
 let selectedCitizen = null;
 let focusedLocation = "seed_site";
 let openControlView = "history";
+let currentView = "home";
+let sheetCitizenId = null;
 let currentVisitAccessKey = null;
 
 const LOCATION_PRESENTATION = {
@@ -47,6 +49,19 @@ const els = {
   pauseButton: document.getElementById("pause-button"),
   ollamaStatus: document.getElementById("ollama-status"),
   citizens: document.getElementById("citizens"),
+  citizenDirectory: document.getElementById("citizen-directory"),
+  citizenPortraitSlot: document.getElementById("citizen-portrait-slot"),
+  citizenPortraitInitials: document.getElementById("citizen-portrait-initials"),
+  citizenSheetName: document.getElementById("citizen-sheet-name"),
+  citizenSheetRole: document.getElementById("citizen-sheet-role"),
+  citizenSheetVisit: document.getElementById("citizen-sheet-visit"),
+  citizenSheetBody: document.getElementById("citizen-sheet-body"),
+  locationDirectory: document.getElementById("location-directory"),
+  locationSceneName: document.getElementById("location-scene-name"),
+  locationSheetName: document.getElementById("location-sheet-name"),
+  locationSheetDescription: document.getElementById("location-sheet-description"),
+  locationSheetFocus: document.getElementById("location-sheet-focus"),
+  locationSheetBody: document.getElementById("location-sheet-body"),
   routeLayer: document.getElementById("route-layer"),
   mapLayer: document.getElementById("map-layer"),
   regionStrip: document.getElementById("region-strip"),
@@ -93,6 +108,28 @@ const els = {
     updates: document.getElementById("detail-updates"),
   }
 };
+
+function setView(name) {
+  const valid = new Set(["home", "citizens", "locations", "records"]);
+  currentView = valid.has(name) ? name : "home";
+
+  document.querySelectorAll(".page-view").forEach(view => {
+    view.classList.toggle("hidden", view.id !== `view-${currentView}`);
+  });
+  document.querySelectorAll(".primary-tab").forEach(button => {
+    button.classList.toggle("active", button.dataset.view === currentView);
+  });
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
+
+function bindViewNavigation() {
+  document.querySelectorAll("[data-view]").forEach(button => {
+    button.addEventListener("click", () => setView(button.dataset.view));
+  });
+  document.querySelectorAll("[data-open-view]").forEach(button => {
+    button.addEventListener("click", () => setView(button.dataset.openView));
+  });
+}
 
 function escapeHtml(text) {
   const div = document.createElement("div");
@@ -300,6 +337,10 @@ function render() {
   computeLocationPositions();
 
   renderCitizens();
+  renderCitizenDirectory();
+  renderCitizenSheet();
+  renderLocationDirectory();
+  renderLocationSheet();
   renderMap();
   renderRegionStrip();
   renderDrawerLists();
@@ -322,35 +363,292 @@ function renderCitizens() {
   els.citizens.innerHTML = state.citizens.map(c => {
     const cargo = inventoryFor(c.id);
     const job = activeJobFor(c.id);
-    const progress = jobProgress(job);
     const destination = job?.action === "travel" ? locationById(job.target)?.name : null;
-    const where = destination ? `En route: ${c.location} → ${destination}` : c.location;
-    const progressMarkup = progress ? `
-      <div class="job-progress-meta">
-        <span>${progress.elapsed} / ${progress.total} sim min</span>
-        <span>ETA ${formatMinute(job.end_minute)}</span>
-      </div>
-      <div class="job-progress-track"><span style="width:${progress.percent}%"></span></div>
-    ` : "";
-
+    const where = destination ? `${c.location} → ${destination}` : c.location;
     return `
-      <button class="citizen-row ${selectedCitizen === c.id ? "selected" : ""}" onclick="selectCitizen('${c.id}')">
-        <div class="citizen-row-top">
+      <button class="citizen-row compact-citizen-row ${selectedCitizen === c.id ? "selected" : ""}" onclick="selectCitizen('${c.id}')">
+        <div class="compact-citizen-main">
+          <span class="compact-citizen-token">${escapeHtml(initialsFor(c.name))}</span>
           <div>
             <div class="citizen-name">${escapeHtml(c.name)}</div>
-            <div class="muted citizen-role">${escapeHtml(c.aptitude)}</div>
-          </div>
-          <div class="citizen-meter">
-            <span>⚡ ${Math.round(c.energy)}%</span>
-            <span>⛭ ${Math.round(c.integrity)}%</span>
+            <div class="activity">${escapeHtml(c.current_activity)}</div>
+            <div class="location-line">${escapeHtml(where)}${cargo ? ` • ${escapeHtml(cargo)}` : ""}</div>
           </div>
         </div>
-        <div class="activity">${escapeHtml(c.current_activity)}</div>
-        ${progressMarkup}
-        <div class="location-line">${escapeHtml(where)}${cargo ? ` • Carrying ${escapeHtml(cargo)}` : ""}</div>
+        <div class="compact-vitals">
+          <span>⚡ ${Math.round(c.energy)}%</span>
+          <span>⛭ ${Math.round(c.integrity)}%</span>
+        </div>
       </button>
     `;
   }).join("");
+}
+
+function cargoRowsForCitizen(citizenId) {
+  return (state.inventory || []).filter(row =>
+    String(row.citizen_id) === String(citizenId) && Number(row.amount) > 0
+  );
+}
+
+function equipmentForCitizen(citizenId) {
+  return (state.equipment || []).filter(item =>
+    String(item.owner_citizen_id || "") === String(citizenId)
+  );
+}
+
+function projectsForCitizen(citizenId) {
+  return (state.projects || []).filter(project =>
+    String(project.created_by || "") === String(citizenId)
+  );
+}
+
+function personalDiscoveriesForCitizen(citizenId) {
+  return (state.deposits || []).filter(dep =>
+    dep.discovered && String(dep.discoverer_id || "") === String(citizenId)
+  );
+}
+
+function renderCitizenDirectory() {
+  if (!state?.citizens?.length) {
+    els.citizenDirectory.innerHTML = '<div class="muted">No citizens available.</div>';
+    return;
+  }
+  if (!sheetCitizenId || !state.citizens.some(c => c.id === sheetCitizenId)) {
+    sheetCitizenId = selectedCitizen || state.citizens[0].id;
+  }
+
+  els.citizenDirectory.innerHTML = state.citizens.map(c => {
+    const job = activeJobFor(c.id);
+    const destination = job?.action === "travel" ? locationById(job.target)?.name : null;
+    const where = destination ? `Traveling to ${destination}` : c.location;
+    return `
+      <button class="directory-row ${sheetCitizenId === c.id ? "selected" : ""}" onclick="openCitizenSheet('${c.id}')">
+        <span class="directory-token">${escapeHtml(initialsFor(c.name))}</span>
+        <span>
+          <strong>${escapeHtml(c.name)}</strong>
+          <small>${escapeHtml(c.current_activity)} • ${escapeHtml(where)}</small>
+        </span>
+      </button>
+    `;
+  }).join("");
+}
+
+window.openCitizenSheet = function(id) {
+  if (!state?.citizens?.some(c => c.id === id)) return;
+  sheetCitizenId = id;
+  renderCitizenDirectory();
+  renderCitizenSheet();
+};
+
+function renderCitizenSheet() {
+  const citizen = state?.citizens?.find(c => c.id === sheetCitizenId);
+  if (!citizen) return;
+
+  const job = activeJobFor(citizen.id);
+  const progress = jobProgress(job);
+  const destination = job?.action === "travel" ? locationById(job.target)?.name : null;
+  const locationText = destination ? `Traveling: ${citizen.location} → ${destination}` : citizen.location;
+  const cargo = cargoRowsForCitizen(citizen.id);
+  const cargoTotal = cargo.reduce((sum, row) => sum + Number(row.amount || 0), 0);
+  const gear = equipmentForCitizen(citizen.id);
+  const projects = projectsForCitizen(citizen.id).slice(0, 6);
+  const discoveries = personalDiscoveriesForCitizen(citizen.id);
+  const recentHistory = (state.history || [])
+    .filter(row => String(row.message || "").startsWith(citizen.name))
+    .slice(0, 5);
+
+  els.citizenPortraitInitials.textContent = initialsFor(citizen.name);
+  els.citizenSheetName.textContent = citizen.name;
+  els.citizenSheetRole.textContent = citizen.aptitude;
+  els.citizenSheetVisit.disabled = false;
+  els.citizenSheetVisit.dataset.citizenId = citizen.id;
+
+  const activeJobMarkup = job ? `
+    <div class="sheet-card">
+      <span class="sheet-label">Current work</span>
+      <strong>${escapeHtml(citizen.current_activity)}</strong>
+      <p>${escapeHtml(job.action)}${job.target ? ` • ${escapeHtml(String(job.target))}` : ""}</p>
+      ${progress ? `<div class="job-progress-track"><span style="width:${progress.percent}%"></span></div><small>${progress.percent}% • ETA ${escapeHtml(formatMinute(job.end_minute))}</small>` : ""}
+    </div>
+  ` : `
+    <div class="sheet-card">
+      <span class="sheet-label">Current work</span>
+      <strong>${escapeHtml(citizen.current_activity)}</strong>
+      <p>No active physical job.</p>
+    </div>
+  `;
+
+  const gearMarkup = gear.length ? gear.map(item => `
+    <div class="sheet-list-row">
+      <span><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.kind || "equipment")} • ${Math.round(Number(item.condition) || 0)}%</small></span>
+      <span class="sheet-badges">
+        ${Number(item.cargo_bonus || 0) ? `<em>Cargo +${escapeHtml(trimNumber(item.cargo_bonus))}</em>` : ""}
+        ${Number(item.extraction_speed_multiplier || 1) !== 1 ? `<em>${escapeHtml(trimNumber(item.extraction_speed_multiplier))}× extract</em>` : ""}
+      </span>
+    </div>
+  `).join("") : '<div class="sheet-empty muted">No validated personal equipment.</div>';
+
+  const cargoMarkup = cargo.length ? cargo.map(row => `
+    <div class="sheet-list-row"><span>${escapeHtml(row.material)}</span><strong>${escapeHtml(trimNumber(row.amount))}</strong></div>
+  `).join("") : '<div class="sheet-empty muted">No cargo carried.</div>';
+
+  const projectMarkup = projects.length ? projects.map(project => `
+    <div class="sheet-list-row">
+      <span><strong>${escapeHtml(project.name)}</strong><small>Project #${escapeHtml(String(project.id))}</small></span>
+      <em class="status-chip status-${escapeHtml(project.status)}">${escapeHtml(statusLabel(project.status))}</em>
+    </div>
+  `).join("") : '<div class="sheet-empty muted">No created projects.</div>';
+
+  const discoveryMarkup = discoveries.length ? discoveries.map(dep => `
+    <div class="sheet-list-row">
+      <span><strong>${escapeHtml(dep.material)}</strong><small>${escapeHtml(locationNameById(dep.location_id))}</small></span>
+    </div>
+  `).join("") : '<div class="sheet-empty muted">No personally confirmed discoveries in the current physical record.</div>';
+
+  const historyMarkup = recentHistory.length ? recentHistory.map(row => `
+    <div class="sheet-note"><time>${escapeHtml(formatMinute(row.sim_minute))}</time><span>${escapeHtml(row.message)}</span></div>
+  `).join("") : '<div class="sheet-empty muted">No recent personal chronology entries.</div>';
+
+  els.citizenSheetBody.innerHTML = `
+    <div class="sheet-card">
+      <span class="sheet-label">Physical state</span>
+      <strong>${escapeHtml(locationText)}</strong>
+      <div class="vital-row"><span>Energy <b>${Math.round(citizen.energy)}%</b></span><span>Integrity <b>${Math.round(citizen.integrity)}%</b></span></div>
+    </div>
+    <div class="sheet-card">
+      <span class="sheet-label">Current configuration</span>
+      <strong>Mechanical citizen</strong>
+      <p>Visual identity art is not yet authoritative. Equipment below reflects validated physical state only.</p>
+    </div>
+    ${activeJobMarkup}
+    <div class="sheet-card">
+      <span class="sheet-label">Cargo</span>
+      <strong>${escapeHtml(trimNumber(cargoTotal))} units carried</strong>
+      <div class="sheet-list">${cargoMarkup}</div>
+    </div>
+    <div class="sheet-card sheet-card-wide">
+      <span class="sheet-label">Equipped gear</span>
+      <div class="sheet-list">${gearMarkup}</div>
+    </div>
+    <div class="sheet-card sheet-card-wide">
+      <span class="sheet-label">Projects</span>
+      <div class="sheet-list">${projectMarkup}</div>
+    </div>
+    <div class="sheet-card sheet-card-wide">
+      <span class="sheet-label">Personally confirmed discoveries</span>
+      <div class="sheet-list">${discoveryMarkup}</div>
+    </div>
+    <div class="sheet-card sheet-card-wide">
+      <span class="sheet-label">Recent chronology</span>
+      <div class="sheet-notes">${historyMarkup}</div>
+    </div>
+  `;
+}
+
+function renderLocationDirectory() {
+  if (!state?.locations?.length) {
+    els.locationDirectory.innerHTML = '<div class="muted">No known locations.</div>';
+    return;
+  }
+  if (!focusedLocation || !state.locations.some(loc => loc.id === focusedLocation)) {
+    focusedLocation = state.locations[0].id;
+  }
+
+  els.locationDirectory.innerHTML = state.locations.map(loc => {
+    const known = depositsForLocation(loc.id);
+    return `
+      <button class="directory-row ${focusedLocation === loc.id ? "selected" : ""}" onclick="openLocationSheet('${loc.id}')">
+        <span class="directory-token location-token">◎</span>
+        <span>
+          <strong>${escapeHtml(loc.name)}</strong>
+          <small>${loc.surveyed ? "Surveyed" : "Not yet surveyed"}${known.length ? ` • ${known.length} known resource${known.length === 1 ? "" : "s"}` : ""}</small>
+        </span>
+      </button>
+    `;
+  }).join("");
+}
+
+window.openLocationSheet = function(id) {
+  if (!state?.locations?.some(loc => loc.id === id)) return;
+  focusedLocation = id;
+  renderLocationDirectory();
+  renderLocationSheet();
+};
+
+function renderLocationSheet() {
+  const loc = locationById(focusedLocation);
+  if (!loc) return;
+
+  const known = depositsForLocation(loc.id);
+  const structures = (state.structures || []).filter(s => String(s.location_id || "") === String(loc.id));
+  const projects = (state.projects || []).filter(p => String(p.location_id || "") === String(loc.id));
+  const routes = (state.routes || []).filter(route => String(route.a) === String(loc.id));
+  const present = citizensAtLocation(loc.id);
+
+  els.locationSceneName.textContent = loc.name;
+  els.locationSheetName.textContent = loc.name;
+  els.locationSheetDescription.textContent = loc.description;
+  els.locationSheetFocus.disabled = false;
+  els.locationSheetFocus.dataset.locationId = loc.id;
+
+  const resourcesMarkup = known.length ? known.map(dep => `
+    <div class="sheet-list-row">
+      <span><strong>${escapeHtml(dep.material)}</strong><small>Confirmed resource</small></span>
+    </div>
+  `).join("") : '<div class="sheet-empty muted">No resource discoveries are recorded here.</div>';
+
+  const structureMarkup = structures.length ? structures.map(structure => `
+    <div class="sheet-list-row">
+      <span><strong>${escapeHtml(structure.name)}</strong><small>${escapeHtml(structure.kind || "structure")}</small></span>
+      <span class="sheet-badges">${Number(structure.provides_charging || 0) === 1 ? "<em>Charging</em>" : ""}</span>
+    </div>
+  `).join("") : '<div class="sheet-empty muted">No validated structures at this location.</div>';
+
+  const projectMarkup = projects.length ? projects.map(project => `
+    <div class="sheet-list-row">
+      <span><strong>${escapeHtml(project.name)}</strong><small>Project #${escapeHtml(String(project.id))}</small></span>
+      <em class="status-chip status-${escapeHtml(project.status)}">${escapeHtml(statusLabel(project.status))}</em>
+    </div>
+  `).join("") : '<div class="sheet-empty muted">No projects at this location.</div>';
+
+  const routeMarkup = routes.length ? routes.map(route => `
+    <div class="sheet-list-row">
+      <span>${escapeHtml(locationNameById(route.b))}</span>
+      <strong>${escapeHtml(trimNumber(route.distance_km))} km</strong>
+    </div>
+  `).join("") : '<div class="sheet-empty muted">No known outgoing routes.</div>';
+
+  const presentMarkup = present.length ? present.map(c => `
+    <div class="sheet-list-row"><span><strong>${escapeHtml(c.name)}</strong><small>${escapeHtml(c.current_activity)}</small></span></div>
+  `).join("") : '<div class="sheet-empty muted">No citizens currently present.</div>';
+
+  els.locationSheetBody.innerHTML = `
+    <div class="sheet-card">
+      <span class="sheet-label">Survey state</span>
+      <strong>${loc.surveyed ? "Surveyed" : "Not yet surveyed"}</strong>
+      <p>Unknown resources and properties are omitted rather than shown as locked data.</p>
+    </div>
+    <div class="sheet-card">
+      <span class="sheet-label">Present now</span>
+      <div class="sheet-list">${presentMarkup}</div>
+    </div>
+    <div class="sheet-card sheet-card-wide">
+      <span class="sheet-label">Known resources</span>
+      <div class="sheet-list">${resourcesMarkup}</div>
+    </div>
+    <div class="sheet-card sheet-card-wide">
+      <span class="sheet-label">Structures</span>
+      <div class="sheet-list">${structureMarkup}</div>
+    </div>
+    <div class="sheet-card sheet-card-wide">
+      <span class="sheet-label">Projects</span>
+      <div class="sheet-list">${projectMarkup}</div>
+    </div>
+    <div class="sheet-card sheet-card-wide">
+      <span class="sheet-label">Known routes</span>
+      <div class="sheet-list">${routeMarkup}</div>
+    </div>
+  `;
 }
 
 function renderRoutes() {
@@ -938,6 +1236,8 @@ window.focusLocation = function(id) {
   focusedLocation = id;
   renderMap();
   renderRegionStrip();
+  renderLocationDirectory();
+  renderLocationSheet();
   renderDrawerLists();
 };
 
@@ -1040,6 +1340,7 @@ async function loadCurrentVisit(id) {
 
 window.selectCitizen = async function(id, options = {}) {
   selectedCitizen = id;
+  sheetCitizenId = id;
   const c = state.citizens.find(x => x.id === id);
   if (!c) return;
 
@@ -1123,6 +1424,33 @@ els.previousVisits.addEventListener("click", async () => {
     els.visitHistoryPanel.classList.toggle("hidden");
   } catch (error) {
     appendChat("System", error.message, "system");
+  }
+});
+
+els.citizenSheetVisit.addEventListener("click", async () => {
+  const id = els.citizenSheetVisit.dataset.citizenId;
+  if (!id) return;
+  setView("home");
+  await selectCitizen(id);
+});
+
+els.locationSheetFocus.addEventListener("click", () => {
+  const id = els.locationSheetFocus.dataset.locationId;
+  if (!id) return;
+  focusedLocation = id;
+  setView("home");
+  renderMap();
+  renderRegionStrip();
+});
+
+els.visitorStatus.addEventListener("click", () => {
+  if (!visitorPresence) return;
+  const id = visitorPresence.traveling ? visitorPresence.to_location_id : visitorPresence.location_id;
+  if (id) {
+    focusedLocation = id;
+    renderLocationDirectory();
+    renderLocationSheet();
+    setView("locations");
   }
 });
 
@@ -1313,6 +1641,7 @@ els.installUpdate.addEventListener("click", async () => {
   }
 });
 
+bindViewNavigation();
 loadState();
 checkOllama();
 refreshUpdateStatus();
