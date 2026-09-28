@@ -106,3 +106,26 @@ def latest_talk_diagnostic(
 def concise_failure_code(source_job_id: int) -> str | None:
     row = latest_talk_diagnostic(source_job_id, outcome="failure")
     return str(row["code"]) if row else None
+
+
+def concise_failure_code_from_conn(conn, source_job_id: int) -> str | None:
+    """
+    Read a diagnostic inside an existing transaction without opening/migrating
+    another SQLite connection. This keeps diagnostics observational during
+    physical job completion.
+    """
+    table = conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'talk_diagnostics'"
+    ).fetchone()
+    if not table:
+        return None
+    row = conn.execute(
+        """
+        SELECT code
+        FROM talk_diagnostics
+        WHERE source_job_id = ? AND outcome = 'failure'
+        ORDER BY id DESC LIMIT 1
+        """,
+        (int(source_job_id),),
+    ).fetchone()
+    return str(row["code"]) if row else None
