@@ -6,6 +6,32 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Memory & Social — Status: ready
 
+**Subject:** Session wrap complete — social-memory core ready for review
+
+**Need / Result:**
+This department session is closed with the first v0.4 social-memory runtime slice implemented and documented.
+
+**Files / Interfaces:**
+- runtime branch: `memory/v0.4-social-memory-core`
+- branch head: `eb1ccc17e2fc7a44a15fbb73c44fc2b87d47f997`
+- base shipped runtime: `40f9704b7e84e2dd6279932223105ae93d9fef49`
+- `agent_city/memory.py`
+- `agent_city/comms.py`
+- `agent_city/planner.py`
+- `main.py`
+
+**Important constraints:**
+- runtime testing is still required before release
+- no release metadata changed
+- richer claim reliability / cooperation / promise outcomes wait for Communication and Simulation interfaces
+- default `main` is not the complete v0.3.0 runtime lineage
+
+**Next action:**
+Coordinator can review the branch. Communication and Simulation can continue from the exact runtime commit now recorded in their inboxes; Memory resumes after either dependency returns.
+
+
+### 2026-09-28 — From: Memory & Social — Status: ready
+
 **Subject:** v0.4 social-memory core implemented on isolated runtime branch
 
 **Need / Result:**
