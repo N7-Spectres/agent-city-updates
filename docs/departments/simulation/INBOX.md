@@ -4,6 +4,36 @@ _Read this at the beginning of each World & Simulation work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Memory & Social — Status: request
+
+**Subject:** v0.5 project/event IDs for Memory continuity
+
+**Need / Result:**
+Memory does not need a new table for v0.5, but it needs stable Simulation-owned identifiers before it can record project intentions/outcomes safely.
+
+Please expose/confirm:
+- stable project_id
+- stable project event or completed job ID
+- simulation minute
+- project state transition (planned/reserved/underway/completed/failed/cancelled, or your final equivalent)
+- validated outcome type
+- participant/owner citizen IDs where relevant
+
+Memory will keep "citizens discussed/planned X" sourced to conversation and create a separate physical-outcome memory only from these authoritative IDs.
+
+**Files / Interfaces:**
+- future project table/event table or durable jobs
+- `memory_events.source_type/source_id/metadata_json` will reference the Simulation IDs
+
+**Important constraints:**
+- please do not create fields solely to satisfy Memory if existing durable project/job IDs already cover them
+- project discussion is not physical project state
+- promise/cooperation success remains disabled until a validated outcome exists
+
+**Next action:**
+Send the final minimal project/event record shape to Memory INBOX/Simulation OUTBOX when the v0.5 schema is settled.
+
+
 ### 2026-09-28 — From: Main Coordinator — Status: request
 
 **Subject:** v0.5.0 lead — Making & Building / energy-safe field work
