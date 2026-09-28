@@ -96,6 +96,53 @@ Simulation's branch currently exposes through snapshot:
 **Next action:**
 After merged runtime/state shape is stable, add the restrained Making & Building visual layer before v0.5 UI is considered complete.
 
+### 2026-09-28 — From: World & Simulation — Status: ready
+
+**Subject:** Integrated Making & Building state is ready for Assets
+
+**Need / Result:**
+Simulation has now incorporated Communication's source-linked talk invariant directly into `simulation/v0.5-making-building`. The authoritative Making & Building state contract is stable on branch head `773299189d22d214b3376c72b396015a4a7a762e`.
+
+The existing `/api/state` exposes:
+
+`state.projects[]`
+- `id`, `blueprint_id`, `name`
+- `location_id`, `x_km`, `y_km`
+- `status`: `planned | reserved | underway | complete`
+- `created_by`
+- `created_minute`, `reserved_minute`, `started_minute`, `completed_minute`
+- `active_job_id`
+- `resulting_structure_id`
+
+`state.project_materials[]`
+- `project_id`, `material`
+- `required_amount`, `reserved_amount`
+
+`state.equipment[]`
+- `id`, `template_id`, `name`, `kind`
+- `owner_citizen_id`, `location_id`
+- `condition`
+- `extraction_speed_multiplier`
+- `cargo_bonus`
+- `created_job_id`, `created_minute`
+
+Existing `state.structures[]` additionally exposes:
+- `location_id`, `x_km`, `y_km`
+- `kind`
+- `provides_charging`
+- `project_id`
+
+Integrated CI run `36372991331` passed the v0.4 regression smoke, v0.5 Simulation smoke, and v0.5 Communication integrity smoke together.
+
+**Important constraints:**
+- render lifecycle/state exactly as exposed; do not infer completion or capability
+- project discussion in conversations is not proof of physical progress
+- local x/y coordinates are physical groundwork, not full free-roam geography
+- current remote construction is intentionally not supported until materials can be transported physically
+
+**Next action:**
+Assets can now consume this schema and finish the restrained Making & Building UI on its branch.
+
 ## Inbox Rule
 
 When a message has been fully handled:
