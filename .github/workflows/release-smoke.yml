@@ -27,5 +27,14 @@ jobs:
       - name: Check JavaScript syntax
         run: node --check static/app.js
 
-      - name: Run release smoke test
+      - name: Run v0.4 regression smoke
         run: python tests/smoke_v040.py
+
+      - name: Run v0.5 simulation smoke
+        run: python tests/smoke_v050.py
+
+      - name: Run v0.5 communication integrity smoke
+        run: python tests/smoke_v050_communication.py
+
+      - name: Run v0.5 UI integration smoke
+        run: python tests/smoke_v050_ui.py
