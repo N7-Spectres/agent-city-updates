@@ -163,6 +163,8 @@ def record_validated_information(
     This is the stable handoff surface for future v0.6 Simulation discoveries.
     Simulation remains authoritative for the event and outcome.
     """
+    ensure_information_schema()
+
     if channel not in {
         "direct_observation",
         "survey_measurement",
@@ -218,6 +220,8 @@ def record_face_to_face_claims(
     """
     if not claims:
         return []
+
+    ensure_information_schema()
 
     with connect() as conn:
         conversation = conn.execute(
@@ -386,6 +390,8 @@ def information_receipts_for(
     *,
     limit: int = 50,
 ) -> list[dict[str, Any]]:
+    ensure_information_schema()
+
     with connect() as conn:
         now = int(get_meta(conn, "sim_minute") or "360")
         rows = conn.execute(
