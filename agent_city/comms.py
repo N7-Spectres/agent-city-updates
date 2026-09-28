@@ -19,10 +19,14 @@ def visible_citizens(citizen_id: str) -> list[dict[str, Any]]:
             return []
         rows = conn.execute(
             """
-            SELECT id, name, aptitude, current_activity, energy, integrity, location, location_id
-            FROM citizens
-            WHERE location_id = ? AND id != ?
-            ORDER BY rowid
+            SELECT c.id, c.name, c.aptitude, c.current_activity,
+                   c.energy, c.integrity, c.location, c.location_id
+            FROM citizens c
+            LEFT JOIN jobs j ON j.id = c.active_job_id
+            WHERE c.location_id = ?
+              AND c.id != ?
+              AND COALESCE(j.action, '') != 'travel'
+            ORDER BY c.rowid
             """,
             (me["location_id"], citizen_id),
         ).fetchall()
