@@ -16,11 +16,15 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-_None._
+- [World & Simulation] v0.7.0 lead: equipment/structure wear, lubrication/service, battery health, repair/replacement, preventative maintenance
+- [Assets & Interface] v0.7.0: full-height Home rails, citizen search/filter, Recent Activity, lightweight avatar framework, maintenance presentation
+- [Communication & Perception] v0.7.0: autonomous talk reliability diagnostics/fixes
+- [Memory & Social] v0.7.0: bounded maintenance/repair history from validated Simulation events
 
 ### WAITING
 
-_None._
+- [Assets & Interface] final maintenance/condition fields from World & Simulation for data-driven condition displays
+- [Memory & Social] stable maintenance/repair event IDs from World & Simulation if new runtime hooks are required
 
 ### READY
 
@@ -31,7 +35,7 @@ _None._
 
 ### REVIEW
 
-_None. v0.6.0 integration is complete._
+_None yet for v0.7.0._
 
 ### DONE
 
@@ -200,3 +204,18 @@ Final CI passed:
 - v0.6 Communication provenance smoke
 - v0.6 Memory knowledge smoke
 - v0.6 assembled UI/integration smoke
+
+
+## v0.7 Coordination Goal
+
+v0.7.0 is the active milestone: **Maintenance, Consequences & Home Polish**.
+
+Primary goals:
+1. mechanical life gains gradual physical wear/repair consequences without repetitive chore spam
+2. Home scales cleanly for longer conversations and future population growth
+3. a lightweight 2D/static avatar identity layer begins without requiring Mixamo/3D
+4. repeated autonomous talk failures are diagnosed and made substantially more reliable without ever fabricating dialogue
+
+Coordinator integration must preserve all v0.6 knowledge/provenance boundaries and all v0.5 physical production/energy invariants.
+
+No department publishes `update.json`.
