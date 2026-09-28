@@ -94,7 +94,19 @@ def main() -> None:
         import main as app_module
         assert app_module.app.title == "Agent City"
 
-        print("Agent City v0.4.0 smoke test passed.")
+        # Qwen 3.5 supports thinking mode. Agent City conversational/JSON calls
+        # must request direct output so a reasoning-only response cannot render blank.
+        root = Path(__file__).resolve().parents[1]
+        for relative in (
+            "main.py",
+            "agent_city/comms.py",
+            "agent_city/visits.py",
+            "agent_city/planner.py",
+        ):
+            source = (root / relative).read_text(encoding="utf-8")
+            assert '"think": False' in source, relative
+
+        print("Agent City release smoke test passed.")
 
 
 if __name__ == "__main__":
