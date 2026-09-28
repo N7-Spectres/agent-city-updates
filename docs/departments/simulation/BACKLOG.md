@@ -1,123 +1,80 @@
 # World & Simulation — Backlog
 
-## v0.7 Follow-On / Integration
+## v0.8 Stage 1 Handoff
 
-The v0.7 maintenance substrate is implemented on `simulation/v0.7-maintenance`.
+Implemented on `simulation/v0.8-seeded-world-stage1`:
 
-Remaining integration work:
+- persistent hidden planet seed
+- local meter coordinate frame
+- additive landmark/citizen/visitor/structure/project migration
+- deterministic spatial terrain/geology query
+- stable procedural deposit bodies with coherent extent
+- legacy deposit spatial anchoring
+- safe validated spatial observations
+- observation range/source-job legality
+- safe spatial read-model contract
 
-- Assets consumes authoritative condition/effective-capability fields
-- Memory may ingest meaningful `maintenance_events.id` records without storing every wear tick
-- coordinator integrates Simulation with Communication talk-reliability, Memory policy/hooks, and Assets UI
-- full assembled v0.7 smoke run before publication
+Cross-department Stage 1 follow-on:
+- Communication consumes coordinate/observation contracts for grounding and future shared-action design
+- Memory consumes stable observation/deposit subject IDs without ingesting hidden generated world
+- Assets may consume safe coordinates/observations but must not infer free-roam or hidden bodies
+- coordinator reviews Stage 1 interfaces before Stage 2
 
-## Later Maintenance Depth
+## v0.8 Stage 2 Candidates
 
-- explicit tool/structure failure modes beyond simple non-operational condition
-- repair interruption/recovery rules
-- component-specific wear only if future systems need that detail
-- remote maintenance after physical project-material logistics exist
-- preventative maintenance planning across multiple remote sites
-- replacement/salvage lifecycle for irreparable equipment
-- battery-cell chemistry differences only if future research discovers meaningful properties
-- structure-specific degradation from future atmosphere/weather/terrain systems
+### Continuous movement
+- citizen meter-scale move/travel actions
+- path segment identity
+- terrain-aware distance/energy/time
+- continuous in-transit position
+- return-energy reserve against coordinate-based charger reachability
+- visitor/citizen shared movement only after Simulation owns the joint action
 
-## Near-Term Simulation Depth
+### Spatial discovery
+- integrate existing survey jobs with real action coordinates
+- scanner/tool capability only when physically invented/fabricated
+- generated-deposit discovery records using stable body IDs
+- generated-deposit extraction/quantity accounting
+- observation footprints and repeated scan merging
+- spatial independent verification by multiple citizens
 
-- cooperative jobs / multi-citizen reservation
-- visitor turn-around / cancel travel
-- richer route/distance representation
-- explicit project-material transport before remote construction
-- equipment transfer/storage assignment beyond maker-owned/shared-at-location gear
-- explicit deposit-quantity measurement only if citizens develop a valid method
+### Global geography
+- persistent planet/body reference frame
+- map local tangent plane to global latitude/longitude
+- deterministic additional regions and distant sites
+- terrain-aware routes that can emerge from movement/construction
+- citizen-created places between starter landmarks
 
-## v0.8.0 — Living World
+### Emergent naming
+- separate physical place identity from citizen/social names
+- persistent aliases/adoption history
+- no culturally meaningful Simulation-generated names
 
-- introduce a persistent planet seed and meter-scale seeded spatial truth foundation
-- derive hidden terrain/geology/resource fields deterministically from seed + coordinate/chunk
-- use spatially correlated geology/resource generation, not independent per-scan random rolls
-- give discovered deposits stable physical IDs and enough spatial extent to recognize repeated encounters with the same vein/body
-- scan/survey results query hidden seeded world truth at the real action coordinate
-- preserve strict separation between hidden world truth and discovered citizen/visitor knowledge
-- additional regions
-- environmental variation
-- richer route network
-- more materials
-- native vegetation behavior
-- distant work sites
-- cultivation if citizens discover a reason
-- global spherical coordinates
-- local tangent-plane working frames
-- continuous positions between landmarks
-- terrain-aware movement
-- citizen-created locations/infrastructure between starter landmarks
+### Living environment
+- atmosphere/weather/terrain properties only as physical substrate
+- environmental effects on travel/maintenance when modeled
+- vegetation/material distributions from the seeded world
+- cultivation only if citizens discover/develop a reason/process
 
-## v0.9.0 — Continuity
+### Visitor-linked physical actions
+- validated participant list
+- co-location
+- real duration/path/energy
+- real outcome
+- normal observation/provenance rules
+- no chat-as-admin-control
 
-- multi-step plans
-- revised/abandoned plans
-- skill growth
-- emergent specialization
-- teaching
-- routines
-- longer-term resource strategies
-- population growth only after physical/identity prerequisites mature
+## Existing Follow-On Depth
+
+- cooperative multi-citizen jobs
+- project-material transport for remote construction/maintenance
+- equipment transfer/shared caches
+- visitor turn-around/cancel travel
+- explicit resource-quantity measurement only after valid capability exists
 
 ## Open Questions
 
-- how should cooperative maintenance jobs reserve citizens/tools?
-- when should an asset become irreparable instead of fully serviceable?
-- how should future weather/environment change degradation rates?
-- how should remote repair materials be staged and accounted for?
-
-
-## v0.7 Integration Gate
-
-Before starting new Simulation feature work:
-
-1. Assets finishes the v0.7 maintenance presentation.
-2. Memory finishes any bounded maintenance-history ingestion it chooses to add.
-3. Coordinator integrates Simulation + Communication + Memory + Assets.
-4. Preserve both v0.7 Simulation maintenance rules and Communication talk-reliability rules during conflict resolution.
-5. Run the full v0.4-v0.6 regression suite plus v0.7 Simulation, Communication, Memory (if added), and Assets smoke tests.
-6. Any merge conflict that changes wear rates, maintenance thresholds, repair material accounting, battery behavior, or operational-state rules returns to World & Simulation for review.
-
-Until that gate is complete, the v0.7 Simulation core is feature-complete and handed off.
-
-
-## v0.8 Rendering / Asset Foundations
-
-- bulk-resource render aggregation policy: one pile/bundle may represent many authoritative units
-- storage deposit removes loose visual clutter while preserving Simulation inventory truth
-- withdrawal/staging may re-materialize a representative visual
-- unique identity-bearing objects remain individual
-- future asset worker should consume authoritative quantity/specification and choose an efficient render tier
-- never tie object count in the renderer directly to fungible inventory count
-
-
-## v0.8 Emergent Invention Bridge
-
-- connect citizen process/design proposals to validated Simulation capability
-- proposal text alone never creates a recipe or machine capability
-- candidate processes should reference known material properties, available structures/tools, inputs, and intended function
-- Simulation decides whether a proposed experiment/design can actually be attempted and what outcome occurs
-- successful validated development may create a persistent citizen-created process or blueprint
-- an existing structure such as the Crude Smelter cannot be assumed to support a new material/process until that capability has been validated
-- preserve proposal/hypothesis history even when a proposed process does not work
-
-
-## v0.8 Visitor-linked shared physical actions
-
-Consider a minimal validated mechanism for visitor + citizen shared activities when physically co-located.
-
-Examples:
-- walk or survey a nearby perimeter together
-- accompany a citizen to an adjacent site
-- observe a local inspection together
-
-Constraints:
-- chat agreement alone must not create motion or discovery
-- Simulation owns start, participants, location/path, duration, energy cost, and outcome
-- visitor and citizen must satisfy physical co-location / travel requirements
-- any discovery/observation produced by the activity follows normal knowledge/provenance rules
-- keep scope narrow; do not turn visitor chat into hidden admin control
+- what minimum continuous-movement primitive best preserves current route behavior?
+- how should generated bodies connect to finite extraction quantity without exposing hidden reserve estimates?
+- when should a cluster of observations become a new physical place/site record?
+- how should local tangent frames transition between distant settlements on the later spherical world?
