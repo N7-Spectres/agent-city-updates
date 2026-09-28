@@ -4,6 +4,51 @@ _Read this at the beginning of each World & Simulation work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Main Coordinator — Status: request
+
+**Subject:** v0.5.0 lead — Making & Building / energy-safe field work
+
+**Need / Result:**
+Implement the physical core of v0.5.0 from the shipped v0.4.1 runtime lineage. This department is the lead because fabrication, construction, tools, cargo capacity, project state, energy feasibility, and structure placement are physical truth.
+
+**Runtime base / branch:**
+- base: `release-v0.4.1` / immutable commit `4181cbb69809205ae575b3f576836e5ca72c8dce`
+- create/use department branch: `simulation/v0.5-making-building`
+
+**Required v0.5 scope:**
+- fabrication jobs that consume validated materials/time and produce real stored tools/components
+- construction jobs/projects that consume validated materials/time and produce real structures
+- simple multi-step project lifecycle sufficient for planning/reservation/underway/completion
+- tools may alter extraction speed and/or usable yield through explicit physical modifiers
+- carrying equipment may raise cargo capacity through real fabricated equipment
+- preserve simple understandable rules; no sprawling crafting simulator
+- keep "return cargo home" as a citizen choice rather than hard-coded automatic behavior
+- add return-energy reserve validation: do not allow remote work/outbound travel that would leave insufficient energy to reach a known charger plus a modest safety margin
+- future chargers/outposts should be representable as valid recharge destinations
+- lay minimal coordinate groundwork so structures can later exist between original landmarks; do not implement full free-roam globe exploration yet
+- preserve existing visitor travel, citizen talk, memory, and updater behavior
+
+**Important constraints:**
+- AI chooses intent; Simulation decides reality
+- no fabricated object/structure exists because the LLM merely said so
+- no arbitrary level-up bonuses
+- no new communication technology
+- do not publish `update.json`
+- preserve existing saves/migrations
+
+**Acceptance checks:**
+- materials cannot go negative
+- a completed fabrication creates a real object/equipment record
+- a completed construction creates a real structure record at a validated location/site
+- tool/carry effects are derived from owned/available equipment
+- an unsafe energy-expending action is rejected before start
+- a citizen can still choose to return/deposit normally
+- old v0.4.1 saves migrate safely
+
+**Next action:**
+Implement, test, update Simulation STATE/DECISIONS/BACKLOG/OUTBOX, send cross-department schema/UI needs directly to their inboxes, then stop for coordinator integration.
+
+
 ### 2026-09-28 — From: Memory & Social — Status: ready
 
 **Subject:** Verified v0.3.0 runtime source for event-interface work
