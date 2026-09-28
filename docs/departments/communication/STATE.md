@@ -1,8 +1,8 @@
 # Communication & Perception — State
 
 _Last updated: 2026-09-28_
-_Current release: v0.6.0_
-_Active milestone: v0.7.0 — Maintenance, Consequences & Home Polish_
+_Current release: v0.7.0_
+_Active milestone: v0.8.0 Stage 1 — Living World Foundations_
 
 ## Mission
 
@@ -482,3 +482,161 @@ Resume only if:
 4. a new milestone routes additional Communication work.
 
 Before resuming, read `COORDINATION.md`, `communication/INBOX.md`, then this file.
+
+## v0.8 Stage 1 — Grounded Visitor RP & Capability Language
+
+**Branch:** `communication/v0.8-grounding-stage1`  
+**Base:** shipped v0.7.0 commit `d81a85bf03b69b969532016f59bbbed2233949ee`  
+**Branch head:** `a95e7af23eddaeb018bd6b2b6f19681a227e92af`  
+**Final CI:** `36450386273`
+
+### Grounding vocabulary
+
+New `agent_city/grounding.py` gives citizen/visitor dialogue an explicit epistemic vocabulary:
+
+- **known fact** — confirmed Simulation state, validated knowledge, or verified provenance
+- **current observation** — what current physical context explicitly makes observable
+- **reported claim** — visitor/citizen report attributed to its source
+- **hypothesis / proposal** — explanation, interpretation, likely use, value judgment, or future plan not yet validated
+- **validated capability / action** — only what authoritative runtime state actually supports
+
+Personality and conversational style may improvise.
+
+Factual nouns, physical explanations, capabilities, and outcomes require evidence.
+
+### Visitor roleplay grounding
+
+Visitor-described details remain visitor-reported until Simulation validates them.
+
+Citizens may respond naturally using language such as:
+
+- "what you're seeing"
+- "the feature you described"
+- "if that observation holds"
+- "that's worth testing"
+
+They must not confidently invent:
+
+- material microstructure/chemistry/properties
+- economic or market value
+- scarcity
+- terrain/landmark names or site history
+- weather/atmospheric/environment causes
+- physical tools/capabilities
+- completed shared actions
+
+A visitor may coin a descriptive name socially, but that does not create a mapped/validated physical place.
+
+### Authoritative capability surface
+
+Citizen dialogue now receives a Simulation-derived capability surface containing only:
+
+- operational equipment physically owned/available at current location
+- operational structures at current location
+- validated learned processes
+- Simulation legal actions available now
+
+Concept art, UI visuals, appearance descriptions, and imagined accessories never create physical equipment or capability.
+
+Broken equipment may still appear in a legal service/repair action, but it is not presented as operational capability.
+
+### Shared activity boundary
+
+A citizen may conversationally agree to:
+
+- walk somewhere with the visitor
+- inspect something together
+- survey a point
+- use a tool
+- collect/build/test something
+
+but agreement remains **intention/proposal only** unless Simulation creates a real physical action.
+
+Stage 1 deliberately does not make chat an action/command interface.
+
+The branch includes:
+
+`docs/departments/communication/SHARED_ACTION_CONTRACT.md`
+
+which defines the future Communication/Simulation boundary without implementing movement.
+
+### Remote Seed Site storage leak fixed
+
+Visitor chat previously injected exact live Seed Site storage quantities into every citizen prompt, including citizens physically away from Seed Site.
+
+Stage 1 now exposes live storage quantities only while the citizen is physically at Seed Site.
+
+Remote citizens may rely only on retained/communicated information that actually reached them.
+
+### Stage 1 spatial grounding
+
+Communication aligned to Simulation's final Stage 1 spatial contract:
+
+- frame: `seed_site_local`
+- units: meters
+- +x east / +y north
+- citizen position: `position_x_m / position_y_m`
+- visitor position: `visitor_presence.x_m / y_m`
+- validated observation anchor: `spatial_observations.id`
+
+Dialogue may consume only the ordinary safe read model:
+
+- safe meter positions
+- citizen's own validated `spatial_observations`
+- terrain/elevation/geology exposed by those observations
+- stable deposit/material contact only when a validated observation exposed it
+
+Communication never calls hidden `query_hidden_world` / `query_spatial_truth` for dialogue context.
+
+It never exposes:
+
+- planet seed
+- hidden deposit richness
+- hidden body geometry/axes
+- unseen terrain
+- raw hidden-query payloads
+
+Coordinate decimal precision is not treated as observation/sensor precision. `radius_m` and source action/tool semantics define what was actually observed.
+
+### Current Stage 1 physical limit
+
+Simulation Stage 1 intentionally provides no legal arbitrary:
+
+- `move_meter`
+- `free_roam`
+- `scan`
+
+action.
+
+Therefore "move one meter north with me" remains a conversational proposal in Stage 1.
+
+Real visitor-linked movement/survey/exploration is a Stage 2 Simulation dependency.
+
+### Prompt surfaces grounded
+
+Stage 1 grounding is applied to:
+
+- visitor-to-citizen chat
+- autonomous citizen-to-citizen dialogue
+- planner reason generation
+
+Planner prompts explicitly reject unsupported properties, market-value claims, site history, weather/environment explanations, tools, and capability assumptions as reasons for action.
+
+### Regression validation
+
+Final GitHub Actions run `36450386273` passed:
+
+- Python compile
+- all v0.4 smoke
+- all v0.5 smoke suites
+- all v0.6 Simulation/Communication/Memory/UI smokes
+- all v0.7 Simulation/Communication/Memory/Assets smokes
+- `tests/smoke_v080_communication.py`
+
+Temporary branch CI was removed after the green run.
+
+## v0.8 Stage 1 Status
+
+The independent Communication grounding/shared-action-boundary slice is complete and ready for coordinator review.
+
+Stage 1 does **not** implement real shared visitor movement or scanning. That remains correctly deferred to Simulation-owned Stage 2 actions.
