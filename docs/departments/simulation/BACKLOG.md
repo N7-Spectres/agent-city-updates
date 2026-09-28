@@ -63,3 +63,17 @@ Remaining integration work:
 - when should an asset become irreparable instead of fully serviceable?
 - how should future weather/environment change degradation rates?
 - how should remote repair materials be staged and accounted for?
+
+
+## v0.7 Integration Gate
+
+Before starting new Simulation feature work:
+
+1. Assets finishes the v0.7 maintenance presentation.
+2. Memory finishes any bounded maintenance-history ingestion it chooses to add.
+3. Coordinator integrates Simulation + Communication + Memory + Assets.
+4. Preserve both v0.7 Simulation maintenance rules and Communication talk-reliability rules during conflict resolution.
+5. Run the full v0.4-v0.6 regression suite plus v0.7 Simulation, Communication, Memory (if added), and Assets smoke tests.
+6. Any merge conflict that changes wear rates, maintenance thresholds, repair material accounting, battery behavior, or operational-state rules returns to World & Simulation for review.
+
+Until that gate is complete, the v0.7 Simulation core is feature-complete and handed off.
