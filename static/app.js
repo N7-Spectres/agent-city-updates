@@ -218,7 +218,7 @@ function renderCitizens() {
     const progressMarkup = progress ? `
       <div class="job-progress-meta">
         <span>${progress.elapsed} / ${progress.total} sim min</span>
-        <span>${progress.remaining} min remaining</span>
+        <span>ETA ${formatMinute(job.end_minute)}</span>
       </div>
       <div class="job-progress-track"><span style="width:${progress.percent}%"></span></div>
     ` : "";
@@ -419,6 +419,11 @@ function renderDrawerLists() {
         <span>${formatMinute(c.sim_minute)} • ${escapeHtml(c.location_name)}</span>
       </div>
       <p>${escapeHtml(c.summary)}</p>
+      <details class="conversation-transcript">
+        <summary>Read exchange</summary>
+        <div><strong>${escapeHtml(c.initiator_name)}</strong><span>${escapeHtml(c.initiator_text)}</span></div>
+        <div><strong>${escapeHtml(c.target_name)}</strong><span>${escapeHtml(c.target_text)}</span></div>
+      </details>
     </div>
   `).join("") : '<div class="muted conversation-empty">No citizen-to-citizen conversations recorded yet.</div>';
 
