@@ -17,7 +17,6 @@ This file is the shared project task board.
 ### ACTIVE
 
 - [Assets & Interface] v0.7.0 final pass: consume authoritative maintenance fields/events into Citizens/Records/Home alerts and rerun Assets smoke
-- [Memory & Social] v0.7.0 final runtime pass: ingest meaningful maintenance events into bounded citizen memory and add Memory smoke
 
 ### WAITING
 
@@ -25,7 +24,7 @@ This file is the shared project task board.
 
 ### READY
 
-- [Memory & Social] v0.7 maintenance-memory implementation is unblocked; Simulation `maintenance_events.id` contract received, next session starts runtime ingestion on `memory/v0.7-maintenance-history`
+- [Memory & Social] v0.7 runtime pass is unblocked but not yet implemented; next session creates `memory/v0.7-maintenance-history` from `release-v0.6.0`, ingests `maintenance_events.id`, adds bounded retrieval + smoke validation
 
 - [World & Simulation] v0.7 Maintenance & Consequences core ready on `simulation/v0.7-maintenance` @ `54f5d838f674d0b278a51382f3a880cc0738b417`; runtime CI `36429729279` passed all v0.4-v0.7 smoke suites
 - [World & Simulation] authoritative condition/effective-capability fields delivered to Assets
@@ -35,6 +34,8 @@ This file is the shared project task board.
 - [Assets & Interface] independent v0.7 Home scaling/search/Recent Activity/avatar framework is already prepared
 
 ### REVIEW
+
+- [Memory & Social] v0.7 maintenance policy/source contract reviewed; runtime branch still pending and must not be treated as integration-ready
 
 - [World & Simulation] v0.7 gradual equipment/structure wear, battery health, chassis wear, service/repair/replacement jobs, condition-scaled capability, passive structure aging, additive migration, and stable maintenance events complete
 - [Communication & Perception] v0.7 raw-exchange-first persistence, bounded retry, non-fatal claim enrichment, diagnostics, and failure classification complete
