@@ -96,3 +96,22 @@ Communication runtime work is complete. These are integration tasks, not new Com
 - support provenance/source age for facts shown in Locations/Citizen detail where useful
 - ensure a discovery by one citizen does not automatically become global knowledge unless a real sharing mechanism makes it available
 - coordinate with Memory on retention/retrieval and with Assets on how unknown fields are omitted rather than teased as hidden secrets
+
+
+## v0.6 Visitor Availability Messaging Fix
+
+Observed in v0.5:
+- selecting Vale while Vale is the second participant in Iri's talk job can display "Vale is currently speaking with Vale"
+- the Visit header can also say "Not at the same location" even when visitor and citizen are co-located and the real reason is that the citizen is busy talking
+
+Root cause to preserve for implementation:
+- both talk participants share one physical talk job
+- for the target participant, reading only jobs.target returns that same citizen instead of the initiator
+- counterpart resolution must use both jobs.citizen_id and jobs.target relative to the selected citizen
+
+Acceptance:
+- initiator view names the target
+- target view names the initiator
+- same-location-but-busy does not display a location mismatch
+- traveling/remote/busy reasons remain distinct and physically accurate
+- no change to face-to-face legality itself
