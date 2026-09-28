@@ -18,6 +18,37 @@ def _route_distance(conn, a: str, b: str) -> float | None:
     return float(row["distance_km"]) if row else None
 
 
+def _close_incompatible_open_visits(conn, visitor: str, presence: dict[str, Any], now: int) -> None:
+    if presence.get("travel_end_minute") is not None:
+        conn.execute(
+            """
+            UPDATE conversation_visits
+            SET ended_minute = COALESCE(ended_minute, ?)
+            WHERE visitor = ? AND ended_minute IS NULL
+            """,
+            (now, visitor),
+        )
+        return
+
+    rows = conn.execute(
+        """
+        SELECT cv.id, c.location_id, j.action AS active_action
+        FROM conversation_visits cv
+        JOIN citizens c ON c.id = cv.citizen_id
+        LEFT JOIN jobs j ON j.id = c.active_job_id
+        WHERE cv.visitor = ? AND cv.ended_minute IS NULL
+        """,
+        (visitor,),
+    ).fetchall()
+
+    for row in rows:
+        if row["location_id"] != presence["location_id"] or row["active_action"] == "travel":
+            conn.execute(
+                "UPDATE conversation_visits SET ended_minute = ? WHERE id = ? AND ended_minute IS NULL",
+                (now, row["id"]),
+            )
+
+
 def ensure_visitor(visitor: str) -> dict[str, Any]:
     visitor = visitor.strip()[:40] or "Visitor"
     with connect() as conn:
@@ -38,7 +69,12 @@ def ensure_visitor(visitor: str) -> dict[str, Any]:
                 "SELECT * FROM visitor_presence WHERE visitor = ?",
                 (visitor,),
             ).fetchone()
-        return dict(row)
+
+        presence = dict(row)
+        now = int(get_meta(conn, "sim_minute") or "360")
+        _close_incompatible_open_visits(conn, visitor, presence, now)
+        conn.commit()
+        return presence
 
 
 def presence_payload(visitor: str) -> dict[str, Any]:
