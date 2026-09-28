@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] v0.8.5 Daily Rhythm & Recharge published from `5b2395d7e7643a3d7ac9a82ac68090fc97b5f0b7`; final CI `36498819565` passed the complete matrix including `tests/smoke_v085_daily_rhythm.py`
+- [World & Simulation] autonomous daily rhythm now prioritizes recharge/safe return without redefining physical action legality or cancelling active jobs
+- [Assets & Interface] world presentation now reflects dawn/day/dusk/night from authoritative simulation time only
 - [Coordinator] v0.8.4 Conversation Summary Truth published from `ff78aab0e85331238eb67c989952a72499d1ed78`; final CI `36487822361` passed the complete matrix including `tests/smoke_v084_summary_truth.py`
 - [Communication & Perception] citizen conversation summaries now preserve report/intention vs physical verification boundaries
 - [Coordinator] v0.8.3 Citizen Personality + Natural Dialogue published from `e4d216b133a18dc4c68e1bba1ceb0457e952efb6`
@@ -478,3 +481,24 @@ Shipped:
 - intent remains intent until Simulation records the physical event
 
 No Simulation or Memory authority changed.
+
+
+## v0.8.5 Release Result
+
+Published runtime:
+- branch: `release-v0.8.5`
+- immutable commit: `5b2395d7e7643a3d7ac9a82ac68090fc97b5f0b7`
+- final GitHub Actions run: `36498819565`
+- result: **PASS**
+
+Shipped:
+- 06:00–20:00 active autonomous cycle
+- 20:00–22:00 wind-down
+- 22:00–06:00 low-activity/recharge cycle
+- repeated overnight charging to usable battery-health capacity
+- critical-energy autonomous priority for charging or safe return
+- preserved physical `possible_actions()` contract and active-job continuity
+- charger named-location grounding
+- dawn/day/dusk/night presentation from simulated time
+
+No Memory or Communication authority changed.
