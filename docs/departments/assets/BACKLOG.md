@@ -1,37 +1,43 @@
 # Assets & Interface — Backlog
 
-## Waiting — v0.5 Making & Building Schema
+## Review / Integration — v0.5
 
-- consume Simulation's final project/tool/equipment/structure state contract when handed off
-- add restrained project lifecycle visibility
-- show fabricated tools/equipment only when authoritative records exist
-- show physical tool/carry modifiers only from explicit Simulation fields
-- show constructed structures/sites only after validated Simulation state says they exist
-- use stable IDs so project/history/map surfaces can refer to the same physical objects
+Assets implementation is complete. Remaining work is coordinator/runtime validation.
 
-Schema request is in `docs/departments/simulation/INBOX.md`.
-
-## Review / Validation — v0.5 Branch
-
-- runtime-test draft PR #2 / `assets/v0.5-making-ui`
+- integrate `assets/v0.5-making-ui` with `simulation/v0.5-making-building`
+- runtime-test draft PR #2 against the integrated v0.5 backend
 - verify long visitor conversations stay inside the bounded chat viewport
-- verify Previous visits does not push input/actions off the Visit panel
-- verify visitor input and Talk button remain usable at wide and narrow widths
-- verify History opens by default and all other Control Room tabs still work
-- verify chronology-only conversation cards against real saves with older/missing snapshot content
-- verify updater, pause, visitor travel, citizen selection, and conversation persistence are unchanged
-- responsive sanity pass at wide desktop, 1220-ish two-column layout, tablet, and narrow mobile
+- verify Previous Visits never displaces visitor input/actions
+- verify History opens by default and other Control Room tabs still work
+- verify canonical conversation IDs/source-job IDs display correctly on new talks
+- verify failed talk attempts appear only in chronology, with no fabricated transcript
+- verify Making tab with real:
+  - planned projects
+  - reserved projects/materials
+  - underway projects
+  - completed projects/resulting structures
+  - fabricated equipment
+  - cargo modifiers
+  - extraction-speed modifiers
+  - charging structures
+- verify local coordinates are presented only as local site data
+- verify updater, pause, visitor travel, citizen selection, conversation persistence, and responsive behavior remain intact
 
-## Completed in v0.5 Independent UI Slice
+## Completed in v0.5 Assets
 
-- cap visitor chat height
-- make chat log scroll internally
-- anchor visitor input/actions
-- rebalance and center main three-column layout
-- use more right-side width for interaction/state surfaces
-- make History the default Control Room companion beneath Visit
-- show citizen-conversation participants, location, time, summary, and expandable transcript
-- gracefully distinguish chronology-only conversation events from available exchange content
+- fixed-height chat
+- internal chat scrolling
+- anchored input/actions
+- centered/rebalanced layout
+- useful History companion view
+- canonical conversation-source display
+- chronology-only legacy fallback
+- Making tab
+- authoritative project lifecycle display
+- project material reservation display
+- equipment display
+- explicit modifier display
+- extended structure display
 
 ## Medium Priority
 
@@ -45,12 +51,10 @@ Schema request is in `docs/departments/simulation/INBOX.md`.
 - tiny robot tokens
 - portrait/avatar chips
 - planet/globe representation
-- richer visible work-site activity
+- richer visible work-site activity on the world map
 - accumulated settlement history in the environment
 - animated miniature citizens
 
-## Current Blocker / Next Session Gate
+## Current Blockers
 
-Assets is waiting on World & Simulation's stable v0.5 project/tool/equipment/structure schema for the remaining Making & Building UI layer.
-
-Do not continue physical-state UI implementation until that contract is handed off through Simulation OUTBOX and/or Assets INBOX.
+_None within Assets._ The department branch is ready for coordinator integration and runtime smoke testing.
