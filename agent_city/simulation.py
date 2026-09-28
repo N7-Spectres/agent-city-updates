@@ -7,6 +7,14 @@ from typing import Any
 from .db import add_history, connect, get_meta, set_meta
 from .knowledge import citizen_knows_property, record_discovery
 from .spatial import query_hidden_world, record_validated_observation
+from .exploration import (
+    DIRECT_INSPECTION_RADIUS_M,
+    LOCAL_MOVE_MAX_M,
+    path_profile as local_path_profile,
+    return_energy_from_coordinate,
+    start_local_inspection,
+    start_local_move as start_local_move_job,
+)
 from .talk_diagnostics import concise_failure_code_from_conn
 
 BASE_CARRY_CAPACITY = 20.0
@@ -540,6 +548,45 @@ def record_local_spatial_observation(
         return True, observation_id, "Validated spatial observation recorded."
 
 
+def location_anchor_distance(conn, citizen: Any) -> float:
+    row = conn.execute(
+        "SELECT x_m, y_m FROM locations WHERE id = ?",
+        (citizen["location_id"],),
+    ).fetchone()
+    if not row or row["x_m"] is None or row["y_m"] is None:
+        return 0.0
+    return math.hypot(
+        float(citizen["position_x_m"] or 0.0) - float(row["x_m"]),
+        float(citizen["position_y_m"] or 0.0) - float(row["y_m"]),
+    )
+
+
+def nearby_operational_charger(conn, x_m: float, y_m: float, radius_m: float = 5.0):
+    rows = conn.execute(
+        """
+        SELECT *
+        FROM structures
+        WHERE provides_charging = 1
+          AND condition > ?
+          AND x_m IS NOT NULL
+          AND y_m IS NOT NULL
+        ORDER BY id
+        """,
+        (MIN_OPERATIONAL_CONDITION,),
+    ).fetchall()
+    for row in rows:
+        if math.hypot(float(row["x_m"]) - float(x_m), float(row["y_m"]) - float(y_m)) <= radius_m:
+            return row
+    return None
+
+
+def citizens_physically_close(a: Any, b: Any, radius_m: float = 2.0) -> bool:
+    return math.hypot(
+        float(a["position_x_m"] or 0.0) - float(b["position_x_m"] or 0.0),
+        float(a["position_y_m"] or 0.0) - float(b["position_y_m"] or 0.0),
+    ) <= radius_m
+
+
 def location_name(conn, location_id: str) -> str:
     row = conn.execute("SELECT name FROM locations WHERE id = ?", (location_id,)).fetchone()
     return row["name"] if row else location_id
@@ -756,15 +803,58 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
         energy = float(c["energy"])
         cargo = carried_amount(conn, citizen_id)
         capacity = cargo_capacity(conn, citizen_id, location_id)
+        x_m = float(c["position_x_m"] or 0.0)
+        y_m = float(c["position_y_m"] or 0.0)
+        anchor_distance = location_anchor_distance(conn, c)
+        at_landmark = anchor_distance <= 5.0
 
-        if location_id in charging_locations(conn) and energy < 95:
+        charger_here = nearby_operational_charger(conn, x_m, y_m)
+        if charger_here and energy < 95:
             actions.append({
                 "action": "charge",
-                "target": location_id,
-                "label": f"Recharge at an operational charging structure here at {location_name(conn, location_id)}.",
+                "target": str(charger_here["id"]),
+                "label": f"Recharge at {charger_here['name']} here.",
             })
 
-        if location_id == "seed_site":
+        # Baseline local exploration choices reveal no hidden terrain/result data.
+        if energy >= 1.0:
+            for dx, dy, direction in (
+                (60.0, 0.0, "east"),
+                (-60.0, 0.0, "west"),
+                (0.0, 60.0, "north"),
+                (0.0, -60.0, "south"),
+            ):
+                tx, ty = x_m + dx, y_m + dy
+                profile = local_path_profile(conn, x_m, y_m, tx, ty)
+                reserve = return_energy_from_coordinate(conn, tx, ty)
+                if reserve is not None and energy - float(profile["energy_cost"]) >= reserve:
+                    actions.append({
+                        "action": "local_move",
+                        "target": f"{tx:.3f},{ty:.3f}",
+                        "target_x_m": tx,
+                        "target_y_m": ty,
+                        "label": f"Explore locally about 60 m {direction}.",
+                    })
+
+            if not at_landmark:
+                loc = conn.execute("SELECT x_m, y_m, name FROM locations WHERE id = ?", (location_id,)).fetchone()
+                if loc:
+                    actions.append({
+                        "action": "local_move",
+                        "target": f"{float(loc['x_m']):.3f},{float(loc['y_m']):.3f}",
+                        "target_x_m": float(loc["x_m"]),
+                        "target_y_m": float(loc["y_m"]),
+                        "label": f"Return locally to the {loc['name']} landmark.",
+                    })
+
+        if energy >= 0.5:
+            actions.append({
+                "action": "local_inspect",
+                "target": "current_position",
+                "label": "Inspect the immediate surroundings directly.",
+            })
+
+        if location_id == "seed_site" and at_landmark:
             if cargo > 0 and structure_operational(conn, "Storage Unit", location_id):
                 actions.append({
                     "action": "deposit_cargo",
@@ -937,7 +1027,7 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
                         "target": str(project["id"]),
                         "label": f"Construct reserved {project['name']} project #{project['id']}.",
                     })
-        else:
+        elif at_landmark:
             distance = route_distance(conn, location_id, "seed_site")
             if distance is not None:
                 travel_cost = max(2.0, distance * 3.0)
@@ -954,7 +1044,7 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
             (location_id,),
         ).fetchall()
 
-        if cargo <= 0:
+        if cargo <= 0 and at_landmark:
             for row in rows:
                 travel_cost = max(2.0, float(row["distance_km"]) * 3.0)
                 target_reserve = return_energy_required(conn, row["target"])
@@ -996,11 +1086,11 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
                     "label": f"Extract {amount:g} units of {dep['material']} (capacity {capacity:g}).",
                 })
 
-        # Face-to-face conversation is possible only with a co-located citizen who is also free.
+        # Face-to-face conversation requires actual meter-scale proximity.
         if energy >= 5:
             others = conn.execute(
                 """
-                SELECT id, name
+                SELECT *
                 FROM citizens
                 WHERE location_id = ? AND id != ? AND active_job_id IS NULL
                 ORDER BY rowid
@@ -1008,10 +1098,12 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
                 (location_id, citizen_id),
             ).fetchall()
             for other in others:
+                if not citizens_physically_close(c, other):
+                    continue
                 actions.append({
                     "action": "talk",
                     "target": other["id"],
-                    "label": f"Talk face-to-face with {other['name']} here at {c['location']}.",
+                    "label": f"Talk face-to-face with {other['name']} here.",
                 })
 
         actions.append({"action": "wait", "target": location_id, "label": "Remain where you are and observe for a while."})
