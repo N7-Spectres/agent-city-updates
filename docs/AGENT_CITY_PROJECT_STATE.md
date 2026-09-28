@@ -41,6 +41,23 @@ Delivered:
 
 ## Current Milestone
 
+**v0.8.3 — Citizen Personality + Natural Dialogue**
+
+Published behavior/dialogue patch:
+- branch: `release-v0.8.3`
+- immutable runtime commit: `e4d216b133a18dc4c68e1bba1ceb0457e952efb6`
+- final CI: `36478041248` — PASS
+
+Delivered:
+- distinct stable personality tendencies and voice guidance for Aris, Bex, Cato, Iri, Noma, and Vale
+- personality influences preferences, tone, curiosity, caution, and cooperation without granting authority or extra knowledge
+- no default leader/ruler/command weighting
+- visitor and citizen-to-citizen dialogue keeps planner/system vocabulary backstage
+- natural speech replaces phrases such as "active job queued" / "current intent" / "propose shared action" where ordinary language fits
+- planner may use personality as a soft behavioral bias only; Simulation legality, knowledge boundaries, survival constraints, and physical outcomes remain authoritative
+- Simulation and Memory semantics unchanged
+
+
 **v0.8.2 — Live State Readability**
 
 Published UI-only patch:
