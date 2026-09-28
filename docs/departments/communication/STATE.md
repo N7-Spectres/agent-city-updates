@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-28_
 _Current release: v0.7.0_
-_Active milestone: v0.8.0 Stage 1 — Living World Foundations_
+_Active milestone: v0.8.0 Stage 2 — Shared Local Exploration_
 
 ## Mission
 
@@ -678,8 +678,8 @@ Before resuming, read `COORDINATION.md`, `communication/INBOX.md`, then this fil
 
 **Branch:** `communication/v0.8-shared-actions-stage2`  
 **Unified Stage 1 base:** `017b417386f4f4e0f957dfb66285431223283739`  
-**Branch head:** `7f40053233d0408b315ed6e9840267650503b63b`  
-**Final green CI:** `36456134638`
+**Branch head:** `ddab4bd445d5eb9f7d6354eb86e58afc0dc53332`  
+**Final green CI:** `36457633293`
 
 ### Purpose
 
@@ -810,7 +810,7 @@ This blocker affects reject/expiry finalization only. Proposal creation, explici
 
 ### Validation
 
-GitHub Actions `36456134638` passed:
+GitHub Actions `36457633293` passed:
 
 - Python compile
 - all v0.4-v0.7 regression suites
@@ -824,3 +824,67 @@ Temporary CI workflow was removed after the green run.
 Communication proposal/start/status implementation is ready.
 
 Communication remains **WAITING** only on Simulation's canonical proposal-cancellation primitive before reject/expiry can be considered fully integrated.
+
+
+## v0.8 Stage 2 Final Resolution
+
+Simulation's final Stage 2 lifecycle now includes canonical pre-start rejection via:
+
+`reject_shared_activity(conn, activity_id, visitor, now=...)`
+
+and a separate physical start transition via:
+
+`start_shared_activity(conn, activity_id, visitor, now=...)`
+
+Communication now consumes the final lifecycle exactly:
+
+1. durable visitor exchange
+2. Communication explicit meter/cardinal intent parse
+3. Simulation `propose_shared_activity`
+4. Communication proposal projection
+5. explicit visitor accept/start action
+6. Simulation `accept_shared_activity` records acceptance without movement
+7. Simulation `start_shared_activity` creates the real movement job
+8. Simulation status/progress/complete data syncs into Communication
+9. Simulation `reject_shared_activity` synchronizes pre-start visitor decline/expiry without movement
+
+Final Communication branch:
+- `communication/v0.8-shared-actions-stage2`
+- head: `ddab4bd445d5eb9f7d6354eb86e58afc0dc53332`
+- final green CI: `36457633293`
+
+Final validation passed:
+- compile
+- all shipped v0.4-v0.7 regressions
+- all unified v0.8 Stage 1 department smokes
+- `tests/smoke_v080_communication_stage2.py`
+- direct adapter signature checks for Simulation accept -> start -> reject
+
+No Communication-owned Stage 2 dependency remains.
+
+Communication is ready for coordinator assembly/review with Simulation, Memory, and Assets.
+
+
+## v0.8 Stage 2 Session Close — 2026-09-28
+
+This Communication work session is closed.
+
+Completed:
+- structured shared-action proposals sourced from durable visitor exchanges
+- explicit meter/cardinal target parsing only
+- canonical Simulation proposal validation
+- explicit visitor acceptance
+- separate Simulation accept and physical start transitions
+- real job/status/progress/completion grounding
+- canonical pre-start rejection synchronization
+- safe Visit proposal/read API
+- proposal/source handoffs to Memory and Assets
+- full Stage 2 Communication regression coverage
+
+Resume only for:
+1. coordinator merge conflicts,
+2. Assets integration questions about the proposal object,
+3. Memory source-link clarification, or
+4. a newly routed Communication milestone.
+
+Before resuming, read `COORDINATION.md`, `communication/INBOX.md`, then this file.
