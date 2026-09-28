@@ -263,3 +263,20 @@ Simulation rows with `verification_state = reported` are not promoted into verif
 Persisted experiment results, including inconclusive attempts, may become verified *experience/result* receipts for the citizen who performed them. This verifies that the experiment had that result, not a hidden property that was not discovered.
 
 This separation avoids both an omniscient encyclopedia and a duplicate authority system.
+
+## Session Close Integration Invariants
+
+The next integrator must preserve all of these together:
+
+- Simulation `agent_city/knowledge.py` remains authoritative for hidden truth, discoveries, and current validated citizen knowledge.
+- Communication `agent_city/provenance.py` remains authoritative for transfer/source/time receipt history and unverified face-to-face claims.
+- Memory remains the bounded retention/retrieval layer.
+- Assets consumes safe read models and structured availability, not hidden truth.
+- `citizen_conversations.id` remains the canonical raw conversation source.
+- `source_job_id` remains the physical talk-job anchor.
+- `reported` Simulation knowledge is never silently upgraded to verified Communication knowledge.
+- unverified conversation claims remain unverified until separately validated.
+- remote visitor access never exposes local busy/talk detail.
+- there is still no free remote communication channel.
+
+If a merge forces a choice between these layers, the merge is incorrect. They are complementary, not substitutes.
