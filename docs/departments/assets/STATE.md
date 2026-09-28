@@ -2,190 +2,129 @@
 
 _Last updated: 2026-09-28_
 _Current shipped release: v0.6.0_
-_Current department branch: `assets/v0.6-knowledge-ui`_
-_Current branch head: `8a1c7e12a6727da7d05403b9a2ae553ccc4f1dea`_
-_Current review surface: draft PR #3_
+_Current department branch: `assets/v0.7-home-avatars`_
+_Current branch head: `f1b356100711a53ab2d7884009f84308b95ce5ce`_
+_Current review surface: draft PR #7_
 
 ## Mission
 
-Make Agent City visually understandable and increasingly feel like a living place while never allowing the visual layer to invent physical reality or hidden knowledge.
+Make Agent City visually understandable and alive while never allowing presentation to invent physical state, hidden knowledge, wear, damage, equipment, or outcomes.
 
-## v0.6 Independent Information Architecture — Implemented
+## v0.7 Independent Assets Work — Implemented
 
 Branch base:
-`release-v0.5.0` / `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
+`release-v0.6.0` / `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`
 
-### Home
+### Home scaling
 
-Home is simplified to the core visit experience:
+Desktop Home now uses one shared height budget for:
 
-- compact citizen quick list
-- central world map remains primary
-- selected-citizen Visit remains immediately accessible
-- visitor physical location is a compact map-corner status
-- duplicate region strip is removed from Home
-- permanent Making / Stores / History / Updates console is removed from Home
+- citizen rail
+- center world panel
+- Visit/chat rail
 
-Quick citizen rows now emphasize only high-value live state:
+Citizen rail:
+- internal scrolling
+- citizen name search/filter
+- future-population-ready layout
 
-- name
-- activity
-- location / travel destination
-- carried cargo
-- compact energy / integrity
+Visit rail:
+- full-height desktop panel
+- internal chat scrolling
+- anchored visitor input/actions
 
-### Citizens
+Smaller screens keep the existing stacked/responsive behavior.
 
-Dedicated character-sheet page added.
+### Recent Activity
 
-Current safe v0.5-backed fields include:
+Home now includes a compact five-item Recent Activity surface beside the focused-location card.
 
-- placeholder-safe full-body identity slot
-- aptitude
-- location / travel state
-- activity / active job
-- energy / integrity
-- carried cargo
-- validated personal equipment
-- explicit equipment modifiers
-- projects created by the citizen
-- personally confirmed discoveries only
-- recent authoritative chronology
+It combines:
 
-Appearance art and richer configuration remain placeholder-safe until an authoritative source exists.
+- meaningful chronology events
+- concise summaries from real stored `citizen_conversations`
 
-### Locations
+Rules:
 
-Dedicated field-notebook page added.
+- successful conversation begin/completion chronology is filtered when the stored exchange summary exists
+- failed talk attempts remain ordinary events
+- routine observe/wait churn is filtered from the Home summary
+- "View all history" opens Records → History
 
-Current safe v0.5-backed fields include:
+No conversation summary is synthesized from a failed or missing exchange.
 
-- placeholder-safe scene slot
-- survey state
-- discovered resources only
-- physically present citizens
-- validated structures
-- validated projects
-- known routes
+### Avatar first stage
 
-Unknown resources/properties are omitted rather than shown as locked secrets.
+Added lightweight 2D/static identity infrastructure without Mixamo or 3D.
 
-### Records
+Supported surfaces:
 
-Making / Stores / History / Region / Updates are now moved to a dedicated top-level Records page.
+- Citizens page full-body identity area
+- Home citizen quick rows
+- Citizens directory
+- map citizen markers
 
-### Visit status polish
+The avatar manifest supports future full/token art without redesign.
 
-When a visit is inaccessible, the UI now shows the backend's actual reason instead of always displaying the generic "Not at the same location" label.
+Current fallback:
+
+- neutral mechanical silhouette / token
+- initials
+- per-citizen interface accent hue
+
+The accent hue is UI identity, not physical paint or appearance.
+
+State animation derives only from validated active jobs:
+
+- idle
+- traveling
+- charging
+- talking
+- working
+
+Reduced-motion user preference disables animation.
+
+No equipment, wear, or damage is drawn unless an authoritative physical state supports it.
 
 ## Verification
 
-Static verification on `assets/v0.6-knowledge-ui`:
+Static verification on `assets/v0.7-home-avatars`:
 
-- 65 HTML IDs
-- 60 JavaScript `getElementById` references
+- 69 HTML IDs
+- 65 JavaScript `getElementById` references
 - zero missing referenced IDs
 - zero duplicate IDs
-- JavaScript parses successfully
-- branch is 6 commits ahead / 0 behind the shipped v0.5.0 base
-- changed runtime files are only:
+- JavaScript parsed successfully
+- branch is 3 commits ahead / 0 behind shipped v0.6.0
+- changed runtime files only:
   - `static/index.html`
   - `static/app.js`
   - `static/styles.css`
 
-## Waiting Dependencies
+## Waiting Dependency — Maintenance
 
-The independent UI shell is complete. Remaining v0.6 data-driven work is waiting on three owner contracts.
+Assets sent a direct request to World & Simulation for the final v0.7 maintenance presentation contract.
 
-### World & Simulation
+Needed before condition UI is completed:
 
-Requested:
-- knowledge-safe world/location read model
-- discovery/experiment anchors
-- authoritative per-citizen cargo capacity
-- guidance on which raw v0.5 fields must no longer be used directly once hidden truth exists
+- equipment wear/condition/service fields
+- structure wear/condition/service fields
+- battery / power-storage health
+- explicit degraded / maintenance-needed / failed semantics if owned by Simulation
+- maintenance/service/repair/replacement timestamps or event/job IDs
+- guidance on meaningful Home alert thresholds
 
-### Communication & Perception
+Memory guidance is already recorded:
 
-Requested:
-- stable structured visit accessibility semantics
-- display-safe provenance/source/age fields
-- distinction between direct observation/discovery and communicated claim
-
-### Memory & Social — Consumed
-
-Memory delivered `memory/v0.6-location-knowledge`.
-
-Assets now consumes:
-- `GET /api/knowledge/citizens/{citizen_id}`
-- `GET /api/knowledge/locations/{location_id}`
-
-Citizen knowledge stays bounded per citizen. Location notebook knowledge remains partitioned by citizen instead of being merged into a shared truth view. Verification/source/channel/time metadata is preserved when displayed.
+- show current condition from Simulation
+- do not render every wear tick as Recent Activity
+- later maintenance history should include meaningful validated service/failure/repair/replacement only
+- admin physical state does not imply a citizen remembers the event
 
 ## Current Status
 
-Assets & Interface is **WAITING** only on Simulation and Communication v0.6 contracts.
+Assets & Interface is **WAITING** on World & Simulation's v0.7 maintenance schema.
 
-Draft PR #3 contains the independent information-architecture work and should not be treated as the complete v0.6 UI until the safe knowledge models are consumed.
+Draft PR #7 contains the complete independent Home/avatar/Recent Activity slice.
 
-No `update.json`, release metadata, simulation rules, or hidden-state interfaces were changed by Assets.
-
-
-## Work Session Closure — v0.6 Contracts Ready
-
-This Assets work session is closed by user request.
-
-Independent branch:
-- `assets/v0.6-knowledge-ui`
-- head `8a1c7e12a6727da7d05403b9a2ae553ccc4f1dea`
-- draft PR #3
-
-Implemented this session:
-- Home / Citizens / Locations / Records information architecture
-- compact Home citizen rows
-- compact visitor map status
-- dedicated Citizens character sheets
-- dedicated Locations field notebook
-- placeholder-safe citizen/location visuals
-- backend-specific inaccessible Visit reason
-- Memory bounded knowledge APIs consumed for Citizens and Locations
-
-During final wrap-up, the remaining two upstream contracts became ready but were **not yet consumed** because the session was being stopped:
-
-### Simulation ready
-- branch: `simulation/v0.6-research-discovery`
-- head: `d1ae3faf0095d22e7a730cf50b3ad6fdbcdc4b94`
-- CI: `36419824468`
-- ordinary `/api/state` is now knowledge-safe
-- use `discoveries`, `citizen_knowledge`, `experiment_results`, `learned_processes`, and `locations[].known_facts`
-- `deposits[]` now includes discovered deposits only and omits hidden reserve amount
-- hidden `world_properties` must never be rendered
-
-### Communication ready
-- branch: `communication/v0.6-knowledge-provenance`
-- head: `6a483fcc4d143606f3e401218002e06ae43076d1`
-- CI: `36421263078`
-- `GET /api/visit/{citizen_id}` now returns `accessible`, `status`, `reason`, and structured `availability`
-- status values: `available | remote | visitor_traveling | citizen_traveling | citizen_talking | citizen_busy | missing`
-- remote access intentionally hides local busy/talk detail
-- Memory's bounded APIs remain the preferred consumer surface for normal Citizens/Locations knowledge
-
-## Exact Next Session Action
-
-1. read Assets INBOX and COORDINATION
-2. inspect Simulation's safe v0.6 state shape
-3. replace any remaining raw v0.5 location/deposit assumptions with the safe v0.6 fields
-4. add authoritative cargo capacity if Simulation exposes it in the final branch
-5. consume Communication's structured `status/availability` in Visit UI
-6. preserve Memory bounded knowledge as the notebook/character-sheet knowledge source
-7. rerun static verification and hand off PR #3 for coordinator integration
-
-Assets is not blocked anymore; all upstream contracts are ready. The remaining implementation simply belongs to the next Assets work session.
-
-
-## Shipped v0.6.0 Integration
-
-Assets v0.6 work is included in the published runtime:
-`6092aeafd685a3ba4cb8e9d455e586771d3f6d26`.
-
-The assembled release passed the full cross-department smoke suite. Coordinator integration preserved Simulation truth, Communication provenance, Memory bounded retrieval, and Assets safe presentation as distinct layers.
+No `update.json`, release metadata, hidden knowledge rules, or physical simulation rules were changed by Assets.
