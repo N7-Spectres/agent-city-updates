@@ -23,13 +23,14 @@ Departments should read this file at the beginning of a work session in addition
 - [World & Simulation] v0.5.0 lead: fabrication, construction, project state, physical tool/carry effects, energy-return reserve, coordinate groundwork
 - [Assets & Interface] v0.5.0: fixed-height chat, compact/centered layout, useful conversation History, Making & Building UI support
 - [Communication & Perception] v0.5.0: citizen conversation-history persistence/integrity
-- [Memory & Social] v0.5.0: source-linked conversation continuity and minimal project-memory hooks
 
 ### STANDBY
 
 _None. v0.5.0 work packet is active._
 
 ### WAITING
+
+- [Memory & Social] v0.5 project-continuity audit complete; waiting for Communication final conversation-source shape and Simulation stable project/event IDs before any runtime hook code
 
 - [Assets & Interface] may need final project/tool/structure schema from World & Simulation for the Making & Building visual layer
 - [Memory & Social] may need stable project/event IDs from World & Simulation and conversation source shape from Communication before adding any new source-linked hooks
