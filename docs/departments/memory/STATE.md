@@ -264,3 +264,19 @@ The generic `record_knowledge_event(...)` hook is ready for future Simulation di
 - no global shared encyclopedia was added
 
 A focused `tests/smoke_v060_memory.py` covers per-citizen isolation, idempotency, source linkage, unverified claims, location notebook partitioning, and API imports.
+
+
+### v0.6 Validation
+
+Branch head: `89c0a3e2d49c4c9236342c10559f92b93b1b7601`
+
+Temporary branch CI run `36419352645` passed:
+- Python compile
+- JavaScript syntax
+- v0.4 regression smoke
+- v0.5 Simulation smoke
+- v0.5 Communication integrity smoke
+- v0.5 UI integration smoke
+- new v0.6 Memory knowledge smoke
+
+The temporary branch-only workflow was removed after validation.
