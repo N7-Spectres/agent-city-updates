@@ -78,10 +78,10 @@ def main() -> None:
         assert f'full: "{full_url}"' in js
         assert f'bust: "{token_url}"' in js
         assert f'token: "{token_url}"' in js
-        assert f'neutral: "{token_url}"' in js
 
     # Optional equipment and unapproved expression frames remain absent.
     assert js.count("equipment_layers: { rear: [], body: [], waist: [], held: [], foreground: [] }") == 6
+    assert js.count("neutral: null") == 6
     assert js.count("blink: null") == 6
     assert js.count("happy: null") == 6
     assert js.count("focused: null") == 6
