@@ -1,9 +1,9 @@
 # World & Simulation — State
 
 _Last updated: 2026-09-28_
-_Current shipped release: v0.6.0_
-_Active implementation branch: `simulation/v0.7-maintenance`_
-_Branch head: `54f5d838f674d0b278a51382f3a880cc0738b417`_
+_Current shipped release: v0.7.0_
+_Active implementation branch: `simulation/v0.8-seeded-world-stage1`_
+_Branch head: `7473b6612ea23cf8d22b31176149da188476690e`_
 
 ## Mission
 
@@ -11,236 +11,274 @@ Own physical truth.
 
 > **The AI may decide intent. The simulation decides reality.**
 
+For v0.8 Stage 1 this now includes:
+
+> **The world is deterministic physical truth before it is discovered.**
+
 ## Shipped Foundation Preserved
 
-The v0.7 branch starts from immutable shipped v0.6.0 commit:
+Stage 1 starts from immutable shipped v0.7.0 commit:
 
-`6092aeafd685a3ba4cb8e9d455e586771d3f6d26`
+`d81a85bf03b69b969532016f59bbbed2233949ee`
 
-All v0.5/v0.6 physical-production, energy-return, hidden-truth, discovery, provenance-layer compatibility, and knowledge-boundary rules remain intact.
+All v0.5-v0.7 production, research, knowledge/provenance, maintenance, visitor, and talk-reliability rules remain intact.
 
-## v0.7 Maintenance & Consequences — Implemented
+## v0.8 Stage 1 — Seeded Spatial World Foundation
 
-### Citizen Mechanical State
+### Persistent Planet Seed
 
-Citizens now persist:
+Every save now owns one persistent hidden seed:
 
-- `battery_health` — long-term pack health, distinct from current `energy`
-- existing `joint_wear` now accumulates from real work
-- `last_service_minute`
+- `meta.planet_seed`
 
-Safe snapshot adds:
+It is created once if absent and preserved on future startups/migrations.
 
-- `battery_state`
-- `usable_energy_capacity`
-- `battery_replacement_due`
-- `chassis_service_state`
-- `chassis_service_due`
+The raw seed is never exposed through ordinary `/api/state`, visitor/citizen prompts, or UI-facing payloads.
 
-Battery health physically caps usable charge. A citizen with 70% battery health cannot recharge above 70% until the pack is replaced.
+### Local Meter Coordinate Frame
 
-Real completed work applies small battery-health and joint-wear increments. Wear is gradual and threshold history is sparse.
+The existing starter world is now anchored in a local tangent-plane frame:
 
-### Equipment Wear
+`seed_site_local`
 
-Equipment now persists:
+Safe frame metadata:
 
-- `condition`
-- `last_service_minute`
-- `use_count`
+- units: meters
+- origin: Seed Site
+- x axis: east
+- y axis: north
+- frame type: local tangent plane
+- global lat/lon mapping: not yet assigned
 
-Real use degrades relevant equipment:
+This is deliberately compatible with a later global spherical coordinate layer.
 
-- extraction work wears extraction equipment
-- loaded travel wears cargo equipment
+### Existing Landmarks Preserved
 
-Condition affects capability continuously:
+The existing named locations remain the same physical places and IDs.
 
-- cargo bonus scales with condition
-- extraction speed bonus scales with condition
-- condition <= 20 makes equipment non-operational
+Current anchor examples:
 
-A critical tool remains visible in state so it can be repaired.
+- Seed Site: (0 m, 0 m)
+- Northern Ridge: (0 m, 1800 m)
+- Rocky Basin: (1400 m, 0 m)
+- Southern Flats: (0 m, -2100 m)
+- Resin Grove: (-1200 m, 0 m)
 
-Snapshot exposes:
+Legacy route distances remain unchanged.
 
-- `condition_state`
-- `operational`
-- `service_due`
-- `effective_cargo_bonus`
-- `effective_extraction_speed_multiplier`
+The old x/y-km fields are preserved for compatibility while meter fields are added.
 
-UI/other departments should use the effective fields, not recompute condition math from the raw base modifiers.
+### Meter Positions Added
 
-### Structure Wear
+Persisted meter position foundation now exists for:
 
-Structures now persist:
+- locations: `x_m / y_m`
+- citizens: `position_x_m / position_y_m`
+- structures: `x_m / y_m`
+- projects: `x_m / y_m`
+- visitors: `visitor_presence.x_m / y_m`
 
-- `condition`
-- `last_service_minute`
-- `use_count`
+Existing saves migrate positions from their current landmark/location.
 
-Wear comes from:
+Current legacy route travel remains landmark-based in Stage 1:
+- a traveler keeps the origin position while the legacy travel job is underway
+- position snaps to the destination landmark when that validated travel completes
 
-- gradual simulated-time aging while the world clock runs
-- actual structure use
+Continuous path interpolation/free-roam is intentionally deferred to Stage 2.
 
-Examples:
+### Deterministic Hidden Spatial Engine
 
-- workbench wear from fabrication/experiments
-- charger wear from charging
-- storage wear from cargo deposit
+New module:
 
-Time stops while Agent City is closed, so passive wear also stops.
+- `agent_city/spatial.py`
 
-Snapshot exposes:
+Simulation-only hidden query:
 
-- `condition_state`
-- `operational`
-- `service_due`
-- `efficiency_multiplier`
+- `query_hidden_world(conn, x_m, y_m)`
+- wrapper: `simulation.query_spatial_truth(x_m, y_m)`
 
-Badly degraded structures have physical consequences:
+The result is authoritative hidden truth and must never be copied directly into UI/LLM state.
 
-- condition <= 20 => non-operational
-- degraded workbench => longer fabrication/experiment jobs
-- degraded charger => longer charging jobs
-- non-operational storage => cargo deposit cannot complete
+Generated fields use deterministic hashing + spatially interpolated noise rather than independent random rolls per scan.
 
-Charging capability remains generic through `provides_charging = 1`; citizen-built future chargers are supported without relying on the literal starter name.
+Current hidden query includes:
 
-### Maintenance Actions
+- terrain class
+- elevation
+- roughness
+- geology class
+- generated deposit bodies covering the coordinate
 
-New autonomous legal actions:
+Same seed + same coordinate always returns the same result.
 
-- `service_chassis`
-- `replace_battery`
-- `service_equipment`
-- `service_structure`
+Nearby coordinates vary coherently.
 
-Actions appear only after meaningful thresholds:
+### Stable Generated Deposit Bodies
 
-- equipment/structure service due below 90 condition
-- battery replacement due below 85 health
-- chassis service due at joint wear >= 12
+New hidden table:
 
-Routine maintenance therefore remains occasional rather than constant.
+- `generated_deposits`
 
-Service consumes real materials before start, takes real simulation time, and restores validated physical state.
+Fields include:
 
-Examples of service inputs include:
+- stable `id`
+- `source_kind` — `procedural` or `legacy`
+- material
+- source chunk coordinates
+- center x/y
+- long/short ellipse axes
+- orientation
+- hidden richness
 
-- Lubricant
-- Fasteners
-- Mechanical components
-- Processed structural material
-- Battery cells
+Procedural deposit IDs derive deterministically from:
 
-More severe degradation requires more replacement material.
+- planet seed
+- source chunk
+- deposit slot
 
-Current structure/equipment service uses Seed Site stored materials. Remote maintenance waits for physical remote material logistics rather than teleporting settlement stock.
+A nearby query that remains inside the same body returns the same stable deposit ID.
 
-### Stable Maintenance Events
+Moving one meter does not automatically mint a new deposit.
 
-New durable table:
+### Existing Deposits Anchored
 
-- `maintenance_events`
+All pre-v0.8 named deposits are migrated into the same hidden spatial-body model.
 
-Fields:
+They retain their existing stable IDs:
 
-- `id` — stable maintenance event ID
-- `job_id` — physical action/job anchor
-- `citizen_id`
-- `event_type`
-- `target_type`
-- `target_id`
-- `before_value`
-- `after_value`
-- `materials_json`
-- `outcome`
-- `sim_minute`
-- `summary`
+- `dep_ferrite`
+- `dep_veyra`
+- `dep_silicate`
+- `dep_copper`
+- `dep_carbon`
+- `dep_clay`
+- `dep_fiber`
+- `dep_resin`
 
-Jobs additionally expose:
+Their deterministic geometry is anchored around the existing named location instead of replacing legacy deposit/history records.
 
-- `maintenance_event_id`
+### Validated Spatial Observations
 
-Successful service/repair/replacement creates one maintenance event.
+New safe persisted table:
 
-Routine per-use wear does **not** create a separate Memory-grade event every time. Condition state itself is authoritative, and History only notes meaningful degradation threshold crossings.
+- `spatial_observations`
 
-### Event Types
+Stable fields:
 
-Current maintenance event types:
+- `id`
+- `observer_id`
+- `source_job_id`
+- `observation_kind`
+- `frame_id`
+- `x_m / y_m`
+- `radius_m`
+- `observed_minute`
+- terrain class
+- elevation
+- geology class
+- optional stable deposit ID
+- optional material
+- summary
 
-- `chassis_service`
-- `battery_replacement`
-- `equipment_service`
-- `structure_service`
+Safe observations do **not** expose:
 
-### Migration
+- planet seed
+- hidden deposit richness
+- full hidden deposit center/axes/orientation
+- raw chunk truth
 
-v0.6 saves migrate additively.
+### Minimal Simulation-Owned Observation Contract
 
-New citizen/equipment/structure/job fields and `maintenance_events` are added without reset.
+New function:
 
-The maintenance wear clock initializes from the current simulation minute, preventing old saves from receiving retroactive wear for time that was never simulated under v0.7.
+`record_local_spatial_observation(citizen_id, x_m, y_m, ..., max_range_m, observation_kind, radius_m)`
 
-### Planner Context
+It:
 
-Autonomous citizens now receive their own:
+- requires a real citizen
+- checks the observation point against the citizen's real meter position
+- rejects while the citizen is physically traveling
+- validates that any supplied source job belongs to that citizen
+- queries hidden truth internally
+- persists only the safe observation row
+- returns a stable observation ID
 
-- current charge
-- battery health
-- integrity
-- joint wear
+This is the Stage 1 primitive future survey/scanner/shared-exploration systems may call after their own physical action/tool rules are validated.
 
-Maintenance choices appear in the same legal-action list as other physical work. The LLM chooses intent; Simulation validates material/time/condition rules.
+It is **not** itself a scanner or free-roam action.
+
+### Ordinary Safe State
+
+`/api/state` now safely exposes:
+
+- meter positions carried by existing citizen/location/structure/project rows
+- `state.spatial_frame`
+- `state.spatial_observations[]`
+
+It does **not** expose:
+
+- `planet_seed`
+- `generated_deposits`
+- hidden body geometry
+- hidden richness
+- raw hidden world query results
+
+All existing v0.6 hidden-property/resource rules remain preserved.
+
+### Visitor Position
+
+Visitor presence now carries `x_m / y_m`.
+
+Existing visitor route travel updates the visitor meter position to the destination landmark on validated arrival.
+
+### Precision Semantics
+
+Stored numeric coordinates may contain decimal meters for stable computation.
+
+Those decimals are **not** a promise of measurement precision.
+
+Observation precision/footprint is represented by `radius_m` and by the future action/tool contract that produced the observation.
+
+Memory/UI should not infer millimeter-level knowledge merely because a floating-point coordinate has decimals.
+
+## Stage 1 Non-Goals Preserved
+
+Stage 1 does **not** add:
+
+- arbitrary continuous citizen movement
+- a globe renderer
+- a scanner tool
+- free-roam exploration
+- generated place naming
+- visitor-controlled physical actions
+- new communication technology
+- arbitrary new citizen technologies
+- generated-resource extraction
+- direct UI access to seeded hidden truth
+
+## Migration
+
+v0.7 saves migrate additively.
+
+No existing location, route, citizen, project, structure, deposit, discovery, maintenance, memory, provenance, or conversation record is reset.
 
 ## Validation
 
-Final runtime hardening was validated in GitHub Actions run:
+Runtime Stage 1 code passed GitHub Actions run:
 
-`36429729279`
+`36449582788`
 
 Passed:
 
 - Python compilation
 - JavaScript syntax
-- v0.4 regression smoke
-- all v0.5 smoke suites
-- all v0.6 Simulation/Communication/Memory/UI smoke suites
-- v0.7 maintenance smoke
+- all v0.4-v0.7 regression suites
+- `tests/smoke_v080_stage1.py`
 
-The only subsequent branch commit restored the normal release-only workflow; runtime code is unchanged.
+The only later branch commit restored the normal release-only workflow.
 
 ## Status
 
-World & Simulation v0.7 maintenance core is ready for coordinator/cross-department review.
+World & Simulation v0.8 Stage 1 substrate is ready for coordinator/cross-department review.
 
 No `update.json` or release metadata was changed.
-
-
-## v0.7 Session Close
-
-World & Simulation work for this session is complete.
-
-Authoritative handoff:
-- branch: `simulation/v0.7-maintenance`
-- head: `54f5d838f674d0b278a51382f3a880cc0738b417`
-- base: shipped v0.6.0 commit `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`
-- runtime validation: GitHub Actions run `36429729279`
-
-Cross-department contracts delivered:
-- Assets received authoritative condition/effective-capability fields
-- Memory received stable `maintenance_events.id` source anchors
-- COORDINATION records Simulation in REVIEW
-
-No additional Simulation implementation is pending in this work session.
-
-Resume only for:
-- coordinator merge conflicts touching physical maintenance rules
-- a new Simulation inbox request
-- a later milestone
-
-No release metadata or `update.json` was changed.
