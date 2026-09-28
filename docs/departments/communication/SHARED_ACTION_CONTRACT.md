@@ -141,3 +141,60 @@ Do not implement shared action by:
 The future interface must preserve:
 
 > **The AI may decide intent. The simulation decides reality.**
+
+## Resolved Stage 1 Simulation spatial contract
+
+Simulation Stage 1 currently provides these concrete spatial anchors:
+
+- frame ID: `seed_site_local`
+- units: meters
+- local tangent-plane axes:
+  - +x east
+  - +y north
+- citizen meter position:
+  - `citizens.position_x_m`
+  - `citizens.position_y_m`
+- visitor meter position:
+  - `visitor_presence.x_m`
+  - `visitor_presence.y_m`
+- safe validated observation source:
+  - canonical `spatial_observations.id`
+  - observer ID
+  - optional source job ID
+  - observation kind
+  - frame ID
+  - x/y meters
+  - radius meters
+  - observed simulation minute
+  - terrain class
+  - elevation
+  - geology class
+  - optional deposit/material contact
+  - safe summary
+
+Communication may consume these safe fields after integration.
+
+Communication must **not** call or expose Simulation's hidden spatial truth query to LLM/UI surfaces.
+
+Stage 1 also confirms there is currently no legal arbitrary:
+- `move_meter`
+- `free_roam`
+- `scan`
+
+action in the citizen action set.
+
+Therefore conversational requests such as "move one meter north with me" remain proposals only in Stage 1.
+
+## Stage 2 action contract still required
+
+Before Communication can wire a real shared visitor movement/survey action, Simulation still needs to define:
+
+- visitor-linked action creation API/helper
+- authoritative shared-action lifecycle/status
+- movement/proximity legality
+- who/what owns the action record
+- whether visitor and citizen move under one shared action or linked participant actions
+- stable completion/failure event identity
+- safe observation generation rules for the shared activity
+
+Communication will not invent those semantics from the Stage 1 coordinate substrate alone.
