@@ -12,7 +12,7 @@ from .memory import knowledge_context_for as memory_knowledge_context_for, maint
 from .spatial_memory import nearby_spatial_context_for
 from .knowledge import known_properties_for
 from .provenance import knowledge_context_for as provenance_context_for
-from .simulation import daily_phase_label, possible_actions, start_action
+from .simulation import autonomous_actions, daily_phase_label, start_action
 from .personality import personality_context
 from .world import format_sim_time
 
@@ -159,7 +159,7 @@ Do not create new actions. Do not infer hidden properties from the list of possi
 
 
 async def choose_action(citizen: dict[str, Any], state: dict[str, Any]) -> dict[str, Any] | None:
-    actions = possible_actions(citizen["id"])
+    actions = autonomous_actions(citizen["id"])
     if not actions:
         return None
 
