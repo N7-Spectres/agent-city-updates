@@ -280,3 +280,66 @@ The next integrator must preserve all of these together:
 - there is still no free remote communication channel.
 
 If a merge forces a choice between these layers, the merge is incorrect. They are complementary, not substitutes.
+
+## v0.7 Raw Exchange First
+
+A valid durable raw conversation and claim/provenance enrichment are separate reliability domains.
+
+The raw stored exchange is the real information-transfer event.
+
+Claim extraction is a derived projection.
+
+Therefore:
+
+- a valid raw exchange must be persisted before claim extraction begins
+- claim extraction failure must not erase a valid conversation
+- claim persistence failure must not change the physical talk from success to failure
+- Memory/provenance can backfill/retry enrichment later if needed
+
+## No Fallback Dialogue
+
+Reliability may use:
+
+- retry
+- stricter formatting
+- lower temperature
+- tolerant JSON object recovery
+
+Reliability may **not** synthesize dialogue locally when Ollama fails.
+
+If no valid model-generated raw exchange exists, the talk fails.
+
+## Talk Diagnostics Are Non-Authoritative
+
+`talk_diagnostics` records implementation/debugging outcomes.
+
+Diagnostics do not create or alter:
+
+- conversation content
+- physical outcomes
+- Memory
+- provenance claims
+- citizen knowledge
+
+Diagnostics themselves are best-effort and may not block physical Simulation completion.
+
+## Failure Code Separation
+
+Keep these failure classes distinguishable:
+
+- model/network transport
+- model response envelope
+- dialogue JSON syntax
+- dialogue required-field/schema failure
+- physical invalidation
+- raw conversation database persistence
+- claim extraction
+- claim persistence/projection
+
+A generic `failed` job outcome remains appropriate for Simulation, while Communication diagnostics retain the finer cause.
+
+## Completion Transaction Rule
+
+When Simulation already holds its job-completion SQLite transaction, diagnostic lookup must use that same connection or perform a read that cannot trigger migration/write locking.
+
+Never open a schema-migrating second connection from inside the physical completion transaction.
