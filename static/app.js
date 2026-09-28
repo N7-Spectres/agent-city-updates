@@ -1,7 +1,9 @@
 let state = null;
+let visitorPresence = null;
 let selectedCitizen = null;
 let focusedLocation = "seed_site";
 let openDrawer = null;
+let currentVisitAccessKey = null;
 
 const LOCATION_POSITIONS = {
   seed_site: { x: 50, y: 55 },
@@ -23,6 +25,8 @@ const els = {
   resources: document.getElementById("resources"),
   structures: document.getElementById("structures"),
   history: document.getElementById("history"),
+  citizenConversations: document.getElementById("citizen-conversations"),
+  visitorStatus: document.getElementById("visitor-status"),
   selectedTitle: document.getElementById("selected-title"),
   selectedLabel: document.getElementById("selected-label"),
   visitorName: document.getElementById("visitor-name"),
@@ -66,19 +70,39 @@ function escapeHtml(text) {
 
 let restoredVisit = false;
 
+async function loadVisitorPresence() {
+  const visitor = els.visitorName.value.trim() || "Visitor";
+  try {
+    const response = await fetch(`/api/visitor/presence?visitor=${encodeURIComponent(visitor)}`);
+    const data = await response.json();
+    if (response.ok) visitorPresence = data;
+  } catch {
+    visitorPresence = null;
+  }
+}
+
 async function loadState() {
+  if (!restoredVisit) {
+    const savedVisitor = localStorage.getItem("agentCityVisitor");
+    if (savedVisitor) els.visitorName.value = savedVisitor;
+  }
+
   const response = await fetch("/api/state");
   state = await response.json();
+  await loadVisitorPresence();
   render();
 
   if (!restoredVisit) {
     restoredVisit = true;
-    const savedVisitor = localStorage.getItem("agentCityVisitor");
-    if (savedVisitor) els.visitorName.value = savedVisitor;
-
     const savedCitizen = localStorage.getItem("agentCitySelectedCitizen");
     if (savedCitizen && state.citizens.some(c => c.id === savedCitizen)) {
       await selectCitizen(savedCitizen, { restore: true });
+    }
+  } else if (selectedCitizen) {
+    const nextKey = visitAccessKey(selectedCitizen);
+    if (nextKey !== currentVisitAccessKey) {
+      currentVisitAccessKey = nextKey;
+      await loadCurrentVisit(selectedCitizen);
     }
   }
 }
@@ -98,8 +122,56 @@ function depositsForLocation(locationId) {
   return state.deposits.filter(d => d.location_id === locationId && d.discovered);
 }
 
+function activeJobFor(citizenId) {
+  return state.jobs.find(j => j.citizen_id === citizenId) || null;
+}
+
+function jobProgress(job) {
+  if (!job) return null;
+  const total = Math.max(1, Number(job.end_minute) - Number(job.start_minute));
+  const elapsed = Math.min(total, Math.max(0, Number(state.sim_minute) - Number(job.start_minute)));
+  const remaining = Math.max(0, Number(job.end_minute) - Number(state.sim_minute));
+  return {
+    total,
+    elapsed,
+    remaining,
+    fraction: Math.min(1, Math.max(0, elapsed / total)),
+    percent: Math.round(Math.min(1, Math.max(0, elapsed / total)) * 100),
+  };
+}
+
+function isTravelingCitizen(citizen) {
+  return activeJobFor(citizen.id)?.action === "travel";
+}
+
 function citizensAtLocation(locationId) {
-  return state.citizens.filter(c => c.location_id === locationId);
+  return state.citizens.filter(c => c.location_id === locationId && !isTravelingCitizen(c));
+}
+
+function routeBetween(a, b) {
+  return state.routes?.find(r => r.a === a && r.b === b) || null;
+}
+
+function interpolatedPosition(a, b, fraction) {
+  const from = LOCATION_POSITIONS[a] || {x: 50, y: 50};
+  const to = LOCATION_POSITIONS[b] || from;
+  return {
+    x: from.x + (to.x - from.x) * fraction,
+    y: from.y + (to.y - from.y) * fraction,
+  };
+}
+
+function visitAccessKey(citizenId) {
+  const c = state?.citizens.find(x => x.id === citizenId);
+  const job = c ? activeJobFor(c.id) : null;
+  return [
+    citizenId,
+    visitorPresence?.location_id || "",
+    visitorPresence?.travel_end_minute || "",
+    c?.location_id || "",
+    job?.action || "",
+    job?.target || "",
+  ].join("|");
 }
 
 function trimNumber(value) {
@@ -110,6 +182,7 @@ function trimNumber(value) {
 function render() {
   els.simTime.textContent = `${state.sim_label} • ${state.paused ? "Paused" : "Running"}`;
   els.pauseButton.textContent = state.paused ? "Resume" : "Pause";
+  renderVisitorStatus();
 
   renderCitizens();
   renderMap();
@@ -117,9 +190,34 @@ function render() {
   renderDrawerLists();
 }
 
+function renderVisitorStatus() {
+  if (!visitorPresence) {
+    els.visitorStatus.textContent = "Visitor: unavailable";
+    return;
+  }
+  const visitor = els.visitorName.value.trim() || "Visitor";
+  if (visitorPresence.traveling) {
+    els.visitorStatus.textContent = `${visitor}: traveling to ${visitorPresence.to_location_name} • ${visitorPresence.remaining_minutes}m left`;
+  } else {
+    els.visitorStatus.textContent = `${visitor}: ${visitorPresence.location_name}`;
+  }
+}
+
 function renderCitizens() {
   els.citizens.innerHTML = state.citizens.map(c => {
     const cargo = inventoryFor(c.id);
+    const job = activeJobFor(c.id);
+    const progress = jobProgress(job);
+    const destination = job?.action === "travel" ? locationById(job.target)?.name : null;
+    const where = destination ? `En route: ${c.location} → ${destination}` : c.location;
+    const progressMarkup = progress ? `
+      <div class="job-progress-meta">
+        <span>${progress.elapsed} / ${progress.total} sim min</span>
+        <span>${progress.remaining} min remaining</span>
+      </div>
+      <div class="job-progress-track"><span style="width:${progress.percent}%"></span></div>
+    ` : "";
+
     return `
       <button class="citizen-row ${selectedCitizen === c.id ? "selected" : ""}" onclick="selectCitizen('${c.id}')">
         <div class="citizen-row-top">
@@ -133,14 +231,59 @@ function renderCitizens() {
           </div>
         </div>
         <div class="activity">${escapeHtml(c.current_activity)}</div>
-        <div class="location-line">${escapeHtml(c.location)}${cargo ? ` • Carrying ${escapeHtml(cargo)}` : ""}</div>
+        ${progressMarkup}
+        <div class="location-line">${escapeHtml(where)}${cargo ? ` • Carrying ${escapeHtml(cargo)}` : ""}</div>
       </button>
     `;
   }).join("");
 }
 
 function renderMap() {
-  els.mapLayer.innerHTML = state.locations.map(loc => renderLocationNode(loc)).join("");
+  const nodes = state.locations.map(loc => renderLocationNode(loc)).join("");
+  const travelers = state.citizens
+    .filter(c => isTravelingCitizen(c))
+    .map((c, index) => {
+      const job = activeJobFor(c.id);
+      const progress = jobProgress(job);
+      const pos = interpolatedPosition(c.location_id, job.target, progress?.fraction || 0);
+      const offset = (index % 3) * 8 - 8;
+      const targetName = locationById(job.target)?.name || job.target;
+      return `
+        <button
+          class="map-citizen traveling ${selectedCitizen === c.id ? "selected" : ""}"
+          style="left:calc(${pos.x}% + ${offset}px); top:${pos.y}%;"
+          title="${escapeHtml(c.name)} • traveling to ${escapeHtml(targetName)} • ${progress?.percent || 0}%"
+          onclick="selectCitizen('${c.id}')"
+        ></button>
+      `;
+    }).join("");
+
+  let visitorMarker = "";
+  if (visitorPresence) {
+    let pos;
+    let label;
+    if (visitorPresence.traveling) {
+      pos = interpolatedPosition(
+        visitorPresence.from_location_id,
+        visitorPresence.to_location_id,
+        visitorPresence.progress || 0
+      );
+      label = `${els.visitorName.value.trim() || "Visitor"} • traveling to ${visitorPresence.to_location_name}`;
+    } else {
+      pos = LOCATION_POSITIONS[visitorPresence.location_id] || {x:50,y:50};
+      label = `${els.visitorName.value.trim() || "Visitor"} • ${visitorPresence.location_name}`;
+    }
+    visitorMarker = `
+      <button
+        class="map-visitor ${visitorPresence.traveling ? "traveling" : ""}"
+        style="left:${pos.x}%; top:calc(${pos.y}% - 25px);"
+        title="${escapeHtml(label)}"
+        onclick="focusLocation('${visitorPresence.traveling ? visitorPresence.to_location_id : visitorPresence.location_id}')"
+      >YOU</button>
+    `;
+  }
+
+  els.mapLayer.innerHTML = nodes + travelers + visitorMarker;
   updateWorldFocus();
 }
 
@@ -180,14 +323,46 @@ function updateWorldFocus() {
   const deposits = depositsForLocation(loc.id);
   const people = citizensAtLocation(loc.id).map(c => c.name);
 
+  let visitorAction = "";
+  if (visitorPresence) {
+    if (visitorPresence.traveling) {
+      const p = Math.round((visitorPresence.progress || 0) * 100);
+      visitorAction = `
+        <div class="visitor-route-card">
+          <strong>You are traveling</strong>
+          <span>${escapeHtml(visitorPresence.from_location_name)} → ${escapeHtml(visitorPresence.to_location_name)}</span>
+          <div class="job-progress-track"><span style="width:${p}%"></span></div>
+          <small>${visitorPresence.elapsed_minutes} / ${visitorPresence.total_minutes} sim min • ${visitorPresence.remaining_minutes} remaining</small>
+        </div>
+      `;
+    } else if (visitorPresence.location_id === loc.id) {
+      visitorAction = `<div class="visitor-route-card here"><strong>You are here.</strong><span>Face-to-face visits are possible with available citizens at this location.</span></div>`;
+    } else {
+      const route = routeBetween(visitorPresence.location_id, loc.id);
+      if (route) {
+        const duration = Math.max(25, Math.floor(Number(route.distance_km) * 45));
+        visitorAction = `
+          <div class="visitor-route-card">
+            <strong>Visit this location</strong>
+            <span>${escapeHtml(visitorPresence.location_name)} → ${escapeHtml(loc.name)} • ${duration} sim min</span>
+            <button class="travel-button" onclick="startVisitorTravel('${loc.id}')">Travel here</button>
+          </div>
+        `;
+      } else {
+        visitorAction = `<div class="visitor-route-card"><strong>No direct route from your current location.</strong><span>Travel through a connected location first.</span></div>`;
+      }
+    }
+  }
+
   els.worldFocus.innerHTML = `
     <strong>${escapeHtml(loc.name)}</strong>
     <p>${escapeHtml(loc.description)}</p>
     <div class="focus-meta">
       <span>${loc.surveyed ? "Surveyed" : "Not yet surveyed"}</span>
       <span>${deposits.length ? `Deposits: ${deposits.map(d => escapeHtml(d.material)).join(", ")}` : "No confirmed deposits"}</span>
-      <span>${people.length ? `Present: ${people.map(escapeHtml).join(", ")}` : "No citizens present"}</span>
+      <span>${people.length ? `Present: ${people.map(escapeHtml).join(", ")}` : "No citizens currently present"}</span>
     </div>
+    ${visitorAction}
   `;
 }
 
@@ -195,12 +370,14 @@ function renderRegionStrip() {
   els.regionStrip.innerHTML = state.locations.map(loc => {
     const deposits = depositsForLocation(loc.id);
     const people = citizensAtLocation(loc.id);
+    const youAreHere = visitorPresence && !visitorPresence.traveling && visitorPresence.location_id === loc.id;
     return `
-      <button class="region-mini ${focusedLocation === loc.id ? "focused" : ""}" onclick="focusLocation('${loc.id}')">
+      <button class="region-mini ${focusedLocation === loc.id ? "focused" : ""} ${youAreHere ? "visitor-here" : ""}" onclick="focusLocation('${loc.id}')">
         <strong>${escapeHtml(loc.name)}</strong>
         <span>${loc.surveyed ? "Surveyed" : "Unsurveyed"}</span>
         <span>${deposits.length ? deposits.map(d => escapeHtml(d.material)).join(", ") : "No deposits"}</span>
         <span>${people.length ? `Present: ${people.length}` : "Empty"}</span>
+        ${youAreHere ? '<span class="you-are-here">YOU ARE HERE</span>' : ""}
       </button>
     `;
   }).join("");
@@ -216,7 +393,7 @@ function renderDrawerLists() {
         <div class="muted">${escapeHtml(loc.description)}</div>
         <div class="location-meta">${loc.surveyed ? "Surveyed" : "Not yet surveyed"}</div>
         <div class="small">${known.length ? `Confirmed: ${known.map(d => escapeHtml(d.material)).join(", ")}` : "No confirmed deposits"}</div>
-        <div class="small">${people.length ? `Present: ${people.map(escapeHtml).join(", ")}` : "No citizens present"}</div>
+        <div class="small">${people.length ? `Present: ${people.map(escapeHtml).join(", ")}` : "No citizens currently present"}</div>
       </div>
     `;
   }).join("");
@@ -228,6 +405,17 @@ function renderDrawerLists() {
   els.structures.innerHTML = state.structures.map(s => `
     <div class="list-row"><span>${escapeHtml(s.name)}</span><strong>${Math.round(s.condition)}%</strong></div>
   `).join("");
+
+  const conversations = (state.citizen_conversations || []).slice(0, 10);
+  els.citizenConversations.innerHTML = conversations.length ? conversations.map(c => `
+    <div class="conversation-card">
+      <div class="conversation-card-head">
+        <strong>${escapeHtml(c.initiator_name)} ↔ ${escapeHtml(c.target_name)}</strong>
+        <span>${formatMinute(c.sim_minute)} • ${escapeHtml(c.location_name)}</span>
+      </div>
+      <p>${escapeHtml(c.summary)}</p>
+    </div>
+  `).join("") : '<div class="muted conversation-empty">No citizen-to-citizen conversations recorded yet.</div>';
 
   els.history.innerHTML = state.history.map(h => `
     <div class="history-entry">
@@ -282,10 +470,61 @@ window.focusLocation = function(id) {
   renderMap();
 };
 
+window.startVisitorTravel = async function(target) {
+  if (!visitorPresence || visitorPresence.traveling) return;
+  const visitor = els.visitorName.value.trim() || "Visitor";
+
+  try {
+    const response = await fetch("/api/visitor/travel", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ visitor, target }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Travel could not begin.");
+
+    visitorPresence = data.presence;
+    if (selectedCitizen) {
+      clearVisitSelection(`You left ${escapeHtml(visitorPresence.from_location_name || "the location")} and began traveling.`);
+    }
+    focusedLocation = target;
+    render();
+  } catch (error) {
+    if (selectedCitizen) appendChat("System", error.message, "system");
+    else alert(error.message);
+  }
+};
+
 function renderVisitConversation(data) {
   els.chatLog.innerHTML = "";
   els.visitHistoryPanel.classList.add("hidden");
   els.visitHistoryPanel.innerHTML = "";
+
+  if (data.accessible === false) {
+    els.selectedLabel.textContent = "Not at the same location";
+    els.chatInput.disabled = true;
+    els.sendButton.disabled = true;
+    els.leaveVisit.hidden = true;
+
+    const route = visitorPresence && !visitorPresence.traveling
+      ? routeBetween(visitorPresence.location_id, data.citizen.location_id)
+      : null;
+    const travelButton = route
+      ? `<button class="travel-button" onclick="startVisitorTravel('${data.citizen.location_id}')">Travel to ${escapeHtml(data.citizen.location)}</button>`
+      : "";
+
+    els.chatLog.innerHTML = `
+      <div class="remote-visit-notice">
+        <strong>Face-to-face visit unavailable</strong>
+        <p>${escapeHtml(data.reason || "You are not in the same place.")}</p>
+        ${travelButton}
+      </div>
+    `;
+    return;
+  }
+
+  els.selectedLabel.textContent = `Talking with ${data.citizen.name}`;
+  els.leaveVisit.hidden = false;
 
   const summary = String(data.visit?.summary || "").trim();
   if (summary) {
@@ -323,6 +562,7 @@ async function loadCurrentVisit(id) {
   if (!response.ok) throw new Error(data.detail || "Could not load visit.");
   renderVisitConversation(data);
   els.previousVisits.hidden = !data.previous_visits?.length;
+  currentVisitAccessKey = visitAccessKey(id);
   return data;
 }
 
@@ -345,10 +585,10 @@ window.selectCitizen = async function(id, options = {}) {
   render();
 
   try {
-    await loadCurrentVisit(id);
-    els.chatInput.disabled = false;
-    els.sendButton.disabled = false;
-    if (!options.restore) els.chatInput.focus();
+    const data = await loadCurrentVisit(id);
+    els.chatInput.disabled = data.accessible === false;
+    els.sendButton.disabled = data.accessible === false;
+    if (data.accessible !== false && !options.restore) els.chatInput.focus();
   } catch (error) {
     els.chatLog.innerHTML = `<div class="chat-message system"><strong>System</strong><p>${escapeHtml(error.message)}</p></div>`;
   }
@@ -418,6 +658,8 @@ els.visitorName.addEventListener("change", async () => {
   const visitor = els.visitorName.value.trim() || "Visitor";
   els.visitorName.value = visitor;
   localStorage.setItem("agentCityVisitor", visitor);
+  await loadVisitorPresence();
+  render();
   if (selectedCitizen) await selectCitizen(selectedCitizen, { restore: true });
 });
 
