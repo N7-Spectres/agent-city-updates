@@ -390,3 +390,54 @@ No release metadata or `update.json` was changed.
 No maintenance/failure schema, event ledger, repair action, or v0.7 smoke test is present yet.
 
 Memory should therefore remain in policy/design review rather than creating runtime ingestion against nonexistent fields.
+
+
+## v0.7 Final Session Handoff
+
+Memory & Social is stopping this session at the implementation boundary.
+
+Simulation's final v0.7 maintenance contract is now available:
+
+- branch: `simulation/v0.7-maintenance`
+- head: `54f5d838f674d0b278a51382f3a880cc0738b417`
+- CI: `36429729279`
+- stable source: `maintenance_events.id`
+
+Authoritative maintenance event fields:
+
+- `id`
+- `job_id`
+- `citizen_id`
+- `event_type`
+- `target_type`
+- `target_id`
+- `before_value`
+- `after_value`
+- `materials_json`
+- `outcome`
+- `sim_minute`
+- `summary`
+
+Current event types:
+
+- `chassis_service`
+- `battery_replacement`
+- `equipment_service`
+- `structure_service`
+
+Simulation intentionally does not emit a maintenance event for every microscopic wear tick.
+
+### Next Memory implementation
+
+The next Memory session should create `memory/v0.7-maintenance-history` from published `release-v0.6.0` and add only minimal runtime support:
+
+1. idempotently ingest meaningful `maintenance_events` into existing `memory_events`
+2. give the event to citizens with a valid experience path, starting with the acting citizen and, where appropriate, the directly serviced citizen
+3. preserve Simulation source/event IDs and before/after values in metadata
+4. add bounded retrieval by citizen / target type / target ID
+5. expose a compact maintenance-history read model only if Assets needs it
+6. add a v0.7 Memory smoke proving passive wear does not flood memory
+
+Do not infer failures or repairs from conversation or from condition deltas alone.
+
+No Memory runtime code was changed this session. No release metadata or `update.json` was changed.
