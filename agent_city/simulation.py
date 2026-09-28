@@ -20,6 +20,13 @@ from .talk_diagnostics import concise_failure_code_from_conn
 BASE_CARRY_CAPACITY = 20.0
 RETURN_ENERGY_MARGIN = 5.0
 
+DAILY_ACTIVE_START_MINUTE = 6 * 60
+DAILY_WIND_DOWN_START_MINUTE = 20 * 60
+DAILY_QUIET_START_MINUTE = 22 * 60
+CRITICAL_RECHARGE_ENERGY = 35.0
+NIGHT_RETURN_ENERGY = 60.0
+CHARGE_FULL_EPSILON = 0.5
+
 MIN_OPERATIONAL_CONDITION = 20.0
 SERVICE_DUE_CONDITION = 90.0
 BATTERY_REPLACE_THRESHOLD = 85.0
@@ -115,6 +122,35 @@ CONSTRUCTION_BLUEPRINTS: dict[str, dict[str, Any]] = {
         "provides_charging": 0,
     },
 }
+
+
+def minute_of_day(sim_minute: int) -> int:
+    return int(sim_minute) % 1440
+
+
+def daily_phase(sim_minute: int) -> str:
+    minute = minute_of_day(sim_minute)
+    if minute < DAILY_ACTIVE_START_MINUTE or minute >= DAILY_QUIET_START_MINUTE:
+        return "quiet"
+    if minute >= DAILY_WIND_DOWN_START_MINUTE:
+        return "wind_down"
+    return "active"
+
+
+def daily_phase_label(sim_minute: int) -> str:
+    return {
+        "active": "Active cycle (06:00–20:00)",
+        "wind_down": "Wind-down cycle (20:00–22:00)",
+        "quiet": "Low-activity / recharge cycle (22:00–06:00)",
+    }[daily_phase(sim_minute)]
+
+
+def usable_energy_capacity(citizen: Any) -> float:
+    try:
+        health = float(citizen["battery_health"])
+    except (KeyError, TypeError, ValueError):
+        health = 100.0
+    return max(0.0, min(100.0, health))
 
 
 def condition_factor(condition: float) -> float:
@@ -825,6 +861,91 @@ def reserve_project_materials(conn, project_id: int, now: int) -> bool:
     return True
 
 
+def _is_homeward_action(action: dict[str, Any]) -> bool:
+    if action.get("action") == "travel" and action.get("target") == "seed_site":
+        return True
+    if action.get("action") == "local_move" and str(action.get("label") or "").startswith("Return locally"):
+        return True
+    return False
+
+
+def apply_daily_rhythm_to_actions(
+    actions: list[dict[str, Any]],
+    *,
+    sim_minute: int,
+    energy: float,
+    usable_capacity: float,
+) -> list[dict[str, Any]]:
+    """Constrain new idle-citizen choices without cancelling active physical jobs."""
+    phase = daily_phase(sim_minute)
+    charge_actions = [a for a in actions if a.get("action") == "charge"]
+    homeward_actions = [a for a in actions if _is_homeward_action(a)]
+    wait_actions = [a for a in actions if a.get("action") == "wait"]
+
+    # Survival has priority at every time of day. At a charger, critically low
+    # citizens must recharge; away from one, they may only take a real homeward
+    # movement that already passed Simulation legality/reserve checks.
+    if energy < CRITICAL_RECHARGE_ENERGY:
+        if charge_actions:
+            return charge_actions
+        if homeward_actions:
+            return homeward_actions
+        return wait_actions
+
+    if phase == "quiet":
+        # Once docked overnight, keep charging until the pack reaches its true
+        # usable capacity (battery health), not an arbitrary 95% threshold.
+        if charge_actions and energy < usable_capacity - CHARGE_FULL_EPSILON:
+            return charge_actions
+
+        # Mid-low citizens away from a charger should stop extending the workday.
+        if energy < NIGHT_RETURN_ENERGY and homeward_actions:
+            return homeward_actions
+
+        quiet_allowed = {
+            "charge",
+            "deposit_cargo",
+            "service_chassis",
+            "replace_battery",
+            "service_equipment",
+            "service_structure",
+            "talk",
+            "wait",
+        }
+        filtered: list[dict[str, Any]] = []
+        for action in actions:
+            kind = action.get("action")
+            if kind in quiet_allowed or _is_homeward_action(action):
+                filtered.append(action)
+        return filtered or wait_actions
+
+    if phase == "wind_down":
+        # Finish what is already underway, but idle citizens do not launch new
+        # expeditions, extraction, research, fabrication, or construction.
+        filtered = []
+        blocked = {
+            "survey",
+            "extract",
+            "experiment",
+            "fabricate",
+            "construct",
+            "plan_project",
+            "reserve_project",
+        }
+        for action in actions:
+            kind = action.get("action")
+            if kind in blocked:
+                continue
+            if kind == "travel" and action.get("target") != "seed_site":
+                continue
+            if kind == "local_move" and not _is_homeward_action(action):
+                continue
+            filtered.append(action)
+        return filtered or wait_actions
+
+    return actions
+
+
 def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
     with connect() as conn:
         c = conn.execute("SELECT * FROM citizens WHERE id = ?", (citizen_id,)).fetchone()
@@ -834,6 +955,8 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
         actions: list[dict[str, Any]] = []
         location_id = c["location_id"]
         energy = float(c["energy"])
+        now = int(get_meta(conn, "sim_minute") or "360")
+        usable_capacity = usable_energy_capacity(c)
         cargo = carried_amount(conn, citizen_id)
         capacity = cargo_capacity(conn, citizen_id, location_id)
         x_m = float(c["position_x_m"] or 0.0)
@@ -843,7 +966,7 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
         route_departure_ready = at_landmark or not has_intentional_local_offset(conn, citizen_id)
 
         charger_here = nearby_operational_charger(conn, x_m, y_m)
-        if charger_here and energy < 95:
+        if charger_here and energy < usable_capacity - CHARGE_FULL_EPSILON:
             actions.append({
                 "action": "charge",
                 "target": str(charger_here["id"]),
@@ -1141,7 +1264,12 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
                 })
 
         actions.append({"action": "wait", "target": location_id, "label": "Remain where you are and observe for a while."})
-        return actions
+        return apply_daily_rhythm_to_actions(
+            actions,
+            sim_minute=now,
+            energy=energy,
+            usable_capacity=usable_capacity,
+        )
 
 
 def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
