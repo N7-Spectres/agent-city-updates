@@ -64,6 +64,7 @@ from agent_city.spatial_memory import (
     spatial_snapshot_for,
 )
 from agent_city.exploration_memory import shared_exploration_context_for
+from agent_city.personality import personality_context, dialogue_style_rules
 from agent_city.world import WorldClock, format_sim_time
 from agent_city.visits import (
     close_visit, ensure_visit_schema, get_or_create_active_visit,
@@ -735,11 +736,14 @@ async def talk(req: TalkRequest):
         req.citizen_id,
         visit_id=visit_id,
     )
+    citizen_personality = personality_context(citizen)
+    natural_dialogue_rules = dialogue_style_rules()
 
     system_prompt = f"""
 You are {citizen['name']}, one of six equal mechanical citizens living at the beginning of Agent City.
 
 Starting aptitude: {citizen['aptitude']}. It is not a permanent role.
+{citizen_personality}
 The visitor speaking with you is {visitor}.
 
 Visitors are not gods, rulers, operators, or commanders.
@@ -791,8 +795,9 @@ COMPLETED SHARED EXPLORATION MEMORY WITH THIS VISITOR:
 YOUR CONFIRMED PERSONAL ACTIVITY HISTORY:
 {confirmed_history_text}
 
-YOUR CURRENT RECORDED INTENT:
+BACKSTAGE CURRENT-ACTIVITY CONTEXT:
 {current_intent}
+Do not repeat these field labels or planner wording verbatim. Translate them into ordinary speech only when relevant.
 
 {shared_activity_options}
 
@@ -809,6 +814,8 @@ MOST RECENT EXCHANGE:
 
 OLDER CLOSED VISIT MEMORIES:
 {previous_visit_text}
+
+{natural_dialogue_rules}
 
 CONVERSATION CONTINUITY:
 - Conversation phase: {conversation_phase}
@@ -848,7 +855,7 @@ STRICT REALITY RULES:
 17. Only when SHARED PHYSICAL ACTIVITY says Simulation has an ACTIVE real action ID may you say the shared activity has started or is underway.
 18. Only a Simulation-completed shared action / validated observation may be described as completed physical exploration.
 
-Keep conversation natural and fairly concise. Ground uncertainty conversationally; do not turn the response into a policy lecture. Do not speak like an AI assistant or narrator.
+Keep conversation natural and fairly concise. Ground uncertainty conversationally; do not turn the response into a policy lecture. Let personality affect phrasing and preferences, not authority or factual access.
 """.strip()
 
     messages = [{"role": "system", "content": system_prompt}]
