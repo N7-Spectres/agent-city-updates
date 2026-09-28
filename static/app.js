@@ -12,6 +12,10 @@ let spatialViewport = null;
 let currentSharedActionProposals = [];
 let currentVisitId = null;
 let sharedActionBusyId = null;
+let mapZoomLevel = 1;
+let mapCenterOverride = null;
+const MAP_ZOOM_MIN = 0.75;
+const MAP_ZOOM_MAX = 8;
 const citizenKnowledgeCache = new Map();
 const locationKnowledgeCache = new Map();
 const knowledgeLoading = new Set();
@@ -169,6 +173,10 @@ const els = {
   regionStrip: document.getElementById("region-strip"),
   worldFocus: document.getElementById("world-focus"),
   mapSpatialStatus: document.getElementById("map-spatial-status"),
+  mapZoomIn: document.getElementById("map-zoom-in"),
+  mapZoomOut: document.getElementById("map-zoom-out"),
+  mapZoomReset: document.getElementById("map-zoom-reset"),
+  mapZoomLabel: document.getElementById("map-zoom-label"),
   locations: document.getElementById("locations"),
   resourceBalance: document.getElementById("resource-balance"),
   citizenCargo: document.getElementById("citizen-cargo"),
@@ -495,15 +503,21 @@ function computeSpatialViewport() {
 
   const scale = Math.min((width * 0.80) / spanX, (height * 0.72) / spanY);
 
+  const overrideX = finiteNumber(mapCenterOverride?.x_m);
+  const overrideY = finiteNumber(mapCenterOverride?.y_m);
+  const presentationCenterX = overrideX != null ? overrideX : cx;
+  const presentationCenterY = overrideY != null ? overrideY : cy;
+
   return {
-    mode,
+    mode: mapCenterOverride ? "focused" : mode,
     frameId: state.spatial_frame.id || "seed_site_local",
     units: "meters",
-    centerX: cx,
-    centerY: cy,
+    centerX: presentationCenterX,
+    centerY: presentationCenterY,
     width,
     height,
-    scalePxPerMeter: Math.max(0.0001, scale),
+    scalePxPerMeter: Math.max(0.0001, scale * mapZoomLevel),
+    zoomLevel: mapZoomLevel,
   };
 }
 
@@ -980,6 +994,7 @@ function render() {
   renderLocationDirectory();
   renderLocationSheet();
   renderMap();
+  updateMapZoomLabel();
   renderRegionStrip();
   renderDrawerLists();
 }
@@ -1613,7 +1628,8 @@ function physicalClusterOffset(citizen) {
   if (peers.length <= 1) return { x: 0, y: 0 };
   const index = peers.findIndex(peer => peer.id === citizen.id);
   const offset = clusterOffset(Math.max(0, index), peers.length);
-  return { x: offset.x * 0.85, y: offset.y * 0.85 };
+  const spread = 0.85 + (Math.min(mapZoomLevel, 4) * 0.18);
+  return { x: offset.x * spread, y: offset.y * spread };
 }
 
 function citizenMapPlacement(citizen) {
@@ -1781,9 +1797,12 @@ function renderMap() {
 
   if (els.mapSpatialStatus) {
     if (spatialViewport) {
-      els.mapSpatialStatus.textContent = spatialViewport.mode === "local"
-        ? `Local meter view • ${spatialViewport.frameId} • +x east / +y north`
-        : `Meter-space region • ${spatialViewport.frameId} • +x east / +y north`;
+      const modeLabel = spatialViewport.mode === "local"
+        ? "Local meter view"
+        : spatialViewport.mode === "focused"
+          ? "Focused meter view"
+          : "Meter-space region";
+      els.mapSpatialStatus.textContent = `${modeLabel} • ${mapZoomLevel.toFixed(mapZoomLevel < 2 ? 1 : 0)}× • ${spatialViewport.frameId} • +x east / +y north`;
     } else {
       els.mapSpatialStatus.textContent = "Confirmed information only.";
     }
@@ -1809,7 +1828,7 @@ function renderLocationNode(loc) {
       class="map-node label-${presentation.label || "below"} ${focusedLocation === loc.id ? "focused" : ""} ${selectedHere ? "selected-location" : ""}"
       style="left:${pos.x}%; top:${pos.y}%;"
       title="${escapeHtml(nodeTitle)}"
-      onclick="focusLocation('${loc.id}')"
+      onclick="focusMapLocation('${loc.id}')"
     >
       <span class="node-dot"></span>
       <span class="node-label">${escapeHtml(loc.name)}</span>
@@ -2285,6 +2304,42 @@ function openControlRoomView(name, title, eyebrow = "DETAILS") {
   if (activeMap[name]) activeMap[name].classList.add("active");
 }
 
+function updateMapZoomLabel() {
+  if (!els.mapZoomLabel) return;
+  const rounded = mapZoomLevel >= 2
+    ? Math.round(mapZoomLevel * 10) / 10
+    : Math.round(mapZoomLevel * 100) / 100;
+  els.mapZoomLabel.textContent = `${rounded}×`;
+}
+
+function rerenderMapPresentation() {
+  if (!state) return;
+  computeLocationPositions();
+  renderMap();
+  updateMapZoomLabel();
+}
+
+function setMapZoom(nextZoom) {
+  mapZoomLevel = clamp(Number(nextZoom) || 1, MAP_ZOOM_MIN, MAP_ZOOM_MAX);
+  rerenderMapPresentation();
+}
+
+window.focusMapLocation = function(id) {
+  const loc = locationById(id);
+  if (!loc) return;
+
+  focusedLocation = id;
+  const x = finiteNumber(loc.x_m);
+  const y = finiteNumber(loc.y_m);
+  mapCenterOverride = x != null && y != null ? { x_m: x, y_m: y } : null;
+  mapZoomLevel = Math.max(mapZoomLevel, 3.5);
+
+  renderLocationDirectory();
+  renderLocationSheet();
+  renderDrawerLists();
+  rerenderMapPresentation();
+};
+
 window.focusLocation = function(id) {
   focusedLocation = id;
   renderMap();
@@ -2699,6 +2754,20 @@ els.toggleResources.addEventListener("click", () => openControlRoomView("resourc
 els.toggleStructures.addEventListener("click", () => openControlRoomView("structures", "Making & building", "PHYSICAL STATE"));
 els.toggleHistory.addEventListener("click", () => openControlRoomView("history", "Settlement history", "HISTORY"));
 els.toggleUpdates.addEventListener("click", () => openControlRoomView("updates", "Admin • Updates", "ADMIN"));
+
+els.mapZoomIn.addEventListener("click", () => {
+  setMapZoom(mapZoomLevel * 1.5);
+});
+
+els.mapZoomOut.addEventListener("click", () => {
+  setMapZoom(mapZoomLevel / 1.5);
+});
+
+els.mapZoomReset.addEventListener("click", () => {
+  mapZoomLevel = 1;
+  mapCenterOverride = null;
+  rerenderMapPresentation();
+});
 
 els.pauseButton.addEventListener("click", async () => {
   await fetch("/api/pause", {
