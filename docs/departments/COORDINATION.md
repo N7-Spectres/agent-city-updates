@@ -16,15 +16,15 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-_None._
+- [Assets & Interface] v0.8.1 Citizen Visual Assets + map zoom/readability hotfix
 
 ### WAITING
 
-_None._
+- [Coordinator / v0.8.1 Release] waiting for Assets implementation, runtime-ready citizen art, and green hotfix regression suite
 
 ### READY
 
-_None._
+- [Assets & Interface] v0.8.1 work packet is in INBOX; base release is `release-v0.8.0` @ `a870982ba947fcc5af08ca190de396ae4308b645`
 
 ### REVIEW
 
