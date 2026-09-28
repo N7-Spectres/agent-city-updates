@@ -301,3 +301,41 @@ Important authority boundary:
 - preserve the core body/face/color identity even as real equipment changes
 
 The visual layer must not convert concept-art props into physical inventory or capabilities.
+
+
+## v0.8 Citizen Asset Architecture Rule
+
+Citizen visuals are layered:
+
+1. permanent base identity
+2. visor expression
+3. validated physical equipment
+4. validated activity presentation
+
+Core rule:
+
+> **Identity stays. Equipment changes. Expressions live. Simulation remains truth.**
+
+Base-body art must not bake in optional gear.
+
+Full details:
+`docs/departments/assets/V080_CITIZEN_VISUAL_SYSTEM.md`
+
+## v0.8 Expression Rule
+
+Blink/happy/focused/curious visor frames are lightweight presentation/personality.
+
+They are not authoritative hidden emotional-state claims.
+
+Activity-linked expression choices may use validated state, but idle mannerisms remain non-physical presentation.
+
+## v0.8 Equipment Overlay Rule
+
+Do not visually attach a backpack/tool/device merely because:
+- concept art showed it
+- the citizen's aptitude suggests it
+- it exists somewhere in inventory
+
+Equipment overlays require authoritative physical possession/attachment semantics.
+
+If Simulation later distinguishes "owned" from "equipped/attached", Assets must obey that distinction.
