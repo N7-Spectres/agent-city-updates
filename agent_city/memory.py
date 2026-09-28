@@ -466,6 +466,10 @@ def knowledge_snapshot_for(
     Filters are matched against structured metadata. Hidden Simulation truth is
     never queried to fill gaps, so an empty result legitimately means unknown.
     """
+    # Synchronize any newly validated personal survey discoveries first.
+    # This is idempotent and never imports hidden undiscovered truth.
+    backfill_personal_discoveries()
+
     result: list[dict[str, Any]] = []
     material_key = material.casefold().strip() if material else None
     process_key = process.casefold().strip() if process else None
