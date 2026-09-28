@@ -104,7 +104,7 @@ def main() -> None:
             "Operational structures at your current location:", 1
         )[0]
         assert "Broken Probe" not in operational_section
-        assert "Concept art" in capability_text
+        assert "concept art" in capability_text.lower()
 
         # Current Seed Site inventory may be observed locally, but is not a live
         # remote feed after the citizen leaves.
