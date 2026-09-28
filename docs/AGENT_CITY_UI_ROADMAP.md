@@ -68,6 +68,22 @@ The UI should feel like **visiting a place**, not operating a spreadsheet.
 
 This is the first step from a status dashboard toward a visibly inhabited world.
 
+### Shipped milestone — v0.4.0 Memory & Relationships / Control Room
+
+- citizen conversations now create durable directional relationship history
+- repeated encounters survive restart and enter bounded planning/dialogue context
+- existing conversation history is backfilled idempotently into social memory
+- conversation memory remains distinct from validated physical truth
+- Visit stays visible while Region / Stores / Structures / History / Updates live in a persistent right-side Control Room
+- the large bottom drawer is retired
+- map spacing is derived from route distance for clearer geography
+- route lengths are labeled
+- citizen initials and compact clusters improve crowded locations
+- travelers, visitors, labels, and location nodes use clearer separate presentation zones
+- selected active travel routes receive stronger visual emphasis
+
+This milestone deliberately does **not** invent friendship scores, radios, trust meters, or unverified social outcomes. Richer promises, claim reliability, cooperation, and help memories require stronger provenance and validated physical-event links.
+
 ### Current emergent-development note
 
 The civilization is already showing behavior that was originally expected later in the roadmap.
