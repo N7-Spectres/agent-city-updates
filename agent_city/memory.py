@@ -11,6 +11,8 @@ MEMORIES_PER_RELATIONSHIP = 2
 MAX_CONTEXT_CHARS = 1800
 MAX_KNOWLEDGE_CONTEXT_CHARS = 1600
 MAX_KNOWLEDGE_FACTS = 12
+MAX_MAINTENANCE_CONTEXT_CHARS = 1200
+MAX_MAINTENANCE_FACTS = 10
 
 
 def ensure_memory_schema() -> None:
@@ -74,6 +76,7 @@ def ensure_memory_schema() -> None:
             _remember_conversation_row(conn, row)
 
         _backfill_personal_discoveries(conn)
+        _sync_maintenance_events(conn)
         conn.commit()
 
 
@@ -590,3 +593,227 @@ def location_knowledge_snapshot(
         "location": {"id": str(location["id"]), "name": str(location["name"])},
         "citizens": citizen_views,
     }
+
+
+
+def _table_exists(conn, table_name: str) -> bool:
+    row = conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
+        (table_name,),
+    ).fetchone()
+    return row is not None
+
+
+def _maintenance_importance(event_type: str) -> float:
+    if event_type == "battery_replacement":
+        return 0.82
+    if event_type in {"equipment_service", "structure_service"}:
+        return 0.70
+    if event_type == "chassis_service":
+        return 0.66
+    return 0.62
+
+
+def _insert_maintenance_memory(
+    conn,
+    *,
+    owner_id: str,
+    source_role: str,
+    event,
+) -> None:
+    event_type = str(event["event_type"] or "maintenance")
+    summary = " ".join(str(event["summary"] or "").split()).strip()
+    if not summary:
+        return
+
+    try:
+        materials = json.loads(str(event["materials_json"] or "{}"))
+        if not isinstance(materials, dict):
+            materials = {}
+    except (TypeError, ValueError, json.JSONDecodeError):
+        materials = {}
+
+    metadata = {
+        "verification": "verified",
+        "channel": "personal_experience",
+        "experience_role": source_role,
+        "job_id": int(event["job_id"]),
+        "event_type": event_type,
+        "target_type": str(event["target_type"]),
+        "target_id": str(event["target_id"]),
+        "before_value": event["before_value"],
+        "after_value": event["after_value"],
+        "materials": materials,
+        "outcome": str(event["outcome"]),
+    }
+
+    conn.execute(
+        """
+        INSERT OR IGNORE INTO memory_events(
+            owner_id, sim_minute, event_kind, counterparty_id,
+            source_type, source_id, source_role,
+            summary, importance, status, metadata_json
+        )
+        VALUES (?, ?, ?, NULL, 'simulation_maintenance_event', ?, ?, ?, ?, 'verified', ?)
+        """,
+        (
+            owner_id,
+            int(event["sim_minute"]),
+            f"maintenance_{event_type}"[:80],
+            int(event["id"]),
+            source_role[:80],
+            summary[:1200],
+            _maintenance_importance(event_type),
+            json.dumps(metadata, sort_keys=True, separators=(",", ":")),
+        ),
+    )
+
+
+def _sync_maintenance_events(conn) -> None:
+    """
+    Import explicit validated maintenance events into citizen memory.
+
+    This deliberately ignores condition deltas, passive wear, and History text.
+    If the Simulation maintenance table is not present yet, this is a safe no-op.
+    """
+    if not _table_exists(conn, "maintenance_events"):
+        return
+
+    rows = conn.execute(
+        """
+        SELECT id, job_id, citizen_id, event_type, target_type, target_id,
+               before_value, after_value, materials_json, outcome,
+               sim_minute, summary
+        FROM maintenance_events
+        ORDER BY id
+        """
+    ).fetchall()
+
+    for event in rows:
+        actor_id = str(event["citizen_id"])
+        actor_exists = conn.execute(
+            "SELECT 1 FROM citizens WHERE id = ?",
+            (actor_id,),
+        ).fetchone()
+        if actor_exists:
+            _insert_maintenance_memory(
+                conn,
+                owner_id=actor_id,
+                source_role="actor",
+                event=event,
+            )
+
+        # If one citizen physically services another citizen, the serviced
+        # citizen directly experiences the event too. Do not auto-grant
+        # equipment owners, bystanders, or the whole settlement.
+        if str(event["target_type"]) == "citizen":
+            target_id = str(event["target_id"])
+            if target_id != actor_id:
+                target_exists = conn.execute(
+                    "SELECT 1 FROM citizens WHERE id = ?",
+                    (target_id,),
+                ).fetchone()
+                if target_exists:
+                    _insert_maintenance_memory(
+                        conn,
+                        owner_id=target_id,
+                        source_role="serviced_subject",
+                        event=event,
+                    )
+
+
+def sync_maintenance_events() -> None:
+    """Public idempotent synchronization hook for validated Simulation maintenance events."""
+    with connect() as conn:
+        _sync_maintenance_events(conn)
+        conn.commit()
+
+
+def _maintenance_memory_rows(citizen_id: str, scan_limit: int = 160) -> list[dict[str, Any]]:
+    with connect() as conn:
+        rows = conn.execute(
+            """
+            SELECT id, owner_id, sim_minute, event_kind, source_type, source_id,
+                   source_role, summary, importance, status, metadata_json
+            FROM memory_events
+            WHERE owner_id = ?
+              AND source_type = 'simulation_maintenance_event'
+            ORDER BY sim_minute DESC, id DESC
+            LIMIT ?
+            """,
+            (citizen_id, max(1, scan_limit)),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def maintenance_snapshot_for(
+    citizen_id: str,
+    *,
+    target_type: str | None = None,
+    target_id: str | None = None,
+    limit: int = MAX_MAINTENANCE_FACTS,
+) -> list[dict[str, Any]]:
+    """
+    Return bounded maintenance experiences for one citizen.
+
+    This is an experience/history view, not a global physical-maintenance ledger.
+    """
+    sync_maintenance_events()
+
+    result: list[dict[str, Any]] = []
+    for row in _maintenance_memory_rows(citizen_id):
+        try:
+            metadata = json.loads(str(row.get("metadata_json") or "{}"))
+        except (TypeError, ValueError, json.JSONDecodeError):
+            metadata = {}
+
+        if target_type and str(metadata.get("target_type") or "") != target_type:
+            continue
+        if target_id is not None and str(metadata.get("target_id") or "") != str(target_id):
+            continue
+
+        item = dict(row)
+        item["metadata"] = metadata
+        item.pop("metadata_json", None)
+        item["sim_label"] = format_sim_time(int(row["sim_minute"]))
+        result.append(item)
+        if len(result) >= max(1, limit):
+            break
+
+    return result
+
+
+def maintenance_context_for(
+    citizen_id: str,
+    *,
+    target_type: str | None = None,
+    target_id: str | None = None,
+    limit: int = 4,
+) -> str:
+    """Compact maintenance continuity for subject-relevant planning/conversation."""
+    events = maintenance_snapshot_for(
+        citizen_id,
+        target_type=target_type,
+        target_id=target_id,
+        limit=limit,
+    )
+    if not events:
+        return "- no retained meaningful maintenance history matching this subject"
+
+    parts: list[str] = []
+    for event in reversed(events):
+        meta = event["metadata"]
+        target = f"{meta.get('target_type', 'target')} #{meta.get('target_id', '?')}"
+        before = meta.get("before_value")
+        after = meta.get("after_value")
+        change = ""
+        if before is not None or after is not None:
+            change = f" ({before if before is not None else '?'} -> {after if after is not None else '?'})"
+        parts.append(
+            f"- {event['sim_label']}: {event['summary']} [{target}{change}; "
+            f"source maintenance event #{event['source_id']}]"
+        )
+        if sum(len(p) + 1 for p in parts) >= MAX_MAINTENANCE_CONTEXT_CHARS:
+            break
+
+    return "\n".join(parts)[:MAX_MAINTENANCE_CONTEXT_CHARS]
