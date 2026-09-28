@@ -50,7 +50,7 @@ Visitor prompt context follows the same rule for face-to-face claims and observa
 
 _Status: implemented on `communication/v0.6-knowledge-provenance`; pending coordinator integration._
 
-The minimum contract is implemented as Communication-owned `information_receipts` in `agent_city/knowledge.py`.
+The minimum contract is implemented as Communication-owned `information_receipts` in `agent_city/provenance.py`.
 
 ### Runtime mapping
 
