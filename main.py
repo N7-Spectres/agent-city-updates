@@ -21,6 +21,7 @@ from agent_city.grounding import (
     citizen_capability_context,
     grounding_policy_text,
     settlement_store_context,
+    spatial_grounding_context,
 )
 from agent_city.provenance import (
     ensure_information_schema,
@@ -463,6 +464,7 @@ async def talk(req: TalkRequest):
     store_context = settlement_store_context(citizen["id"])
     capability_context = citizen_capability_context(citizen["id"])
     visitor_grounding = grounding_policy_text(visitor_facing=True)
+    spatial_context = spatial_grounding_context(citizen["id"], visitor_id=visitor)
 
     personal_deposits = known_deposits_for(citizen["id"])
     deposit_summary = ", ".join(
@@ -563,6 +565,8 @@ SELECTED MEANINGFUL MAINTENANCE EXPERIENCES YOU PARTICIPATED IN:
 {maintenance_history}
 
 {capability_context}
+
+{spatial_context}
 
 {visitor_grounding}
 
