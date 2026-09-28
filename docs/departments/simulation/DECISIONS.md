@@ -92,3 +92,72 @@ Construction may occur between established locations when the simulation validat
 Do not give the LLM unrestricted arbitrary coordinates. The AI should choose intent such as "explore northeast", "survey between Seed Site and Northern Ridge", or "find a suitable midpoint site"; Simulation validates and selects/restricts the actual reachable position.
 
 Keep the physical model realistic enough to create meaningful distance, terrain, routes, and infrastructure decisions, but avoid unnecessary geodesy/physics complexity.
+
+
+## v0.5 Physical Production
+
+Fabrication and construction are simulation transitions, not narrative claims.
+
+A fabricated object exists only after:
+- required materials are validated and consumed/reserved according to the process,
+- a real timed fabrication job completes,
+- Simulation persists the resulting equipment record.
+
+A constructed structure exists only after:
+- a persisted project exists,
+- required materials are reserved,
+- a real construction job is underway,
+- the job completes successfully,
+- Simulation persists the resulting structure at the validated site.
+
+## Project Lifecycle
+
+The minimal v0.5 lifecycle is:
+
+`planned -> reserved -> underway -> complete`
+
+Do not skip directly from discussion or intention to physical completion.
+
+Remote construction is not allowed to teleport settlement materials. Until explicit project-material transport exists, v0.5 construction remains settlement-local.
+
+## Physical Equipment Effects
+
+Capability changes come from real equipment records, not arbitrary level bonuses.
+
+Current supported examples:
+- cargo equipment adds explicit carrying capacity
+- extraction equipment changes extraction job duration through an explicit multiplier
+
+Equipment effects are derived from owned or physically available equipment.
+
+## Energy Return Reserve
+
+Remote work and outbound travel must preserve enough energy to reach a known operational charger plus a modest safety margin.
+
+The planner may choose intent, but Simulation withholds/rejects physically unsafe actions.
+
+Operational charging structures are represented physically with `structures.provides_charging = 1`. Adding a future charger/outpost can therefore change safe operating range without a special-case planner rule.
+
+## Cargo Return Choice
+
+Do not hard-code automatic return-to-storage behavior.
+
+Citizens may decide when returning/depositing is useful, subject to physical legality and energy safety.
+
+## Event Identity
+
+Durable `jobs.id` is the authoritative action/event anchor for validated physical work.
+
+Durable `projects.id` is the authoritative project anchor.
+
+Do not create a parallel generic event system unless future requirements exceed what these stable records can represent.
+
+Pre-v0.5 completed jobs are labeled `legacy_complete` when richer outcome semantics were not recorded originally.
+
+## Conversation / Physical Job Integrity
+
+A physical talk job is successful only when a real durable conversation source exists for that job.
+
+`citizen_conversations.source_job_id` is the link.
+
+If no exchange was actually stored, Simulation marks the talk job failed and does not invent dialogue to make chronology look successful.
