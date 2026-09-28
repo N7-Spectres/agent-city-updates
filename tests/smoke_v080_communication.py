@@ -98,7 +98,12 @@ def main() -> None:
         capability_text = citizen_capability_context("aris")
         assert "AUTHORITATIVE CAPABILITY SURFACE" in capability_text
         assert "Field Probe" in capability_text
-        assert "Broken Probe" not in capability_text
+        # Broken Probe may appear in the legal service-action list, but must not
+        # appear in the operational equipment subsection.
+        operational_section = capability_text.split(
+            "Operational structures at your current location:", 1
+        )[0]
+        assert "Broken Probe" not in operational_section
         assert "Concept art" in capability_text
 
         # Current Seed Site inventory may be observed locally, but is not a live
