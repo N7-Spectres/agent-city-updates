@@ -1053,6 +1053,48 @@ function renderVisitorStatus() {
   }
 }
 
+function normalizedVitalPercent(value) {
+  const n = Number(value);
+  return Math.round(clamp(Number.isFinite(n) ? n : 0, 0, 100));
+}
+
+function citizenLiveVitalsMarkup(citizen, { compact = false } = {}) {
+  const energy = normalizedVitalPercent(citizen?.energy);
+  const integrity = normalizedVitalPercent(citizen?.integrity);
+
+  if (compact) {
+    return `
+      <div class="compact-vitals" aria-label="Energy ${energy} percent, integrity ${integrity} percent">
+        <span class="compact-vital vital-energy" title="Current energy ${energy}%">
+          <span class="vital-icon" aria-hidden="true">⚡</span>
+          <span class="vital-meter-track" aria-hidden="true"><i style="width:${energy}%"></i></span>
+          <b>${energy}%</b>
+        </span>
+        <span class="compact-vital vital-integrity" title="Current integrity ${integrity}%">
+          <span class="vital-icon" aria-hidden="true">⛭</span>
+          <span class="vital-meter-track" aria-hidden="true"><i style="width:${integrity}%"></i></span>
+          <b>${integrity}%</b>
+        </span>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="sheet-live-vitals" aria-label="Live operational state">
+      <div class="sheet-live-vital vital-energy">
+        <span class="sheet-live-vital-label"><span aria-hidden="true">⚡</span> Current energy</span>
+        <span class="vital-meter-track sheet-vital-track" aria-hidden="true"><i style="width:${energy}%"></i></span>
+        <b>${energy}%</b>
+      </div>
+      <div class="sheet-live-vital vital-integrity">
+        <span class="sheet-live-vital-label"><span aria-hidden="true">⛭</span> Integrity</span>
+        <span class="vital-meter-track sheet-vital-track" aria-hidden="true"><i style="width:${integrity}%"></i></span>
+        <b>${integrity}%</b>
+      </div>
+    </div>
+  `;
+}
+
 function renderCitizens() {
   const query = citizenSearchQuery.trim().toLowerCase();
   const visible = (state.citizens || []).filter(c =>
@@ -1093,10 +1135,7 @@ function renderCitizens() {
           </div>
         </div>
         ${progressMarkup}
-        <div class="compact-vitals">
-          <span>⚡ ${Math.round(c.energy)}%</span>
-          <span>⛭ ${Math.round(c.integrity)}%</span>
-        </div>
+        ${citizenLiveVitalsMarkup(c, { compact: true })}
       </button>
     `;
   }).join("") : `
@@ -1407,15 +1446,15 @@ function renderCitizenSheet() {
     <div class="sheet-card">
       <span class="sheet-label">Physical state</span>
       <strong>${escapeHtml(locationText)}</strong>
-      <div class="vital-row"><span>Energy <b>${Math.round(citizen.energy)}%</b></span><span>Integrity <b>${Math.round(citizen.integrity)}%</b></span></div>
+      ${citizenLiveVitalsMarkup(citizen)}
     </div>
     <div class="sheet-card">
-      <span class="sheet-label">Maintenance state</span>
+      <span class="sheet-label">Long-term maintenance</span>
       <div class="maintenance-metric-grid">
         <div>
           <span>Battery health</span>
           <strong>${Number.isFinite(batteryHealth) ? `${escapeHtml(trimNumber(batteryHealth))}%` : "Unknown"}</strong>
-          <small>${escapeHtml(conditionStateLabel(citizen.battery_state))}${citizen.battery_replacement_due ? " • replacement due" : ""}</small>
+          <small>${escapeHtml(conditionStateLabel(citizen.battery_state))}${citizen.battery_replacement_due ? " • replacement due" : ""} • not current charge</small>
         </div>
         <div>
           <span>Usable capacity</span>
@@ -1437,7 +1476,7 @@ function renderCitizenSheet() {
     <div class="sheet-card">
       <span class="sheet-label">Current configuration</span>
       <strong>Mechanical citizen</strong>
-      <p>Visual identity art is not yet authoritative. Equipment below reflects validated physical state only.</p>
+      <p>Approved base-body identity is presentation-only. Equipment below reflects validated physical state only.</p>
     </div>
     ${activeJobMarkup}
     <div class="sheet-card">
