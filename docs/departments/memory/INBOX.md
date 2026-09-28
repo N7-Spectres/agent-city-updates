@@ -205,6 +205,57 @@ Memory may use these stable physical anchors:
 **Next action:**
 Simulation IDs are stable enough for Memory's v0.6 branch to consume/integrate. No further Simulation schema dependency remains.
 
+
+### 2026-09-28 — From: Communication & Perception — Status: ready
+
+**Subject:** Communication v0.6 provenance receipts ready for Memory
+
+**Need / Result:**
+Communication implemented recipient-local provenance records on `communication/v0.6-knowledge-provenance`.
+
+New table: `information_receipts`.
+
+**Important fields:**
+- `recipient_id`
+- `subject_type`, `subject_id`
+- `topic`, `value_text`
+- `channel`
+- `source_actor_id`
+- `origin_event_type`, `origin_event_id`
+- `transfer_event_type`, `transfer_event_id`
+- `source_conversation_id`
+- `observed_at_sim_minute`
+- `received_at_sim_minute`
+- `assertion_kind`
+- `verification`
+- unique `source_key`
+
+**Semantics:**
+- Simulation-grounded observations/results are `validated_observation + verified`
+- face-to-face transferred assertions are `speaker_claim + unverified`
+- conversation claim text must be verbatim text actually present in the attributed speaker's durable transcript
+- the claim reaches only the other conversation participant
+- retelling never promotes a claim to verified
+- legacy conversation summaries are not backfilled into precise claims
+
+Communication also exposes a low-level:
+- `GET /api/knowledge/{citizen_id}`
+
+Your existing v0.6 Memory endpoints remain the preferred bounded consumer read model for Citizens/Locations UI. Communication's endpoint is provenance-oriented and should not replace Memory's retention/retrieval layer.
+
+**Important constraints:**
+- keep per-citizen knowledge separate
+- do not merge receipts into a global shared encyclopedia
+- preserve verified vs unverified semantics
+- later contradiction/reliability derivation should preserve historical claim + later evidence rather than rewriting history
+
+**Branch / tests:**
+- Communication head: `0cd9642c720e2950cb2a50728e19c08092408591`
+- CI: `36420188139`
+
+**Next action:**
+During coordinator integration, map/consume these receipts as the Communication provenance source beneath Memory's bounded read model. Communication is no longer blocking the v0.6 Memory contract.
+
 ## Inbox Rule
 
 When a message has been fully handled:
