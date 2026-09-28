@@ -259,6 +259,34 @@ All shipped v0.4/v0.5/v0.6 smoke suites plus `tests/smoke_v070_communication.py`
 **Next action:**
 Coordinator can integrate/review. Assets may treat `history.category = "diagnostic"` as optional muted/debug information and should never render it as citizen dialogue.
 
+
+### 2026-09-28 — From: Communication & Perception — Status: ready
+
+**Subject:** v0.7 Communication session wrapped
+
+**Need / Result:**
+This work session is fully closed. Autonomous talk reliability is implemented, tested, documented, and handed off.
+
+**Final branch:**
+- `communication/v0.7-talk-reliability`
+- head `61eecc4c047dd3fd22b71612251769a8cb456737`
+- final green CI `36428495003`
+
+**Downstream handoff already present:**
+- Assets INBOX contains the `history.category = "diagnostic"` semantics and guidance not to render diagnostics as citizen dialogue
+- `COORDINATION.md` contains the v0.7 Communication contract locks and required regression coverage
+
+**Important constraints:**
+- raw exchange before claim enrichment
+- no fabricated fallback dialogue
+- diagnostics are non-authoritative
+- failed talk events remain distinct from real conversation records
+- preserve v0.6 provenance/anti-omniscience rules
+- do not publish `update.json`
+
+**Next action:**
+Stop Communication work. Resume only for coordinator integration feedback, measured post-release reliability tuning, or a newly routed milestone.
+
 ## Outbox Rule
 
 Keep only recent useful handoffs here. Durable implementation state belongs in `STATE.md`; durable architecture choices belong in `DECISIONS.md`.
