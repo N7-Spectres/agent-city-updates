@@ -716,13 +716,27 @@ function parseConversationHistoryMessage(message) {
   };
 }
 
+function conversationIdFromChronology(message) {
+  const match = String(message || "").match(/\(conversation #(\d+)\)/i);
+  return match ? Number(match[1]) : null;
+}
+
 function renderCitizenConversationHistory() {
   const allConversations = state.citizen_conversations || [];
   const conversations = allConversations.slice(0, 12);
+
+  const completionHistory = new Map();
+  for (const row of state.history || []) {
+    const conversationId = conversationIdFromChronology(row.message);
+    if (conversationId != null) completionHistory.set(conversationId, row);
+  }
+
   const snapshotKeys = new Set(allConversations.map(c =>
     normalizedConversationKey(c.sim_minute, c.initiator_name, c.target_name, c.location_name)
   ));
 
+  // Legacy conversation chronology can predate canonical completion IDs. Preserve
+  // those real chronology rows when their exchange is outside the current snapshot.
   const chronologyOnly = (state.history || [])
     .filter(h => h.category === "conversation")
     .filter(h => {
@@ -739,13 +753,17 @@ function renderCitizenConversationHistory() {
     .slice(0, 6);
 
   const storedCards = conversations.map(c => {
+    const conversationId = Number(c.id ?? c.source_id);
+    const completion = Number.isFinite(conversationId) ? completionHistory.get(conversationId) : null;
     const summary = String(c.summary || "").trim() || "No compact summary is available for this exchange.";
     const initiatorText = String(c.initiator_text || "").trim();
     const targetText = String(c.target_text || "").trim();
     const hasTranscript = Boolean(initiatorText || targetText);
+    const sourceJobId = c.source_job_id != null ? String(c.source_job_id) : "";
+    const idLabel = Number.isFinite(conversationId) ? `Conversation #${conversationId}` : "Conversation record";
 
     return `
-      <article class="conversation-card">
+      <article class="conversation-card" data-conversation-id="${Number.isFinite(conversationId) ? escapeHtml(String(conversationId)) : ""}">
         <div class="conversation-card-head">
           <div class="conversation-people">
             <strong>${escapeHtml(c.initiator_name)}</strong>
@@ -755,6 +773,11 @@ function renderCitizenConversationHistory() {
           <time>${formatMinute(c.sim_minute)}</time>
         </div>
         <div class="conversation-location">At ${escapeHtml(c.location_name)}</div>
+        <div class="conversation-record-meta">
+          <span>${escapeHtml(idLabel)}</span>
+          ${sourceJobId ? `<span>Talk job #${escapeHtml(sourceJobId)}</span>` : "<span>Legacy conversation</span>"}
+          ${completion ? `<span>Completed ${escapeHtml(formatMinute(completion.sim_minute))}</span>` : ""}
+        </div>
         <div class="conversation-summary">
           <span>Summary</span>
           <p>${escapeHtml(summary)}</p>
@@ -784,11 +807,11 @@ function renderCitizenConversationHistory() {
         </div>
         <div class="conversation-location">At ${escapeHtml(parsed.locationName)}</div>
         <div class="conversation-summary">
-          <span>Chronology record</span>
+          <span>Legacy chronology record</span>
           <p>${escapeHtml(h.message)}</p>
         </div>
         <div class="conversation-record-note">
-          Chronology confirms this conversation, but its exchange text is not included in the current UI state snapshot.
+          Chronology confirms this conversation, but its exchange text is outside the current state snapshot.
         </div>
       </article>
     `;
@@ -798,7 +821,7 @@ function renderCitizenConversationHistory() {
   if (storedCards.length) sections.push(storedCards.join(""));
   if (chronologyCards.length) {
     sections.push(`
-      <div class="conversation-gap-label">Chronology-only conversation records</div>
+      <div class="conversation-gap-label">Older chronology-only conversation records</div>
       ${chronologyCards.join("")}
     `);
   }
