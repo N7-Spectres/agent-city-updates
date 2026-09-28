@@ -1,17 +1,19 @@
 # Assets & Interface — Backlog
 
-## Waiting — v0.6 Knowledge Contracts
+## Ready for Next Session — v0.6 Contracts Arrived
 
-### Simulation
-- consume knowledge-safe location/world read model
-- stop reading any raw field that becomes hidden-truth-only
-- display authoritative citizen cargo capacity without frontend re-derivation
-- consume stable discovery / experiment anchors
+### Simulation — Ready
+- consume safe `/api/state` from `simulation/v0.6-research-discovery`
+- use safe `discoveries`, `citizen_knowledge`, `experiment_results`, `learned_processes`, and `locations[].known_facts`
+- stop assuming deposit reserve `amount` exists in public state
+- verify/consume authoritative citizen cargo capacity if present in the final branch
+- never expose hidden `world_properties`
 
-### Communication
-- consume structured visit accessibility state
-- distinguish remote / visitor traveling / citizen traveling / busy talking / other busy state
-- display safe provenance and source age without implying verification from retelling
+### Communication — Ready
+- consume structured `status/availability` from `GET /api/visit/{citizen_id}`
+- distinguish remote / visitor traveling / citizen traveling / talking / busy / missing
+- preserve remote privacy masking
+- keep Memory APIs as the normal knowledge UI source; use Communication provenance only where source/transfer context is explicitly needed
 
 ### Memory — Completed
 - bounded per-citizen knowledge endpoint consumed
@@ -56,4 +58,6 @@
 
 ## Current Blocker
 
-Assets is waiting on Simulation and Communication v0.6 read models. No additional hidden/distributed-knowledge UI should be invented before those contracts arrive.
+_None._ Simulation, Communication, and Memory contracts are all ready.
+
+The remaining v0.6 work is implementation on PR #3 in the next Assets session, not an external dependency.
