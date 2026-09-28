@@ -45,6 +45,7 @@ from agent_city.spatial_memory import (
     spatial_context_for,
     spatial_snapshot_for,
 )
+from agent_city.exploration_memory import shared_exploration_context_for
 from agent_city.world import WorldClock, format_sim_time
 from agent_city.visits import (
     close_visit, ensure_visit_schema, get_or_create_active_visit,
@@ -550,6 +551,11 @@ async def talk(req: TalkRequest):
         radius_m=250.0,
         limit=4,
     )
+    shared_exploration_history = shared_exploration_context_for(
+        citizen["id"],
+        visitor=visitor,
+        limit=3,
+    )
 
     inventory = [r for r in state["inventory"] if r["citizen_id"] == citizen["id"] and r["amount"] > 0]
     inventory_summary = ", ".join(f"{r['amount']:g} {r['material']}" for r in inventory) or "nothing"
@@ -628,6 +634,9 @@ SELECTED MEANINGFUL MAINTENANCE EXPERIENCES YOU PARTICIPATED IN:
 RETAINED PERSONAL EXPLORATION MEMORY NEAR YOUR CURRENT POSITION:
 {retained_exploration_memory}
 
+COMPLETED SHARED EXPLORATION MEMORY WITH THIS VISITOR:
+{shared_exploration_history}
+
 {capability_context}
 
 {spatial_context}
@@ -683,6 +692,7 @@ STRICT REALITY RULES:
 13. If asked about a remote citizen/location and you lack provenance-backed information, say you do not know. If you have last-known information, state its source/age or clearly phrase it as something you heard/observed earlier.
 14. Retained exploration memory is historical personal evidence. Do not present it as a fresh current observation unless current spatial grounding independently confirms it.
 15. Preserve the stated observation radius/uncertainty; do not claim a more precise location from remembered coordinates.
+16. Completed shared-exploration memory is valid only when it cites a real Simulation shared activity and linked observation. Proposal or acceptance alone is not physical completion.
 14. Do not claim a shared visitor activity has physically started because you conversationally agreed to it. Until Simulation exposes a real visitor-linked action, agreement is an intention only.
 15. Do not claim a tool, structure, process, or capability from concept art, visual description, or imagination. Use only the authoritative capability surface supplied above.
 
