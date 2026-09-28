@@ -4,7 +4,7 @@ _Last updated: 2026-09-28_
 
 ## Current Release
 
-**v0.3.0 — World Presence**
+**v0.4.0 — Memory & Relationships / Control Room**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -20,17 +20,24 @@ Human users such as N7 are **visitors**, not gods, rulers, or omniscient operato
 
 ## Current Milestone
 
-v0.3.0 established physical presence:
+v0.4.0 has been assembled and published from immutable runtime commit `f539298bc811ecdb4133b4b302250e74efe8a93e`.
 
-- citizen travel has real duration and visible progress
-- traveling citizens move along routes on the map
-- N7 has a physical visitor location and travel time
-- face-to-face visits require physical co-location
-- same-location citizen-to-citizen conversation exists
-- citizen conversation summaries/exchanges are stored
-- Stores compares settlement inventory with material carried in the field
-- browser refresh preserves the active visitor conversation
-- long conversations use bounded recent context plus summaries
+Major shipped changes:
+
+- durable per-citizen social memory events backed by real stored conversations
+- directional relationship history derived from actual encounters
+- idempotent migration/backfill of pre-v0.4 citizen conversations
+- bounded social-history retrieval in autonomous planning and dialogue
+- no RPG-style friendship/trust score
+- remembered conversation content remains claims, not authoritative physical truth
+- Visit remains visible in the right rail
+- Region / Stores / Structures / History / Updates moved into the persistent Control Room
+- bottom detail drawer retired
+- map layout now uses route-distance data for clearer relative spacing
+- route distance labels, citizen initials/clusters, selected-route highlighting, and clearer visitor/traveler separation
+- v0.4 release smoke tests compile Python, syntax-check JavaScript, test migration idempotency, test relationship memory, test anti-omniscience, test visitor travel, and import the FastAPI app
+
+The richer provenance layer for individual claims, source reliability, promises, help, and validated cooperation remains future depth. Those features must wait for explicit Communication provenance and Simulation event references rather than being inferred from ordinary conversation.
 
 ## Current Emergent Behavior
 
