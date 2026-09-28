@@ -17,6 +17,7 @@ from pydantic import BaseModel, Field
 
 from agent_city.db import connect, get_meta, init_db, set_meta, snapshot
 from agent_city.comms import known_deposits_for, recent_dialogues_for, visible_citizens
+from agent_city.knowledge import ensure_information_schema, knowledge_context_for, knowledge_payload
 from agent_city.planner import planning_loop
 from agent_city.memory import ensure_memory_schema, social_context_for
 from agent_city.world import WorldClock, format_sim_time
@@ -24,7 +25,7 @@ from agent_city.visits import (
     close_visit, ensure_visit_schema, get_or_create_active_visit,
     get_recent_exchanges, previous_visits, summarize_visit_if_needed, visit_payload,
 )
-from agent_city.visitors import can_visit_citizen, presence_payload, start_visitor_travel
+from agent_city.visitors import can_visit_citizen, presence_payload, start_visitor_travel, visit_access_payload
 from agent_city.updater import (
     PROJECT_ROOT, check_for_update, current_version, fetch_manifest,
     load_settings, make_backup, save_settings, stage_update
@@ -45,6 +46,7 @@ async def lifespan(app: FastAPI):
     init_db()
     ensure_visit_schema()
     ensure_memory_schema()
+    ensure_information_schema()
     clock_task = asyncio.create_task(clock.run())
     planner_task = asyncio.create_task(planning_loop())
     yield
@@ -207,6 +209,14 @@ def get_visitor_presence(visitor: str = "N7"):
     return presence_payload(visitor)
 
 
+@app.get("/api/knowledge/{citizen_id}")
+def get_citizen_knowledge(citizen_id: str):
+    payload = knowledge_payload(citizen_id)
+    if not payload.get("exists"):
+        raise HTTPException(404, "Citizen not found")
+    return payload
+
+
 @app.post("/api/visitor/travel")
 def visitor_travel(req: VisitorTravelRequest):
     ok, message = start_visitor_travel(req.visitor, req.target)
@@ -224,7 +234,9 @@ def get_visit(citizen_id: str, visitor: str = "N7"):
 
     visitor = visitor.strip()[:40] or "Visitor"
     presence = presence_payload(visitor)
-    accessible, reason = can_visit_citizen(visitor, citizen_id)
+    access = visit_access_payload(visitor, citizen_id)
+    accessible = bool(access["accessible"])
+    reason = str(access.get("reason") or "")
 
     with connect() as conn:
         old_visits = previous_visits(conn, visitor, citizen_id, limit=3)
@@ -232,6 +244,8 @@ def get_visit(citizen_id: str, visitor: str = "N7"):
     if not accessible:
         return {
             "accessible": False,
+            "status": access.get("status"),
+            "availability": access,
             "reason": reason,
             "citizen": citizen,
             "visitor": visitor,
@@ -248,6 +262,8 @@ def get_visit(citizen_id: str, visitor: str = "N7"):
         payload["previous_visits"] = old_visits
 
     payload["accessible"] = True
+    payload["status"] = access.get("status")
+    payload["availability"] = access
     payload["citizen"] = citizen
     payload["visitor"] = visitor
     payload["presence"] = presence
@@ -288,9 +304,9 @@ async def leave_visit(citizen_id: str, req: VisitorRequest):
 
 @app.post("/api/talk")
 async def talk(req: TalkRequest):
-    accessible, reason = can_visit_citizen(req.visitor, req.citizen_id)
-    if not accessible:
-        raise HTTPException(409, reason)
+    access = visit_access_payload(req.visitor, req.citizen_id)
+    if not access["accessible"]:
+        raise HTTPException(409, str(access.get("reason") or "Face-to-face conversation unavailable."))
 
     state = snapshot()
     citizen = next((c for c in state["citizens"] if c["id"] == req.citizen_id), None)
@@ -337,6 +353,8 @@ async def talk(req: TalkRequest):
     visible_summary = "; ".join(
         f"{c['name']} — {c['current_activity']}" for c in visible_others
     ) or "none"
+
+    provenance_knowledge = knowledge_context_for(citizen["id"], limit=12)
 
     citizen_dialogues = recent_dialogues_for(citizen["id"], limit=6)
     citizen_dialogue_summary = "\n".join(
@@ -403,7 +421,10 @@ CONFIRMED CURRENT FACTS:
 - Material deposits you personally confirmed: {deposit_summary}
 - Citizens physically present at your current location and directly observable: {visible_summary}
 
-RECENT FACE-TO-FACE CITIZEN CONVERSATIONS YOU ACTUALLY PARTICIPATED IN:
+PROVENANCE-BACKED FACTS AND CLAIMS THAT ACTUALLY REACHED YOU:
+{provenance_knowledge}
+
+RECENT FACE-TO-FACE CITIZEN CONVERSATIONS FOR SOCIAL CONTINUITY ONLY:
 {citizen_dialogue_summary}
 
 DURABLE SOCIAL HISTORY FROM YOUR OWN RECORDED ENCOUNTERS:
@@ -451,9 +472,11 @@ STRICT REALITY RULES:
 6. If no intent reason was recorded, say so instead of inventing one.
 7. You may discuss future ideas as intentions, possibilities, or plans.
 8. The simulation determines physical outcomes.
-9. You know the other five citizens exist, but you do NOT know a remote citizen's current location, activity, discoveries, or condition unless that information reached you through an actual face-to-face citizen conversation recorded above.
-10. There is currently no radio, network, telepathy, shared live status channel, or other long-distance communication system.
-11. If asked about a remote citizen and you lack recent communicated information, say you do not know their current status. You may state the last thing they actually told you, clearly as last-known information.
+9. You know the other five citizens exist, but you do NOT know a remote citizen's current location, activity, discoveries, research results, or condition unless that information reached you through a real mechanism.
+10. Provenance-backed speaker claims are things somebody said. They remain unverified unless a separate physical observation, survey/measurement, or experiment verifies them.
+11. Conversation summaries are social continuity and are NOT authoritative physical facts.
+12. There is currently no radio, network, telepathy, shared live status channel, or other long-distance communication system.
+13. If asked about a remote citizen/location and you lack provenance-backed information, say you do not know. If you have last-known information, state its source/age or clearly phrase it as something you heard/observed earlier.
 
 Keep conversation natural and fairly concise. Do not speak like an AI assistant or narrator.
 """.strip()
