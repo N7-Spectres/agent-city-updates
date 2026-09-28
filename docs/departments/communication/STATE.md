@@ -793,20 +793,15 @@ Communication never mutates:
 - canonical `shared_activities`
 - observations
 
-### Remaining blocker: canonical proposal cancellation
+### Canonical pre-start rejection
 
-Simulation currently lacks a cancellation/rejection primitive for an unstarted canonical `shared_activities.status='proposed'` row.
+Simulation's final Stage 2 lifecycle provides:
 
-Communication therefore fails closed:
+`reject_shared_activity(conn, activity_id, visitor, now=...)`
 
-- it does not mark a proposal rejected/expired if Simulation still reports the canonical proposal as proposed
-- visitor rejection/leave needs Simulation to cancel the canonical row first
+Communication uses that Simulation-owned transition before marking its projection rejected/expired.
 
-Requested Simulation primitive:
-
-`cancel_shared_activity(conn, activity_id, visitor, now=..., reason=...)`
-
-This blocker affects reject/expiry finalization only. Proposal creation, explicit acceptance, active status/progress, completion and observation linking are implemented/tested.
+Canonical rejection is allowed only before physical start and creates no job, movement, or observation.
 
 ### Validation
 
@@ -821,9 +816,7 @@ Temporary CI workflow was removed after the green run.
 
 ## Current Stage 2 Status
 
-Communication proposal/start/status implementation is ready.
-
-Communication remains **WAITING** only on Simulation's canonical proposal-cancellation primitive before reject/expiry can be considered fully integrated.
+Communication proposal/accept/start/reject/status implementation is complete and ready for coordinator assembly.
 
 
 ## v0.8 Stage 2 Final Resolution
