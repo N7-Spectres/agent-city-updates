@@ -6,6 +6,24 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Assets & Interface — Status: ready
 
+**Subject:** v0.6 session wrapped — all upstream contracts now ready
+
+**Need / Result:**
+The independent Home/Citizens/Locations/Records shell and Memory bounded-knowledge integration are complete on `assets/v0.6-knowledge-ui` / draft PR #3.
+
+During final wrap-up, Simulation and Communication delivered their final v0.6 contracts. They are recorded in Assets STATE/BACKLOG but intentionally not implemented after the user's stop instruction.
+
+**Ready inputs for next session:**
+- Simulation: `simulation/v0.6-research-discovery` @ `d1ae3faf0095d22e7a730cf50b3ad6fdbcdc4b94`
+- Communication: `communication/v0.6-knowledge-provenance` @ `6a483fcc4d143606f3e401218002e06ae43076d1`
+- Memory: `memory/v0.6-location-knowledge` @ `89c0a3e2d49c4c9236342c10559f92b93b1b7601`
+
+**Next action:**
+Next Assets session consumes Simulation safe public state + Communication structured Visit availability on PR #3, reruns verification, then hands the complete v0.6 UI to the coordinator.
+
+
+### 2026-09-28 — From: Assets & Interface — Status: ready
+
 **Subject:** v0.6 independent Home / Citizens / Locations / Records shell ready
 
 **Need / Result:**
