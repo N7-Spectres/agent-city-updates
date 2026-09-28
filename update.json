@@ -1,6 +1,6 @@
 {
-  "version": "0.8.1",
-  "notes": "Citizen Visual Assets + Map Readability: all six founding citizens now ship with approved equipment-free full-body and token WebP art wired into the existing visual profiles. Map controls now include zoom out, zoom in, and Region reset; clicking a location centers/focuses the presentation viewport without changing Simulation coordinates. The visible rectangular location-node surface is removed while the generous click target remains, and citizen clustering scales more clearly with zoom. Simulation, Communication, and Memory behavior are unchanged.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/fa27c942d08a9a97a2dbca5e86ab77dc7b9b7cc0",
+  "version": "0.8.2",
+  "notes": "Live State Readability: Home citizen cards now use compact micro-bars for current Energy and Integrity without increasing card size, while the Citizen sheet uses the same authoritative live values and matching compact meters. Long-term battery health/capacity is now labeled separately from current charge to avoid confusion. This is a UI-only patch; Simulation, Communication, Memory, and physical state semantics are unchanged.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/9a11b2bc21ba2338d6b231924036bf6d5935475c",
   "sha256": ""
 }
