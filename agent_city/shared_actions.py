@@ -920,22 +920,29 @@ def accept_proposal(proposal_id: int, visitor: str) -> tuple[bool, str, dict[str
             return False, f"Proposal is already {row['status']}.", _row_payload(row)
 
         access = visit_access_payload(visitor, str(row["citizen_id"]))
-        if not access.get("accessible"):
-            now = int(get_meta(conn, "sim_minute") or "360")
-            conn.execute(
-                """
-                UPDATE shared_action_proposals
-                SET status = 'expired', acceptance_available = 0, updated_minute = ?
-                WHERE id = ?
-                """,
-                (now, int(proposal_id)),
-            )
-            conn.commit()
-            return False, "You are no longer physically available for this proposal.", proposal_payload(proposal_id, sync=False)
-
         activity_id = row["simulation_activity_id"]
         if activity_id is None:
             return False, "Simulation proposal identity is missing.", _row_payload(row)
+
+    if not access.get("accessible"):
+        cancel = simulation_cancel_shared_activity(
+            int(activity_id),
+            visitor,
+            reason="participants_no_longer_available",
+        )
+        if cancel.get("ok"):
+            with connect() as conn:
+                now = int(get_meta(conn, "sim_minute") or "360")
+                conn.execute(
+                    """
+                    UPDATE shared_action_proposals
+                    SET status = 'expired', acceptance_available = 0, updated_minute = ?
+                    WHERE id = ?
+                    """,
+                    (now, int(proposal_id)),
+                )
+                conn.commit()
+        return False, "You are no longer physically available for this proposal.", proposal_payload(proposal_id, sync=False)
 
     start = simulation_accept_shared_activity(int(activity_id), visitor)
     if not start.get("available"):
