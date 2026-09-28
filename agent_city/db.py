@@ -633,16 +633,22 @@ def snapshot() -> dict[str, Any]:
             battery = float(citizen.get("battery_health") or 0)
             wear = float(citizen.get("joint_wear") or 0)
             citizen["battery_state"] = condition_state(battery)
+            citizen["usable_energy_capacity"] = battery
+            citizen["battery_replacement_due"] = battery < 85
             citizen["chassis_service_state"] = (
                 "critical" if wear >= 60
                 else "service_due" if wear >= 12
                 else "nominal"
             )
+            citizen["chassis_service_due"] = wear >= 12
 
         for structure in structures:
             condition = float(structure.get("condition") or 0)
+            factor = max(0.0, min(1.0, condition / 100.0)) if condition > 20 else 0.0
             structure["condition_state"] = condition_state(condition)
             structure["operational"] = condition > 20
+            structure["efficiency_multiplier"] = factor
+            structure["service_due"] = condition < 90
         resources = [dict(r) for r in conn.execute("SELECT * FROM resources ORDER BY name")]
         history = [dict(r) for r in conn.execute("SELECT * FROM history ORDER BY id DESC LIMIT 60")]
         locations = [dict(r) for r in conn.execute("SELECT * FROM locations ORDER BY rowid")]
@@ -668,6 +674,7 @@ def snapshot() -> dict[str, Any]:
             base_speed = float(item.get("extraction_speed_multiplier") or 1.0)
             item["condition_state"] = condition_state(condition)
             item["operational"] = condition > 20
+            item["service_due"] = condition < 90
             item["effective_cargo_bonus"] = float(item.get("cargo_bonus") or 0) * factor
             item["effective_extraction_speed_multiplier"] = (
                 1.0 + (base_speed - 1.0) * factor if factor > 0 else 1.0
