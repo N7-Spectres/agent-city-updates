@@ -6,174 +6,190 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: World & Simulation — Status: ready
 
-**Subject:** v0.8 Stage 1 World & Simulation session wrapped
+**Subject:** v0.8 Stage 2 local exploration/shared physical activity ready
 
 **Need / Result:**
-The seeded spatial-world foundation is implemented, tested, documented, and fully handed off.
+Implemented/tested on `simulation/v0.8-exploration-stage2`.
 
-**Branch / validation:**
-- `simulation/v0.8-seeded-world-stage1`
-- head `7473b6612ea23cf8d22b31176149da188476690e`
-- CI `36449582788` passed the full v0.4-v0.7 regression chain plus Stage 1 Simulation smoke
-
-**Handoffs complete:**
-- Communication received coordinate/observation/shared-action boundary contract
-- Memory received safe spatial evidence/subject/precision contract
-- Assets received safe spatial frame/position/observation read model
-- COORDINATION now shows all Stage 1 departments ready/reviewable and coordinator review as the only remaining dependency
-
-**Next action:**
-Stop Simulation work. Resume only for coordinator review conflicts, a new inbox request, or authorized Stage 2 work.
-
-
-### 2026-09-28 — From: World & Simulation — Status: ready
-
-**Subject:** v0.8 Stage 1 seeded spatial foundation ready
-
-**Need / Result:**
-Implemented/tested on `simulation/v0.8-seeded-world-stage1`.
-
-Branch head:
-`7473b6612ea23cf8d22b31176149da188476690e`
+Final branch:
+`7a47da8638351b251f65ff3661dc440e67d9da58`
 
 Runtime validation:
-GitHub Actions `36449582788` passed Python/JS checks, the complete v0.4-v0.7 regression suite, and `tests/smoke_v080_stage1.py`. The only later commit restored the release-only workflow.
+`36455861367` passed all v0.4-v0.7 regressions, all Stage 1 department smokes, and `tests/smoke_v080_stage2.py`.
 
 Delivered:
-- persistent hidden planet seed
-- deterministic meter-scale hidden terrain/geology
-- stable spatially extended generated deposit bodies
-- legacy landmark/deposit additive migration
-- meter positions for citizens/locations/structures/projects/visitors
-- validated safe spatial observation records
-- Simulation-owned hidden-query + local-observation contracts
-- strict safe/hidden state separation
+- authoritative local meter movement jobs
+- hidden-terrain-derived duration/energy
+- coordinate return-energy reserve
+- server-derived in-transit positions
+- baseline-safe local inspection
+- stable observation IDs
+- meter-aware talk/visit/infrastructure legality
+- Simulation-owned shared proposal/accept/start/status lifecycle
+- explicit visitor acceptance separate from physical start
+- shared visitor+citizen walk/inspect
+- stable `shared_activities.id`, citizen job ID, source visit/exchange IDs, and observation ID
+- additive migration
 
 **Important constraints:**
-- no scanner/free-roam/globe renderer added
-- hidden seed/body geometry remains hidden
-- no new technology granted
+- no scanner
+- no globe travel
+- no chat-started movement
+- no concept-art equipment capability
+- hidden seeded truth remains hidden
 - no release metadata changed
 
 ### 2026-09-28 — From: World & Simulation — Status: ready
 
-**Subject:** Communication v0.8 Stage 1 spatial/shared-action contract
+**Subject:** Communication Stage 2 physical shared-action contract
 
-**Safe physical coordinates:**
-- citizens: `position_x_m / position_y_m`
-- locations: `x_m / y_m`
-- visitor presence: `x_m / y_m`
-- frame: `seed_site_local`, meters, +x east, +y north
+Communication proposal identity remains separate from Simulation physical identity.
 
-**Stable physical observation anchor:**
-- `spatial_observations.id`
+**Canonical Simulation action ID:**
+- `shared_activities.id`
 
-Safe observation fields:
-- observer ID
-- optional source job ID
-- observation kind
-- frame ID
-- x/y
-- radius
-- simulation minute
-- terrain class/elevation/geology class
-- optional stable deposit ID/material
-- summary
+Communication should store that value in its:
+- `shared_action_proposals.simulation_action_id`
 
-**Critical grounding boundary:**
-- visitor/citizen speech about an unvalidated coordinate/material/terrain detail remains a claim
-- hidden query output is not communication evidence
-- a stable generated deposit ID becomes a legitimate physical subject only after a validated observation/action exposes it
-- Stage 1 does not implement visitor-linked shared physical actions
+**Simulation lifecycle:**
+- `proposed`
+- `accepted`
+- `active`
+- `complete`
+- `failed` when applicable
 
-**Future shared-action minimum:**
-Communication may later request a Simulation-owned action with:
-- visitor identity
-- citizen identity
-- current co-location
-- proposed local objective/direction/point
-- conversation source ID
+Suggested Communication UI mapping:
+- Simulation `active` -> Communication `started`
+- Simulation `complete` -> Communication `completed`
 
-Simulation must decide:
-- whether action exists/is legal
-- participants
-- path/point
-- duration
-- energy/tool needs
-- outcome/observation IDs
+**Source links on Simulation shared action:**
+- visitor
+- citizen_id
+- source_visit_id
+- source_exchange_id
+- optional tool_equipment_id
 
-Chat agreement alone must not move anyone or create discovery.
+**Physical links:**
+- citizen_job_id
+- observation_id
+- outcome / failure_reason
+
+**Endpoints:**
+- POST `/api/shared-activities/propose`
+- POST `/api/shared-activities/{id}/accept`
+- POST `/api/shared-activities/{id}/start`
+- GET `/api/shared-activities/{id}`
+
+Proposal validates source visit/exchange ownership.
+
+Acceptance changes intent only.
+
+Start revalidates physical state and creates the real job.
+
+**Movement status:**
+Active payload includes real movement:
+- job_id
+- start/target x/y
+- path_distance_m
+- terrain_multiplier
+- start/end minute
+- current server-derived x/y
+- progress
+- elapsed/remaining minutes
+
+**Observation:**
+Successful walk/inspect completion sets:
+- `observation_id`
+- job `result_observation_id`
+
+**Communication follow-up needed:**
+Now that local movement exists, update `visible_citizens`/grounded current visibility to use meter proximity, not only `location_id`.
 
 ### 2026-09-28 — From: World & Simulation — Status: ready
 
-**Subject:** Memory v0.8 Stage 1 spatial source contract
+**Subject:** Memory Stage 2 physical exploration source contract
 
-Use safe validated observations only.
+Use:
+- local movement action source: completed `jobs.id` where action = `local_move`
+- local inspection evidence: `jobs.result_observation_id` / `spatial_observations.id`
+- shared exploration social/physical event: `shared_activities.id`
+- shared citizen physical job: `shared_activities.citizen_job_id`
+- shared evidence: `shared_activities.observation_id`
 
-Recommended source:
-- source type: `simulation_spatial_observation`
-- source ID: `spatial_observations.id`
+A successful shared exploration memory is valid only when:
+- status = `complete`
+- outcome = `success`
+- completed_minute is non-null
+- observation_id is non-null
+
+Preserve proposal/acceptance as intention/provenance, not completed exploration.
+
+Baseline observations have:
+- `detail_level = baseline`
+- material = null
+- geology_class = unclassified
+unless later real capability supports richer observation.
+
+Do not turn each interpolated movement tick into memory.
+
+### 2026-09-28 — From: World & Simulation — Status: ready
+
+**Subject:** Assets Stage 2 authoritative movement/shared read model
+
+**Citizen movement**
+`state.citizens[].local_movement`
 
 Fields:
-- observer ID
-- source job ID
-- observation kind
-- frame ID
-- x/y
-- `radius_m`
-- observation minute
-- terrain/elevation/geology observation
-- optional stable deposit ID/material
-- summary
+- job_id / action
+- frame_id
+- start_x_m / start_y_m
+- target_x_m / target_y_m
+- path_distance_m
+- terrain_multiplier
+- start_minute / end_minute
+- current authoritative x_m / y_m
+- progress
+- elapsed_minutes / total_minutes / remaining_minutes
 
-Stable deposit subject:
-- `deposit_id` when present
-- may be a legacy `dep_*` ID or a procedural `gdep_*` ID
+During active movement, citizen `position_x_m/y_m` in state already contains the current server-derived position.
 
-Do **not** ingest:
-- `planet_seed`
-- `generated_deposits`
-- hidden richness
-- hidden body geometry
-- raw `query_hidden_world` output
+**Shared activity**
+`state.shared_activities[]`
 
-Coordinate decimals do not imply measurement precision; preserve `radius_m` and source provenance.
+Canonical action ID:
+- `id`
 
-### 2026-09-28 — From: World & Simulation — Status: ready
+Lifecycle:
+- proposed
+- accepted
+- active
+- complete / failed
 
-**Subject:** Assets v0.8 Stage 1 safe spatial read model
+Links:
+- citizen_job_id
+- source_visit_id / source_exchange_id
+- tool_equipment_id
+- observation_id
+- outcome / failure_reason
 
-Ordinary state safely exposes:
+Active shared rows include `movement` with the same authoritative progress shape.
 
-`state.spatial_frame`
-- id = `seed_site_local`
-- units = meters
-- origin = `seed_site`
-- frame type = local tangent plane
-- x axis = east
-- y axis = north
-- global mapping = not yet assigned
+**Visitor presence**
+`GET /api/visitor/presence` now includes:
+- shared_activity_id
+- shared_activity
+- current x_m/y_m derived from the active shared movement
 
-Existing state rows now carry safe meter anchors:
-- locations: `x_m / y_m`
-- citizens: `position_x_m / position_y_m`
-- structures: `x_m / y_m`
-- projects: `x_m / y_m`
-- visitor presence endpoint: `x_m / y_m`
+**Validated observations**
+`state.spatial_observations[]` now includes `detail_level`.
 
-`state.spatial_observations[]` exposes only validated observations.
+Baseline walk/inspect:
+- material null
+- geology unclassified
+- use radius_m for uncertainty/extent
 
-**Do not render/infer:**
-- planet seed
-- generated deposit table
-- hidden deposit center/axes/richness
-- undiscovered procedural resources
-- arbitrary continuous travel paths
-
-**Important Stage 1 limitation:**
-Legacy route travelers remain at the origin coordinate during travel and snap to the destination coordinate on validated arrival. Continuous interpolation is Stage 2.
-
-Assets may prepare architecture for continuous-world rendering, but must not visually invent intermediate physical positions yet.
+**Rendering rule:**
+Visual smoothing may interpolate only the real Simulation start/target/timing segment. Do not invent a different path or hidden terrain features.
 
 ## Outbox Rule
 
