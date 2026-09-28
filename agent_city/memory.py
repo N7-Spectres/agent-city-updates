@@ -447,6 +447,7 @@ def _knowledge_memory_rows(citizen_id: str, scan_limit: int = 120) -> list[dict[
             FROM memory_events
             WHERE owner_id = ?
               AND event_kind != 'conversation'
+              AND source_type != 'simulation_maintenance_event'
             ORDER BY sim_minute DESC, id DESC
             LIMIT ?
             """,
