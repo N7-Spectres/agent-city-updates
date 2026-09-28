@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import math
+import re
 import secrets
 from typing import Any
 
@@ -11,25 +13,43 @@ from .visitors import visit_access_payload
 
 OLLAMA_URL = "http://127.0.0.1:11434"
 
-LOCAL_STATUSES = {
-    "proposed",
-    "accepted",
-    "started",
-    "completed",
-    "rejected",
-    "failed",
-    "cancelled",
-    "expired",
+_WORD_NUMBERS = {
+    "one": 1.0,
+    "two": 2.0,
+    "three": 3.0,
+    "four": 4.0,
+    "five": 5.0,
+    "six": 6.0,
+    "seven": 7.0,
+    "eight": 8.0,
+    "nine": 9.0,
+    "ten": 10.0,
+    "eleven": 11.0,
+    "twelve": 12.0,
+    "thirteen": 13.0,
+    "fourteen": 14.0,
+    "fifteen": 15.0,
+    "sixteen": 16.0,
+    "seventeen": 17.0,
+    "eighteen": 18.0,
+    "nineteen": 19.0,
+    "twenty": 20.0,
 }
-TERMINAL_STATUSES = {"completed", "rejected", "failed", "cancelled", "expired"}
+_DIRECTION_VECTORS = {
+    "east": (1.0, 0.0),
+    "west": (-1.0, 0.0),
+    "north": (0.0, 1.0),
+    "south": (0.0, -1.0),
+}
 
 
 def ensure_shared_action_schema() -> None:
     """
-    Communication-owned proposal state.
+    Communication-owned conversational/source projection.
 
-    These rows are conversational proposals/acceptance records, not physical
-    actions. Simulation owns physical action IDs, status, movement and outcome.
+    Simulation owns the actual shared_activities row and physical job. This table
+    stores how that Simulation proposal came from a durable visitor exchange and
+    supplies a small UI/read model without making chat physical authority.
     """
     with connect() as conn:
         conn.executescript(
@@ -41,18 +61,16 @@ def ensure_shared_action_schema() -> None:
                 citizen_id TEXT NOT NULL,
                 visit_id INTEGER NOT NULL,
                 source_exchange_id INTEGER NOT NULL UNIQUE,
-                option_key TEXT NOT NULL,
                 action_kind TEXT NOT NULL,
                 label TEXT NOT NULL,
                 objective TEXT,
                 frame_id TEXT,
                 target_x_m REAL,
                 target_y_m REAL,
-                target_subject_type TEXT,
-                target_subject_id TEXT,
                 requested_tool_id TEXT,
                 status TEXT NOT NULL DEFAULT 'proposed',
                 acceptance_available INTEGER NOT NULL DEFAULT 1,
+                simulation_activity_id INTEGER,
                 simulation_action_id TEXT,
                 simulation_status TEXT,
                 simulation_progress REAL,
@@ -71,174 +89,287 @@ def ensure_shared_action_schema() -> None:
 
             CREATE INDEX IF NOT EXISTS idx_shared_action_status
             ON shared_action_proposals(status, id);
+
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_shared_action_sim_activity
+            ON shared_action_proposals(simulation_activity_id)
+            WHERE simulation_activity_id IS NOT NULL;
             """
         )
+
+        columns = {
+            row["name"]
+            for row in conn.execute("PRAGMA table_info(shared_action_proposals)")
+        }
+        if "simulation_activity_id" not in columns:
+            conn.execute(
+                "ALTER TABLE shared_action_proposals ADD COLUMN simulation_activity_id INTEGER"
+            )
         conn.commit()
 
 
-def _normalize_option(raw: dict[str, Any]) -> dict[str, Any] | None:
+def _number_value(raw: str) -> float | None:
+    token = str(raw or "").strip().lower()
+    if token in _WORD_NUMBERS:
+        return _WORD_NUMBERS[token]
+    try:
+        value = float(token)
+    except ValueError:
+        return None
+    return value if math.isfinite(value) else None
+
+
+def parse_explicit_relative_target(text: str) -> tuple[float, float] | None:
+    """
+    Parse only explicit meter + cardinal-direction language.
+
+    Examples:
+      "walk five meters east"
+      "move 2 m north and 3 meters west"
+
+    "over there", pointing gestures, or unspecified "this way" intentionally do
+    not become coordinates.
+    """
+    source = " ".join(str(text or "").lower().split())
+    if not source:
+        return None
+
+    number = r"(?:\d+(?:\.\d+)?|" + "|".join(_WORD_NUMBERS) + r")"
+    unit = r"(?:m|meter|meters|metre|metres)"
+    direction = r"(?:north|south|east|west)"
+
+    matches: list[tuple[float, str]] = []
+    used_spans: set[tuple[int, int]] = set()
+
+    patterns = [
+        re.compile(rf"\b(?P<n>{number})\s*(?:{unit})\s+(?P<d>{direction})\b"),
+        re.compile(rf"\b(?P<d>{direction})\s+(?P<n>{number})\s*(?:{unit})\b"),
+    ]
+
+    for pattern in patterns:
+        for match in pattern.finditer(source):
+            span = match.span()
+            if span in used_spans:
+                continue
+            value = _number_value(match.group("n"))
+            if value is None or value <= 0:
+                continue
+            used_spans.add(span)
+            matches.append((value, match.group("d")))
+
+    if not matches:
+        return None
+
+    dx = 0.0
+    dy = 0.0
+    for value, direction_name in matches:
+        vx, vy = _DIRECTION_VECTORS[direction_name]
+        dx += vx * value
+        dy += vy * value
+
+    if math.hypot(dx, dy) < 0.1:
+        return None
+    return round(dx, 4), round(dy, 4)
+
+
+def _simulation_contract_available() -> bool:
+    try:
+        from . import exploration
+    except Exception:
+        return False
+    return all(
+        callable(getattr(exploration, name, None))
+        for name in (
+            "propose_shared_activity",
+            "accept_shared_activity",
+            "shared_activity_payload",
+        )
+    )
+
+
+def _safe_simulation_payload(raw: dict[str, Any] | None) -> dict[str, Any] | None:
     if not isinstance(raw, dict):
         return None
 
-    option_key = str(raw.get("option_key") or raw.get("id") or "").strip()
-    action_kind = str(raw.get("action_kind") or raw.get("kind") or "").strip()
-    label = " ".join(str(raw.get("label") or "").split())[:180]
+    movement = raw.get("movement") if isinstance(raw.get("movement"), dict) else {}
+    progress = movement.get("progress")
+    if progress is None:
+        progress = raw.get("progress")
 
-    if not option_key or not action_kind or not label:
-        return None
+    observation_ids: list[int] = []
+    observation_id = raw.get("observation_id")
+    if isinstance(observation_id, int):
+        observation_ids.append(observation_id)
 
-    result: dict[str, Any] = {
-        "option_key": option_key[:120],
-        "action_kind": action_kind[:80],
-        "label": label,
-        "objective": " ".join(str(raw.get("objective") or "").split())[:300] or None,
-        "frame_id": str(raw.get("frame_id") or "").strip()[:80] or None,
-        "target_x_m": raw.get("target_x_m"),
-        "target_y_m": raw.get("target_y_m"),
-        "target_subject_type": str(raw.get("target_subject_type") or "").strip()[:80] or None,
-        "target_subject_id": str(raw.get("target_subject_id") or "").strip()[:160] or None,
-        "requested_tool_id": str(raw.get("requested_tool_id") or "").strip()[:160] or None,
-    }
+    status = str(raw.get("status") or "").strip().lower() or None
+    action_id = raw.get("citizen_job_id")
 
-    for key in ("target_x_m", "target_y_m"):
-        value = result[key]
-        if value is not None:
-            try:
-                result[key] = float(value)
-            except (TypeError, ValueError):
-                return None
-
-    return result
-
-
-def simulation_shared_action_options(visitor: str, citizen_id: str) -> list[dict[str, Any]]:
-    """
-    Adapter for Simulation's Stage 2 legal shared-action option provider.
-
-    Until Simulation exposes this callable, no proposal is eligible.
-    """
-    try:
-        from . import simulation
-    except Exception:
-        return []
-
-    provider = getattr(simulation, "shared_activity_options", None)
-    if not callable(provider):
-        return []
-
-    try:
-        raw_options = provider(visitor, citizen_id)
-    except Exception:
-        return []
-
-    result: list[dict[str, Any]] = []
-    seen: set[str] = set()
-    for raw in raw_options or []:
-        option = _normalize_option(raw)
-        if not option or option["option_key"] in seen:
-            continue
-        seen.add(option["option_key"])
-        result.append(option)
-    return result
-
-
-def _safe_start_result(raw: Any) -> dict[str, Any]:
-    if not isinstance(raw, dict):
-        return {"ok": False, "reason": "Simulation did not return a structured start result."}
-
-    action_id = raw.get("action_id") or raw.get("shared_action_id") or raw.get("id")
-    status = str(raw.get("status") or "").strip().lower()
-    ok = bool(raw.get("ok", action_id is not None and status in {"active", "started"}))
-
-    result: dict[str, Any] = {
-        "ok": ok,
+    return {
+        "activity_id": int(raw["id"]) if raw.get("id") is not None else None,
+        "status": status,
         "action_id": str(action_id) if action_id is not None else None,
-        "status": status or None,
-        "reason": " ".join(str(raw.get("reason") or "").split())[:300] or None,
+        "progress": float(progress) if isinstance(progress, (int, float)) else None,
+        "start_minute": (
+            int(raw["started_minute"])
+            if raw.get("started_minute") is not None
+            else None
+        ),
+        "end_minute": (
+            int(raw["completed_minute"])
+            if raw.get("completed_minute") is not None
+            else None
+        ),
+        "observation_ids": observation_ids,
+        "outcome": " ".join(str(raw.get("outcome") or "").split())[:500] or None,
+        "failure_reason": " ".join(str(raw.get("failure_reason") or "").split())[:300] or None,
+        "frame_id": str(raw.get("frame_id") or "").strip()[:80] or None,
+        "target_x_m": (
+            float(raw["target_x_m"])
+            if raw.get("target_x_m") is not None
+            else None
+        ),
+        "target_y_m": (
+            float(raw["target_y_m"])
+            if raw.get("target_y_m") is not None
+            else None
+        ),
+        "activity_type": str(raw.get("activity_type") or "").strip()[:80] or None,
+        "objective": " ".join(str(raw.get("objective") or "").split())[:500] or None,
+        "tool_equipment_id": (
+            str(raw["tool_equipment_id"])
+            if raw.get("tool_equipment_id") is not None
+            else None
+        ),
     }
 
-    for key in ("progress", "start_minute", "end_minute"):
-        value = raw.get(key)
-        if value is None:
-            result[key] = None
-            continue
-        try:
-            result[key] = float(value) if key == "progress" else int(value)
-        except (TypeError, ValueError):
-            result[key] = None
 
-    observations = raw.get("observation_ids")
-    result["observation_ids"] = [
-        int(value)
-        for value in observations or []
-        if isinstance(value, int) or (isinstance(value, str) and value.isdigit())
-    ][:20]
-    result["outcome"] = " ".join(str(raw.get("outcome") or "").split())[:500] or None
-    return result
-
-
-def simulation_start_shared_action(proposal: dict[str, Any]) -> dict[str, Any]:
+def simulation_propose_shared_activity(
+    *,
+    visitor: str,
+    citizen_id: str,
+    target_x_m: float,
+    target_y_m: float,
+    objective: str,
+    source_visit_id: int,
+    source_exchange_id: int,
+    requested_tool_id: str | None = None,
+) -> dict[str, Any]:
     try:
-        from . import simulation
+        from .exploration import propose_shared_activity, shared_activity_payload
     except Exception:
-        return {"ok": False, "available": False, "reason": "Simulation shared-action start is unavailable."}
-
-    starter = getattr(simulation, "start_shared_activity", None)
-    if not callable(starter):
-        return {"ok": False, "available": False, "reason": "Simulation shared-action start is unavailable."}
-
-    request = {
-        "visitor": proposal["visitor"],
-        "citizen_id": proposal["citizen_id"],
-        "proposal_id": proposal["id"],
-        "proposal_token": proposal["proposal_token"],
-        "source_visit_id": proposal["visit_id"],
-        "source_exchange_id": proposal["source_exchange_id"],
-        "option_key": proposal["option_key"],
-        "action_kind": proposal["action_kind"],
-        "objective": proposal.get("objective"),
-        "frame_id": proposal.get("frame_id"),
-        "target_x_m": proposal.get("target_x_m"),
-        "target_y_m": proposal.get("target_y_m"),
-        "target_subject_type": proposal.get("target_subject_type"),
-        "target_subject_id": proposal.get("target_subject_id"),
-        "requested_tool_id": proposal.get("requested_tool_id"),
-    }
-    try:
-        raw = starter(request)
-    except Exception as exc:
         return {
+            "available": False,
             "ok": False,
-            "available": True,
-            "reason": f"Simulation rejected/failed shared-action start: {type(exc).__name__}.",
+            "reason": "Simulation shared-activity proposal lifecycle is unavailable.",
         }
 
-    result = _safe_start_result(raw)
-    result["available"] = True
-    return result
+    tool_id: int | None = None
+    if requested_tool_id:
+        try:
+            tool_id = int(requested_tool_id)
+        except ValueError:
+            return {
+                "available": True,
+                "ok": False,
+                "reason": "Requested tool/equipment ID is invalid.",
+            }
+
+    with connect() as conn:
+        now = int(get_meta(conn, "sim_minute") or "360")
+        try:
+            ok, activity_id, message = propose_shared_activity(
+                conn,
+                visitor=visitor,
+                citizen_id=citizen_id,
+                target_x_m=float(target_x_m),
+                target_y_m=float(target_y_m),
+                objective=objective,
+                source_visit_id=int(source_visit_id),
+                source_exchange_id=int(source_exchange_id),
+                tool_equipment_id=tool_id,
+                now=now,
+            )
+        except Exception as exc:
+            return {
+                "available": True,
+                "ok": False,
+                "reason": f"Simulation proposal validation failed: {type(exc).__name__}.",
+            }
+        if not ok or activity_id is None:
+            return {
+                "available": True,
+                "ok": False,
+                "reason": str(message or "Simulation rejected the shared activity proposal."),
+            }
+        conn.commit()
+        payload = shared_activity_payload(conn, int(activity_id), now)
+
+    safe = _safe_simulation_payload(payload)
+    return {
+        "available": True,
+        "ok": True,
+        "reason": str(message or ""),
+        "payload": safe,
+    }
 
 
-def simulation_shared_action_status(action_id: str) -> dict[str, Any] | None:
+def simulation_accept_shared_activity(activity_id: int, visitor: str) -> dict[str, Any]:
     try:
-        from . import simulation
+        from .exploration import accept_shared_activity, shared_activity_payload
+    except Exception:
+        return {
+            "available": False,
+            "ok": False,
+            "reason": "Simulation shared-activity acceptance lifecycle is unavailable.",
+        }
+
+    with connect() as conn:
+        now = int(get_meta(conn, "sim_minute") or "360")
+        try:
+            ok, job_id, message = accept_shared_activity(
+                conn,
+                int(activity_id),
+                visitor,
+                now=now,
+            )
+        except Exception as exc:
+            return {
+                "available": True,
+                "ok": False,
+                "reason": f"Simulation shared-activity start failed: {type(exc).__name__}.",
+            }
+        if not ok:
+            return {
+                "available": True,
+                "ok": False,
+                "reason": str(message or "Simulation rejected the accepted shared activity."),
+            }
+        conn.commit()
+        payload = shared_activity_payload(conn, int(activity_id), now)
+
+    safe = _safe_simulation_payload(payload) or {}
+    if safe.get("action_id") is None and job_id is not None:
+        safe["action_id"] = str(job_id)
+    return {
+        "available": True,
+        "ok": True,
+        "reason": str(message or ""),
+        "payload": safe,
+    }
+
+
+def simulation_shared_activity_status(activity_id: int) -> dict[str, Any] | None:
+    try:
+        from .exploration import shared_activity_payload
     except Exception:
         return None
 
-    getter = getattr(simulation, "shared_activity_status", None)
-    if not callable(getter):
-        return None
-
-    try:
-        raw = getter(action_id)
-    except Exception:
-        return None
-    if not isinstance(raw, dict):
-        return None
-
-    result = _safe_start_result(raw)
-    result["ok"] = True
-    result["action_id"] = str(raw.get("action_id") or raw.get("shared_action_id") or action_id)
-    return result
+    with connect() as conn:
+        now = int(get_meta(conn, "sim_minute") or "360")
+        try:
+            payload = shared_activity_payload(conn, int(activity_id), now)
+        except Exception:
+            return None
+    return _safe_simulation_payload(payload)
 
 
 def _row_payload(row: Any) -> dict[str, Any]:
@@ -255,7 +386,6 @@ def _row_payload(row: Any) -> dict[str, Any]:
         "citizen_id": item["citizen_id"],
         "visit_id": int(item["visit_id"]),
         "source_exchange_id": int(item["source_exchange_id"]),
-        "option_key": item["option_key"],
         "action_kind": item["action_kind"],
         "label": item["label"],
         "objective": item.get("objective"),
@@ -263,12 +393,11 @@ def _row_payload(row: Any) -> dict[str, Any]:
             "frame_id": item.get("frame_id"),
             "x_m": item.get("target_x_m"),
             "y_m": item.get("target_y_m"),
-            "subject_type": item.get("target_subject_type"),
-            "subject_id": item.get("target_subject_id"),
         },
         "requested_tool_id": item.get("requested_tool_id"),
         "status": item["status"],
         "acceptance_available": bool(item["acceptance_available"]),
+        "simulation_activity_id": item.get("simulation_activity_id"),
         "simulation_action_id": item.get("simulation_action_id"),
         "simulation_status": item.get("simulation_status"),
         "progress": item.get("simulation_progress"),
@@ -283,48 +412,56 @@ def _row_payload(row: Any) -> dict[str, Any]:
     }
 
 
+def _local_status(sim_status: str | None, current: str) -> str:
+    status = str(sim_status or "").lower()
+    if status == "proposed":
+        return "proposed"
+    if status in {"active", "started", "moving", "inspecting"}:
+        return "started"
+    if status in {"complete", "completed", "success"}:
+        return "completed"
+    if status in {"failed", "rejected"}:
+        return "failed"
+    if status in {"cancelled", "canceled"}:
+        return "cancelled"
+    return current
+
+
 def _sync_one(conn, row: Any, now: int) -> Any:
-    action_id = row["simulation_action_id"]
-    if not action_id:
+    activity_id = row["simulation_activity_id"]
+    if activity_id is None:
         return row
 
-    status = simulation_shared_action_status(str(action_id))
+    status = simulation_shared_activity_status(int(activity_id))
     if not status:
         return row
 
-    simulation_status = str(status.get("status") or row["simulation_status"] or "").lower()
-    local_status = str(row["status"])
-    if simulation_status in {"active", "started", "moving", "inspecting"}:
-        local_status = "started"
-    elif simulation_status in {"complete", "completed", "success"}:
-        local_status = "completed"
-    elif simulation_status in {"failed", "rejected"}:
-        local_status = "failed"
-    elif simulation_status in {"cancelled", "canceled"}:
-        local_status = "cancelled"
-
+    local_status = _local_status(status.get("status"), str(row["status"]))
     conn.execute(
         """
         UPDATE shared_action_proposals
         SET status = ?,
             simulation_status = ?,
+            simulation_action_id = COALESCE(?, simulation_action_id),
             simulation_progress = COALESCE(?, simulation_progress),
             simulation_start_minute = COALESCE(?, simulation_start_minute),
             simulation_end_minute = COALESCE(?, simulation_end_minute),
             observation_ids_json = ?,
             outcome_text = COALESCE(?, outcome_text),
-            acceptance_available = 0,
+            acceptance_available = CASE WHEN ? = 'proposed' THEN 1 ELSE 0 END,
             updated_minute = ?
         WHERE id = ?
         """,
         (
             local_status,
-            simulation_status or None,
+            status.get("status"),
+            status.get("action_id"),
             status.get("progress"),
             status.get("start_minute"),
             status.get("end_minute"),
             json.dumps(status.get("observation_ids") or []),
-            status.get("outcome"),
+            status.get("outcome") or status.get("failure_reason"),
+            local_status,
             now,
             int(row["id"]),
         ),
@@ -379,7 +516,7 @@ def proposals_for_visit(
         now = int(get_meta(conn, "sim_minute") or "360")
         result = []
         for row in rows:
-            if row["simulation_action_id"]:
+            if row["simulation_activity_id"] is not None:
                 row = _sync_one(conn, row, now)
             result.append(_row_payload(row))
         conn.commit()
@@ -387,37 +524,27 @@ def proposals_for_visit(
 
 
 def shared_action_option_context(visitor: str, citizen_id: str) -> str:
-    options = simulation_shared_action_options(visitor, citizen_id)
-    if not options:
+    if not _simulation_contract_available():
         return (
             "AVAILABLE SHARED PHYSICAL ACTIVITIES:\n"
-            "- none currently exposed as legal/available by Simulation"
+            "- Simulation shared-action lifecycle is not available in this runtime"
         )
 
-    lines = ["AVAILABLE SHARED PHYSICAL ACTIVITIES:"]
-    for option in options[:10]:
-        target_parts = []
-        if option.get("frame_id") and option.get("target_x_m") is not None and option.get("target_y_m") is not None:
-            target_parts.append(
-                f"target {option['frame_id']} ({float(option['target_x_m']):.2f}, {float(option['target_y_m']):.2f}) m"
-            )
-        if option.get("target_subject_id"):
-            target_parts.append(
-                f"subject {option.get('target_subject_type') or 'object'}:{option['target_subject_id']}"
-            )
-        if option.get("requested_tool_id"):
-            target_parts.append(f"tool/equipment #{option['requested_tool_id']}")
-
-        suffix = f" [{'; '.join(target_parts)}]" if target_parts else ""
-        lines.append(
-            f"- option_key={option['option_key']}: {option['label']}{suffix}"
+    access = visit_access_payload(visitor, citizen_id)
+    if not access.get("accessible"):
+        return (
+            "AVAILABLE SHARED PHYSICAL ACTIVITIES:\n"
+            "- none while visitor and citizen are not physically available face-to-face"
         )
-    lines.extend([
-        "- You may conversationally propose one of these activities.",
-        "- A proposal is still not physically started until the visitor accepts it and Simulation returns a real active action ID.",
-        "- Do not propose a shared physical action that is absent from this list.",
-    ])
-    return "\n".join(lines)
+
+    return (
+        "AVAILABLE SHARED PHYSICAL ACTIVITIES:\n"
+        "- a short local walk + baseline inspection may be PROPOSED when the visitor "
+        "explicitly gives a meter distance and cardinal direction (north/south/east/west)\n"
+        "- Simulation validates the exact target, proximity, range, energy reserve, "
+        "tool availability, and action legality before any structured proposal exists\n"
+        "- proposal acceptance still does not count as started until Simulation creates the real physical job"
+    )
 
 
 def shared_action_context(visitor: str, citizen_id: str, *, visit_id: int | None = None) -> str:
@@ -439,54 +566,39 @@ def shared_action_context(visitor: str, citizen_id: str, *, visit_id: int | None
         elif status == "accepted" and not item.get("simulation_action_id"):
             lines.append(
                 f"- proposal #{item['id']} was accepted conversationally, but Simulation has "
-                "not returned a physical action ID. It has NOT started."
+                "not returned a physical job ID. It has NOT started."
             )
         elif status == "started":
             progress = item.get("progress")
             progress_text = f" ({float(progress) * 100:.0f}% progress)" if progress is not None else ""
             lines.append(
-                f"- Simulation shared action {item.get('simulation_action_id')} is ACTIVE: "
-                f"{item['label']}{progress_text}."
+                f"- Simulation shared activity #{item.get('simulation_activity_id')} / "
+                f"job {item.get('simulation_action_id')} is ACTIVE: {item['label']}{progress_text}."
             )
         elif status == "completed":
             lines.append(
-                f"- Simulation shared action {item.get('simulation_action_id')} COMPLETED: "
+                f"- Simulation shared activity #{item.get('simulation_activity_id')} COMPLETED: "
                 f"{item['label']}."
             )
         elif status in {"failed", "cancelled", "rejected", "expired"}:
             lines.append(f"- proposal #{item['id']} ended as {status}: {item['label']}.")
     lines.append(
-        "- Only a proposal with a real Simulation action ID/status may be described as physically started."
+        "- Only a proposal with a real active Simulation job ID may be described as physically started."
     )
     return "\n".join(lines)
 
 
-async def _select_option_from_exchange(
+async def _exchange_mutually_proposes_walk(
     *,
     model: str,
     visitor_text: str,
     citizen_text: str,
-    options: list[dict[str, Any]],
-) -> str | None:
-    safe_options = [
-        {
-            "option_key": item["option_key"],
-            "action_kind": item["action_kind"],
-            "label": item["label"],
-            "objective": item.get("objective"),
-            "frame_id": item.get("frame_id"),
-            "target_x_m": item.get("target_x_m"),
-            "target_y_m": item.get("target_y_m"),
-            "target_subject_type": item.get("target_subject_type"),
-            "target_subject_id": item.get("target_subject_id"),
-            "requested_tool_id": item.get("requested_tool_id"),
-        }
-        for item in options
-    ]
-
+    dx_m: float,
+    dy_m: float,
+) -> bool:
     prompt = f"""
-Classify whether this face-to-face exchange clearly proposes ONE of the currently
-legal Simulation-supplied shared physical activity options.
+Determine whether this durable face-to-face exchange mutually proposes taking the
+explicit visitor-requested local movement together.
 
 VISITOR:
 {visitor_text}
@@ -494,20 +606,17 @@ VISITOR:
 CITIZEN:
 {citizen_text}
 
-LEGAL SAFE OPTIONS:
-{json.dumps(safe_options, ensure_ascii=False)}
+PARSED EXPLICIT RELATIVE REQUEST:
+east_delta_m={dx_m}
+north_delta_m={dy_m}
 
 Return JSON only:
-{{
-  "proposal_key": "exact option_key or null"
-}}
+{{"propose": true or false}}
 
 Rules:
-- Select an option only when the exchange clearly proposes doing it together.
-- A question about capability is not automatically a proposal.
-- A refusal/disagreement produces null.
-- Do not invent coordinates, tools, targets, action types, or option keys.
-- If no supplied option matches, return null.
+- true only if the visitor proposes the movement/activity and the citizen response is willing/proposing, not refusing.
+- a capability question alone is false.
+- do not create/change coordinates or action parameters.
 """.strip()
 
     try:
@@ -519,27 +628,22 @@ Rules:
                     "messages": [
                         {
                             "role": "system",
-                            "content": "Select only a supplied safe option key. Return valid JSON only.",
+                            "content": "Return only JSON with one boolean field: propose.",
                         },
                         {"role": "user", "content": prompt},
                     ],
                     "stream": False,
                     "think": False,
                     "format": "json",
-                    "options": {"temperature": 0.0, "num_ctx": 2048, "num_predict": 80},
+                    "options": {"temperature": 0.0, "num_ctx": 1536, "num_predict": 40},
                 },
             )
             response.raise_for_status()
             raw = str((response.json().get("message") or {}).get("content") or "").strip()
             data = json.loads(raw)
     except Exception:
-        return None
-
-    key = data.get("proposal_key") if isinstance(data, dict) else None
-    if key is None:
-        return None
-    key = str(key).strip()
-    return key if any(item["option_key"] == key for item in options) else None
+        return False
+    return bool(data.get("propose")) if isinstance(data, dict) else False
 
 
 async def maybe_create_proposal_from_exchange(
@@ -553,20 +657,13 @@ async def maybe_create_proposal_from_exchange(
     model: str,
 ) -> dict[str, Any] | None:
     """
-    Best-effort proposal extraction after a durable visitor exchange exists.
+    Translate explicit conversational intent into a Simulation-validated proposal.
 
-    No legal Simulation option -> no proposal.
-    No explicit matching exchange -> no proposal.
+    Communication parses only relative meter/cardinal intent. Simulation decides
+    whether the resulting proposed target/activity is physically legal and owns
+    the canonical shared_activities row.
     """
     ensure_shared_action_schema()
-
-    access = visit_access_payload(visitor, citizen_id)
-    if not access.get("accessible"):
-        return None
-
-    options = simulation_shared_action_options(visitor, citizen_id)
-    if not options:
-        return None
 
     with connect() as conn:
         existing = conn.execute(
@@ -576,16 +673,67 @@ async def maybe_create_proposal_from_exchange(
         if existing:
             return _row_payload(existing)
 
-    selected_key = await _select_option_from_exchange(
+    access = visit_access_payload(visitor, citizen_id)
+    if not access.get("accessible"):
+        return None
+
+    relative = parse_explicit_relative_target(visitor_text)
+    if relative is None:
+        return None
+    dx_m, dy_m = relative
+
+    if not await _exchange_mutually_proposes_walk(
         model=model,
         visitor_text=visitor_text,
         citizen_text=citizen_text,
-        options=options,
-    )
-    if not selected_key:
+        dx_m=dx_m,
+        dy_m=dy_m,
+    ):
         return None
 
-    selected = next(item for item in options if item["option_key"] == selected_key)
+    with connect() as conn:
+        citizen = conn.execute(
+            "SELECT position_x_m, position_y_m FROM citizens WHERE id = ?",
+            (citizen_id,),
+        ).fetchone()
+        presence = conn.execute(
+            "SELECT x_m, y_m FROM visitor_presence WHERE visitor = ?",
+            (visitor,),
+        ).fetchone()
+        if not citizen or not presence:
+            return None
+
+        cx = float(citizen["position_x_m"] or 0.0)
+        cy = float(citizen["position_y_m"] or 0.0)
+        vx = float(presence["x_m"] or 0.0)
+        vy = float(presence["y_m"] or 0.0)
+        if math.hypot(cx - vx, cy - vy) > 2.0:
+            return None
+
+    target_x = round(cx + dx_m, 4)
+    target_y = round(cy + dy_m, 4)
+    objective = (
+        f"Walk together {dx_m:+g} m east/west and {dy_m:+g} m north/south, "
+        "then perform a baseline local inspection."
+    )
+
+    simulation = simulation_propose_shared_activity(
+        visitor=visitor,
+        citizen_id=citizen_id,
+        target_x_m=target_x,
+        target_y_m=target_y,
+        objective=objective,
+        source_visit_id=visit_id,
+        source_exchange_id=source_exchange_id,
+    )
+    if not simulation.get("available") or not simulation.get("ok"):
+        return None
+
+    safe = simulation.get("payload") or {}
+    activity_id = safe.get("activity_id")
+    if activity_id is None:
+        return None
+
     now = None
     with connect() as conn:
         now = int(get_meta(conn, "sim_minute") or "360")
@@ -593,12 +741,13 @@ async def maybe_create_proposal_from_exchange(
             """
             INSERT OR IGNORE INTO shared_action_proposals(
                 proposal_token, visitor, citizen_id, visit_id, source_exchange_id,
-                option_key, action_kind, label, objective, frame_id,
-                target_x_m, target_y_m, target_subject_type, target_subject_id,
-                requested_tool_id, status, acceptance_available,
-                created_minute, updated_minute
+                action_kind, label, objective, frame_id,
+                target_x_m, target_y_m, requested_tool_id,
+                status, acceptance_available, simulation_activity_id,
+                simulation_status, created_minute, updated_minute
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'proposed', 1, ?, ?)
+            VALUES (?, ?, ?, ?, ?, 'shared_walk_inspect', ?, ?, ?, ?, ?, ?,
+                    'proposed', 1, ?, 'proposed', ?, ?)
             """,
             (
                 secrets.token_urlsafe(12),
@@ -606,16 +755,13 @@ async def maybe_create_proposal_from_exchange(
                 citizen_id,
                 int(visit_id),
                 int(source_exchange_id),
-                selected["option_key"],
-                selected["action_kind"],
-                selected["label"],
-                selected.get("objective"),
-                selected.get("frame_id"),
-                selected.get("target_x_m"),
-                selected.get("target_y_m"),
-                selected.get("target_subject_type"),
-                selected.get("target_subject_id"),
-                selected.get("requested_tool_id"),
+                "Walk together and inspect the destination",
+                safe.get("objective") or objective,
+                safe.get("frame_id") or "seed_site_local",
+                safe.get("target_x_m"),
+                safe.get("target_y_m"),
+                safe.get("tool_equipment_id"),
+                int(activity_id),
                 now,
                 now,
             ),
@@ -635,9 +781,8 @@ async def maybe_create_proposal_from_exchange(
     return proposal_payload(proposal_id, sync=False)
 
 
-
 def expire_pending_proposals_for_visitor(visitor: str) -> int:
-    """Expire unstarted proposals when the visitor physically leaves/moves."""
+    """Expire Communication proposals that have no active physical job."""
     ensure_shared_action_schema()
     with connect() as conn:
         now = int(get_meta(conn, "sim_minute") or "360")
@@ -653,7 +798,6 @@ def expire_pending_proposals_for_visitor(visitor: str) -> int:
         )
         conn.commit()
         return int(cur.rowcount or 0)
-
 
 
 def accept_proposal(proposal_id: int, visitor: str) -> tuple[bool, str, dict[str, Any] | None]:
@@ -685,59 +829,27 @@ def accept_proposal(proposal_id: int, visitor: str) -> tuple[bool, str, dict[str
             conn.commit()
             return False, "You are no longer physically available for this proposal.", proposal_payload(proposal_id, sync=False)
 
-        # Revalidate that the option is still currently legal before recording
-        # acceptance. Proposal existence never freezes physical legality.
-        current = {
-            option["option_key"]: option
-            for option in simulation_shared_action_options(visitor, str(row["citizen_id"]))
-        }
-        if row["option_key"] not in current:
-            now = int(get_meta(conn, "sim_minute") or "360")
-            conn.execute(
-                """
-                UPDATE shared_action_proposals
-                SET status = 'expired', acceptance_available = 0, updated_minute = ?
-                WHERE id = ?
-                """,
-                (now, int(proposal_id)),
-            )
-            conn.commit()
-            return False, "The proposed physical activity is no longer legal/available.", proposal_payload(proposal_id, sync=False)
+        activity_id = row["simulation_activity_id"]
+        if activity_id is None:
+            return False, "Simulation proposal identity is missing.", _row_payload(row)
 
-        now = int(get_meta(conn, "sim_minute") or "360")
-        conn.execute(
-            """
-            UPDATE shared_action_proposals
-            SET status = 'accepted', acceptance_available = 0,
-                accepted_minute = ?, updated_minute = ?
-            WHERE id = ?
-            """,
-            (now, now, int(proposal_id)),
-        )
-        conn.commit()
-
-    proposal = proposal_payload(proposal_id, sync=False)
-    if not proposal:
-        return False, "Proposal could not be reloaded.", None
-
-    start = simulation_start_shared_action(proposal)
+    start = simulation_accept_shared_activity(int(activity_id), visitor)
     if not start.get("available"):
-        # Acceptance is durable human intent, but remains explicitly not started.
-        return True, "Accepted. Waiting for Simulation to expose/start the physical shared action.", proposal
+        return False, start.get("reason") or "Simulation shared activity is unavailable.", proposal_payload(proposal_id, sync=False)
 
-    if not start.get("ok") or not start.get("action_id"):
+    if not start.get("ok"):
         with connect() as conn:
             now = int(get_meta(conn, "sim_minute") or "360")
             conn.execute(
                 """
                 UPDATE shared_action_proposals
-                SET status = 'failed', simulation_status = ?,
+                SET status = 'failed', acceptance_available = 0,
+                    simulation_status = 'failed',
                     outcome_text = ?, updated_minute = ?
                 WHERE id = ?
                 """,
                 (
-                    start.get("status"),
-                    start.get("reason") or "Simulation did not start the accepted activity.",
+                    start.get("reason") or "Simulation rejected the accepted activity.",
                     now,
                     int(proposal_id),
                 ),
@@ -745,12 +857,15 @@ def accept_proposal(proposal_id: int, visitor: str) -> tuple[bool, str, dict[str
             conn.commit()
         return False, start.get("reason") or "Simulation rejected the shared activity.", proposal_payload(proposal_id, sync=False)
 
+    safe = start.get("payload") or {}
     with connect() as conn:
         now = int(get_meta(conn, "sim_minute") or "360")
         conn.execute(
             """
             UPDATE shared_action_proposals
             SET status = 'started',
+                acceptance_available = 0,
+                accepted_minute = ?,
                 simulation_action_id = ?,
                 simulation_status = ?,
                 simulation_progress = ?,
@@ -762,13 +877,14 @@ def accept_proposal(proposal_id: int, visitor: str) -> tuple[bool, str, dict[str
             WHERE id = ?
             """,
             (
-                start["action_id"],
-                start.get("status") or "active",
-                start.get("progress"),
-                start.get("start_minute"),
-                start.get("end_minute"),
-                json.dumps(start.get("observation_ids") or []),
-                start.get("outcome"),
+                now,
+                safe.get("action_id"),
+                safe.get("status") or "active",
+                safe.get("progress"),
+                safe.get("start_minute"),
+                safe.get("end_minute"),
+                json.dumps(safe.get("observation_ids") or []),
+                safe.get("outcome"),
                 now,
                 int(proposal_id),
             ),
