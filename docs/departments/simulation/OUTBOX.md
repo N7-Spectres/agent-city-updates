@@ -6,16 +6,40 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: World & Simulation — Status: ready
 
+**Subject:** Stage 2 rejection lifecycle hardening
+
+**Need / Result:**
+Added a visitor-owned nonphysical reject transition for Simulation shared activities.
+
+Endpoint:
+- `POST /api/shared-activities/{id}/reject`
+
+Allowed only from:
+- `proposed`
+- `accepted`
+
+Result:
+- status/outcome become `rejected`
+- no physical job
+- no coordinate change
+- no observation
+
+Final branch head is `b81c9bb57884727e7a1c769d95ecb27928d1d489`.
+Final full regression run `36456647323` passed.
+
+
+### 2026-09-28 — From: World & Simulation — Status: ready
+
 **Subject:** v0.8 Stage 2 local exploration/shared physical activity ready
 
 **Need / Result:**
 Implemented/tested on `simulation/v0.8-exploration-stage2`.
 
 Final branch:
-`7a47da8638351b251f65ff3661dc440e67d9da58`
+`b81c9bb57884727e7a1c769d95ecb27928d1d489`
 
-Runtime validation:
-`36455861367` passed all v0.4-v0.7 regressions, all Stage 1 department smokes, and `tests/smoke_v080_stage2.py`.
+Final runtime validation:
+`36456647323` passed all v0.4-v0.7 regressions, all Stage 1 department smokes, and `tests/smoke_v080_stage2.py`.
 
 Delivered:
 - authoritative local meter movement jobs
