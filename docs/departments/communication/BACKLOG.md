@@ -65,3 +65,14 @@ Treat this as a useful provenance/grounding case:
 - when a process is not a known validated capability, prefer language such as "we could test whether..." / "I suspect..." / "we would need to develop..."
 - conversation remains allowed to generate invention ideas; those ideas become physical truth only after Simulation validates a design/process
 - preserve the distinction between a structure physically existing and that structure being capable of a particular unvalidated operation
+
+
+## v0.8 Visitor-citizen shared-action grounding
+
+Live v0.7 observation: during a face-to-face visit, a citizen accepted a visitor suggestion to "walk the perimeter" and spoke as though a shared physical activity was about to begin ("Ready when you are"), even though visitor chat currently does not create a joint Simulation action.
+
+Needed grounding:
+- distinguish conversational agreement/intention from an active physical co-action
+- citizens may say they are willing to do something with the visitor, but should not imply it has begun until Simulation creates a valid shared/visitor-linked action
+- preserve natural language such as "we could" / "I can do that" when capability exists but no action has started
+- once visitor-linked physical actions exist, dialogue may reference their real state/progress
