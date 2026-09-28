@@ -8,7 +8,7 @@ import httpx
 
 from .comms import generate_dialogue, known_deposits_for, recent_dialogues_for, visible_citizens
 from .db import connect, get_meta, snapshot
-from .memory import knowledge_context_for as memory_knowledge_context_for, social_context_for
+from .memory import knowledge_context_for as memory_knowledge_context_for, maintenance_context_for, social_context_for
 from .knowledge import known_properties_for
 from .provenance import knowledge_context_for as provenance_context_for
 from .simulation import possible_actions, start_action
