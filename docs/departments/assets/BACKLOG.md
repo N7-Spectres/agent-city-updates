@@ -96,6 +96,18 @@ Next owner:
 
 ## v0.8.1 Citizen Visual Asset Hotfix
 
+### Map readability polish
+
+- add explicit map zoom controls: zoom in, zoom out, reset/region view
+- clicking a location node should be able to focus/center that area without changing Simulation coordinates
+- preserve authoritative x/y; zoom/pan is presentation-only
+- remove the visible rectangular focus/hover box around location nodes
+- keep the larger invisible click target for usability, but highlight only the dot/label when hovered or focused
+- prevent dense Seed Site citizen/location tokens from becoming unreadable at region scale
+- keep reduced-motion and keyboard-focus accessibility
+- no extra physical rendering or hidden spatial data should be introduced
+
+
 - prepare runtime-ready art exports for all six founding citizens
 - recommended minimum per citizen:
   - transparent full-body PNG
