@@ -677,12 +677,13 @@ def complete_due_jobs(now: int) -> None:
                         INSERT INTO equipment
                         (template_id, name, kind, owner_citizen_id, location_id, condition,
                          extraction_speed_multiplier, cargo_bonus, created_job_id, created_minute)
-                        VALUES (?, ?, ?, NULL, ?, 100, ?, ?, ?, ?)
+                        VALUES (?, ?, ?, ?, ?, 100, ?, ?, ?, ?)
                         """,
                         (
                             str(job["target"]),
                             process["name"],
                             process["kind"],
+                            c["id"],
                             c["location_id"],
                             float(process["extraction_speed_multiplier"]),
                             float(process["cargo_bonus"]),
