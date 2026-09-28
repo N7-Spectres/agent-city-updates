@@ -97,3 +97,30 @@ Stable physical IDs should be preserved in UI data attributes / future links whe
 When a requested UI surface depends on new Simulation-owned physical state, Assets should complete independent presentation work first, then stop at a clear dependency boundary.
 
 Do not mock, infer, or temporarily synthesize project/tool/structure state merely to finish the interface ahead of the authoritative schema.
+
+
+## v0.5 Canonical Conversation Identity Rule
+
+For v0.5 History, `citizen_conversations.id` / `source_id` is the stable UI identity for a real stored citizen exchange.
+
+When present, `source_job_id` may be shown as the physical talk-job anchor.
+
+A failed talk attempt with no conversation row remains chronology only. Assets must never manufacture a transcript or conversation card to make the chronology look complete.
+
+## v0.5 Making View Decision
+
+The former **Structures** Control Room tab becomes **Making** for v0.5.
+
+It groups three related authoritative physical surfaces in one place:
+
+- Projects
+- Equipment
+- Structures
+
+This is a presentation grouping only. It does not merge their simulation semantics.
+
+## Local Coordinate Presentation Rule
+
+v0.5 `x_km/y_km` values are shown only as local site coordinates.
+
+Do not render them as proof of a continuous globe/free-roam world until Simulation actually owns that geography.
