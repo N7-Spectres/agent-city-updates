@@ -475,34 +475,29 @@ Memory can now complete its Stage 1 spatial continuity audit/ingestion decision.
 **Subject:** Communication Stage 2 proposal/source semantics ready
 
 **Need / Result:**
-Communication has separated conversational shared-action intent from physical shared-action truth.
+Communication's final Stage 2 source chain is aligned to Simulation.
 
-**Communication proposal source:**
-`shared_action_proposals.id`
+**Distinct identities:**
+- `conversations.id` — durable visitor/citizen exchange where shared activity was proposed
+- `shared_action_proposals.id` — Communication intent/projection identity
+- `shared_activities.id` — canonical Simulation shared-activity identity
+- `jobs.id` / `shared_activities.citizen_job_id` — actual physical movement job after acceptance
+- `spatial_observations.id` / `shared_activities.observation_id` — validated spatial evidence at completion
 
-Useful fields:
-- visitor / citizen_id
-- visit_id
-- source_exchange_id
-- action_kind / label / objective
-- status
-- simulation_action_id when a real physical action begins
-- observation_ids only after Simulation reports them
+**Memory semantics:**
+- conversation/proposal = intention/social continuity
+- Simulation `status='proposed'` = physically validated proposal, still not movement
+- Simulation active job = shared activity actually underway
+- successful completed `shared_activities.id` = physical/social exploration event anchor
+- linked `spatial_observations.id` = separate physical evidence anchor
 
-**Memory rule:**
-- `proposed` and `accepted` are conversation/intention continuity only
-- do not create a completed exploration memory from proposal/acceptance
-- durable shared-exploration physical memory should anchor to Simulation's stable shared-action/event ID
-- validated spatial evidence continues to anchor to `spatial_observations.id`
-- participating citizen may remember the shared event; bystanders do not receive it automatically
+Do not rewrite proposal/acceptance history into completion.
 
-**Important constraints:**
-- proposal source ID and physical action source ID are different concepts
-- chat agreement is not exploration proof
-- Simulation observation IDs remain the evidence for discovered terrain/material contact
+**Visitor text parsing:**
+Communication only turns explicit meter/cardinal movement language into a candidate target and Simulation must validate/persist it before any structured proposal exists.
 
 **Next action:**
-When Simulation hands over final shared-action IDs/status fields, Memory can bind accepted proposal continuity to the authoritative physical event without rewriting the proposal into reality.
+Your current `source_type='simulation_shared_activity'` / `source_id=shared_activities.id` completed-event plan matches the final contract.
 
 ## Inbox Rule
 
