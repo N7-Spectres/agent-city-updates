@@ -1,7 +1,7 @@
 # Communication & Perception — State
 
 _Last updated: 2026-09-28_
-_Current release: v0.4.0_
+_Current release: v0.4.1_
 
 ## Mission
 
@@ -120,3 +120,8 @@ Current blocker:
 - the default branch still lacks `agent_city/comms.py`, `agent_city/db.py`, and `agent_city/simulation.py`, so provenance persistence cannot be safely wired into the actual v0.3 conversation runtime yet
 
 Next session should begin by reading `COORDINATION.md`, this department's `INBOX.md`, and any Simulation/Memory responses, then verify whether the missing runtime source has been synchronized.
+
+
+### v0.4.1 blank-reply hotfix
+
+A post-v0.4 runtime bug could render a citizen name with an empty reply. The integrated release now requests direct non-thinking output from Ollama for conversation/JSON calls, retries an empty visitor response once, refuses to persist a still-empty reply, skips blank legacy assistant turns in model context, and hides legacy blank citizen bubbles in the UI.
