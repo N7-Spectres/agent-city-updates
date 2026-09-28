@@ -15,6 +15,8 @@ Assets request is recorded in `docs/departments/simulation/INBOX.md`.
 
 ## Review / Validation — v0.7 Branch
 
+- run `tests/smoke_v070_assets.py` on integrated/runtime-capable branch
+
 - runtime-test draft PR #7 / `assets/v0.7-home-avatars`
 - verify three desktop Home columns stay approximately aligned in height
 - verify citizen rail scrolls independently
