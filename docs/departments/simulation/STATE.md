@@ -1,7 +1,7 @@
 # World & Simulation — State
 
 _Last updated: 2026-09-28_
-_Current shipped release: v0.5.0_
+_Current shipped release: v0.6.0_
 _Active implementation branch: `simulation/v0.6-research-discovery`_
 _Branch head: `d1ae3faf0095d22e7a730cf50b3ad6fdbcdc4b94`_
 
@@ -265,3 +265,11 @@ The final v0.6 Simulation contract has been delivered to:
 No further Simulation implementation is pending in this work session. Resume only for coordinator merge conflicts, new inbox requests, or a later milestone.
 
 No release metadata or `update.json` was changed.
+
+
+## Shipped v0.6.0 Integration
+
+Simulation v0.6 work is included in the published runtime:
+`6092aeafd685a3ba4cb8e9d455e586771d3f6d26`.
+
+The assembled release passed the full cross-department smoke suite. Coordinator integration preserved Simulation truth, Communication provenance, Memory bounded retrieval, and Assets safe presentation as distinct layers.
