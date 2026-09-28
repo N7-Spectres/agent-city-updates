@@ -2,11 +2,14 @@
 
 ## Near-Term
 
-- distinguish direct observation from remembered/communicated information more explicitly
-- formalize last-known citizen status records
-- allow communicated discoveries/plans to propagate through actual conversations
-- track information age/source where useful
-- ensure visitor and citizen prompts expose only reachable knowledge
+- wire `PROVENANCE_CONTRACT.md` into the actual v0.3 conversation/database runtime once `comms.py`, `db.py`, and `simulation.py` are present on the branch
+- store explicit transfer events for same-location conversations
+- extract only facts actually spoken, not every fact implied by a summary
+- formalize per-citizen last-known views derived from provenance records
+- track information source and age in bounded Memory retrieval
+- audit visitor conversation prompts for the same anti-omniscience boundary
+- audit legal-action labels/reasons for hidden remote-state leakage
+- add tests for the five provenance acceptance scenarios in `PROVENANCE_CONTRACT.md`
 
 ## Speech / Hearing
 
