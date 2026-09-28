@@ -2966,3 +2966,54 @@ input:focus, textarea:focus { border-color: var(--accent); }
     display: grid;
   }
 }
+
+
+/* v0.8 Stage 1 — Home active-job progress */
+.citizen-job-progress {
+  display: grid;
+  gap: 5px;
+  margin: 8px 0 0 39px;
+}
+
+.citizen-job-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.25;
+}
+
+.citizen-job-progress-meta span:last-child {
+  text-align: right;
+}
+
+.citizen-job-progress-track {
+  height: 4px;
+  overflow: hidden;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  background: rgba(255,255,255,.025);
+}
+
+.citizen-job-progress-track > span {
+  display: block;
+  height: 100%;
+  min-width: 1px;
+  border-radius: inherit;
+  background: var(--accent);
+}
+
+@media (max-width: 640px) {
+  .citizen-job-progress {
+    margin-left: 0;
+  }
+
+  .citizen-job-progress-meta {
+    display: grid;
+  }
+
+  .citizen-job-progress-meta span:last-child {
+    text-align: left;
+  }
+}
