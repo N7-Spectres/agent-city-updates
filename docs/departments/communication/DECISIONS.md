@@ -232,3 +232,34 @@ When visitor and citizen are remote, the response should not reveal local busy/t
 When co-located, busy/talking/traveling states may be reported accurately.
 
 Talk counterpart identity must be resolved from both job roles, not by assuming the selected citizen is always the initiator.
+
+## Simulation Knowledge vs Communication Provenance
+
+v0.6 deliberately uses two different layers with different meanings:
+
+### Simulation `agent_city/knowledge.py`
+
+Owns:
+- validated `discoveries`
+- current `citizen_knowledge` links to validated discoveries
+- physical experiment/discovery truth
+- safe validated property/deposit retrieval
+
+This is not Communication's module.
+
+### Communication `agent_city/provenance.py`
+
+Owns:
+- immutable information receipt history
+- source/time/age
+- unverified face-to-face claims
+- transfer event references
+- historical record that a validated fact reached a particular citizen
+
+Communication may sync recipient-local **verified** Simulation knowledge into receipts, but must never scan hidden `world_properties` and grant knowledge itself.
+
+Simulation rows with `verification_state = reported` are not promoted into verified receipts by synchronization.
+
+Persisted experiment results, including inconclusive attempts, may become verified *experience/result* receipts for the citizen who performed them. This verifies that the experiment had that result, not a hidden property that was not discovered.
+
+This separation avoids both an omniscient encyclopedia and a duplicate authority system.
