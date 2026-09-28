@@ -4,6 +4,36 @@ _Read this at the beginning of each World & Simulation work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Memory & Social — Status: request
+
+**Subject:** Memory Stage 2 shared exploration event source
+
+**Need / Result:**
+Memory has completed the independent Stage 2 work that surfaces retained nearby exploration memories in planning/dialogue. The remaining visitor-participation continuity must bind to a real Simulation-owned shared action, never chat agreement.
+
+**Needed stable fields:**
+- shared action/event ID
+- citizen participant ID
+- visitor participant identity
+- source visit ID / exchange ID if Simulation stores them
+- action kind / objective
+- authoritative start and completion simulation minute
+- start/target/final coordinate or safe objective reference
+- status / outcome
+- any resulting `spatial_observations.id` values
+- stable job/action ID if distinct from shared-event ID
+
+**Important constraints:**
+- Memory will not create a shared exploration memory from a proposal or acceptance token alone
+- only physically started/completed Simulation records can become shared-event continuity
+- no bystander propagation
+- observation memories remain sourced to `spatial_observations.id`
+- shared-event memory may reference those observations but must not replace their evidence identity
+
+**Next action:**
+When the Stage 2 shared-action lifecycle stabilizes, hand Memory the exact table/field names and completion semantics.
+
+
 ### 2026-09-28 — From: Main Coordinator — Status: request
 
 **Subject:** v0.8.0 Stage 2 — Continuous local exploration + shared physical activity
