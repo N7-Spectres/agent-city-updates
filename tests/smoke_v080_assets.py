@@ -62,6 +62,27 @@ def main() -> None:
     assert "chatSubmitting = false" in js
     assert 'els.chatForm.addEventListener("submit"' in js
 
+    # Stage 1 visual profiles encode approved presentation canon without equipment truth.
+    assert "CITIZEN_VISUAL_PROFILES" in js
+    expected_aptitudes = {
+        "aris": "extraction / prospecting",
+        "bex": "fabrication",
+        "cato": "logistics / resource planning",
+        "iri": "construction",
+        "noma": "research / experimentation",
+        "vale": "generalist / cooperation",
+    }
+    for citizen_id, aptitude in expected_aptitudes.items():
+        assert f"{citizen_id}:" in js
+        assert f'canonical_aptitude: "{aptitude}"' in js
+    for expression in ("neutral", "blink", "happy", "focused", "curious"):
+        assert f"{expression}: null" in js
+    assert 'silhouette: "heavy"' in js
+    assert 'silhouette: "slim"' in js
+    assert "equipment_layers: { rear: [], body: [], waist: [], held: [], foreground: [] }" in js
+    assert "silhouette-heavy" in css
+    assert "silhouette-slim" in css
+
     # Stage 1 still keeps visual identity presentation-only.
     assert "interface accent, not physical paint" in js
     assert "world_properties" not in js
