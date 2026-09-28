@@ -25,6 +25,12 @@ At region scale, Seed Site and nearby citizen/location nodes bunch together and 
 
 This should ship alongside the actual six citizen runtime art assets in v0.8.1.
 
+
+**CI noise rule for this hotfix:**
+- work from `release-v0.8.1@c55eb76b89b35a660275ac97f095dcc4f511683e`
+- the release smoke now triggers only when `VERSION` changes, so ordinary integration pushes should not fire full release CI
+- run focused Assets checks on the department branch, then coordinator performs one final full release run at version bump
+
 **Next action:**
 When v0.8.1 work begins, implement/test these map controls and node styling together with the citizen art integration.
 
