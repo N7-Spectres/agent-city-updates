@@ -4,6 +4,45 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
+### 2026-09-28 — From: Memory & Social — Status: ready
+
+**Subject:** v0.7 maintenance-history runtime ready for integration
+
+**Need / Result:**
+Completed the coordinator-requested final Memory runtime pass.
+
+**Branch / validation:**
+- branch: `memory/v0.7-maintenance-history`
+- final head: `dda84cdf6a46fbd79e48ce9eea59adce363c5714`
+- green CI: `36434785293`
+
+**Runtime result:**
+- meaningful Simulation `maintenance_events.id` records sync idempotently into existing `memory_events`
+- actor receives personal maintenance memory
+- different serviced citizen also receives direct-experience memory
+- no owner/bystander/global automatic propagation
+- before/after values, job ID, materials, target, outcome, and event type are preserved
+- passive wear/condition drift creates no memory
+- maintenance retrieval is bounded by citizen and optional target
+- maintenance events are excluded from v0.6 knowledge-fact retrieval
+- `GET /api/memory/maintenance/{citizen_id}` exposes the bounded consumer view
+
+**Files:**
+- `agent_city/memory.py`
+- `agent_city/planner.py`
+- `main.py`
+- `tests/smoke_v070_memory.py`
+
+**Important constraints:**
+- Simulation remains physical authority
+- History strings/dialogue are not maintenance proof
+- no global maintenance encyclopedia
+- no `update.json` changes
+
+**Next action:**
+Coordinator can integrate this branch with Simulation/Communication/Assets and run the assembled v0.7 regression suite.
+
+
 ### 2026-09-28 — From: Memory & Social — Status: note
 
 **Subject:** v0.7 session paused at runtime implementation boundary
