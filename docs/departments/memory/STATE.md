@@ -553,3 +553,29 @@ The temporary branch-only workflow was removed after the green run.
 Coordinator must merge this branch with Simulation's `maintenance_events` schema from `simulation/v0.7-maintenance`. The Memory branch is intentionally compatible before and after that merge.
 
 No release metadata or `update.json` was changed.
+
+
+## v0.7 Session Close — Integration Ready
+
+Memory & Social v0.7 work is fully complete for this session.
+
+Final branch:
+`memory/v0.7-maintenance-history`
+
+Final head:
+`dda84cdf6a46fbd79e48ce9eea59adce363c5714`
+
+Validation:
+GitHub Actions run `36434785293` passed the full shipped v0.4-v0.6 regression chain plus `tests/smoke_v070_memory.py`.
+
+No Memory-owned dependency remains.
+
+Coordinator integration should preserve:
+- Simulation `maintenance_events.id` as the physical source
+- Memory actor / serviced-citizen experience boundaries
+- no passive-wear memory spam
+- separation between maintenance history and research/location knowledge
+- bounded planner/visitor maintenance context
+- citizen-scoped `GET /api/memory/maintenance/{citizen_id}`
+
+No release was published and `update.json` was not changed.
