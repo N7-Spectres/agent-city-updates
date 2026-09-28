@@ -4,11 +4,26 @@ import json
 import math
 from typing import Any
 
-from .db import add_history, connect, get_meta
+from .db import add_history, connect, get_meta, set_meta
 from .knowledge import citizen_knows_property, record_discovery
 
 BASE_CARRY_CAPACITY = 20.0
 RETURN_ENERGY_MARGIN = 5.0
+
+MIN_OPERATIONAL_CONDITION = 20.0
+SERVICE_DUE_CONDITION = 90.0
+BATTERY_REPLACE_THRESHOLD = 85.0
+CHASSIS_SERVICE_WEAR = 12.0
+BATTERY_HEALTH_WEAR_PER_ENERGY = 0.003
+
+PASSIVE_STRUCTURE_WEAR_PER_DAY = {
+    "charger": 0.08,
+    "workbench": 0.07,
+    "smelter": 0.08,
+    "storage": 0.03,
+    "shelter": 0.04,
+    "structure": 0.04,
+}
 
 # Generic starter assays are physical methods, not technologies or unlock nodes.
 # Simulation knows which hidden property (if any) responds to each method; citizens do not.
@@ -92,6 +107,356 @@ CONSTRUCTION_BLUEPRINTS: dict[str, dict[str, Any]] = {
 }
 
 
+def condition_factor(condition: float) -> float:
+    if condition <= MIN_OPERATIONAL_CONDITION:
+        return 0.0
+    return max(0.0, min(1.0, condition / 100.0))
+
+
+def condition_band(condition: float) -> str:
+    if condition <= MIN_OPERATIONAL_CONDITION:
+        return "critical"
+    if condition < 60:
+        return "degraded"
+    if condition < SERVICE_DUE_CONDITION:
+        return "service_due"
+    return "nominal"
+
+
+def structure_at(conn, name: str, location_id: str | None = None):
+    if location_id is None:
+        return conn.execute(
+            "SELECT * FROM structures WHERE name = ? ORDER BY id LIMIT 1",
+            (name,),
+        ).fetchone()
+    return conn.execute(
+        """
+        SELECT * FROM structures
+        WHERE name = ? AND location_id = ?
+        ORDER BY id LIMIT 1
+        """,
+        (name, location_id),
+    ).fetchone()
+
+
+def charging_structure_at(conn, location_id: str):
+    return conn.execute(
+        """
+        SELECT *
+        FROM structures
+        WHERE location_id = ?
+          AND provides_charging = 1
+          AND condition > ?
+        ORDER BY condition DESC, id
+        LIMIT 1
+        """,
+        (location_id, MIN_OPERATIONAL_CONDITION),
+    ).fetchone()
+
+
+def structure_operational(conn, name: str, location_id: str | None = None) -> bool:
+    row = structure_at(conn, name, location_id)
+    return bool(row and float(row["condition"]) > MIN_OPERATIONAL_CONDITION)
+
+
+def structure_efficiency(conn, name: str, location_id: str | None = None) -> float:
+    row = structure_at(conn, name, location_id)
+    return condition_factor(float(row["condition"])) if row else 0.0
+
+
+def equipment_service_requirements(condition: float) -> dict[str, float]:
+    requirements: dict[str, float] = {"Lubricant": 1.0, "Fasteners": 1.0}
+    if condition < 70:
+        requirements["Mechanical components"] = 1.0
+    if condition < 40:
+        requirements["Mechanical components"] = 2.0
+    return requirements
+
+
+def structure_service_requirements(structure: Any) -> dict[str, float]:
+    condition = float(structure["condition"])
+    requirements: dict[str, float] = {"Lubricant": 1.0, "Fasteners": 2.0}
+    if condition < 70:
+        requirements["Processed structural material"] = 3.0
+    if str(structure["kind"]) in {"charger", "workbench", "smelter"}:
+        requirements["Mechanical components"] = 1.0
+    if condition < 40:
+        requirements["Processed structural material"] = (
+            requirements.get("Processed structural material", 0.0) + 3.0
+        )
+        requirements["Mechanical components"] = (
+            requirements.get("Mechanical components", 0.0) + 1.0
+        )
+    return requirements
+
+
+def _maintenance_in_progress(conn, action: str, target: str) -> bool:
+    row = conn.execute(
+        """
+        SELECT 1 FROM jobs
+        WHERE status = 'active' AND action = ? AND target = ?
+        LIMIT 1
+        """,
+        (action, str(target)),
+    ).fetchone()
+    return bool(row)
+
+
+def _note_condition_transition(
+    conn,
+    now: int,
+    entity_name: str,
+    before: float,
+    after: float,
+) -> None:
+    before_band = condition_band(before)
+    after_band = condition_band(after)
+    if before_band == after_band:
+        return
+    if after_band == "degraded":
+        add_history(
+            conn,
+            now,
+            "maintenance",
+            f"{entity_name} entered degraded condition ({after:.0f}%).",
+        )
+    elif after_band == "critical":
+        add_history(
+            conn,
+            now,
+            "maintenance",
+            f"{entity_name} became non-operational pending repair ({after:.0f}%).",
+        )
+
+
+def _wear_equipment(
+    conn,
+    citizen_id: str,
+    kind: str,
+    amount: float,
+    now: int,
+) -> None:
+    rows = conn.execute(
+        """
+        SELECT * FROM equipment
+        WHERE owner_citizen_id = ? AND kind = ?
+        ORDER BY id
+        """,
+        (citizen_id, kind),
+    ).fetchall()
+    for item in rows:
+        before = float(item["condition"])
+        if before <= 0:
+            continue
+        after = max(0.0, before - amount)
+        conn.execute(
+            "UPDATE equipment SET condition = ?, use_count = use_count + 1 WHERE id = ?",
+            (after, item["id"]),
+        )
+        _note_condition_transition(conn, now, str(item["name"]), before, after)
+
+
+def _wear_structure(
+    conn,
+    structure_name: str,
+    location_id: str,
+    amount: float,
+    now: int,
+) -> None:
+    structure = structure_at(conn, structure_name, location_id)
+    if not structure:
+        return
+    before = float(structure["condition"])
+    if before <= 0:
+        return
+    after = max(0.0, before - amount)
+    conn.execute(
+        "UPDATE structures SET condition = ?, use_count = use_count + 1 WHERE id = ?",
+        (after, structure["id"]),
+    )
+    _note_condition_transition(conn, now, str(structure["name"]), before, after)
+
+
+def apply_passive_wear(now: int) -> None:
+    """
+    Gradual structure aging while the city clock runs.
+
+    Time does not advance while Agent City is closed, so passive wear does not
+    silently accrue while the simulation is stopped.
+    """
+    with connect() as conn:
+        last = int(get_meta(conn, "maintenance_wear_minute") or str(now))
+        elapsed = max(0, now - last)
+        if elapsed < 60:
+            return
+
+        days = elapsed / 1440.0
+        rows = conn.execute("SELECT * FROM structures ORDER BY id").fetchall()
+        for structure in rows:
+            before = float(structure["condition"])
+            if before <= 0:
+                continue
+            rate = PASSIVE_STRUCTURE_WEAR_PER_DAY.get(
+                str(structure["kind"]),
+                PASSIVE_STRUCTURE_WEAR_PER_DAY["structure"],
+            )
+            after = max(0.0, before - rate * days)
+            if after == before:
+                continue
+            conn.execute(
+                "UPDATE structures SET condition = ? WHERE id = ?",
+                (after, structure["id"]),
+            )
+            _note_condition_transition(conn, now, str(structure["name"]), before, after)
+
+        set_meta(conn, "maintenance_wear_minute", now)
+        conn.commit()
+
+
+def _apply_citizen_job_wear(conn, citizen: Any, job: Any, now: int) -> None:
+    action = str(job["action"])
+    if action in {"service_chassis", "replace_battery", "service_equipment", "service_structure"}:
+        return
+
+    energy_cost = 0.0
+    joint_added = 0.0
+
+    if action == "travel":
+        distance = route_distance(conn, str(citizen["location_id"]), str(job["target"])) or 0.0
+        energy_cost = max(2.0, distance * 3.0)
+        joint_added = distance * 0.12
+    elif action == "survey":
+        energy_cost, joint_added = 8.0, 0.30
+    elif action == "extract":
+        energy_cost, joint_added = 7.0, 0.45
+    elif action == "experiment":
+        protocol = EXPERIMENT_METHODS.get(str(job["experiment_method"] or ""))
+        energy_cost = float(protocol["energy_cost"]) if protocol else 4.0
+        joint_added = 0.10
+    elif action == "fabricate":
+        process = FABRICATION_PROCESSES.get(str(job["target"]))
+        energy_cost = float(process["energy_cost"]) if process else 4.0
+        joint_added = 0.12
+    elif action == "construct":
+        project = conn.execute(
+            "SELECT blueprint_id FROM projects WHERE id = ?",
+            (job["project_id"],),
+        ).fetchone()
+        blueprint = CONSTRUCTION_BLUEPRINTS.get(project["blueprint_id"]) if project else None
+        energy_cost = float(blueprint["energy_cost"]) if blueprint else 8.0
+        joint_added = 0.30
+    elif action == "talk":
+        energy_cost, joint_added = 1.0, 0.01
+    else:
+        return
+
+    current = conn.execute(
+        "SELECT battery_health, joint_wear FROM citizens WHERE id = ?",
+        (citizen["id"],),
+    ).fetchone()
+    if not current:
+        return
+
+    before_battery = float(current["battery_health"])
+    before_joint = float(current["joint_wear"])
+    after_battery = max(40.0, before_battery - energy_cost * BATTERY_HEALTH_WEAR_PER_ENERGY)
+    after_joint = min(100.0, before_joint + joint_added)
+
+    conn.execute(
+        """
+        UPDATE citizens
+        SET battery_health = ?,
+            energy = MIN(energy, ?),
+            joint_wear = ?
+        WHERE id = ?
+        """,
+        (after_battery, after_battery, after_joint, citizen["id"]),
+    )
+
+    if before_battery >= BATTERY_REPLACE_THRESHOLD > after_battery:
+        add_history(
+            conn,
+            now,
+            "maintenance",
+            f"{citizen['name']}'s battery health reached the replacement-service range ({after_battery:.0f}%).",
+        )
+    if before_joint < CHASSIS_SERVICE_WEAR <= after_joint:
+        add_history(
+            conn,
+            now,
+            "maintenance",
+            f"{citizen['name']}'s chassis accumulated enough joint wear to benefit from service.",
+        )
+
+
+def _apply_post_job_asset_wear(conn, citizen: Any, job: Any, now: int) -> None:
+    action = str(job["action"])
+    if action == "extract":
+        _wear_equipment(conn, str(citizen["id"]), "extraction", 1.5, now)
+    elif action == "travel" and carried_amount(conn, str(citizen["id"])) > 0:
+        _wear_equipment(conn, str(citizen["id"]), "cargo", 0.35, now)
+    elif action == "fabricate":
+        _wear_structure(conn, "Basic Workbench", str(citizen["location_id"]), 0.35, now)
+    elif action == "experiment":
+        _wear_structure(conn, "Basic Workbench", str(citizen["location_id"]), 0.25, now)
+    elif action == "charge":
+        charger = charging_structure_at(conn, str(citizen["location_id"]))
+        if charger:
+            before = float(charger["condition"])
+            after = max(0.0, before - 0.15)
+            conn.execute(
+                "UPDATE structures SET condition = ?, use_count = use_count + 1 WHERE id = ?",
+                (after, charger["id"]),
+            )
+            _note_condition_transition(conn, now, str(charger["name"]), before, after)
+    elif action == "deposit_cargo":
+        _wear_structure(conn, "Storage Unit", str(citizen["location_id"]), 0.05, now)
+
+
+def _record_maintenance_event(
+    conn,
+    *,
+    job_id: int,
+    citizen_id: str,
+    event_type: str,
+    target_type: str,
+    target_id: str,
+    before_value: float | None,
+    after_value: float | None,
+    materials: dict[str, float],
+    outcome: str,
+    now: int,
+    summary: str,
+) -> int:
+    cur = conn.execute(
+        """
+        INSERT INTO maintenance_events
+        (job_id, citizen_id, event_type, target_type, target_id,
+         before_value, after_value, materials_json, outcome, sim_minute, summary)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            job_id,
+            citizen_id,
+            event_type,
+            target_type,
+            str(target_id),
+            before_value,
+            after_value,
+            json.dumps(materials, sort_keys=True, separators=(",", ":")),
+            outcome,
+            now,
+            summary[:1200],
+        ),
+    )
+    event_id = int(cur.lastrowid)
+    conn.execute(
+        "UPDATE jobs SET maintenance_event_id = ? WHERE id = ?",
+        (event_id, job_id),
+    )
+    return event_id
+
+
 def location_name(conn, location_id: str) -> str:
     row = conn.execute("SELECT name FROM locations WHERE id = ?", (location_id,)).fetchone()
     return row["name"] if row else location_id
@@ -137,10 +502,10 @@ def charging_locations(conn) -> set[str]:
         SELECT DISTINCT location_id
         FROM structures
         WHERE provides_charging = 1
-          AND condition > 0
+          AND condition > ?
           AND location_id IS NOT NULL
         """
-    ).fetchall()
+    , (MIN_OPERATIONAL_CONDITION,)).fetchall()
     return {row["location_id"] for row in rows}
 
 
@@ -172,29 +537,34 @@ def available_equipment(conn, citizen_id: str, location_id: str) -> list[dict[st
         """
         SELECT *
         FROM equipment
-        WHERE condition > 0
+        WHERE condition > ?
           AND (
               owner_citizen_id = ?
               OR (owner_citizen_id IS NULL AND location_id = ?)
           )
         ORDER BY id
         """,
-        (citizen_id, location_id),
+        (MIN_OPERATIONAL_CONDITION, citizen_id, location_id),
     ).fetchall()
     return [dict(row) for row in rows]
 
 
 def cargo_capacity(conn, citizen_id: str, location_id: str) -> float:
-    bonus = sum(float(item["cargo_bonus"] or 0) for item in available_equipment(conn, citizen_id, location_id))
+    bonus = sum(
+        float(item["cargo_bonus"] or 0) * condition_factor(float(item["condition"]))
+        for item in available_equipment(conn, citizen_id, location_id)
+    )
     return BASE_CARRY_CAPACITY + bonus
 
 
 def extraction_speed_multiplier(conn, citizen_id: str, location_id: str) -> float:
-    multipliers = [
-        float(item["extraction_speed_multiplier"] or 1.0)
-        for item in available_equipment(conn, citizen_id, location_id)
-        if float(item["extraction_speed_multiplier"] or 1.0) > 1.0
-    ]
+    multipliers = []
+    for item in available_equipment(conn, citizen_id, location_id):
+        base = float(item["extraction_speed_multiplier"] or 1.0)
+        if base <= 1.0:
+            continue
+        factor = condition_factor(float(item["condition"]))
+        multipliers.append(1.0 + (base - 1.0) * factor)
     return max(multipliers, default=1.0)
 
 
@@ -312,51 +682,136 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
             })
 
         if location_id == "seed_site":
-            if cargo > 0:
-                actions.append({"action": "deposit_cargo", "target": "seed_site", "label": f"Deposit {cargo:g} carried material into Seed Site storage."})
+            if cargo > 0 and structure_operational(conn, "Storage Unit", location_id):
+                actions.append({
+                    "action": "deposit_cargo",
+                    "target": "seed_site",
+                    "label": f"Deposit {cargo:g} carried material into Seed Site storage.",
+                })
 
-            assay_materials = conn.execute(
+            if float(c["joint_wear"] or 0) >= CHASSIS_SERVICE_WEAR:
+                requirements = {"Lubricant": 1.0}
+                if resources_available(conn, requirements):
+                    actions.append({
+                        "action": "service_chassis",
+                        "target": citizen_id,
+                        "label": (
+                            f"Service chassis joints with lubricant "
+                            f"(current joint wear {float(c['joint_wear']):.0f}%)."
+                        ),
+                    })
+
+            if float(c["battery_health"] or 100) < BATTERY_REPLACE_THRESHOLD:
+                requirements = {"Battery cells": 4.0, "Mechanical components": 2.0}
+                if resources_available(conn, requirements):
+                    actions.append({
+                        "action": "replace_battery",
+                        "target": citizen_id,
+                        "label": (
+                            f"Replace the degraded battery pack "
+                            f"(health {float(c['battery_health']):.0f}%)."
+                        ),
+                    })
+
+            equipment_rows = conn.execute(
                 """
-                SELECT DISTINCT wp.subject_id AS material
-                FROM world_properties wp
-                JOIN resources r ON r.name = wp.subject_id
-                WHERE wp.subject_type = 'material'
-                  AND r.amount >= 1
-                ORDER BY wp.subject_id
-                """
+                SELECT *
+                FROM equipment
+                WHERE condition < ?
+                  AND (
+                      owner_citizen_id = ?
+                      OR (owner_citizen_id IS NULL AND location_id = ?)
+                  )
+                ORDER BY condition, id
+                """,
+                (SERVICE_DUE_CONDITION, citizen_id, location_id),
             ).fetchall()
-            for row in assay_materials:
-                for method_id, method in EXPERIMENT_METHODS.items():
-                    if action_energy_safe(conn, location_id, energy, float(method["energy_cost"])):
-                        material_name = str(row["material"])
-                        actions.append({
-                            "action": "experiment",
-                            "target": f"{method_id}:{material_name}",
-                            "material": material_name,
-                            "experiment_method": method_id,
-                            "label": (
-                                f"Run a {method['label']} on "
-                                f"{method['sample_amount']:g} unit of stored {material_name}."
-                            ),
-                        })
-
-            for process_id, process in FABRICATION_PROCESSES.items():
-                already_owned = conn.execute(
-                    """
-                    SELECT 1 FROM equipment
-                    WHERE template_id = ? AND owner_citizen_id = ? AND condition > 0
-                    LIMIT 1
-                    """,
-                    (process_id, citizen_id),
-                ).fetchone()
-                if not already_owned and resources_available(conn, process["materials"]) and action_energy_safe(
-                    conn, location_id, energy, float(process["energy_cost"])
+            for item in equipment_rows:
+                target_id = str(item["id"])
+                requirements = equipment_service_requirements(float(item["condition"]))
+                if (
+                    resources_available(conn, requirements)
+                    and not _maintenance_in_progress(conn, "service_equipment", target_id)
                 ):
                     actions.append({
-                        "action": "fabricate",
-                        "target": process_id,
-                        "label": f"Fabricate one {process['name']} at the Basic Workbench.",
+                        "action": "service_equipment",
+                        "target": target_id,
+                        "label": (
+                            f"Service {item['name']} "
+                            f"(condition {float(item['condition']):.0f}%)."
+                        ),
                     })
+
+            structures_due = conn.execute(
+                """
+                SELECT *
+                FROM structures
+                WHERE location_id = ? AND condition < ?
+                ORDER BY condition, id
+                """,
+                (location_id, SERVICE_DUE_CONDITION),
+            ).fetchall()
+            for structure in structures_due:
+                target_id = str(structure["id"])
+                requirements = structure_service_requirements(structure)
+                if (
+                    resources_available(conn, requirements)
+                    and not _maintenance_in_progress(conn, "service_structure", target_id)
+                ):
+                    actions.append({
+                        "action": "service_structure",
+                        "target": target_id,
+                        "label": (
+                            f"Service {structure['name']} "
+                            f"(condition {float(structure['condition']):.0f}%)."
+                        ),
+                    })
+                    break
+
+            workbench_ok = structure_operational(conn, "Basic Workbench", location_id)
+            if workbench_ok:
+                assay_materials = conn.execute(
+                    """
+                    SELECT DISTINCT wp.subject_id AS material
+                    FROM world_properties wp
+                    JOIN resources r ON r.name = wp.subject_id
+                    WHERE wp.subject_type = 'material'
+                      AND r.amount >= 1
+                    ORDER BY wp.subject_id
+                    """
+                ).fetchall()
+                for row in assay_materials:
+                    for method_id, method in EXPERIMENT_METHODS.items():
+                        if action_energy_safe(conn, location_id, energy, float(method["energy_cost"])):
+                            material_name = str(row["material"])
+                            actions.append({
+                                "action": "experiment",
+                                "target": f"{method_id}:{material_name}",
+                                "material": material_name,
+                                "experiment_method": method_id,
+                                "label": (
+                                    f"Run a {method['label']} on "
+                                    f"{method['sample_amount']:g} unit of stored {material_name}."
+                                ),
+                            })
+
+                for process_id, process in FABRICATION_PROCESSES.items():
+                    already_owned = conn.execute(
+                        """
+                        SELECT 1 FROM equipment
+                        WHERE template_id = ? AND owner_citizen_id = ? AND condition > ?
+                        LIMIT 1
+                        """,
+                        (process_id, citizen_id, MIN_OPERATIONAL_CONDITION),
+                    ).fetchone()
+                    if not already_owned and resources_available(conn, process["materials"]) and action_energy_safe(
+                        conn, location_id, energy, float(process["energy_cost"])
+                    ):
+                        actions.append({
+                            "action": "fabricate",
+                            "target": process_id,
+                            "label": f"Fabricate one {process['name']} at the Basic Workbench.",
+                        })
 
             for blueprint_id, blueprint in CONSTRUCTION_BLUEPRINTS.items():
                 unfinished = conn.execute(
@@ -548,6 +1003,108 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             detail = f"extract:{target}:speed={speed:.2f}"
             activity = f"Extracting {material}"
 
+        elif action == "service_chassis":
+            if c["location_id"] != "seed_site" or float(c["joint_wear"] or 0) < CHASSIS_SERVICE_WEAR:
+                return False, "Chassis service is not currently required or available here."
+            requirements = {"Lubricant": 1.0}
+            if not consume_resources(conn, requirements):
+                return False, "Required lubricant is no longer available."
+            before = float(c["joint_wear"] or 0)
+            duration = 60
+            detail = json.dumps(
+                {
+                    "maintenance": "chassis_service",
+                    "before": before,
+                    "materials": requirements,
+                },
+                separators=(",", ":"),
+                sort_keys=True,
+            )
+            activity = "Servicing chassis joints"
+
+        elif action == "replace_battery":
+            if c["location_id"] != "seed_site" or float(c["battery_health"] or 100) >= BATTERY_REPLACE_THRESHOLD:
+                return False, "Battery replacement is not currently required or available here."
+            requirements = {"Battery cells": 4.0, "Mechanical components": 2.0}
+            if not consume_resources(conn, requirements):
+                return False, "Required battery replacement parts are no longer available."
+            before = float(c["battery_health"] or 0)
+            duration = 120
+            detail = json.dumps(
+                {
+                    "maintenance": "battery_replacement",
+                    "before": before,
+                    "materials": requirements,
+                },
+                separators=(",", ":"),
+                sort_keys=True,
+            )
+            activity = "Replacing battery pack"
+
+        elif action == "service_equipment":
+            if c["location_id"] != "seed_site":
+                return False, "Equipment service currently requires the Seed Site workshop."
+            item = conn.execute(
+                """
+                SELECT * FROM equipment
+                WHERE id = ?
+                  AND (
+                      owner_citizen_id = ?
+                      OR (owner_citizen_id IS NULL AND location_id = ?)
+                  )
+                """,
+                (int(target), citizen_id, c["location_id"]),
+            ).fetchone()
+            if not item or float(item["condition"]) >= SERVICE_DUE_CONDITION:
+                return False, "That equipment does not currently require service."
+            requirements = equipment_service_requirements(float(item["condition"]))
+            if not consume_resources(conn, requirements):
+                return False, "Required equipment service materials are no longer available."
+            before = float(item["condition"])
+            severity = max(0.0, 100.0 - before)
+            duration = 60 + int(severity * 0.6)
+            detail = json.dumps(
+                {
+                    "maintenance": "equipment_service",
+                    "equipment_id": int(item["id"]),
+                    "before": before,
+                    "materials": requirements,
+                },
+                separators=(",", ":"),
+                sort_keys=True,
+            )
+            activity = f"Servicing {item['name']}"
+
+        elif action == "service_structure":
+            structure = conn.execute(
+                "SELECT * FROM structures WHERE id = ?",
+                (int(target),),
+            ).fetchone()
+            if (
+                not structure
+                or structure["location_id"] != c["location_id"]
+                or c["location_id"] != "seed_site"
+                or float(structure["condition"]) >= SERVICE_DUE_CONDITION
+            ):
+                return False, "That structure does not currently require service here."
+            requirements = structure_service_requirements(structure)
+            if not consume_resources(conn, requirements):
+                return False, "Required structure service materials are no longer available."
+            before = float(structure["condition"])
+            severity = max(0.0, 100.0 - before)
+            duration = 90 + int(severity * 0.8)
+            detail = json.dumps(
+                {
+                    "maintenance": "structure_service",
+                    "structure_id": int(structure["id"]),
+                    "before": before,
+                    "materials": requirements,
+                },
+                separators=(",", ":"),
+                sort_keys=True,
+            )
+            activity = f"Servicing {structure['name']}"
+
         elif action == "experiment":
             experiment_method = str(chosen.get("experiment_method") or "")
             protocol = EXPERIMENT_METHODS.get(experiment_method)
@@ -564,7 +1121,13 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             sample_amount = float(protocol["sample_amount"])
             if not consume_resources(conn, {material: sample_amount}):
                 return False, "The required physical sample is no longer available."
-            duration = int(protocol["duration"])
+            workbench_efficiency = structure_efficiency(conn, "Basic Workbench", c["location_id"])
+            if workbench_efficiency <= 0:
+                return False, "The Basic Workbench is not operational."
+            duration = max(
+                int(protocol["duration"]),
+                int(round(float(protocol["duration"]) / workbench_efficiency)),
+            )
             conn.execute(
                 "UPDATE citizens SET energy = MAX(0, energy - ?) WHERE id = ?",
                 (float(protocol["energy_cost"]), citizen_id),
@@ -583,7 +1146,13 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
                 return False, "Fabrication would leave insufficient return-energy reserve."
             if not consume_resources(conn, process["materials"]):
                 return False, "Required fabrication materials are no longer available."
-            duration = int(process["duration"])
+            workbench_efficiency = structure_efficiency(conn, "Basic Workbench", c["location_id"])
+            if workbench_efficiency <= 0:
+                return False, "The Basic Workbench is not operational."
+            duration = max(
+                int(process["duration"]),
+                int(round(float(process["duration"]) / workbench_efficiency)),
+            )
             conn.execute(
                 "UPDATE citizens SET energy = MAX(0, energy - ?) WHERE id = ?",
                 (float(process["energy_cost"]), citizen_id),
@@ -645,11 +1214,16 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             activity = "Unloading material into Seed Site storage"
 
         elif action == "charge":
-            if c["location_id"] not in charging_locations(conn):
+            charger = charging_structure_at(conn, c["location_id"])
+            if not charger:
                 return False, "No operational charging structure is available here."
-            duration = 60
-            detail = f"charge:{c['location_id']}"
-            activity = f"Charging at {location_name(conn, c['location_id'])}"
+            charger_efficiency = condition_factor(float(charger["condition"]))
+            duration = max(60, int(round(60 / charger_efficiency)))
+            detail = json.dumps(
+                {"charge_location": c["location_id"], "structure_id": int(charger["id"])},
+                separators=(",", ":"),
+            )
+            activity = f"Charging at {charger['name']}"
 
         else:
             duration = 45
@@ -722,7 +1296,152 @@ def complete_due_jobs(now: int) -> None:
             job_status = "complete"
             outcome = "success"
 
-            if action == "travel":
+            if action == "service_chassis":
+                payload = json.loads(job["detail"] or "{}")
+                before = float(payload.get("before", c["joint_wear"] or 0))
+                materials = dict(payload.get("materials") or {})
+                conn.execute(
+                    """
+                    UPDATE citizens
+                    SET joint_wear = 0, last_service_minute = ?,
+                        current_activity = 'Available', active_job_id = NULL
+                    WHERE id = ?
+                    """,
+                    (now, c["id"]),
+                )
+                message = f"{c['name']} completed chassis lubrication and joint service."
+                _record_maintenance_event(
+                    conn,
+                    job_id=int(job["id"]),
+                    citizen_id=str(c["id"]),
+                    event_type="chassis_service",
+                    target_type="citizen",
+                    target_id=str(c["id"]),
+                    before_value=before,
+                    after_value=0.0,
+                    materials=materials,
+                    outcome="success",
+                    now=now,
+                    summary=message,
+                )
+
+            elif action == "replace_battery":
+                payload = json.loads(job["detail"] or "{}")
+                before = float(payload.get("before", c["battery_health"] or 0))
+                materials = dict(payload.get("materials") or {})
+                conn.execute(
+                    """
+                    UPDATE citizens
+                    SET battery_health = 100,
+                        energy = MIN(energy, 100),
+                        last_service_minute = ?,
+                        current_activity = 'Available',
+                        active_job_id = NULL
+                    WHERE id = ?
+                    """,
+                    (now, c["id"]),
+                )
+                message = f"{c['name']} completed a battery-pack replacement."
+                _record_maintenance_event(
+                    conn,
+                    job_id=int(job["id"]),
+                    citizen_id=str(c["id"]),
+                    event_type="battery_replacement",
+                    target_type="citizen",
+                    target_id=str(c["id"]),
+                    before_value=before,
+                    after_value=100.0,
+                    materials=materials,
+                    outcome="success",
+                    now=now,
+                    summary=message,
+                )
+
+            elif action == "service_equipment":
+                payload = json.loads(job["detail"] or "{}")
+                equipment_id = int(payload.get("equipment_id") or job["target"] or 0)
+                before = float(payload.get("before", 0))
+                materials = dict(payload.get("materials") or {})
+                item = conn.execute(
+                    "SELECT * FROM equipment WHERE id = ?",
+                    (equipment_id,),
+                ).fetchone()
+                if item:
+                    conn.execute(
+                        """
+                        UPDATE equipment
+                        SET condition = 100, last_service_minute = ?
+                        WHERE id = ?
+                        """,
+                        (now, equipment_id),
+                    )
+                    message = f"{c['name']} restored {item['name']} to full service condition."
+                    _record_maintenance_event(
+                        conn,
+                        job_id=int(job["id"]),
+                        citizen_id=str(c["id"]),
+                        event_type="equipment_service",
+                        target_type="equipment",
+                        target_id=str(equipment_id),
+                        before_value=before,
+                        after_value=100.0,
+                        materials=materials,
+                        outcome="success",
+                        now=now,
+                        summary=message,
+                    )
+                else:
+                    job_status = "failed"
+                    outcome = "failed"
+                    message = f"{c['name']}'s equipment service ended because the target equipment no longer existed."
+                conn.execute(
+                    "UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?",
+                    (c["id"],),
+                )
+
+            elif action == "service_structure":
+                payload = json.loads(job["detail"] or "{}")
+                structure_id = int(payload.get("structure_id") or job["target"] or 0)
+                before = float(payload.get("before", 0))
+                materials = dict(payload.get("materials") or {})
+                structure = conn.execute(
+                    "SELECT * FROM structures WHERE id = ?",
+                    (structure_id,),
+                ).fetchone()
+                if structure:
+                    conn.execute(
+                        """
+                        UPDATE structures
+                        SET condition = 100, last_service_minute = ?
+                        WHERE id = ?
+                        """,
+                        (now, structure_id),
+                    )
+                    message = f"{c['name']} restored {structure['name']} to full service condition."
+                    _record_maintenance_event(
+                        conn,
+                        job_id=int(job["id"]),
+                        citizen_id=str(c["id"]),
+                        event_type="structure_service",
+                        target_type="structure",
+                        target_id=str(structure_id),
+                        before_value=before,
+                        after_value=100.0,
+                        materials=materials,
+                        outcome="success",
+                        now=now,
+                        summary=message,
+                    )
+                else:
+                    job_status = "failed"
+                    outcome = "failed"
+                    message = f"{c['name']}'s structure service ended because the target structure no longer existed."
+                conn.execute(
+                    "UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?",
+                    (c["id"],),
+                )
+
+            elif action == "travel":
                 target = job["target"]
                 name = location_name(conn, target)
                 conn.execute(
@@ -1080,41 +1799,66 @@ def complete_due_jobs(now: int) -> None:
                     )
 
             elif action == "deposit_cargo":
-                cargo = conn.execute(
-                    "SELECT material, amount FROM citizen_inventory WHERE citizen_id = ? AND amount > 0",
-                    (c["id"],),
-                ).fetchall()
-                materials = []
-                for row in cargo:
-                    materials.append(f"{row['amount']:g} {row['material']}")
+                if not structure_operational(conn, "Storage Unit", c["location_id"]):
+                    job_status = "failed"
+                    outcome = "failed"
                     conn.execute(
-                        """
-                        INSERT INTO resources(name, amount) VALUES (?, ?)
-                        ON CONFLICT(name) DO UPDATE SET amount = amount + excluded.amount
-                        """,
-                        (row["material"], row["amount"]),
+                        "UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?",
+                        (c["id"],),
                     )
-                conn.execute("DELETE FROM citizen_inventory WHERE citizen_id = ?", (c["id"],))
-                conn.execute("UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?", (c["id"],))
-                message = (
-                    f"{c['name']} deposited " + ", ".join(materials) + " into Seed Site storage."
-                    if materials else f"{c['name']} had no cargo to deposit."
-                )
+                    message = f"{c['name']} could not unload cargo because the Storage Unit is non-operational."
+                else:
+                    cargo = conn.execute(
+                        "SELECT material, amount FROM citizen_inventory WHERE citizen_id = ? AND amount > 0",
+                        (c["id"],),
+                    ).fetchall()
+                    materials = []
+                    for row in cargo:
+                        materials.append(f"{row['amount']:g} {row['material']}")
+                        conn.execute(
+                            """
+                            INSERT INTO resources(name, amount) VALUES (?, ?)
+                            ON CONFLICT(name) DO UPDATE SET amount = amount + excluded.amount
+                            """,
+                            (row["material"], row["amount"]),
+                        )
+                    conn.execute("DELETE FROM citizen_inventory WHERE citizen_id = ?", (c["id"],))
+                    conn.execute(
+                        "UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?",
+                        (c["id"],),
+                    )
+                    message = (
+                        f"{c['name']} deposited " + ", ".join(materials) + " into Seed Site storage."
+                        if materials else f"{c['name']} had no cargo to deposit."
+                    )
 
             elif action == "charge":
+                current = conn.execute(
+                    "SELECT energy, battery_health FROM citizens WHERE id = ?",
+                    (c["id"],),
+                ).fetchone()
+                battery_health = float(current["battery_health"] or 100) if current else 100.0
+                energy_now = float(current["energy"] or 0) if current else 0.0
+                charged_to = min(battery_health, energy_now + 25.0)
                 conn.execute(
                     """
                     UPDATE citizens
-                    SET energy = MIN(100, energy + 25), current_activity = 'Available', active_job_id = NULL
+                    SET energy = ?, current_activity = 'Available', active_job_id = NULL
                     WHERE id = ?
                     """,
-                    (c["id"],),
+                    (charged_to, c["id"]),
                 )
-                message = f"{c['name']} completed a charging cycle."
+                message = (
+                    f"{c['name']} completed a charging cycle "
+                    f"to {charged_to:.0f}% usable charge at {battery_health:.0f}% battery health."
+                )
 
             else:
                 conn.execute("UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?", (c["id"],))
                 message = f"{c['name']} finished observing the area."
+
+            _apply_citizen_job_wear(conn, c, job, now)
+            _apply_post_job_asset_wear(conn, c, job, now)
 
             conn.execute(
                 "UPDATE jobs SET status = ?, outcome = ? WHERE id = ?",
