@@ -487,7 +487,10 @@ Planned direction:
 Goal: make the planet itself an evolving participant in the civilization.
 
 
-### v0.8.1 — Citizen Visual Assets
+### Shipped milestone — v0.8.1 Citizen Visual Assets + Map Readability
+
+Shipped v0.8.1 commit: `fa27c942d08a9a97a2dbca5e86ab77dc7b9b7cc0`  
+Final CI: `36468997929` — PASS
 
 Visual-only follow-up:
 - export/import approved runtime-ready citizen art
