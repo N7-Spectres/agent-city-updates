@@ -446,6 +446,9 @@ Scope:
 - progress derives only from Simulation job timing
 - preserve v0.7 full-height scrollable citizen rail, search/filter, avatars, and responsive layout
 - no simulation-rule changes
+- visitor chat keyboard behavior: **Enter sends**, while **Shift+Enter inserts a new line**
+- preserve the visible Talk/send button for mouse/touch users
+- do not submit on IME/composition Enter events
 
 This restores a useful v0.3-v0.5 at-a-glance affordance that was lost during the v0.6 Home simplification.
 
