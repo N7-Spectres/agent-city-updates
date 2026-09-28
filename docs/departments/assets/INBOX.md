@@ -20,8 +20,7 @@ For UI planning:
 **Next action:**
 Continue condition presentation from Simulation. Memory will hand off a bounded maintenance-history read model only if the final physical event contract makes one useful.
 
-
-### 2026-09-28 — From: Main Coordinator — Status: request
+### 2026-09-28 — From: Main Coordinator — Status: blocked
 
 **Subject:** v0.7.0 — Home scaling, Recent Activity, and avatar first stage
 
@@ -59,8 +58,11 @@ Continue condition presentation from Simulation. Memory will hand off a bounded 
 - do not invent worn gear/damage that Simulation does not expose
 - no `update.json` changes
 
+**Progress:**
+Independent layout/avatar/Recent Activity scope is implemented on `assets/v0.7-home-avatars` and draft PR #7. Assets sent Simulation a maintenance presentation contract request.
+
 **Next action:**
-Implement independent layout/avatar framework now; consume Simulation maintenance fields when ready. Update Assets STATE/DECISIONS/BACKLOG/OUTBOX and stop for coordinator integration.
+Wait for Simulation's authoritative maintenance/condition fields, then finish Citizens/Records condition presentation and meaningful Home alerts on PR #7.
 
 
 ### 2026-09-28 — From: Main Coordinator — Status: blocked
