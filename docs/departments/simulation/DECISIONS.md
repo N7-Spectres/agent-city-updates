@@ -307,3 +307,19 @@ Undiscovered deposits are absent from ordinary state.
 Even after discovery, raw hidden remaining reserve quantity is not exposed unless a future validated measurement system explicitly discovers that quantity.
 
 Extraction still uses authoritative hidden reserve accounting internally.
+
+
+## v0.6 Integration Handoff Lock
+
+Coordinator integration must preserve these Simulation decisions together:
+
+- `world_properties` is hidden physical truth and never ordinary UI/planner state
+- `discoveries.id` is the stable validated discovery anchor
+- direct discovery grants knowledge only to the discovering citizen
+- communicated claims do not silently become verified Simulation knowledge
+- undiscovered deposits are absent from ordinary state
+- discovered deposits do not expose hidden reserve quantity
+- inconclusive experiments remain persisted outcomes
+- learned processes descend from validated discoveries and are not tech-tree nodes
+- missing knowledge is represented as absence, not a hint that secret data exists
+- Simulation `agent_city/knowledge.py` and Communication `agent_city/provenance.py` are separate layers and both must survive merge
