@@ -289,3 +289,67 @@ Do not resolve merge conflicts by:
 - dropping Communication provenance
 - replacing Memory's bounded APIs with raw global discovery lists
 - unioning all citizen knowledge into a single implied shared encyclopedia
+
+
+## v0.7 Maintenance Salience Rule
+
+Condition change is not itself a memory event.
+
+Memory records selected maintenance experiences from explicit validated Simulation events, not from polling and diffing current condition values.
+
+### Normally memorable
+
+- failure/breakdown
+- meaningful repair
+- replacement
+- substantial preventative service
+- repeated failure pattern once supported by multiple real events
+- service that materially affects future planning, capability, reliability, or place/equipment significance
+
+### Normally not memorable
+
+- routine passive wear
+- tiny condition decrements
+- ordinary charging
+- trivial upkeep with no meaningful consequence
+
+This prevents lifetime context from becoming a maintenance logbook.
+
+## Maintenance Source Rule
+
+A maintenance memory must reference a stable Simulation-owned source.
+
+Preferred source shape:
+- stable event or completed job ID
+- simulation minute
+- actor/participant citizen ID
+- subject type and stable subject ID
+- location
+- physical event kind
+- validated outcome
+- before/after condition where naturally available
+- replacement/resulting object ID where applicable
+
+Memory may store these in existing `memory_events` metadata. No new table is required unless later evidence proves otherwise.
+
+## Maintenance Epistemic Rule
+
+Physical maintenance truth and who knows about it are separate.
+
+Simulation may know a structure was repaired. That does not mean every citizen knows it.
+
+Memory records only a citizen's valid experience/receipt of the event.
+
+Conversation about a repair remains a claim unless Communication provenance and/or later physical verification supports it.
+
+## Maintenance Context Rule
+
+Maintenance history should be retrieved only when relevant to the current subject or decision.
+
+Examples:
+- a citizen considering reusing a tool with prior failures
+- planning work at a structure with meaningful repair history
+- discussing a citizen's own recent breakdown/repair
+- evaluating repeated service needs
+
+Do not add a general maintenance transcript to every prompt.
