@@ -16,26 +16,25 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-- [World & Simulation] v0.8 Stage 1: persistent planet seed, deterministic meter-scale spatial truth, stable generated deposit identity/extent, additive migration
-- [Communication & Perception] v0.8 Stage 1: visitor RP grounding, known-vs-hypothesis capability language, tool/shared-action dialogue boundaries
+- [Communication & Perception] v0.8 Stage 1 grounding/capability language can now finish against Simulation's delivered coordinate/observation/shared-action boundary
 
 ### WAITING
 
-- [Memory & Social] Stage 1 spatial-memory audit complete; runtime ingestion waits on Simulation stable subject/observation/coordinate-precision contract
-- [Communication & Perception] real visitor-linked shared physical actions wait on World & Simulation action/coordinate contract
-- [Assets & Interface] later continuous-world UI wiring waits on World & Simulation spatial read model; independent Stage 1 foundation is complete
+- [Coordinator / Stage 1 Review] review Simulation + Communication + Memory + Assets Stage 1 contracts before authorizing Stage 2 Living World integration
 
 ### READY
 
-_None yet._
+- [World & Simulation] v0.8 Stage 1 seeded spatial foundation ready on `simulation/v0.8-seeded-world-stage1` @ `7473b6612ea23cf8d22b31176149da188476690e`; runtime CI `36449582788` passed complete v0.4-v0.7 regression chain + Stage 1 smoke
+- [Memory & Social] Simulation's stable spatial observation/deposit/coordinate-precision contract is now available; Stage 1 audit may finalize without hidden-world access
+- [Communication & Perception] Simulation coordinate/observation contract and future shared-action boundary are now available
+- [Assets & Interface] Simulation safe spatial read model is now available; Assets Stage 1 branch is already ready for review
+- [Assets & Interface] v0.8 Stage 1 complete on `assets/v0.8-visual-stage1` @ `af2e058780103755360d143ca964855145e2254a`; PR #11 ready
 
 ### REVIEW
 
-- [Assets & Interface] v0.8 Stage 1 complete on `assets/v0.8-visual-stage1` @ `af2e058780103755360d143ca964855145e2254a`; PR #11 ready with citizen visual profiles, restored job progress, Enter-to-send, Asset Worker/render-tier contracts, and v0.8 Assets smoke
-
-- [Memory & Social] v0.8 Stage 1 spatial-memory audit ready; no runtime branch until Simulation stable subject/observation contract lands
-
-_None yet._
+- [World & Simulation] persistent planet seed, meter-scale tangent-plane coordinates, deterministic hidden terrain/geology, stable spatial deposit bodies, additive legacy migration, validated spatial observations, and safe read contract complete
+- [Assets & Interface] citizen visual profiles, restored job progress, Enter-to-send, Asset Worker/render-tier contracts, and v0.8 Assets smoke complete
+- [Memory & Social] Stage 1 spatial-memory audit ready; Simulation subject/observation contract is now supplied
 
 ### DONE
 
@@ -44,107 +43,83 @@ _None yet._
 - [Communication & Perception] v0.7 talk reliability/diagnostics integrated
 - [Memory & Social] v0.7 bounded maintenance history integrated
 - [Assets & Interface] v0.7 Home scaling/search/Recent Activity/avatar/maintenance UI integrated
-- [Coordinator] v0.6.0 assembled on `release-v0.6.0`, full smoke suite passed, versioned, and published from `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`
-- [World & Simulation] v0.6 hidden truth, experiments, discoveries, per-citizen validated knowledge, safe state
-- [Communication & Perception] v0.6 provenance receipts, grounded claims, anti-omniscience context, structured Visit availability
-- [Memory & Social] v0.6 bounded per-citizen/location knowledge read model
-- [Assets & Interface] v0.6 Home/Citizens/Locations/Records UI and safe knowledge presentation
-- [Coordinator] v0.5.0 assembled on `release-v0.5.0`, full smoke suite passed, versioned, and published from `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
+- [Coordinator] v0.6.0 assembled and published
+- [Coordinator] v0.5.0 assembled and published
 
-## v0.7 Coordination Goal
+## v0.8 Stage 1 Coordination Goal
 
-v0.7.0 is **Maintenance, Consequences & Home Polish**.
+Stage 1 establishes contracts and substrate before the larger Living World integration.
 
-Primary goals:
+Order of authority:
 
-1. mechanical life gains gradual physical wear/repair consequences without repetitive chore spam
-2. Home scales cleanly for longer conversations and future population growth
-3. lightweight 2D/static avatar identity begins without a 3D dependency
-4. autonomous talk failures become substantially more reliable without fabricated dialogue
+1. Simulation defines seeded coordinate/world truth and stable physical subjects. **REVIEW**
+2. Communication grounds what citizens/visitors may claim and defines conversational/shared-action boundaries. **ACTIVE**
+3. Memory retains only observations/claims that reached a citizen through valid sources. **CONTRACT READY**
+4. Assets renders only validated state and prepares asynchronous visual-generation infrastructure. **REVIEW**
+5. Coordinator reviews Stage 1 interfaces before Stage 2.
 
-## Simulation v0.7 Contract Locks
+The planned v0.7.1 progress/chat/RP polish is folded into v0.8.0.
 
-Coordinator integration must preserve:
+Stage 1 is intentionally not the full v0.8 release.
 
-1. `battery_health` is long-term capacity and remains distinct from current `energy`
-2. real use gradually wears relevant equipment and citizen chassis/battery state
-3. structure aging advances only with simulation time, never while the app is closed
-4. equipment capability uses Simulation's authoritative effective modifiers
-5. equipment/structures at condition <= 20 are visible but non-operational
-6. service/repair consumes real materials and simulation time
-7. remote service does not consume Seed Site materials until remote logistics exists
-8. future chargers remain capability-based via `provides_charging`, not hard-coded by starter name
-9. `maintenance_events.id` is the stable meaningful maintenance event anchor
-10. routine microscopic wear does not generate one durable memory-grade event per tick/job
-11. all v0.6 knowledge/provenance boundaries remain intact
-12. no department publishes `update.json`
+## Simulation v0.8 Stage 1 Contract Locks
 
-## Assets v0.7 Consumption Contract
+Coordinator and downstream departments must preserve:
 
-Assets should consume directly:
+1. `meta.planet_seed` is persistent hidden physical truth and never ordinary UI/LLM/Memory state
+2. local frame `seed_site_local` uses meters, +x east, +y north, origin Seed Site
+3. current local frame is a tangent plane compatible with later global lat/lon, not lat/lon itself
+4. existing named locations/routes/deposits retain identity and are additively spatially anchored
+5. hidden spatial queries are deterministic from seed + coordinate/chunk
+6. nearby points vary coherently; scans are not independent random rolls
+7. generated deposit bodies have stable IDs and physical extent
+8. procedural deposit IDs are independent of discoverer/time
+9. raw `generated_deposits`, hidden geometry, hidden richness, and raw query payloads remain hidden
+10. `spatial_observations.id` is the stable validated spatial observation anchor
+11. observation source-job ownership/range/travel legality remains Simulation-controlled
+12. coordinate decimals do not imply sensor precision; `radius_m` + source action/tool define epistemic precision
+13. existing route travel remains discrete in Stage 1: origin coordinate while traveling, destination coordinate on arrival
+14. Stage 1 adds no scanner, free-roam move action, globe renderer, new communication technology, or arbitrary citizen technology
+15. no department publishes `update.json`
 
-**Citizen**
-- battery_health / battery_state
-- usable_energy_capacity
-- battery_replacement_due
-- joint_wear
-- chassis_service_state / chassis_service_due
+## Safe Spatial Consumption Contract
 
-**Equipment**
-- condition / condition_state / operational / service_due
-- effective_cargo_bonus
-- effective_extraction_speed_multiplier
-- last_service_minute / use_count
+### Assets
 
-**Structures**
-- condition / condition_state / operational / service_due
-- efficiency_multiplier
-- last_service_minute / use_count
+May consume:
+- `state.spatial_frame`
+- locations `x_m/y_m`
+- citizens `position_x_m/position_y_m`
+- structures/projects `x_m/y_m`
+- visitor presence `x_m/y_m`
+- `state.spatial_observations[]`
 
-Do not rederive thresholds or current capability from pristine raw modifier fields.
+Must not infer continuous travel paths yet.
 
-## Memory v0.7 Event Contract
+### Memory
 
-Meaningful completed maintenance uses:
+May source:
+- `simulation_spatial_observation`
+- source ID = `spatial_observations.id`
+- optional stable deposit subject `dep_*` or `gdep_*`
 
-- `maintenance_events.id`
-- `job_id`
-- citizen actor
-- target type/id
-- before/after value
-- consumed materials
-- outcome
-- sim minute
-- summary
+Must preserve `radius_m` and provenance and must never ingest hidden generated-body tables/seed.
 
-Memory should avoid turning every tiny wear decrement into durable narrative memory.
+### Communication
 
-## Communication v0.7 Contract Locks
+Visitor/citizen claims about unvalidated spatial facts remain claims.
 
-Coordinator integration must preserve:
+Future shared physical activity must be a Simulation-owned action. Chat agreement alone does not move participants or produce observations.
 
-1. raw exchange generation/persistence happens before claim/provenance enrichment
-2. claim extraction failure does not invalidate an existing durable conversation
-3. there is still no fabricated fallback dialogue
-4. raw dialogue may retry once, but success still requires real model-generated content
-5. `talk_diagnostics` is debug metadata, not citizen knowledge or physical truth
-6. a talk physically succeeds only when its `source_job_id` has a durable `citizen_conversations` row
-7. failed talk chronology remains distinct from conversation transcript/history
-8. diagnostic History rows use `category = "diagnostic"` and should not be rendered as citizen speech
-
-## Required Integration Tests
+## Required Stage 1 Integration Tests
 
 At minimum preserve and run:
 
-- `tests/smoke_v040.py`
-- all v0.5 smoke suites
-- all v0.6 Simulation/Communication/Memory/UI smoke suites
-- `tests/smoke_v070.py`
-- `tests/smoke_v070_communication.py`
-- Memory v0.7 maintenance smoke if a runtime branch is added
-- Assets v0.7 UI/integration smoke after its final pass
-
-Assembled release validation: `36436548845` passed the complete required v0.4-v0.7 chain.
+- all shipped v0.4-v0.7 regression suites
+- `tests/smoke_v080_stage1.py`
+- Communication Stage 1 smoke when complete
+- Memory Stage 1 smoke if runtime ingestion is added
+- Assets Stage 1 smoke
 
 ## Handoff Protocol
 
@@ -168,33 +143,3 @@ Cross-department integration must preserve:
 > **Information must travel through a real mechanism.**
 
 A green department branch is not sufficient if merging it would silently remove another department's invariant.
-
-
-## Memory v0.7 Integration Locks
-
-Coordinator integration must preserve:
-
-1. `maintenance_events.id` as the canonical physical maintenance source.
-2. Actor receives direct maintenance memory; a different citizen target also receives serviced-subject memory.
-3. Equipment owners, bystanders, and the settlement do not automatically receive maintenance memory.
-4. Passive wear and condition deltas do not create durable Memory events.
-5. `simulation_maintenance_event` records stay out of generic v0.6 knowledge-fact retrieval.
-6. Maintenance model context remains bounded.
-7. `GET /api/memory/maintenance/{citizen_id}` is citizen-scoped history, not physical admin truth.
-8. Memory synchronization safely no-ops before Simulation's maintenance table exists, preserving merge compatibility.
-9. Preserve `tests/smoke_v070_memory.py` in the assembled v0.7 suite.
-
-
-## v0.8 Stage 1 Coordination Goal
-
-Stage 1 establishes contracts and substrate before the larger Living World integration.
-
-Order of authority:
-1. Simulation defines seeded coordinate/world truth and stable physical subjects.
-2. Communication grounds what citizens/visitors may claim and defines conversational/shared-action boundaries.
-3. Memory retains only observations/claims that reached a citizen through valid sources.
-4. Assets renders only validated state and prepares asynchronous visual-generation infrastructure.
-
-The planned v0.7.1 progress/chat/RP polish is folded into v0.8.0.
-
-Stage 1 is intentionally not the full v0.8 release. Departments should stop after their scoped foundation/handoff work so the coordinator can review interfaces before Stage 2.
