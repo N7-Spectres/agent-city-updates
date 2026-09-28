@@ -343,3 +343,21 @@ A generic `failed` job outcome remains appropriate for Simulation, while Communi
 When Simulation already holds its job-completion SQLite transaction, diagnostic lookup must use that same connection or perform a read that cannot trigger migration/write locking.
 
 Never open a schema-migrating second connection from inside the physical completion transaction.
+
+## v0.7 Session Close Integration Invariants
+
+The integrator must preserve all of the following together:
+
+- raw model-generated exchange is persisted before claim extraction begins
+- a valid durable raw exchange is the conversation success criterion
+- claim/provenance extraction is best-effort enrichment and may degrade independently
+- no synthetic fallback transcript may be created
+- one retry is allowed for raw dialogue generation, but success still requires real model output
+- `citizen_conversations.id` remains the canonical conversation source
+- `source_job_id` remains the physical talk-job anchor
+- a talk physically completes only when the source-linked conversation exists
+- `talk_diagnostics` is debug metadata, not physical truth, memory, or citizen knowledge
+- diagnostic lookup during physical job completion must not open a competing schema-writing SQLite connection
+- History `diagnostic` rows remain distinct from citizen speech and conversation cards
+
+If integration collapses raw conversation and claim enrichment back into one failure domain, the v0.7 reliability fix has been lost.
