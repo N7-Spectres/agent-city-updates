@@ -1,7 +1,9 @@
 # World & Simulation — State
 
 _Last updated: 2026-09-28_
-_Current release: v0.4.0_
+_Current shipped release: v0.4.1_
+_Active implementation branch: `simulation/v0.5-making-building`_
+_Branch head: `773299189d22d214b3376c72b396015a4a7a762e`_
 
 ## Mission
 
@@ -13,26 +15,126 @@ The LLM may choose intent, but every physical action must be legal, validated, t
 
 > **The AI may decide intent. The simulation decides reality.**
 
+## v0.5 Making & Building — Implemented on Department Branch
+
+The Simulation branch now contains a tested physical core for v0.5.0. It is not yet the shipped release until the coordinator integrates it.
+
+### Fabrication
+
+Implemented real fabrication jobs with:
+
+- validated settlement material requirements
+- real job duration and energy cost
+- material consumption before the job proceeds
+- persisted `equipment` records only after successful job completion
+- stable equipment IDs
+- explicit physical modifiers instead of abstract level bonuses
+
+Current starting workbench processes are intentionally small, not a technology tree:
+
+- Field Cargo Pack
+  - raises physical carrying capacity
+  - requires real fabricated equipment
+- Powered Extraction Tool
+  - reduces extraction job duration through an explicit speed multiplier
+
+A citizen is not repeatedly offered another copy of the same still-functional personal equipment template.
+
+### Construction / Projects
+
+Implemented persisted multi-step projects:
+
+`planned -> reserved -> underway -> complete`
+
+Physical tables:
+
+- `projects`
+- `project_materials`
+
+A construction project has:
+
+- stable project ID
+- blueprint/type
+- name
+- validated location
+- local x/y coordinates
+- creating citizen
+- lifecycle timestamps
+- active construction job ID
+- resulting structure ID after completion
+
+Reservation deducts validated settlement materials and records the reserved amounts. Construction creates a real `structures` row only when the timed construction job completes.
+
+Current v0.5 construction is intentionally settlement-local at Seed Site. Remote construction waits for explicit physical project-material transport rather than teleporting reserved stock.
+
+### Structures / Coordinate Groundwork
+
+Structures now support:
+
+- stable ID
+- kind
+- `location_id`
+- local `x_km` / `y_km`
+- condition
+- `provides_charging`
+- source `project_id`
+
+Starter landmarks also receive simple local coordinates. This is groundwork for later continuous/spherical geography; v0.5 does not implement free-roam globe movement.
+
+### Energy-Safe Field Work
+
+Implemented return-energy reserve validation.
+
+Before outbound travel or remote survey/extraction, Simulation checks whether the citizen can still reach a known operational charger with a modest safety margin.
+
+Rules:
+
+- unsafe outbound travel is not offered
+- unsafe remote survey/extraction is not offered
+- start-time validation repeats the safety check
+- returning to a charger remains legal when physically reachable
+- future structures with `provides_charging = 1` automatically become valid recharge destinations in the route-distance calculation
+- charging itself is available at any location containing an operational charging structure
+
+Returning cargo remains a citizen choice. It is not hard-coded as an automatic action.
+
+### Stable Physical Event References
+
+Completed jobs remain durable authoritative physical-event records.
+
+Relevant fields:
+
+- `jobs.id` — stable physical event/job ID
+- `citizen_id`
+- `action`
+- `target`
+- `start_minute`
+- `end_minute`
+- `status`
+- `outcome`
+- `project_id` when applicable
+
+New outcomes use values such as `success`, `failed`, or `no_yield`. Pre-v0.5 completed jobs are migrated to `legacy_complete` instead of being assigned invented richer semantics.
+
+### Conversation Integrity Preserved
+
+Communication's v0.5 physical-talk invariant is integrated into this branch.
+
+- `citizen_conversations.source_job_id` links a stored exchange to its physical talk job
+- a talk job completes successfully only if that durable exchange exists
+- missing exchange => talk job `failed`
+- Simulation never fabricates a synthetic conversation to make the job succeed
+- both citizens are released from the physical talk job either way
+
 ## Current Time Model
 
 Target chronology:
 
 **1 real hour = 4 simulated hours**
 
-Approximate:
+Time stops while the app is closed. Pause freezes simulation time.
 
-- 6 real hours = 1 simulated day
-- 1 real day = 4 simulated days
-- 1 real week = 28 simulated days
-- about 3 real months = 1 simulated year
-
-Time stops while the app is closed.
-
-Pause freezes simulation time.
-
-## Current Actions
-
-Implemented autonomous actions include:
+## Existing Physical Actions Preserved
 
 - travel
 - survey
@@ -42,18 +144,16 @@ Implemented autonomous actions include:
 - wait / observe
 - face-to-face citizen talk
 
-Jobs have:
+The v0.5 branch adds:
 
-- start minute
-- end minute
-- duration
-- active/completed status
-- current activity
-- intent reason
+- fabricate
+- plan project
+- reserve project materials
+- construct
 
-## Current Physical State
+## Existing World State Preserved
 
-Citizens track:
+Citizens still track:
 
 - location
 - energy
@@ -61,7 +161,7 @@ Citizens track:
 - active job
 - carried materials
 
-World tracks:
+World still tracks:
 
 - locations
 - routes
@@ -70,46 +170,26 @@ World tracks:
 - structures
 - settlement stores
 
-Current known starter regions:
+New v0.5 snapshot collections exposed through existing `/api/state`:
 
-- Seed Site
-- Northern Ridge
-- Rocky Basin
-- Southern Flats
-- Resin Grove
+- `equipment`
+- `projects`
+- `project_materials`
 
-## Current Starting Infrastructure
+Structures and locations expose the added physical fields directly in their existing collections.
 
-- Habitat / Workshop
-- Solar Array
-- Battery Bank
-- Charging Station
-- Storage Unit
-- Basic Workbench
-- Crude Smelter
+## Validation
 
-## Current Starting Resources
+GitHub Actions run `36372991331` passed on the integrated branch:
 
-- Processed structural material
-- Conductive wire
-- Mechanical components
-- Lubricant
-- Fasteners
-- Battery cells
-- Basic electronics
+- Python compilation
+- JavaScript syntax check
+- existing v0.4 regression smoke
+- v0.5 Making & Building smoke
+- v0.5 Communication talk-integrity smoke
 
-## Current Discovery Model
+The normal release-only workflow trigger was restored afterward.
 
-Surveying can confirm deposits.
+## Integration Status
 
-Discoveries record who personally discovered them.
-
-The UI may show settlement-confirmed deposits, while citizen prompts should respect individual information boundaries.
-
-## Current Visitor Physics
-
-v0.3.0 gives visitors physical presence and travel duration.
-
-Visitor travel uses the world clock and known routes.
-
-Face-to-face interaction obeys physical location.
+Ready for coordinator integration. No `update.json` or release metadata was published or changed.
