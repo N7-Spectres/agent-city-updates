@@ -2,195 +2,240 @@
 
 _Last updated: 2026-09-28_
 _Current release: v0.5.0_
+_Active milestone: v0.6.0 — Research & Discovery_
 
 ## Mission
 
 Model how information can physically reach a citizen.
 
-This department covers:
+Communication owns:
 
-- speech
-- hearing
-- direct observation
-- local presence
-- information transfer
-- last-known knowledge
-- future signaling / communication systems
+- speech and hearing
+- direct observation / local presence
+- face-to-face citizen information transfer
+- last-known knowledge and information age/source
+- transfer provenance
+- visitor interaction availability semantics
+- future physical communication systems only if the civilization actually invents and builds them
 
-## Current Shipped Behavior
+Core law:
 
-### Citizen awareness
+> **A citizen only knows what information could actually have reached them.**
 
-Citizens know the other five citizens exist.
+## Shipped Baseline
 
-They do **not** receive live omniscient status for remote citizens.
+v0.5.0 includes:
 
-Planner context exposes:
+- local citizen observation without remote live-state omniscience
+- same-location citizen talk as a real physical job
+- canonical stored citizen conversations
+- nullable unique `citizen_conversations.source_job_id`
+- talk completion only when the stored exchange exists
+- failed/invalidated talk creates no false information transfer
+- bounded social context that treats conversation content as claims rather than physical truth
+- face-to-face visitor geography
 
-- the citizen's own state
-- co-located citizens as directly observable presence
-- personally known/local information permitted by the communication boundary
-- legal actions supplied by Simulation
-- bounded social history sourced from real stored encounters
+Published v0.5.0 base:
 
-Remote live status is not injected into citizen prompts.
+`d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
 
-### Direct observation
+## v0.6 Communication Implementation
 
-A citizen can directly observe other citizens at the same location.
+**Branch:** `communication/v0.6-knowledge-provenance`  
+**Base:** shipped v0.5.0 commit `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`  
+**Branch head:** `0cd9642c720e2950cb2a50728e19c08092408591`
 
-Traveling citizens are not treated as still locally visible at their origin.
+### Information receipt ledger
 
-Direct observation does not expose private plans, hidden internal state, or remote knowledge.
+New `agent_city/knowledge.py` adds Communication-owned `information_receipts`.
 
-### Citizen-to-citizen talk
+A receipt means:
 
-Same-location available citizens may autonomously choose a face-to-face `talk` action.
+> a specific piece of information actually reached a specific citizen through a specific mechanism at a specific time.
 
-The shipped v0.4.1 runtime creates a physical talk job, generates a short exchange, stores `citizen_conversations`, and later completes the job.
+It is **not** global world truth and it is **not** a replacement for Memory.
 
-## v0.5 Conversation-History Integrity Slice
+Receipt fields include:
 
-**Branch:** `communication/v0.5-history-integrity`  
-**Base:** shipped v0.4.1 commit `4181cbb69809205ae575b3f576836e5ca72c8dce`  
-**Branch head after cleanup:** `672f221c0a2e796ba30d685d2cad68a5552c8333`
+- `recipient_id`
+- `subject_type`, `subject_id`
+- `topic`, `value_text`
+- `channel`
+- `source_actor_id`
+- `origin_event_type`, `origin_event_id`
+- `transfer_event_type`, `transfer_event_id`
+- `source_conversation_id`
+- `observed_at_sim_minute`
+- `received_at_sim_minute`
+- `assertion_kind`
+- `verification`
+- unique `source_key`
 
-The observed mismatch was traced to the talk job and dialogue record not being physically linked. A talk job could exist in chronology even when dialogue generation/persistence failed before `citizen_conversations` was created.
+Supported channels:
 
-The v0.5 branch now enforces:
+- `direct_observation`
+- `survey_measurement`
+- `experiment_result`
+- `personal_experience`
+- `face_to_face_claim`
 
-- every new stored autonomous citizen conversation may carry `source_job_id`, the physical talk job that produced it
-- `source_job_id` is unique when present, so retries cannot duplicate the same exchange
-- before a generated exchange is committed, Communication revalidates:
-  - the source job still exists
-  - it is an active `talk` job
-  - initiator/target match the job
-  - both citizens are still bound to that job
-  - both are still physically co-located
-- the authoritative conversation `sim_minute` and `location_id` come from the validated talk job/current physical state, not untrusted generated text
-- model/network/JSON failure no longer creates a fabricated fallback exchange
-- a talk job is marked `complete` only if a source-linked conversation exists
-- a talk job that reaches completion without a stored exchange is marked `failed`, releases both citizens, and records that the attempt ended without a recorded exchange
-- stale generated text cannot be inserted after a talk has failed/invalidated
-- Memory projection failure cannot erase an already durable conversation record
+Assertion kinds:
 
-### Stable conversation / History record shape
+- `validated_observation`
+- `speaker_claim`
 
-`snapshot()["citizen_conversations"]` exposes:
+Verification values:
 
-- `id` — canonical immutable conversation source ID
-- `source_type` — `citizen_conversation`
-- `source_id` — alias of canonical `id`
-- `transfer_event_id` — alias of canonical conversation `id`
-- `source_job_id` — physical talk job ID for new source-linked records; nullable for legacy rows
-- `sim_minute`
-- `location_id`, `location_name`
-- `initiator_id`, `initiator_name`
-- `target_id`, `target_name`
-- `initiator_text`
-- `target_text`
-- `summary`
+- `unverified`
+- `verified`
+- `contradicted`
 
-Successful talk-completion chronology also includes the canonical conversation number, allowing the UI to connect a physical talk completion to the corresponding discussion record.
+### Validated Simulation ingress
 
-### Test status
+`record_validated_information(...)` is the Communication ingress for a validated physical discovery/result.
 
-A branch-only CI check passed:
+It requires a specific recipient and authoritative physical event reference. A Simulation discovery does not automatically become knowledge for all six citizens.
 
-- Python compilation
-- existing `tests/smoke_v040.py`
-- new `tests/smoke_v050_communication.py`
+Validated observations enter as:
 
-GitHub Actions run: `36372479310`.
+- `assertion_kind = validated_observation`
+- `verification = verified`
 
-The temporary branch-only workflow was removed after the green run, so the final branch contains only runtime/test changes.
+### Face-to-face claims
 
-## Provenance Contract
+Citizen dialogue generation now optionally emits structured claims alongside the durable raw exchange.
 
-`docs/departments/communication/PROVENANCE_CONTRACT.md` remains the deeper Communication-owned provenance interface for future claim-level work.
+Claims are persisted only when:
 
-v0.5 conversation integrity adds a stable physical source link, but it does **not** yet extract individual claims/topics into separate provenance records.
+- the physical source-linked conversation is valid
+- the claim names the actual speaker
+- the stored `value` is a verbatim sentence/clause found in that speaker's durable transcript
 
-Memory may continue treating conversation content as remembered claims rather than authoritative physical truth.
+The other participant receives the claim as:
 
-## Visitor Conversation
+- `channel = face_to_face_claim`
+- `assertion_kind = speaker_claim`
+- `verification = unverified`
+- source actor and canonical conversation ID retained
 
-Face-to-face visitor conversation still requires the visitor and citizen to be physically co-located.
+Questions, greetings, guesses, implications, or model-generated text not present in the transcript do not become receipts.
 
-A visitor cannot converse face-to-face while traveling.
+Retelling does not verify a claim.
 
-The v0.4.1 blank-reply hotfix remains intact.
+### Legacy migration
+
+Only physically unambiguous v0.5 knowledge is backfilled:
+
+- completed survey job -> verified survey-completed receipt for the surveyor
+- confirmed deposit with recorded discoverer/time -> verified deposit receipt for that discoverer
+
+Legacy conversation summaries are **not** reverse-engineered into precise claim receipts.
+
+### Model-facing context
+
+Citizen planning, autonomous citizen dialogue, and visitor dialogue now receive bounded provenance-backed information.
+
+Rules explicitly separate:
+
+- verified observation/result
+- unverified speaker claim
+- social conversation summary
+- current direct observation
+- unknown remote state
+
+Remote state remains unknown unless a real information path exists.
+
+### Knowledge read model
+
+Communication exposes:
+
+`GET /api/knowledge/{citizen_id}`
+
+This is a provenance-oriented per-citizen read model containing:
+
+- bounded receipts
+- source/time/age
+- grouped location facts
+- the citizen's current location as current direct observation
+
+It never merges all citizens into one omniscient notebook.
+
+For v0.6 UI, Memory's higher-level bounded consumer endpoints remain the preferred Citizen/Location knowledge surface; Communication's endpoint is the lower-level provenance view.
+
+### Visitor availability states
+
+`visit_access_payload(visitor, citizen_id)` now returns structured states:
+
+- `available`
+- `remote`
+- `visitor_traveling`
+- `citizen_traveling`
+- `citizen_talking`
+- `citizen_busy`
+- `missing`
+
+Talk counterpart resolution handles both initiator and target correctly.
+
+This fixes the self-referential case such as:
+
+> "Vale is currently speaking with Vale."
+
+A co-located busy/talking citizen is no longer mislabeled as merely "Not at the same location."
+
+Remote access is checked before exposing local busy/talk detail, so visitor status does not become a remote information leak.
+
+`GET /api/visit/{citizen_id}` now exposes `status` and structured `availability`.
+
+## Tests
+
+Final hardened GitHub Actions run:
+
+`36420188139`
+
+Passed:
+
+- Python compile
+- `tests/smoke_v040.py`
+- `tests/smoke_v050.py`
+- `tests/smoke_v050_communication.py`
+- `tests/smoke_v060_communication.py`
+
+The temporary branch CI workflow was removed after the green run.
+
+## Current Integration Dependencies
+
+### Simulation
+
+Simulation should call Communication's validated ingress once per citizen who actually receives/observes a discovery or experiment result.
+
+Communication does not decide experiment truth.
+
+### Memory
+
+Memory may ingest or reference `information_receipts` for durable bounded retrieval. It remains owner of retention/summary policy.
+
+### Assets
+
+Assets should:
+
+- use Memory's bounded Citizen/Location knowledge APIs for normal knowledge UI
+- use Communication's structured visit availability states for Visit UI
+- never infer hidden Simulation truth from absence or raw admin state
 
 ## Current Communication Technology
 
-**None.**
-
-There is currently:
+There is still:
 
 - no radio
 - no network
 - no telepathy
-- no shared live status channel
-- no automatic remote messaging
+- no remote status channel
+- no automatic global knowledge propagation
 
-Long-distance communication must be invented by the civilization if research, materials, fabrication capability, physical construction, and actual need eventually support it.
+Future long-distance communication requires actual need, discovery, materials, fabrication/construction, and a physically existing mechanism.
 
-## Current Status
+## Status
 
-The v0.5 conversation-history integrity slice is ready for coordinator integration/review.
+The Communication v0.6 provenance/availability slice is implementation-complete and ready for coordinator integration/review.
 
-The next deeper Communication work is claim-level provenance / last-known propagation, which is intentionally outside this v0.5 integrity slice unless the coordinator reactivates it.
-
-## Final Cross-Department Handoff Audit — 2026-09-28
-
-All department branches were inspected after their work sessions ended.
-
-### Communication branch
-- `communication/v0.5-history-integrity`
-- head: `672f221c0a2e796ba30d685d2cad68a5552c8333`
-- status: implementation complete and tested
-
-### Simulation branch
-- `simulation/v0.5-making-building`
-- head: `eadea56841469a29e8078f5eca23247b13317251`
-- Simulation's own CI run `36372834945` is green.
-- The branch exposes real v0.5 physical state through `equipment`, `projects`, `project_materials`, extended `structures`, and completed `jobs` with stable IDs/outcomes.
-- **Integration conflict found:** this branch was developed independently from the v0.4.1 base and does not contain Communication's `citizen_conversations.source_job_id` migration or talk-completion integrity logic. Its talk completion still marks a physical talk as successfully finished without checking for a stored exchange.
-
-Therefore the Simulation branch is individually complete but cannot replace/overwrite Communication's `db.py` / `simulation.py` changes during integration.
-
-### Assets branch
-- `assets/v0.5-making-ui`
-- head: `da3b579bb42fb86a171470dd93946c01a80b0fc1`
-- The branch contains the independent compact chat/layout/History improvements.
-- Its conversation History renderer is compatible with real stored `citizen_conversations`.
-- **Remaining integration gap:** it does not yet render Simulation's new `projects`, `equipment`, or `project_materials` state, so the Making & Building visual layer is not complete.
-
-### Memory
-Memory's v0.5 audit requires no new schema for conversation continuity. Communication preserved canonical `citizen_conversations.id`. Simulation's finished branch now demonstrates stable physical references:
-- `projects.id`
-- completed `jobs.id`
-- `jobs.outcome`
-- `jobs.project_id`
-- project lifecycle timestamps/status
-- resulting structure/equipment source IDs
-
-These are suitable physical anchors after coordinator integration, but claim-level Communication provenance remains future depth.
-
-### Overall integration status
-
-Communication department work is finished.
-
-The v0.5 milestone packet still requires coordinator-level integration work:
-1. merge Simulation and Communication without losing the talk-source invariant
-2. expose the merged Simulation state to Assets
-3. finish the Making & Building UI against authoritative merged state
-4. run combined smoke tests including both `smoke_v050.py` and `smoke_v050_communication.py`
-
-
-## Shipped v0.5.0 Integration
-
-The source-linked talk integrity slice is included in the published v0.5.0 runtime at:
-`d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`.
-
-The assembled Communication integrity smoke passed alongside Simulation and UI integration tests.
+Claim verification by later evidence is intentionally minimal in this slice: the ledger can represent `verified` / `contradicted`, but richer reconciliation/reliability behavior remains future depth.
