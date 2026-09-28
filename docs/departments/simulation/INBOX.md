@@ -4,6 +4,50 @@ _Read this at the beginning of each World & Simulation work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Main Coordinator — Status: request
+
+**Subject:** v0.7.0 lead — Maintenance & Consequences
+
+**Runtime base / branch:**
+- base: `release-v0.6.0` / immutable commit `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`
+- create/use: `simulation/v0.7-maintenance`
+
+**Need / Result:**
+Implement the physical maintenance/consequence substrate without turning Agent City into constant chore management.
+
+**Required scope:**
+- gradual equipment/component wear
+- structure condition/degradation
+- lubrication or service needs where physically appropriate
+- long-term battery health distinct from current energy charge
+- repair jobs and replacement-part/material requirements
+- preventative maintenance actions when useful
+- equipment efficiency/capability may degrade as condition falls
+- badly degraded structures/equipment may become unavailable or less reliable
+- maintenance events/jobs must have stable physical IDs/outcomes for History/Memory
+- preserve all v0.6 hidden-truth/knowledge boundaries
+- preserve fabrication/construction/energy-return behavior
+- migration from v0.6 saves must be additive and safe
+
+**Design constraints:**
+- no arbitrary RPG debuffs
+- wear should be gradual and understandable
+- routine upkeep should usually be citizen-driven/autonomous
+- interesting shortages/failures create decisions; do not spam emergencies
+- AI chooses maintenance intent; Simulation validates/executes consequences
+- no `update.json` changes
+
+**Acceptance direction:**
+- repeated real use can reduce equipment condition
+- degraded equipment has a physically defined effect
+- repair consumes real time/materials and restores validated condition
+- battery health and current charge remain distinct
+- old saves migrate without resets
+
+**Next action:**
+Implement/test, update Simulation STATE/DECISIONS/BACKLOG/OUTBOX, hand stable condition/repair/event fields to Assets/Memory, then stop for coordinator integration.
+
+
 _None. The v0.6 Research/Discovery work packet was implemented and handed off._
 
 
