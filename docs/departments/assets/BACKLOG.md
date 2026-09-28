@@ -39,6 +39,12 @@ Assets implementation is complete. Remaining work is coordinator/runtime validat
 - explicit modifier display
 - extended structure display
 
+## v0.6 Visit Status Polish
+
+- render the backend's real visit availability reason instead of the generic "Not at the same location" label for every inaccessible state
+- distinguish: remote location, visitor traveling, citizen traveling, citizen already talking/busy
+- when citizen is busy talking, display the actual counterpart supplied by Communication/Simulation
+
 ## Medium Priority
 
 - arrival / departure visual pulse
