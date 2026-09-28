@@ -54,6 +54,22 @@ Implemented/tested on `communication/v0.5-history-integrity`. New stored talks a
 **Result:**
 The v0.5 implementation used the current shipped `release-v0.4.1` lineage requested by the coordinator, which already contains the complete runtime and Memory integration.
 
+### 2026-09-28 — From: Final Handoff Audit — Status: handled
+
+**Subject:** All department branches inspected
+
+**Result:**
+Communication has no remaining department-owned implementation work for the current v0.5 slice.
+
+Cross-branch audit found two coordinator/integration issues:
+- Simulation must preserve Communication's source-linked talk invariant during merge.
+- Assets still needs the merged Making & Building state to finish its physical-state UI.
+
+These are recorded in the receiving department inboxes, Communication OUTBOX/BACKLOG, and COORDINATION.
+
+**Next action:**
+Communication should remain stopped unless the coordinator returns a merge conflict or reactivates deeper claim-level provenance.
+
 ## Inbox Rule
 
 When a message has been fully handled:
