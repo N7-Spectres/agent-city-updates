@@ -434,7 +434,9 @@ Goal: survival and upkeep should matter, and Home should remain readable as the 
 
 Shipped result: v0.7.0 adds real mechanical wear/service consequences, bounded maintenance memory, more reliable durable citizen conversations, scalable Home rails/search/Recent Activity, and the first lightweight avatar framework. The assembled release passed the complete v0.4-v0.7 smoke chain.
 
-### v0.7.1 — Glanceable Job Progress
+### Merged into v0.8.0 — Glanceable Job Progress & Interaction Polish
+
+v0.7.1 is not planned as a separate release. Its UI/chat/RP-grounding work is folded into v0.8.0 so the interaction layer ships together with the continuous seeded-world foundation it depends on.
 
 Small UI follow-up to v0.7.0.
 
