@@ -6,7 +6,7 @@ from typing import Any
 
 from .db import add_history, connect, get_meta
 from .knowledge import citizen_knows_property, record_discovery
-from .talk_diagnostics import concise_failure_code
+from .talk_diagnostics import concise_failure_code_from_conn
 
 BASE_CARRY_CAPACITY = 20.0
 RETURN_ENERGY_MARGIN = 5.0
@@ -1079,7 +1079,7 @@ def complete_due_jobs(now: int) -> None:
                         f"{c['name']} and {target_name}'s conversation attempt at "
                         f"{c['location']} ended without a recorded exchange."
                     )
-                    diagnostic_code = concise_failure_code(int(job["id"]))
+                    diagnostic_code = concise_failure_code_from_conn(conn, int(job["id"]))
                     if diagnostic_code:
                         add_history(
                             conn,
