@@ -4,7 +4,7 @@ _Last updated: 2026-09-28_
 
 ## Current Release
 
-**v0.8.0 — Living World**
+**v0.8.1 — Citizen Visual Assets + Map Readability**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -20,19 +20,24 @@ Human users such as N7 are **visitors**, not gods, rulers, or omniscient operato
 
 ## Planned Hotfix
 
-**v0.8.1 — Citizen Visual Assets**
+**v0.8.1 — Citizen Visual Assets + Map Readability**
 
-Small visual follow-up to v0.8.0.
+Shipped visual follow-up to v0.8.0.
 
-Scope:
-- add approved runtime-ready citizen art files for Aris, Bex, Cato, Iri, Noma, and Vale
-- wire the existing full / bust / token asset slots
-- keep base-body identity separate from optional equipment overlays
-- do not treat concept-art props as owned equipment
-- preserve all v0.8.0 Simulation/Communication/Memory behavior unchanged
-- run the full regression suite before publication
+Release:
+- branch: `release-v0.8.1`
+- immutable runtime commit: `fa27c942d08a9a97a2dbca5e86ab77dc7b9b7cc0`
+- final CI: `36468997929` — PASS
 
-The v0.8.0 framework shipped correctly, but the actual citizen image files were not included in the immutable release. v0.8.1 exists specifically to complete that visual handoff without rewriting v0.8.0.
+Delivered:
+- approved runtime-ready full-body + token WebP art for Aris, Bex, Cato, Iri, Noma, and Vale
+- full / bust / token slots wired to those assets
+- optional equipment layers remain separate and empty unless runtime equipment later supplies them
+- map zoom out / zoom in / Region reset
+- click-to-focus presentation centering for locations
+- location hit targets remain generous but no longer render the visible rectangular hover/focus surface
+- denser citizen clusters become more readable as presentation zoom increases
+- Simulation/Communication/Memory semantics unchanged
 
 ## Current Milestone
 
@@ -297,6 +302,7 @@ Important boundary:
 - The local Agent City SQLite save remains authoritative for the civilization's changing physical state. Do not copy transient citizen positions/cargo/activity into GitHub as if they were current forever.
 
 Recent coordinator decisions already captured in the repository include:
+- v0.8.1 Citizen Visual Assets + Map Readability shipped from immutable runtime commit `fa27c942d08a9a97a2dbca5e86ab77dc7b9b7cc0`
 - v0.8.0 Living World shipped from immutable runtime commit `a870982ba947fcc5af08ca190de396ae4308b645`
 - the planned v0.7.1 follow-up scope is folded into v0.8.0; there will not be a separate 0.7.1 release unless a critical hotfix appears
 - v0.8 Living World should begin with a persistent planet seed and meter-scale deterministic spatial truth: the hidden world is derived from seed + coordinate, scans reveal rather than reroll reality, and discovered deposits retain stable physical identity/spatial extent
