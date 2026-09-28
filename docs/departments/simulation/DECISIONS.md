@@ -191,3 +191,16 @@ If a new system makes a previously unmodeled part of physical reality available 
 Target handoff:
 - pre-v1.0: complete the world's core substrate
 - v1.0 and beyond: preserve autonomy, fix/visualize/optimize/deepen the world, and let citizens determine their civilization's solutions
+
+
+## v0.5 Handoff Lock
+
+For coordinator/department integration, preserve all of the following together:
+
+- project/equipment/structure state remains Simulation-authoritative
+- `citizen_conversations.source_job_id` remains nullable and unique for source-linked talks
+- a physical talk job without a durable stored exchange fails
+- Assets displays Simulation state but does not infer physical completion/capability
+- Memory may reference stable project/job/equipment/structure IDs but must not convert discussion into physical history
+- no remote construction until project materials can be transported physically
+- no publication or `update.json` change without explicit human instruction
