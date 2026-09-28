@@ -233,7 +233,8 @@ def init_db() -> None:
                 target_id TEXT NOT NULL,
                 initiator_text TEXT NOT NULL,
                 target_text TEXT NOT NULL,
-                summary TEXT NOT NULL
+                summary TEXT NOT NULL,
+                source_job_id INTEGER
             );
 
             CREATE INDEX IF NOT EXISTS idx_citizen_conversations_people
@@ -266,6 +267,14 @@ def init_db() -> None:
         add_column_if_missing(conn, "structures", "kind TEXT NOT NULL DEFAULT 'structure'", "kind")
         add_column_if_missing(conn, "structures", "provides_charging INTEGER NOT NULL DEFAULT 0", "provides_charging")
         add_column_if_missing(conn, "structures", "project_id INTEGER", "project_id")
+        add_column_if_missing(conn, "citizen_conversations", "source_job_id INTEGER", "source_job_id")
+        conn.execute(
+            """
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_citizen_conversations_source_job
+            ON citizen_conversations(source_job_id)
+            WHERE source_job_id IS NOT NULL
+            """
+        )
 
         if get_meta(conn, "initialized") is None:
             set_meta(conn, "initialized", "true")
@@ -418,6 +427,9 @@ def snapshot() -> dict[str, Any]:
             dict(r) for r in conn.execute(
                 """
                 SELECT cc.*,
+                       'citizen_conversation' AS source_type,
+                       cc.id AS source_id,
+                       cc.id AS transfer_event_id,
                        ci.name AS initiator_name,
                        ct.name AS target_name,
                        l.name AS location_name
