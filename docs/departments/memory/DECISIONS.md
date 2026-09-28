@@ -353,3 +353,23 @@ Examples:
 - evaluating repeated service needs
 
 Do not add a general maintenance transcript to every prompt.
+
+
+## v0.7 Final Maintenance Source Contract
+
+Use Simulation `maintenance_events.id` as the canonical physical source for meaningful maintenance history.
+
+Recommended Memory mapping:
+
+- `source_type = 'simulation_maintenance_event'`
+- `source_id = maintenance_events.id`
+- `event_kind = maintenance_<event_type>`
+- `status = 'verified'`
+- metadata should retain `job_id`, target type/id, before/after values, outcome, materials, location when available, and Simulation event type
+
+Do not use:
+- raw condition snapshots as event sources
+- History message strings as event identity
+- conversation text as proof of repair/failure success
+
+Routine wear remains physical state only unless Simulation creates a meaningful threshold/failure/service event.
