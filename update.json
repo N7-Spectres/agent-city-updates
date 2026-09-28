@@ -1,6 +1,6 @@
 {
-  "version": "0.8.4",
-  "notes": "Conversation Summary Truth: citizen-to-citizen conversation summaries now stay claim-safe. Social exchanges may report, discuss, compare, plan, or agree, but the conversation record itself no longer upgrades those claims into validated, confirmed, verified, proved, demonstrated, or established physical facts. Agreements to inspect, travel, recharge, build, or test remain intentions until Simulation records the physical action/outcome. Existing Simulation, Memory, personality, and UI behavior remain unchanged.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/ff78aab0e85331238eb67c989952a72499d1ed78",
+  "version": "0.8.5",
+  "notes": "Daily Rhythm & Recharge: citizens now use a simulated daily work/recharge rhythm. 06:00–20:00 remains the normal active cycle, 20:00–22:00 is wind-down, and 22:00–06:00 favors low-activity, safe return, maintenance, conversation, and repeated charging until usable battery capacity is full. Critical energy takes priority over autonomous productivity, while already-active physical jobs are not cancelled by the clock. Charging now respects degraded battery-health capacity and requires a charger at the citizen's actual named location. The Home world view also reflects dawn, daylight, dusk, and night as presentation-only lighting.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/5b2395d7e7643a3d7ac9a82ac68090fc97b5f0b7",
   "sha256": ""
 }
