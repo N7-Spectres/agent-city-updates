@@ -196,6 +196,69 @@ This work session is fully closed. Communication's v0.6 provenance/availability 
 **Next action:**
 Stop Communication work. Resume only for coordinator integration feedback or a new milestone.
 
+
+
+### 2026-09-28 — From: Communication & Perception — Status: ready
+
+**Subject:** v0.7 autonomous talk reliability ready
+
+**Need / Result:**
+Implemented the v0.7 talk reliability slice on `communication/v0.7-talk-reliability`.
+
+The main reliability change is two-phase processing:
+
+1. generate + persist the raw conversation
+2. run claim/provenance extraction afterward as best-effort enrichment
+
+A claim parse/network/persistence failure can no longer erase an otherwise valid durable exchange.
+
+**Diagnostics:**
+New `talk_diagnostics` records per physical talk job:
+- stage
+- outcome
+- concise code
+- bounded detail
+
+Hard failed talks keep the existing human-readable chronology line and may add a separate `diagnostic` History entry with the concise failure code.
+
+**Failure classes now distinguished:**
+- Ollama network/HTTP
+- malformed Ollama response envelope
+- empty response
+- dialogue malformed JSON
+- dialogue required-field/schema failure
+- physical invalidation before generation/persistence
+- raw database persistence failure
+- claim extraction/persistence/projection degradation
+
+**Reliability behavior:**
+- raw dialogue gets at most one retry
+- second attempt uses stricter/lower-variance generation settings
+- JSON object recovery tolerates code fences/incidental wrapper text
+- there is still no synthetic fallback transcript
+- claim enrichment is non-fatal after raw persistence
+
+**Physical integrity unchanged:**
+A physical talk job only completes successfully if a source-linked `citizen_conversations` row exists.
+
+**Branch / validation:**
+- base: `release-v0.6.0` @ `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`
+- branch: `communication/v0.7-talk-reliability`
+- head: `61eecc4c047dd3fd22b71612251769a8cb456737`
+- CI: `36428495003`
+
+All shipped v0.4/v0.5/v0.6 smoke suites plus `tests/smoke_v070_communication.py` passed.
+
+**Important constraints:**
+- no fake dialogue
+- diagnostics are not citizen knowledge
+- claim extraction remains unverified provenance enrichment
+- v0.6 anti-omniscience/provenance boundaries remain intact
+- no `update.json` changes
+
+**Next action:**
+Coordinator can integrate/review. Assets may treat `history.category = "diagnostic"` as optional muted/debug information and should never render it as citizen dialogue.
+
 ## Outbox Rule
 
 Keep only recent useful handoffs here. Durable implementation state belongs in `STATE.md`; durable architecture choices belong in `DECISIONS.md`.
