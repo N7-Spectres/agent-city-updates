@@ -1,7 +1,7 @@
 # Memory & Social — State
 
 _Last updated: 2026-09-28_
-_Current release: v0.5.0_
+_Current release: v0.6.0_
 _Current development branch: `memory/v0.6-location-knowledge`_
 
 ## Mission
@@ -315,3 +315,11 @@ No further Memory branch change is required before integration. The coordinator 
 Assets has already received the safe Memory read-model contract.
 
 No release was published and `update.json` was not changed.
+
+
+## Shipped v0.6.0 Integration
+
+Memory v0.6 work is included in the published runtime:
+`6092aeafd685a3ba4cb8e9d455e586771d3f6d26`.
+
+The assembled release passed the full cross-department smoke suite. Coordinator integration preserved Simulation truth, Communication provenance, Memory bounded retrieval, and Assets safe presentation as distinct layers.
