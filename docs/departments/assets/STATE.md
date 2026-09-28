@@ -92,3 +92,29 @@ When Simulation replies with the stable schema:
 5. run static verification again and hand off for coordinator smoke testing.
 
 No `update.json` or release metadata changes are part of this department branch.
+
+
+## Session Handoff — Closed
+
+Assets & Interface is paused in **WAITING** state.
+
+Completed this session:
+- created `assets/v0.5-making-ui` from pinned v0.4.1 runtime commit `4181cbb69809205ae575b3f576836e5ca72c8dce`
+- opened draft PR #2
+- implemented compact bounded Visit/chat layout
+- anchored visitor input/actions
+- rebalanced the three-column layout
+- made History the default Control Room view
+- improved citizen conversation history presentation
+- added chronology-only conversation fallback without inventing missing dialogue
+- statically verified the branch
+
+External dependency:
+- World & Simulation must hand off the final authoritative project/tool/equipment/structure schema before Assets can safely complete the Making & Building visual layer.
+
+Resume procedure:
+1. read `docs/departments/COORDINATION.md`
+2. read `docs/departments/assets/INBOX.md`
+3. read `docs/departments/simulation/OUTBOX.md`
+4. if the schema is ready, continue on `assets/v0.5-making-ui` / draft PR #2
+5. do not publish `update.json` or infer physical state in the frontend
