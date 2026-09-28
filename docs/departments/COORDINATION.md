@@ -16,42 +16,34 @@ This file is the shared project task board.
 
 ### ACTIVE
 
+- [World & Simulation] v0.8 Stage 2: continuous local movement/exploration + visitor-linked shared physical activity
+- [Communication & Perception] v0.8 Stage 2: structured shared-action proposals/status grounded in Simulation
+- [Memory & Social] v0.8 Stage 2: spatial memory enters bounded planning/dialogue + real shared-exploration continuity
+- [Assets & Interface] v0.8 Stage 2: continuous local map, explicit shared-action acceptance UI, citizen art/runtime integration, worker scaffold
 
 ### WAITING
 
-- [Coordinator / Stage 1 Integration] assemble the four reviewed Stage 1 branches on a shared v0.8 integration branch and run the combined Stage 1 regression suite before Stage 2 is authorized
+- [Communication & Perception] final shared-action lifecycle fields from World & Simulation for real proposal/start/status wiring
+- [Memory & Social] final exploration/shared-action source IDs from World & Simulation and proposal semantics from Communication
+- [Assets & Interface] final continuous-movement/shared-action read model from Simulation and proposal API from Communication
 
 ### READY
 
-- [Coordinator] Stage 1 contract review passed: branch interfaces are compatible enough for combined integration testing; no department-owned Stage 1 blocker remains
-- [Memory & Social] no remaining Stage 1 dependency; branch is ready for coordinator integration
-
-- [Memory & Social] Stage 1 safe spatial-observation consumer contract ready: observation ID = evidence, deposit ID = stable subject, radius = precision; hidden seed/geometry excluded
-
-- [Communication & Perception] v0.8 Stage 1 grounding ready on `communication/v0.8-grounding-stage1` @ `a95e7af23eddaeb018bd6b2b6f19681a227e92af`; CI `36450386273` passed the full v0.4-v0.7 regression chain + Communication Stage 1 smoke
-
-- [World & Simulation] v0.8 Stage 1 seeded spatial foundation ready on `simulation/v0.8-seeded-world-stage1` @ `7473b6612ea23cf8d22b31176149da188476690e`; runtime CI `36449582788` passed complete v0.4-v0.7 regression chain + Stage 1 smoke
-- [Communication & Perception] Simulation coordinate/observation contract and future shared-action boundary are now available
-- [Assets & Interface] Simulation safe spatial read model is now available; Assets Stage 1 branch is already ready for review
-- [Assets & Interface] v0.8 Stage 1 complete on `assets/v0.8-visual-stage1` @ `af2e058780103755360d143ca964855145e2254a`; PR #11 ready
+- [Coordinator] v0.8 Stage 1 combined integration base is green: `release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`, Actions `36453177128`
+- [All departments] Stage 1 contracts are integrated and Stage 2 is authorized from the unified base
 
 ### REVIEW
 
-- [Communication & Perception] grounded visitor RP, evidence-status language, authoritative capability surface, safe spatial context, remote-store privacy fix, and future shared-action boundary complete
-
-- [World & Simulation] persistent planet seed, meter-scale tangent-plane coordinates, deterministic hidden terrain/geology, stable spatial deposit bodies, additive legacy migration, validated spatial observations, and safe read contract complete
-- [Assets & Interface] citizen visual profiles, restored job progress, Enter-to-send, Asset Worker/render-tier contracts, and v0.8 Assets smoke complete
-- [Memory & Social] Stage 1 spatial-memory audit ready; Simulation subject/observation contract is now supplied
+_None yet for Stage 2._
 
 ### DONE
 
-- [Coordinator] v0.7.0 assembled on `release-v0.7.0`, full v0.4-v0.7 smoke suite passed in Actions run `36436548845`, versioned, and published from immutable runtime commit `d81a85bf03b69b969532016f59bbbed2233949ee`
-- [World & Simulation] v0.7 maintenance/consequences core integrated
-- [Communication & Perception] v0.7 talk reliability/diagnostics integrated
-- [Memory & Social] v0.7 bounded maintenance history integrated
-- [Assets & Interface] v0.7 Home scaling/search/Recent Activity/avatar/maintenance UI integrated
-- [Coordinator] v0.6.0 assembled and published
-- [Coordinator] v0.5.0 assembled and published
+- [Coordinator] v0.8 Stage 1 assembled and regression-tested on `release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`
+- [World & Simulation] v0.8 Stage 1 seeded spatial foundation integrated
+- [Communication & Perception] v0.8 Stage 1 grounded RP/capability layer integrated
+- [Memory & Social] v0.8 Stage 1 spatial-memory foundation integrated
+- [Assets & Interface] v0.8 Stage 1 job-progress/chat/visual-profile/asset-worker groundwork integrated
+- [Coordinator] v0.7.0 published from `d81a85bf03b69b969532016f59bbbed2233949ee`
 
 ## v0.8 Stage 1 Coordination Goal
 
