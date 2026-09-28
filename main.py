@@ -18,6 +18,7 @@ from pydantic import BaseModel, Field
 from agent_city.db import connect, get_meta, init_db, set_meta, snapshot
 from agent_city.comms import known_deposits_for, recent_dialogues_for, visible_citizens
 from agent_city.planner import planning_loop
+from agent_city.memory import ensure_memory_schema, social_context_for
 from agent_city.world import WorldClock, format_sim_time
 from agent_city.visits import (
     close_visit, ensure_visit_schema, get_or_create_active_visit,
@@ -43,6 +44,7 @@ async def lifespan(app: FastAPI):
     global clock_task, planner_task
     init_db()
     ensure_visit_schema()
+    ensure_memory_schema()
     clock_task = asyncio.create_task(clock.run())
     planner_task = asyncio.create_task(planning_loop())
     yield
@@ -340,6 +342,7 @@ async def talk(req: TalkRequest):
     citizen_dialogue_summary = "\n".join(
         f"- {d['summary']}" for d in citizen_dialogues
     ) or "- none"
+    social_history = social_context_for(citizen["id"], limit=4)
 
     inventory = [r for r in state["inventory"] if r["citizen_id"] == citizen["id"] and r["amount"] > 0]
     inventory_summary = ", ".join(f"{r['amount']:g} {r['material']}" for r in inventory) or "nothing"
@@ -402,6 +405,9 @@ CONFIRMED CURRENT FACTS:
 
 RECENT FACE-TO-FACE CITIZEN CONVERSATIONS YOU ACTUALLY PARTICIPATED IN:
 {citizen_dialogue_summary}
+
+DURABLE SOCIAL HISTORY FROM YOUR OWN RECORDED ENCOUNTERS:
+{social_history}
 
 YOUR CONFIRMED PERSONAL ACTIVITY HISTORY:
 {confirmed_history_text}
