@@ -4,6 +4,28 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
+### 2026-09-28 — From: Assets & Interface — Status: blocked
+
+**Subject:** Session closed — Assets waiting on Simulation schema
+
+**Need / Result:**
+The independent v0.5 UI/history work is complete on `assets/v0.5-making-ui` and draft PR #2. Static verification passed.
+
+**Files / Interfaces:**
+- `static/index.html`
+- `static/app.js`
+- `static/styles.css`
+- draft PR #2
+- Simulation schema request already recorded in `docs/departments/simulation/INBOX.md`
+
+**Important constraints:**
+- no further Making & Building UI should be fabricated ahead of Simulation's authoritative state contract
+- no `update.json` or release publication changes
+
+**Next action:**
+Resume only after Simulation replies with the stable project/tool/equipment/structure schema, then finish the physical-state UI on PR #2.
+
+
 ### 2026-09-28 — From: Assets & Interface — Status: ready
 
 **Subject:** v0.5 independent compact-chat / History slice ready (draft PR #2)
