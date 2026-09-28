@@ -6,89 +6,64 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Assets & Interface — Status: ready
 
-**Subject:** v0.8 citizen visual-system plan captured
+**Subject:** v0.8 Stage 1 Assets foundation ready for coordinator review
 
 **Need / Result:**
-A durable v0.8 citizen asset architecture has been written to:
-`docs/departments/assets/V080_CITIZEN_VISUAL_SYSTEM.md`
+Stage 1 independent Assets work is complete on:
 
-It captures:
-- six refined canonical body directions
-- body vs equipment separation
-- Home/map head tokens
-- blink + expressive visor sprites
-- full-body character-sheet assets
-- modular equipment layers
-- lightweight motion/performance rules
-- future 3D translation
-- Simulation authority guardrails
+- branch `assets/v0.8-visual-stage1`
+- head `af2e058780103755360d143ca964855145e2254a`
+- PR #11, ready for review
 
-**Important constraints:**
-This is planning only. v0.8 is the next milestone but should not begin implementation until coordinator activation.
+Delivered runtime groundwork:
 
+- active-job progress restored to Home citizen rows
+- elapsed / total / remaining / ETA from authoritative job timing
+- Enter-to-send
+- Shift+Enter newline
+- IME-safe chat keyboard handling
+- duplicate-submit guard
+- six explicit citizen visual profiles
+- refined silhouette fallback architecture
+- head-expression asset slots
+- empty modular equipment-layer slots
 
-### 2026-09-28 — From: Assets & Interface — Status: ready
+Delivered architecture:
 
-**Subject:** Assets v0.7 session closed — ready for assembly
+- `V080_CITIZEN_VISUAL_SYSTEM.md`
+- `V080_ASSET_WORKER_CONTRACT.md`
+- persistent spec/job identity design
+- render tiers
+- provenance/fallback rules
+- asynchronous no-Simulation-blocking worker contract
 
-**Need / Result:**
-Assets v0.7 implementation is complete and stopped in REVIEW.
+Validation:
 
-**Final branch / review surface:**
-- `assets/v0.7-home-avatars`
-- head `dad17d8ef663a4fef367c4260e58074047acf1b3`
-- PR #7, ready for review
-
-**Dependencies:**
-None remain inside Assets. Coordinator assembly still waits on Memory's remaining v0.7 runtime pass.
-
-**Next action:**
-Coordinator integrates the final v0.7 department branches and runs the full regression suite, including `tests/smoke_v070_assets.py`.
-
-
-### 2026-09-28 — From: Assets & Interface — Status: ready
-
-**Subject:** Complete v0.7 Assets branch ready for coordinator integration
-
-**Need / Result:**
-The full v0.7 Assets scope is complete on `assets/v0.7-home-avatars`, head `dad17d8ef663a4fef367c4260e58074047acf1b3`, PR #7.
-
-Delivered:
-- scalable full-height Home rails
-- citizen search/filter
-- compact meaningful Recent Activity
-- real stored-conversation-only summaries
-- diagnostic filtering
-- lightweight 2D avatar framework
-- validated-state avatar animation
-- reduced-motion support
-- citizen battery/chassis maintenance presentation
-- equipment condition/operational/service/current effective capability
-- structure condition/operational/service/efficiency
-- bounded `maintenance_events` Records history
-- bounded Home maintenance alerts
-- v0.7 Assets smoke test
-
-**Verification:**
 - 71 HTML IDs
-- 67 JS DOM references
-- no missing or duplicate IDs
+- 67 JS DOM refs
+- zero missing/duplicate IDs
 - JavaScript parses
-- all branch-level v0.7 contract assertions pass
-- 8 commits ahead / 0 behind v0.6.0
-- PR #7 is mergeable and ready for review
+- all Stage 1 contract checks pass
+- 6 commits ahead / 0 behind v0.7.0
 
 **Important constraints:**
-- current equipment capability uses Simulation's effective fields
-- no JS maintenance-threshold rederivation
-- no invented visual damage
-- diagnostics are not dialogue
-- failed talks remain events only
-- maintenance physical history is not automatically citizen memory
-- no `update.json` or release publication changes
+- no continuous coordinate invention
+- no concept-art gear becomes inventory
+- no Simulation quantity changes from rendering aggregation
+- no Blender dependency yet
+- no full 3D generation yet
+- no `update.json` changes
 
 **Next action:**
-Coordinator integrates Assets with the final Simulation / Communication / Memory v0.7 branches and runs the full regression suite including `tests/smoke_v070_assets.py`.
+Coordinator reviews Stage 1 foundation. Continuous-world UI work resumes only after Simulation publishes the safe seeded spatial read model.
+
+### 2026-09-28 — From: Assets & Interface — Status: request
+
+**Subject:** Safe seeded spatial read model needed for later continuous-world UI
+
+Assets sent the exact UI/render consumer contract to World & Simulation INBOX.
+
+The request covers safe coordinates, reference frame, landmark anchors, stable generated subject identity, observation precision/extent, and repeat-encounter semantics without exposing hidden seed/chunk truth.
 
 ## Outbox Rule
 
