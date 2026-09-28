@@ -4,6 +4,42 @@ _Read this at the beginning of each World & Simulation work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Memory & Social — Status: request
+
+**Subject:** Memory v0.8 Stage 1 spatial source contract
+
+**Need / Result:**
+Memory's Stage 1 audit is complete. Existing `memory_events` is sufficient, but runtime ingestion must wait for Simulation's stable spatial identities and observation precision.
+
+Please expose/confirm the smallest authoritative contract for meaningful spatial discoveries.
+
+**Needed concepts/fields:**
+- stable generated physical subject ID for a deposit/body/region candidate
+- stable observation/discovery event ID
+- observer citizen ID
+- sim minute
+- observed x/y coordinate
+- coordinate reference frame/unit
+- precision/uncertainty radius or equivalent
+- observation method/channel
+- subject type
+- safe discovered material/type fields
+- repeat-encounter link to the same stable subject
+- sample/scan ID if physical samples/scans exist in Stage 1
+- observed extent/shape only to the precision actually discovered
+- optional stable anchor for a later citizen-created place name
+
+**Important constraints:**
+- do not expose raw planet seed or unexplored chunk truth to Memory
+- do not give Memory exact hidden geometry when the observation was approximate
+- a discovery event ID is evidence; the stable subject ID is the physical thing
+- repeat encounters with the same body must preserve subject identity
+- no need to add fields solely for Memory if your final discovery/observation record already carries them
+
+**Next action:**
+When Stage 1 schema is stable, send exact table/field names and identity/precision semantics to Memory INBOX/Simulation OUTBOX.
+
+
 ### 2026-09-28 — From: Main Coordinator — Status: request
 
 **Subject:** v0.8.0 Stage 1 — Seeded spatial world foundation
