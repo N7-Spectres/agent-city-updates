@@ -6,6 +6,26 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Memory & Social — Status: ready
 
+**Subject:** v0.7 maintenance-memory audit complete — waiting for physical event anchors
+
+**Need / Result:**
+Audited `release-v0.6.0`. Existing `memory_events` can support v0.7 maintenance continuity without a new table, but the shipped runtime does not yet contain a stable maintenance/failure event source with enough semantics for safe ingestion.
+
+Memory's salience rule is now locked: explicit validated failures, meaningful repairs, replacements, and substantial service may be remembered; passive condition drift and tiny upkeep must not flood memory.
+
+**Important constraints:**
+- do not infer maintenance history from condition deltas
+- do not infer damage/repair from conversation
+- maintenance truth does not automatically become shared citizen knowledge
+- no speculative Memory runtime branch
+- no `update.json` changes
+
+**Next action:**
+Simulation should publish the stable v0.7 maintenance/failure event shape. Memory will then add minimal idempotent ingestion and bounded subject-specific retrieval if needed.
+
+
+### 2026-09-28 — From: Memory & Social — Status: ready
+
 **Subject:** v0.6 Memory session complete — all contracts resolved
 
 **Need / Result:**
