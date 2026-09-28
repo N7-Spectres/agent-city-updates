@@ -18,19 +18,20 @@ This file is the shared project task board.
 
 - [World & Simulation] v0.8 Stage 1: persistent planet seed, deterministic meter-scale spatial truth, stable generated deposit identity/extent, additive migration
 - [Communication & Perception] v0.8 Stage 1: visitor RP grounding, known-vs-hypothesis capability language, tool/shared-action dialogue boundaries
-- [Assets & Interface] v0.8 Stage 1: citizen concept refinement/base-body system, restored progress bars + Enter-to-send, asset-worker/render-tier architecture
 
 ### WAITING
 
 - [Memory & Social] Stage 1 spatial-memory audit complete; runtime ingestion waits on Simulation stable subject/observation/coordinate-precision contract
 - [Communication & Perception] real visitor-linked shared physical actions wait on World & Simulation action/coordinate contract
-- [Assets & Interface] continuous-world UI wiring waits on World & Simulation spatial read model; independent concept/UI/asset-worker groundwork may proceed
+- [Assets & Interface] later continuous-world UI wiring waits on World & Simulation spatial read model; independent Stage 1 foundation is complete
 
 ### READY
 
 _None yet._
 
 ### REVIEW
+
+- [Assets & Interface] v0.8 Stage 1 complete on `assets/v0.8-visual-stage1` @ `af2e058780103755360d143ca964855145e2254a`; PR #11 ready with citizen visual profiles, restored job progress, Enter-to-send, Asset Worker/render-tier contracts, and v0.8 Assets smoke
 
 - [Memory & Social] v0.8 Stage 1 spatial-memory audit ready; no runtime branch until Simulation stable subject/observation contract lands
 
