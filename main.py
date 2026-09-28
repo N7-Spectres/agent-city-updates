@@ -222,11 +222,11 @@ def get_visit(citizen_id: str, visitor: str = "N7"):
 
     visitor = visitor.strip()[:40] or "Visitor"
     presence = presence_payload(visitor)
+    accessible, reason = can_visit_citizen(visitor, citizen_id)
 
     with connect() as conn:
         old_visits = previous_visits(conn, visitor, citizen_id, limit=3)
 
-    accessible, reason = can_visit_citizen(visitor, citizen_id)
     if not accessible:
         return {
             "accessible": False,
