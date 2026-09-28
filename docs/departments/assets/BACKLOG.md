@@ -87,3 +87,17 @@ Resume only for:
 
 Current next owner:
 **Coordinator / v0.8.1 Release**
+
+
+## Compact status-bar rule
+
+For the next character-sheet / Home-state polish pass:
+
+- preserve the current compact Home citizen-card dimensions; do not make those cards taller or visually busier
+- if Energy / Integrity move from plain percentages to bars, use **micro-bars**: thin, short, inline with the icon/value rather than full-width progress components
+- keep the numeric percentage visible for precision
+- use the same authoritative live values on Home and Citizen sheet
+- clearly separate current charge/energy from long-term battery health/capacity
+- character-sheet maintenance bars may be slightly wider because the sheet has more space, but should still remain visually quiet
+- avoid stacking multiple large colored bars in one card
+- prefer one small visual cue per metric over decorative gauges
