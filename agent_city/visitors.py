@@ -218,33 +218,110 @@ def complete_due_visitor_travel(now: int) -> None:
         conn.commit()
 
 
-def can_visit_citizen(visitor: str, citizen_id: str) -> tuple[bool, str]:
+def visit_access_payload(visitor: str, citizen_id: str) -> dict[str, Any]:
+    """
+    Return structured physical availability for a face-to-face visitor interaction.
+
+    Status is intentionally separate from the human-readable reason so the UI can
+    distinguish remote, traveling, talking, and otherwise-busy states.
+    """
     presence = ensure_visitor(visitor)
     with connect() as conn:
         citizen = conn.execute(
             """
-            SELECT c.name, c.location_id, c.location, c.active_job_id,
-                   j.action AS active_action, j.target AS active_target
+            SELECT c.id, c.name, c.location_id, c.location, c.current_activity,
+                   c.active_job_id,
+                   j.action AS active_action,
+                   j.citizen_id AS job_initiator_id,
+                   j.target AS active_target
             FROM citizens c
             LEFT JOIN jobs j ON j.id = c.active_job_id
             WHERE c.id = ?
             """,
             (citizen_id,),
         ).fetchone()
+
         if not citizen:
-            return False, "Citizen not found."
+            return {
+                "accessible": False,
+                "status": "missing",
+                "reason": "Citizen not found.",
+            }
+
         if presence.get("travel_end_minute") is not None:
-            return False, "You are currently traveling."
+            return {
+                "accessible": False,
+                "status": "visitor_traveling",
+                "reason": "You are currently traveling.",
+            }
+
         if citizen["active_action"] == "travel":
-            target_name = _location_name(conn, citizen["active_target"]) if citizen["active_target"] else "another location"
-            return False, f"{citizen['name']} is currently traveling toward {target_name}."
-        if citizen["active_action"] == "talk":
-            other = conn.execute(
-                "SELECT name FROM citizens WHERE id = ?",
-                (citizen["active_target"],),
-            ).fetchone()
-            other_name = other["name"] if other else "another citizen"
-            return False, f"{citizen['name']} is currently speaking with {other_name}."
+            target_name = (
+                _location_name(conn, citizen["active_target"])
+                if citizen["active_target"]
+                else "another location"
+            )
+            return {
+                "accessible": False,
+                "status": "citizen_traveling",
+                "reason": f"{citizen['name']} is currently traveling toward {target_name}.",
+            }
+
+        # If the visitor is elsewhere, do not leak the citizen's local busy/talk
+        # details as a substitute for physical co-location.
         if presence["location_id"] != citizen["location_id"]:
-            return False, f"{citizen['name']} is at {citizen['location']}; you are not there."
-    return True, ""
+            return {
+                "accessible": False,
+                "status": "remote",
+                "reason": f"{citizen['name']} is at {citizen['location']}; you are not there.",
+            }
+
+        if citizen["active_action"] == "talk":
+            initiator_id = str(citizen["job_initiator_id"] or "")
+            target_id = str(citizen["active_target"] or "")
+
+            if str(citizen["id"]) == initiator_id:
+                other_id = target_id
+            elif str(citizen["id"]) == target_id:
+                other_id = initiator_id
+            else:
+                other_id = ""
+
+            other = (
+                conn.execute(
+                    "SELECT id, name FROM citizens WHERE id = ?",
+                    (other_id,),
+                ).fetchone()
+                if other_id
+                else None
+            )
+            other_name = other["name"] if other else "another citizen"
+
+            return {
+                "accessible": False,
+                "status": "citizen_talking",
+                "reason": f"{citizen['name']} is currently speaking with {other_name}.",
+                "other_citizen_id": other["id"] if other else other_id or None,
+                "other_citizen_name": other_name,
+            }
+
+        if citizen["active_job_id"] is not None:
+            activity = str(citizen["current_activity"] or "occupied").strip()
+            return {
+                "accessible": False,
+                "status": "citizen_busy",
+                "reason": f"{citizen['name']} is currently busy: {activity}.",
+                "activity": activity,
+            }
+
+        return {
+            "accessible": True,
+            "status": "available",
+            "reason": "",
+        }
+
+
+def can_visit_citizen(visitor: str, citizen_id: str) -> tuple[bool, str]:
+    access = visit_access_payload(visitor, citizen_id)
+    return bool(access["accessible"]), str(access.get("reason") or "")
+
