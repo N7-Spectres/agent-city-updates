@@ -225,12 +225,20 @@ Planned direction:
 - construction jobs
 - material requirements
 - tool / capability requirements
-- multi-step projects
+- multi-step projects with planned → reserved → underway → complete states where appropriate
 - structures placed at real locations
 - new construction appears in the world only after successful completion
 - settlement layout begins visibly changing over time
+- fabricated extraction/collection tools can improve gathering speed and/or usable yield through real physical capability, not abstract level bonuses
+- fabricated carry equipment can increase cargo capacity; later equipment may trade capacity against energy use, terrain suitability, speed, or wear
+- citizen experience may later contribute modestly to efficiency without becoming a visible RPG skill tree
+- returning cargo to storage remains a citizen decision rather than a forced script
+- add a simple energy-reserve rule so remote work/outbound travel cannot consume energy needed to reach a known charger plus a modest safety margin
+- future field chargers/outposts can extend the safe working radius
+- lay coordinate groundwork for future construction between original landmarks without requiring full free-roam globe exploration in this milestone
+- UI polish: fixed-height internally scrolling visitor chat, anchored input, more compact/centered three-column layout, and useful citizen-conversation history showing what was discussed
 
-Goal: the civilization should be able to alter its environment instead of only moving through it.
+Goal: the civilization should be able to alter its environment instead of only moving through it, and those physical creations should begin changing what citizens can realistically do.
 
 ### v0.6.0 — Research & Discovery
 
