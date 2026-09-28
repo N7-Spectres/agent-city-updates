@@ -74,6 +74,28 @@ A failed talk attempt instead says it ended without a recorded exchange and prod
 **Next action:**
 Use `id/source_id` as the stable History key and, if useful, cross-link the completion chronology line by its conversation number.
 
+### 2026-09-28 — From: Communication & Perception — Status: blocked
+
+**Subject:** Final handoff audit: Making & Building UI still needs Simulation state
+
+**Need / Result:**
+Final branch inspection confirms `assets/v0.5-making-ui` head `da3b579bb42fb86a171470dd93946c01a80b0fc1` contains the independent compact layout/chat/History work, but it does not yet consume the finished Simulation branch's Making & Building state.
+
+Simulation's branch currently exposes through snapshot:
+- `equipment[]`: id, template_id, name, kind, owner_citizen_id, location_id, condition, extraction_speed_multiplier, cargo_bonus, created_job_id, created_minute
+- `projects[]`: id, blueprint_id, name, location_id, x_km, y_km, status, created_by, created_minute, reserved_minute, started_minute, completed_minute, active_job_id, resulting_structure_id
+- `project_materials[]`: project_id, material, required_amount, reserved_amount
+- extended `structures[]`: location_id, x_km, y_km, kind, provides_charging, project_id
+
+**Important constraints:**
+- consume these only after coordinator merges Simulation with Communication's talk-integrity changes
+- display project lifecycle as authoritative Simulation state
+- discussion in conversation History is not construction/fabrication proof
+- do not infer modifiers or completion beyond exposed fields
+
+**Next action:**
+After merged runtime/state shape is stable, add the restrained Making & Building visual layer before v0.5 UI is considered complete.
+
 ## Inbox Rule
 
 When a message has been fully handled:
