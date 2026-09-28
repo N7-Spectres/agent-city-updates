@@ -347,6 +347,9 @@ def init_db() -> None:
         conn.execute("UPDATE structures SET kind = 'smelter' WHERE name = 'Crude Smelter'")
 
         conn.execute("UPDATE citizens SET location_id = 'seed_site' WHERE location_id IS NULL OR location_id = ''")
+        conn.execute(
+            "UPDATE jobs SET outcome = 'legacy_complete' WHERE status = 'complete' AND outcome IS NULL"
+        )
 
         if get_meta(conn, "v0_2_migrated") is None:
             current = int(get_meta(conn, "sim_minute") or "360")
