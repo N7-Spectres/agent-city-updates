@@ -2,6 +2,9 @@
 
 ## Near-Term
 
+- investigate mismatch where talk start/finish history can exist without a visible matching citizen conversation record
+- guarantee a completed/generated face-to-face exchange has a stable stored conversation record that History can display
+- expose conversation summary/source IDs cleanly so History can show what was discussed, not only that a talk occurred
 - wire `PROVENANCE_CONTRACT.md` into the actual v0.3 conversation/database runtime once `comms.py`, `db.py`, and `simulation.py` are present on the branch
 - store explicit transfer events for same-location conversations
 - extract only facts actually spoken, not every fact implied by a summary
