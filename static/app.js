@@ -6,6 +6,10 @@ let openControlView = "history";
 let currentView = "home";
 let sheetCitizenId = null;
 let currentVisitAccessKey = null;
+const citizenKnowledgeCache = new Map();
+const locationKnowledgeCache = new Map();
+const knowledgeLoading = new Set();
+const KNOWLEDGE_REFRESH_MS = 12000;
 
 const LOCATION_PRESENTATION = {
   seed_site: {
@@ -408,6 +412,143 @@ function personalDiscoveriesForCitizen(citizenId) {
   );
 }
 
+function knowledgeCacheFresh(entry) {
+  return entry && (Date.now() - entry.loadedAt) < KNOWLEDGE_REFRESH_MS;
+}
+
+async function loadCitizenKnowledge(citizenId, { force = false } = {}) {
+  const key = `citizen:${citizenId}`;
+  const cached = citizenKnowledgeCache.get(citizenId);
+  if (!force && knowledgeCacheFresh(cached)) return cached.data;
+  if (knowledgeLoading.has(key)) return cached?.data || null;
+
+  knowledgeLoading.add(key);
+  try {
+    const response = await fetch(`/api/knowledge/citizens/${encodeURIComponent(citizenId)}?limit=12`);
+    if (!response.ok) throw new Error("knowledge endpoint unavailable");
+    const data = await response.json();
+    citizenKnowledgeCache.set(citizenId, { data, loadedAt: Date.now(), unavailable: false });
+    if (sheetCitizenId === citizenId) renderCitizenSheet();
+    return data;
+  } catch {
+    citizenKnowledgeCache.set(citizenId, {
+      data: null,
+      loadedAt: Date.now(),
+      unavailable: true,
+    });
+    if (sheetCitizenId === citizenId) renderCitizenSheet();
+    return null;
+  } finally {
+    knowledgeLoading.delete(key);
+  }
+}
+
+async function loadLocationKnowledge(locationId, { force = false } = {}) {
+  const key = `location:${locationId}`;
+  const cached = locationKnowledgeCache.get(locationId);
+  if (!force && knowledgeCacheFresh(cached)) return cached.data;
+  if (knowledgeLoading.has(key)) return cached?.data || null;
+
+  knowledgeLoading.add(key);
+  try {
+    const response = await fetch(`/api/knowledge/locations/${encodeURIComponent(locationId)}`);
+    if (!response.ok) throw new Error("knowledge endpoint unavailable");
+    const data = await response.json();
+    locationKnowledgeCache.set(locationId, { data, loadedAt: Date.now(), unavailable: false });
+    if (focusedLocation === locationId) renderLocationSheet();
+    return data;
+  } catch {
+    locationKnowledgeCache.set(locationId, {
+      data: null,
+      loadedAt: Date.now(),
+      unavailable: true,
+    });
+    if (focusedLocation === locationId) renderLocationSheet();
+    return null;
+  } finally {
+    knowledgeLoading.delete(key);
+  }
+}
+
+function knowledgeFactMarkup(fact) {
+  const metadata = fact?.metadata || {};
+  const verification = String(fact?.verification || fact?.status || "unverified");
+  const source = fact?.source_type && fact?.source_id != null
+    ? `${fact.source_type} #${fact.source_id}`
+    : "source unavailable";
+  const channel = metadata.channel ? String(metadata.channel).replaceAll("_", " ") : "";
+  const time = fact?.sim_label || (fact?.sim_minute != null ? formatMinute(fact.sim_minute) : "");
+
+  return `
+    <div class="knowledge-fact ${verification === "verified" ? "verified" : "unverified"}">
+      <div class="knowledge-fact-head">
+        <span class="knowledge-status">${escapeHtml(verification)}</span>
+        ${time ? `<time>${escapeHtml(time)}</time>` : ""}
+      </div>
+      <p>${escapeHtml(fact?.summary || "Knowledge record")}</p>
+      <div class="knowledge-source">
+        <span>${escapeHtml(source)}</span>
+        ${channel ? `<span>${escapeHtml(channel)}</span>` : ""}
+      </div>
+    </div>
+  `;
+}
+
+function citizenKnowledgeMarkup(citizenId) {
+  const entry = citizenKnowledgeCache.get(citizenId);
+  if (!entry) {
+    loadCitizenKnowledge(citizenId);
+    return '<div class="sheet-empty muted">Loading bounded knowledge…</div>';
+  }
+  if (!knowledgeCacheFresh(entry)) loadCitizenKnowledge(citizenId);
+  if (!entry.data) {
+    const fallback = personalDiscoveriesForCitizen(citizenId);
+    return fallback.length
+      ? fallback.map(dep => `
+          <div class="knowledge-fact verified">
+            <div class="knowledge-fact-head"><span class="knowledge-status">verified</span></div>
+            <p>Personally confirmed ${escapeHtml(dep.material)} at ${escapeHtml(locationNameById(dep.location_id))}.</p>
+            <div class="knowledge-source"><span>legacy physical discovery record</span></div>
+          </div>
+        `).join("")
+      : '<div class="sheet-empty muted">No bounded knowledge records are available in this runtime.</div>';
+  }
+
+  const facts = entry.data.facts || [];
+  return facts.length
+    ? facts.map(knowledgeFactMarkup).join("")
+    : '<div class="sheet-empty muted">No retained knowledge matching this citizen yet.</div>';
+}
+
+function locationKnowledgeMarkup(locationId) {
+  const entry = locationKnowledgeCache.get(locationId);
+  if (!entry) {
+    loadLocationKnowledge(locationId);
+    return '<div class="sheet-empty muted">Loading citizen knowledge for this location…</div>';
+  }
+  if (!knowledgeCacheFresh(entry)) loadLocationKnowledge(locationId);
+  if (!entry.data) {
+    return '<div class="sheet-empty muted">The bounded location-knowledge read model is not available in this runtime.</div>';
+  }
+
+  const citizenViews = (entry.data.citizens || []).filter(view => (view.facts || []).length);
+  if (!citizenViews.length) {
+    return '<div class="sheet-empty muted">No citizen has retained location knowledge here yet.</div>';
+  }
+
+  return citizenViews.map(view => `
+    <section class="location-knowledge-citizen">
+      <div class="location-knowledge-citizen-head">
+        <strong>${escapeHtml(view.citizen_name)}</strong>
+        <span>${view.facts.length} known fact${view.facts.length === 1 ? "" : "s"}</span>
+      </div>
+      <div class="knowledge-facts">
+        ${view.facts.map(knowledgeFactMarkup).join("")}
+      </div>
+    </section>
+  `).join("");
+}
+
 function renderCitizenDirectory() {
   if (!state?.citizens?.length) {
     els.citizenDirectory.innerHTML = '<div class="muted">No citizens available.</div>';
@@ -438,6 +579,7 @@ window.openCitizenSheet = function(id) {
   sheetCitizenId = id;
   renderCitizenDirectory();
   renderCitizenSheet();
+  loadCitizenKnowledge(id);
 };
 
 function renderCitizenSheet() {
@@ -452,7 +594,6 @@ function renderCitizenSheet() {
   const cargoTotal = cargo.reduce((sum, row) => sum + Number(row.amount || 0), 0);
   const gear = equipmentForCitizen(citizen.id);
   const projects = projectsForCitizen(citizen.id).slice(0, 6);
-  const discoveries = personalDiscoveriesForCitizen(citizen.id);
   const recentHistory = (state.history || [])
     .filter(row => String(row.message || "").startsWith(citizen.name))
     .slice(0, 5);
@@ -499,12 +640,6 @@ function renderCitizenSheet() {
     </div>
   `).join("") : '<div class="sheet-empty muted">No created projects.</div>';
 
-  const discoveryMarkup = discoveries.length ? discoveries.map(dep => `
-    <div class="sheet-list-row">
-      <span><strong>${escapeHtml(dep.material)}</strong><small>${escapeHtml(locationNameById(dep.location_id))}</small></span>
-    </div>
-  `).join("") : '<div class="sheet-empty muted">No personally confirmed discoveries in the current physical record.</div>';
-
   const historyMarkup = recentHistory.length ? recentHistory.map(row => `
     <div class="sheet-note"><time>${escapeHtml(formatMinute(row.sim_minute))}</time><span>${escapeHtml(row.message)}</span></div>
   `).join("") : '<div class="sheet-empty muted">No recent personal chronology entries.</div>';
@@ -535,8 +670,8 @@ function renderCitizenSheet() {
       <div class="sheet-list">${projectMarkup}</div>
     </div>
     <div class="sheet-card sheet-card-wide">
-      <span class="sheet-label">Personally confirmed discoveries</span>
-      <div class="sheet-list">${discoveryMarkup}</div>
+      <span class="sheet-label">Known discoveries & research</span>
+      <div class="knowledge-facts">${citizenKnowledgeMarkup(citizen.id)}</div>
     </div>
     <div class="sheet-card sheet-card-wide">
       <span class="sheet-label">Recent chronology</span>
@@ -573,6 +708,7 @@ window.openLocationSheet = function(id) {
   focusedLocation = id;
   renderLocationDirectory();
   renderLocationSheet();
+  loadLocationKnowledge(id);
 };
 
 function renderLocationSheet() {
@@ -647,6 +783,10 @@ function renderLocationSheet() {
     <div class="sheet-card sheet-card-wide">
       <span class="sheet-label">Known routes</span>
       <div class="sheet-list">${routeMarkup}</div>
+    </div>
+    <div class="sheet-card sheet-card-wide">
+      <span class="sheet-label">Citizen knowledge</span>
+      <div class="location-knowledge-sections">${locationKnowledgeMarkup(loc.id)}</div>
     </div>
   `;
 }
