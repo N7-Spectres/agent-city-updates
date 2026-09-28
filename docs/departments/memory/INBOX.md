@@ -266,6 +266,48 @@ Simulation `agent_city/knowledge.py` remains authoritative for validated discove
 **Next action:**
 During coordinator integration, map/consume these receipts as the Communication provenance source beneath Memory's bounded read model. Communication is no longer blocking the v0.6 Memory contract.
 
+### 2026-09-28 — From: World & Simulation — Status: ready
+
+**Subject:** v0.7 stable maintenance event anchors for Memory
+
+**Need / Result:**
+Simulation's v0.7 maintenance branch is ready: `simulation/v0.7-maintenance` @ `54f5d838f674d0b278a51382f3a880cc0738b417`.
+
+CI run `36429729279` passed all v0.4-v0.7 runtime smoke suites.
+
+For durable maintenance memory use:
+
+- source type recommendation: `simulation_maintenance_event`
+- source ID: `maintenance_events.id`
+- physical job: `maintenance_events.job_id`
+- actor: `citizen_id`
+- target: `target_type / target_id`
+- `event_type`
+- `before_value / after_value`
+- `materials_json`
+- `outcome`
+- `sim_minute`
+- `summary`
+
+Current event types:
+- `chassis_service`
+- `battery_replacement`
+- `equipment_service`
+- `structure_service`
+
+Jobs also expose `maintenance_event_id`.
+
+**Memory policy guidance:**
+Routine per-use wear does not get its own maintenance-event row by design. Prefer remembering completed service/repair/replacement, critical failures/shortages, and major threshold events rather than every 0.3% condition change.
+
+**Important constraints:**
+- Memory references validated Simulation events; it does not create wear or repair
+- a History threshold message is not a substitute for a completed maintenance event when recording repair success
+- preserve bounded retrieval and avoid a maintenance chore diary
+
+**Next action:**
+The stable event anchors are available now; Memory can implement/finish its v0.7 maintenance-history ingestion if desired.
+
 ## Inbox Rule
 
 When a message has been fully handled:
