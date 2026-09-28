@@ -252,3 +252,136 @@ Resume Assets only for:
 - Stage 1 review feedback
 - coordinator-authorized Stage 2 spatial UI integration
 - a new inbox request
+
+
+## v0.8 Stage 2 — Current Pickup State
+
+Stage 2 is now coordinator-authorized.
+
+Unified Stage 1 integration base:
+- branch: `release-v0.8.0`
+- commit: `017b417386f4f4e0f957dfb66285431223283739`
+- combined CI: `36453177128` — PASS
+
+Requested Assets Stage 2 branch:
+`assets/v0.8-exploration-ui-stage2`
+
+Important session truth:
+- this chat did **not** create the Stage 2 branch
+- this chat did **not** implement Stage 2 UI code
+- the new Simulation/Communication contracts were discovered during wrap-up
+- next Assets session should begin from the unified Stage 1 base above
+
+### Final Simulation Stage 2 contract
+
+Simulation is complete on:
+- `simulation/v0.8-exploration-stage2`
+- head `b81c9bb57884727e7a1c769d95ecb27928d1d489`
+- CI `36456647323` — PASS
+
+Safe citizen movement:
+`state.citizens[].local_movement`
+- job_id
+- action
+- frame_id
+- start_x_m / start_y_m
+- target_x_m / target_y_m
+- path_distance_m
+- terrain_multiplier
+- start_minute / end_minute
+- authoritative current x_m / y_m
+- progress
+- elapsed / total / remaining minutes
+
+Citizen `position_x_m / position_y_m` is server-derived current position during active movement.
+
+Safe shared physical activity:
+`state.shared_activities[]`
+- canonical id
+- visitor / citizen
+- objective / type
+- start / target coordinates
+- status
+- proposed / accepted / started / completed minutes
+- source visit / exchange IDs
+- tool equipment ID
+- citizen job ID
+- observation ID
+- outcome / failure reason
+- movement payload while active
+
+Lifecycle:
+- proposed
+- accepted
+- active
+- complete
+- rejected
+- failed
+
+Simulation endpoints:
+- `POST /api/shared-activities/propose`
+- `POST /api/shared-activities/{id}/accept`
+- `POST /api/shared-activities/{id}/reject`
+- `POST /api/shared-activities/{id}/start`
+- `GET /api/shared-activities/{id}`
+
+### Communication proposal projection
+
+Assets should consume Communication's Visit/UI projection:
+`shared_action_proposals[]`
+
+Important IDs:
+- `id` = Communication proposal/provenance ID
+- `simulation_activity_id` = canonical Simulation `shared_activities.id`
+- `simulation_action_id` = real citizen job ID only after physical start
+
+UI truth:
+- proposed/accepted are nonphysical intent states
+- active/started requires a real Simulation job
+- rejected produces no movement/path marker
+- completed exploration result requires Simulation completion + observation ID
+
+### Stage 2 map truth
+
+Assets may now render continuous local movement using only Simulation's authoritative segment/timing/current-position data.
+
+Allowed visual smoothing:
+- start coordinate
+- target coordinate
+- authoritative timing/progress
+- server-derived current x/y
+
+Do not:
+- invent paths
+- expose hidden seeded terrain/deposits
+- infer material/geology from baseline observations
+- render rejected proposals as movement
+- show discovery markers without real observation IDs
+
+Baseline evidence should represent `radius_m` uncertainty rather than false point precision.
+
+### Citizen art / asset-worker Stage 2
+
+Still required:
+- continue approved six-citizen base-body/token system
+- wire approved art only if actual source files are available
+- never invent replacement art merely to fill slots
+- optional gear remains separate from base body
+- expression frames only when real approved art exists
+- turn Stage 1 asset-worker contract into a minimal local queue/spec scaffold if it remains presentation-only
+- no Blender dependency yet
+- every physical object retains a fallback visual
+
+## Session Closure — Stage 2 Not Yet Implemented
+
+This work session is closed before Stage 2 implementation.
+
+Assets remains an **ACTIVE** Stage 2 department task on the coordination board because the work packet is ready and unblocked, but no Stage 2 code was produced in this chat.
+
+Next session should:
+1. read Assets INBOX + COORDINATION
+2. create `assets/v0.8-exploration-ui-stage2` from `release-v0.8.0@017b417...`
+3. inspect final Communication handoff/head
+4. implement local-map + shared-proposal + progress UI
+5. add Stage 2 Assets smoke coverage
+6. update handoff docs and stop for coordinator integration
