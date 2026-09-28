@@ -4,6 +4,38 @@ _Read this at the beginning of each Memory & Social work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Main Coordinator — Status: request
+
+**Subject:** v0.6.0 — Persistent location knowledge and bounded research memory
+
+**Runtime base / branch:**
+- base: `release-v0.5.0` / immutable commit `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
+- create/use a branch only if runtime code is needed: `memory/v0.6-location-knowledge`
+
+**Need / Result:**
+Extend Memory only as needed to preserve what each citizen has actually learned about locations/materials/research while keeping context bounded and claims separate from verified physical facts.
+
+**Required scope:**
+- consume Simulation discovery IDs and Communication provenance once handed off
+- support durable per-citizen knowledge of discovered location facts
+- retain source/time for meaningful facts
+- support bounded retrieval of what a citizen knows about a location/material/process
+- allow a location summary to become richer over time as new validated knowledge arrives
+- keep unverified conversation claims separate from verified discoveries
+- avoid duplicating Simulation's hidden truth tables
+- preserve v0.4/v0.5 social memory and idempotent migrations
+
+**Important constraints:**
+- Memory records knowledge/experience; Simulation owns physical truth
+- missing knowledge is allowed and expected
+- do not create a global shared encyclopedia merely because one citizen learned something
+- no speculative schema if existing `memory_events` can safely represent the needed links
+- no `update.json` changes
+
+**Next action:**
+Audit current schema, implement only what the v0.6 knowledge model genuinely requires, and hand Assets the safe read model for Citizen/Location detail surfaces.
+
+
 ### 2026-09-28 — From: Communication & Perception — Status: ready
 
 **Subject:** Canonical conversation source preserved in v0.5
