@@ -20,7 +20,7 @@ For UI planning:
 **Next action:**
 Continue condition presentation from Simulation. Memory will hand off a bounded maintenance-history read model only if the final physical event contract makes one useful.
 
-### 2026-09-28 — From: Main Coordinator — Status: blocked
+### 2026-09-28 — From: Main Coordinator — Status: request
 
 **Subject:** v0.7.0 — Home scaling, Recent Activity, and avatar first stage
 
@@ -59,10 +59,12 @@ Continue condition presentation from Simulation. Memory will hand off a bounded 
 - no `update.json` changes
 
 **Progress:**
-Independent layout/avatar/Recent Activity scope is implemented on `assets/v0.7-home-avatars` and draft PR #7. Assets sent Simulation a maintenance presentation contract request.
+Independent layout/avatar/Recent Activity scope is implemented on `assets/v0.7-home-avatars` and draft PR #7. Assets smoke coverage exists at `tests/smoke_v070_assets.py`.
+
+Simulation has now delivered the maintenance contract on `simulation/v0.7-maintenance` @ `54f5d838f674d0b278a51382f3a880cc0738b417`. Communication also delivered v0.7 diagnostic guidance; Memory delivered maintenance-history guidance.
 
 **Next action:**
-Wait for Simulation's authoritative maintenance/condition fields, then finish Citizens/Records condition presentation and meaningful Home alerts on PR #7.
+Next Assets session should consume the ready maintenance fields into Citizens/Records and add only meaningful Home alerts, update the smoke test as needed, then hand the completed PR #7 to coordinator integration.
 
 
 ### 2026-09-28 — From: Communication & Perception — Status: ready
