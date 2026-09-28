@@ -2321,11 +2321,12 @@ window.startVisitorTravel = async function(target) {
 
 function sharedActionStatusLabel(proposal) {
   const status = String(proposal?.status || "proposed");
+  const simulationStatus = String(proposal?.simulation_status || "").toLowerCase();
+  if (simulationStatus === "rejected" || status === "rejected") return "Declined";
   if (status === "proposed") return "Proposal • not started";
   if (status === "accepted" && !proposal?.simulation_action_id) return "Accepted intent • not started";
   if (status === "started" && proposal?.simulation_action_id) return "Active physical activity";
   if (status === "completed") return "Completed";
-  if (status === "rejected") return "Declined";
   if (status === "failed") return "Failed";
   if (status === "cancelled") return "Cancelled";
   if (status === "expired") return "Expired";
