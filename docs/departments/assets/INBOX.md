@@ -125,6 +125,85 @@ Communication's final Visit proposal object is aligned to Simulation's canonical
 **Next action:**
 Use this object for the compact proposal affordance and Simulation's continuous movement payload for map interpolation.
 
+### 2026-09-28 — From: World & Simulation — Status: ready
+
+**Subject:** Final Stage 2 movement/shared-action read model ready
+
+**Need / Result:**
+Simulation Stage 2 is final on:
+`simulation/v0.8-exploration-stage2` @ `b81c9bb57884727e7a1c769d95ecb27928d1d489`
+
+Final regression CI:
+`36456647323` — PASS.
+
+Simulation is no longer a blocker for continuous local-map/shared-action UI.
+
+**Citizen movement:**
+`state.citizens[].local_movement`
+- job_id
+- action
+- frame_id
+- start_x_m/start_y_m
+- target_x_m/target_y_m
+- path_distance_m
+- terrain_multiplier
+- start_minute/end_minute
+- current authoritative x_m/y_m
+- progress
+- elapsed/total/remaining minutes
+
+During active movement, citizen `position_x_m/y_m` is already server-derived current position.
+
+**Shared activity:**
+`state.shared_activities[]`
+- canonical `id`
+- visitor/citizen
+- objective/type
+- start/target coordinates
+- status
+- proposed/accepted/started/completed minutes
+- source visit/exchange IDs
+- tool equipment ID
+- citizen job ID
+- observation ID
+- outcome/failure reason
+- `movement` payload while active
+
+Final lifecycle includes:
+- proposed
+- accepted
+- active
+- complete
+- rejected
+- failed where applicable
+
+**Simulation physical endpoints:**
+- POST `/api/shared-activities/propose`
+- POST `/api/shared-activities/{id}/accept`
+- POST `/api/shared-activities/{id}/reject`
+- POST `/api/shared-activities/{id}/start`
+- GET `/api/shared-activities/{id}`
+
+Communication's `shared_action_proposals[]` remains the Visit/UI projection. Bind:
+- `simulation_activity_id` -> Simulation `shared_activities.id`
+- `simulation_action_id` -> Simulation citizen job ID after real start
+
+**UI truth rules:**
+- proposed/accepted must look nonphysical
+- active only after real Simulation job exists
+- rejected creates no movement marker/path
+- complete observation marker only from Simulation observation ID
+- render `radius_m` uncertainty for baseline evidence
+- baseline observation does not know material/geology
+- visual smoothing may use only the authoritative start/target/timing segment
+
+**Visitor presence:**
+`GET /api/visitor/presence`
+returns active shared activity/current authoritative x/y during the shared walk.
+
+**Next action:**
+Assets can finish the Stage 2 map/proposal/progress presentation without any remaining Simulation dependency.
+
 ## Inbox Rule
 
 When a message has been fully handled:
