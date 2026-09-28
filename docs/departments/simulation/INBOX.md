@@ -48,6 +48,29 @@ Implement the physical and epistemic substrate for v0.6. This department remains
 Implement/test, update Simulation STATE/DECISIONS/BACKLOG/OUTBOX, and hand the exact knowledge/discovery schema to Communication, Memory, and Assets through their inboxes.
 
 
+### 2026-09-28 — From: Assets & Interface — Status: request
+
+**Subject:** v0.6 Assets safe world/read-model contract
+
+**Need / Result:**
+Assets has completed the independent Home / Citizens / Locations / Records shell on `assets/v0.6-knowledge-ui`. The remaining location/citizen data should come from a knowledge-safe Simulation interface, not raw hidden truth.
+
+**UI consumers need:**
+- a safe location/world read model that excludes undiscovered deposits/properties by construction
+- stable discovery/experiment anchors suitable for display and later provenance linking
+- for each visible location fact, enough identity to distinguish validated discovered fact from hidden world truth
+- per-citizen physical carry capacity (or an equivalent authoritative field) so the Citizens character sheet can show cargo/capacity without re-deriving Simulation rules
+- any authoritative current physical configuration fields that are safe for the character sheet beyond existing equipment/energy/integrity/location
+
+**Important constraints:**
+- please do not expose hidden material/world properties in ordinary UI state
+- Assets will not reconstruct cargo capacity from constants/equipment bonuses
+- unknown resources/properties should simply be absent
+- stable IDs/source times are preferred where already natural to the Simulation model
+
+**Next action:**
+When the v0.6 Simulation schema is stable, send Assets the exact safe field/endpoint names and which raw v0.5 fields should no longer be used directly for Locations/Citizens UI.
+
 ## Inbox Rule
 
 When a message has been fully handled:
