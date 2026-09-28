@@ -24,7 +24,7 @@ This file is the shared project task board.
 
 ### READY
 
-- [Assets & Interface] v0.8.1 work packet is in INBOX; base release is `release-v0.8.0` @ `a870982ba947fcc5af08ca190de396ae4308b645`
+- [Assets & Interface] v0.8.1 work packet is in INBOX; quiet hotfix base is `release-v0.8.1` @ `c55eb76b89b35a660275ac97f095dcc4f511683e`
 
 ### REVIEW
 
@@ -370,3 +370,18 @@ Published runtime:
 The updater may now target this immutable commit.
 
 No additional v0.8 department work remains open.
+
+
+## CI Noise Reduction
+
+Starting with v0.8.1, the release branch no longer runs the full release smoke matrix on every ordinary push.
+
+Hotfix release workflow:
+- branch: `release-v0.8.1`
+- workflow commit: `c55eb76b89b35a660275ac97f095dcc4f511683e`
+- release-smoke now runs only when `VERSION` changes
+- stale overlapping release runs are cancelled by workflow concurrency
+- department/integration work should use focused checks first
+- coordinator performs the one definitive full release smoke at the final version bump before updating `update.json`
+
+This keeps real failures visible while avoiding a mailbox full of intermediate integration noise.
