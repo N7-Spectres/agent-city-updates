@@ -103,3 +103,20 @@ Long-distance communication must be invented by the civilization if its research
 Citizens are already using conversation strategically as part of autonomous planning.
 
 The next implementation step is wiring the provenance contract into the actual conversation/database runtime once those source files are available on the branch.
+
+## Session Handoff — 2026-09-28
+
+This session is closed with the planner anti-omniscience patch verified on the default branch.
+
+Completed:
+- removed live remote citizen location/activity from citizen planner context
+- removed settlement-wide discovered deposits from citizen planner context
+- limited immediate planner perception to co-located non-traveling citizens and local discovered deposits
+- documented the v0.4 provenance contract for observation, claims, source, age, and verification
+- handed Memory the provenance interface
+- requested authoritative time/co-location/event inputs from Simulation
+
+Current blocker:
+- the default branch still lacks `agent_city/comms.py`, `agent_city/db.py`, and `agent_city/simulation.py`, so provenance persistence cannot be safely wired into the actual v0.3 conversation runtime yet
+
+Next session should begin by reading `COORDINATION.md`, this department's `INBOX.md`, and any Simulation/Memory responses, then verify whether the missing runtime source has been synchronized.
