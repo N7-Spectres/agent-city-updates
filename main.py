@@ -29,6 +29,17 @@ from agent_city.provenance import (
     knowledge_payload,
 )
 from agent_city.planner import planning_loop
+from agent_city.shared_actions import (
+    accept_proposal,
+    ensure_shared_action_schema,
+    expire_pending_proposals_for_visitor,
+    maybe_create_proposal_from_exchange,
+    proposal_payload,
+    proposals_for_visit,
+    reject_proposal,
+    shared_action_context,
+    shared_action_option_context,
+)
 from agent_city.talk_diagnostics import ensure_talk_diagnostic_schema
 from agent_city.simulation import cargo_capacity as physical_cargo_capacity
 from agent_city.exploration import (
@@ -81,6 +92,7 @@ async def lifespan(app: FastAPI):
     ensure_memory_schema()
     ensure_information_schema()
     ensure_talk_diagnostic_schema()
+    ensure_shared_action_schema()
     clock_task = asyncio.create_task(clock.run())
     planner_task = asyncio.create_task(planning_loop())
     yield
@@ -369,6 +381,7 @@ def visitor_travel(req: VisitorTravelRequest):
     ok, message = start_visitor_travel(req.visitor, req.target)
     if not ok:
         raise HTTPException(400, message)
+    expire_pending_proposals_for_visitor(req.visitor.strip()[:40] or "Visitor")
     return {"ok": True, "message": message, "presence": presence_payload(req.visitor)}
 
 
@@ -490,6 +503,7 @@ def get_visit(citizen_id: str, visitor: str = "N7"):
             "previous_visits": old_visits,
             "has_earlier": False,
             "visit": None,
+            "shared_action_proposals": [],
         }
 
     with connect() as conn:
@@ -503,6 +517,12 @@ def get_visit(citizen_id: str, visitor: str = "N7"):
     payload["citizen"] = citizen
     payload["visitor"] = visitor
     payload["presence"] = presence
+    payload["shared_action_proposals"] = proposals_for_visit(
+        visitor,
+        citizen_id,
+        visit_id=int(visit["id"]),
+        limit=8,
+    )
     return payload
 
 
@@ -535,6 +555,7 @@ async def leave_visit(citizen_id: str, req: VisitorRequest):
     with connect() as conn:
         close_visit(conn, visit_id, state["sim_minute"])
 
+    expire_pending_proposals_for_visitor(visitor)
     return {"ok": True, "visit_id": visit_id}
 
 
@@ -641,6 +662,13 @@ async def talk(req: TalkRequest):
     else:
         current_intent = "- no active job"
 
+    shared_activity_options = shared_action_option_context(visitor, req.citizen_id)
+    shared_activity_context = shared_action_context(
+        visitor,
+        req.citizen_id,
+        visit_id=visit_id,
+    )
+
     system_prompt = f"""
 You are {citizen['name']}, one of six equal mechanical citizens living at the beginning of Agent City.
 
@@ -693,6 +721,10 @@ YOUR CONFIRMED PERSONAL ACTIVITY HISTORY:
 YOUR CURRENT RECORDED INTENT:
 {current_intent}
 
+{shared_activity_options}
+
+{shared_activity_context}
+
 ACTIVE VISIT MEMORY SUMMARY:
 {active_visit_summary or '(none yet)'}
 
@@ -736,6 +768,9 @@ STRICT REALITY RULES:
 13. If asked about a remote citizen/location and you lack provenance-backed information, say you do not know. If you have last-known information, state its source/age or clearly phrase it as something you heard/observed earlier.
 14. Do not claim a shared visitor activity has physically started because you conversationally agreed to it. Until Simulation exposes a real visitor-linked action, agreement is an intention only.
 15. Do not claim a tool, structure, process, or capability from concept art, visual description, or imagination. Use only the authoritative capability surface supplied above.
+16. A shared-action proposal is not a physical action. While status is proposed or accepted-without-Simulation-ID, use proposal/intention language only.
+17. Only when SHARED PHYSICAL ACTIVITY says Simulation has an ACTIVE real action ID may you say the shared activity has started or is underway.
+18. Only a Simulation-completed shared action / validated observation may be described as completed physical exploration.
 
 Keep conversation natural and fairly concise. Ground uncertainty conversationally; do not turn the response into a policy lecture. Do not speak like an AI assistant or narrator.
 """.strip()
@@ -782,7 +817,7 @@ Keep conversation natural and fairly concise. Ground uncertainty conversationall
         )
 
     with connect() as conn:
-        conn.execute(
+        cur = conn.execute(
             """
             INSERT INTO conversations
             (sim_minute, visitor, citizen_id, visitor_text, citizen_text, visit_id)
@@ -790,7 +825,18 @@ Keep conversation natural and fairly concise. Ground uncertainty conversationall
             """,
             (state["sim_minute"], visitor, req.citizen_id, req.message, answer, visit_id),
         )
+        exchange_id = int(cur.lastrowid)
         conn.commit()
+
+    proposal = await maybe_create_proposal_from_exchange(
+        visitor=visitor,
+        citizen_id=req.citizen_id,
+        visit_id=visit_id,
+        source_exchange_id=exchange_id,
+        visitor_text=req.message,
+        citizen_text=answer,
+        model=state["ollama_model"],
+    )
 
     await summarize_visit_if_needed(visit_id, state["ollama_model"], force=False)
 
@@ -800,7 +846,54 @@ Keep conversation natural and fairly concise. Ground uncertainty conversationall
         "message": answer,
         "sim_label": format_sim_time(state["sim_minute"]),
         "visit_id": visit_id,
+        "exchange_id": exchange_id,
+        "shared_action_proposal": proposal,
     }
+
+
+@app.get("/api/visit/{citizen_id}/shared-actions")
+def get_shared_action_proposals(
+    citizen_id: str,
+    visitor: str = "N7",
+    visit_id: int | None = None,
+):
+    visitor = visitor.strip()[:40] or "Visitor"
+    return {
+        "visitor": visitor,
+        "citizen_id": citizen_id,
+        "proposals": proposals_for_visit(
+            visitor,
+            citizen_id,
+            visit_id=visit_id,
+            limit=12,
+        ),
+    }
+
+
+@app.get("/api/shared-actions/{proposal_id}")
+def get_shared_action_proposal(proposal_id: int):
+    proposal = proposal_payload(proposal_id)
+    if not proposal:
+        raise HTTPException(404, "Shared-action proposal not found")
+    return proposal
+
+
+@app.post("/api/shared-actions/{proposal_id}/accept")
+def accept_shared_action_proposal(proposal_id: int, req: VisitorRequest):
+    visitor = req.visitor.strip()[:40] or "Visitor"
+    ok, message, proposal = accept_proposal(proposal_id, visitor)
+    if not ok:
+        raise HTTPException(409, message)
+    return {"ok": True, "message": message, "proposal": proposal}
+
+
+@app.post("/api/shared-actions/{proposal_id}/reject")
+def reject_shared_action_proposal(proposal_id: int, req: VisitorRequest):
+    visitor = req.visitor.strip()[:40] or "Visitor"
+    ok, message, proposal = reject_proposal(proposal_id, visitor)
+    if not ok:
+        raise HTTPException(409, message)
+    return {"ok": True, "message": message, "proposal": proposal}
 
 
 if __name__ == "__main__":
