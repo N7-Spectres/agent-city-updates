@@ -16,7 +16,6 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-- [Assets & Interface] v0.7.0 final pass: consume authoritative maintenance fields/events into Citizens/Records/Home alerts and rerun Assets smoke
 
 ### WAITING
 
@@ -34,6 +33,8 @@ This file is the shared project task board.
 - [Assets & Interface] independent v0.7 Home scaling/search/Recent Activity/avatar framework is already prepared
 
 ### REVIEW
+
+- [Assets & Interface] v0.7 complete on `assets/v0.7-home-avatars` @ `dad17d8ef663a4fef367c4260e58074047acf1b3`; PR #7 ready for integration with Home scaling/search/Recent Activity/avatar framework + authoritative maintenance UI + Assets smoke
 
 - [Memory & Social] v0.7 maintenance policy/source contract reviewed; runtime branch still pending and must not be treated as integration-ready
 
