@@ -583,3 +583,56 @@ It may not persist or mutate:
 - hidden world truth
 
 A failed/missing asset job results in fallback presentation, never a failed/missing physical object.
+
+
+## v0.8.1 Runtime Citizen Art Rule
+
+Approved full-body and token art is permanent presentation identity, not physical inventory.
+
+For v0.8.1:
+- `full`, `bust`, and `token` may reference approved art
+- optional equipment layers remain empty unless physical equipped-state semantics later authorize them
+- concept-sheet props never become runtime equipment merely because they are drawn
+
+## v0.8.1 Expression Slot Rule
+
+A static citizen token is not automatically a semantic expression frame.
+
+`head.neutral`, `head.blink`, `head.happy`, `head.focused`, and `head.curious` remain null until separate approved frames exist.
+
+This keeps future blink/personality animation explicit rather than inferring expressions from arbitrary crops.
+
+## v0.8.1 Map Zoom Rule
+
+Map zoom and focus are camera/presentation state only.
+
+They may change:
+- viewport center
+- visual scale
+- screen-space token spacing
+
+They may not change:
+- authoritative x/y
+- physical movement
+- observations
+- known/hidden spatial truth
+
+Region reset returns presentation zoom/center to default.
+
+## v0.8.1 Map Hit-Target Rule
+
+Location nodes keep a generous invisible click/focus target for usability.
+
+Hover, selected, and keyboard focus should decorate only the node dot and/or label, not paint the full rectangular button surface.
+
+Keyboard `:focus-visible` must remain visually clear.
+
+## v0.8.1 Hotfix CI Rule
+
+Department validation may use focused/temporary checks, but the coordinator owns the definitive release run.
+
+For v0.8.1:
+- department branch may validate aggressively
+- temporary validation workflows must be removed before handoff
+- official release workflow is preserved from `release-v0.8.1`
+- coordinator performs the final full regression at VERSION bump before publication
