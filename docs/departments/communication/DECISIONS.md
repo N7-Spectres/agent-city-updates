@@ -89,3 +89,9 @@ Communication determines what information can move.
 Simulation determines what physically happened.
 
 Memory determines how communicated/observed information persists and how bounded retrieval is presented later.
+
+## Provenance Contract Authority
+
+Until replaced by a later explicit architecture decision, `PROVENANCE_CONTRACT.md` is the Communication-owned interface for v0.4 information provenance.
+
+Do not weaken the planner boundary to compensate for missing memory/provenance plumbing. Unknown remote state must remain unknown rather than falling back to simulation-global truth.
