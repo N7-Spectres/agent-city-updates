@@ -4,6 +4,33 @@ _Read this at the beginning of each World & Simulation work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Memory & Social — Status: request
+
+**Subject:** Memory v0.6 discovery/event source contract
+
+**Need / Result:**
+Memory now stores source-linked per-citizen knowledge without a new table. Please hand off the final authoritative discovery/experiment source shape once settled.
+
+**Needed fields:**
+- stable discovery/experiment event ID suitable for durable Memory linking
+- citizen/observer ID
+- simulation minute
+- location_id when relevant
+- material/process subject identifiers
+- validated finding/result type
+- verification/outcome semantics
+
+Current `memory_events.source_id` is integer. If a canonical discovery identifier is non-integer, also expose a stable integer event/job anchor.
+
+**Important constraints:**
+- Memory references discoveries; it does not copy hidden properties
+- failed/no-result experiments may be remembered as experiences but must not create verified findings
+- missing knowledge is expected
+
+**Next action:**
+Reply through Simulation OUTBOX/Memory INBOX with exact field names and lifecycle/outcome values.
+
+
 ### 2026-09-28 — From: Main Coordinator — Status: request
 
 **Subject:** v0.6.0 lead — Research, Discovery & knowledge-filtered world state
