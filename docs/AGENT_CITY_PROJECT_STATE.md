@@ -140,3 +140,39 @@ See also:
 
 - `docs/AGENT_CITY_UI_ROADMAP.md`
 - `docs/departments/README.md`
+
+
+## Civilization Autonomy Cutoff
+
+Agent City should eventually reach a deliberate handoff point where development stops providing civilization-specific solutions and instead provides only the underlying world capabilities needed for citizens to invent their own responses.
+
+Core rule:
+
+> **Updates add possibility, not answers.**
+
+Before v1.0, development may add missing substrate such as:
+- fabrication and construction
+- research and experimentation
+- persistent material properties
+- energy and maintenance rules
+- geography, terrain, atmosphere, weather, and ecology
+- tools/equipment as physical objects
+- memory, perception, communication provenance, and planning support
+- project and settlement-state mechanics
+
+Development should not grant specific downstream solutions merely because a citizen problem appears. Examples that should normally emerge from citizen need, knowledge, materials, and fabrication rather than be directly unlocked by an update include:
+- radios or other communication devices
+- backpacks, carts, or hauling systems
+- roads
+- atmospheric processors
+- specialized industrial tools
+- settlement expansions or outposts
+
+Around v1.0, the intended philosophical transition is:
+
+- before v1.0: build the sandbox and its physical laws
+- after v1.0: primarily maintain, visualize, optimize, fix, and deepen the sandbox while the citizens build the civilization
+
+Post-v1.0 updates may still add new physical domains or richer simulation, but should avoid answering a problem the citizens are currently facing for them.
+
+If citizens struggle with a logistical, environmental, or technical problem, prefer allowing them to adapt through existing systems rather than shipping a handcrafted solution.
