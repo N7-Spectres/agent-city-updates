@@ -77,3 +77,13 @@ Before starting new Simulation feature work:
 6. Any merge conflict that changes wear rates, maintenance thresholds, repair material accounting, battery behavior, or operational-state rules returns to World & Simulation for review.
 
 Until that gate is complete, the v0.7 Simulation core is feature-complete and handed off.
+
+
+## v0.8 Rendering / Asset Foundations
+
+- bulk-resource render aggregation policy: one pile/bundle may represent many authoritative units
+- storage deposit removes loose visual clutter while preserving Simulation inventory truth
+- withdrawal/staging may re-materialize a representative visual
+- unique identity-bearing objects remain individual
+- future asset worker should consume authoritative quantity/specification and choose an efficient render tier
+- never tie object count in the renderer directly to fungible inventory count
