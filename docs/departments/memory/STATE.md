@@ -1,7 +1,7 @@
 # Memory & Social — State
 
 _Last updated: 2026-09-28_
-_Current release: v0.4.1_
+_Current release: v0.5.0_
 _Current development branch: `memory/v0.4-social-memory-core`_
 
 ## Mission
@@ -204,3 +204,17 @@ Completed:
 Memory is ready for coordinator review. Follow-on runtime project-memory helpers remain intentionally deferred until the requested Communication and Simulation interfaces arrive.
 
 No `memory/v0.5-project-continuity` branch was created. No release metadata or `update.json` was changed.
+
+
+## Shipped v0.5.0 Integration
+
+v0.5.0 shipped without a new Memory schema migration, as intended.
+
+The published runtime preserves:
+- canonical conversation source IDs
+- source-linked talk jobs
+- stable Simulation project/job/equipment/structure IDs
+- the distinction between remembered discussion and validated physical outcome
+
+Published runtime commit:
+`d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`.
