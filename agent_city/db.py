@@ -59,6 +59,16 @@ DEPOSITS = [
     ("dep_resin", "resin_grove", "Native Resin", 90.0, 0),
 ]
 
+# Stable local coordinates are deliberately simple groundwork, not free-roam geography.
+# Future structures may use coordinates between landmarks without changing location IDs.
+LOCATION_COORDINATES = {
+    "seed_site": (0.0, 0.0),
+    "northern_ridge": (0.0, 1.8),
+    "rocky_basin": (1.4, 0.0),
+    "southern_flats": (0.0, -2.1),
+    "resin_grove": (-1.2, 0.0),
+}
+
 
 def connect() -> sqlite3.Connection:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -99,7 +109,13 @@ def init_db() -> None:
             CREATE TABLE IF NOT EXISTS structures (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL UNIQUE,
-                condition REAL NOT NULL
+                condition REAL NOT NULL,
+                location_id TEXT,
+                x_km REAL,
+                y_km REAL,
+                kind TEXT NOT NULL DEFAULT 'structure',
+                provides_charging INTEGER NOT NULL DEFAULT 0,
+                project_id INTEGER
             );
 
             CREATE TABLE IF NOT EXISTS resources (
@@ -128,7 +144,9 @@ def init_db() -> None:
                 name TEXT NOT NULL,
                 description TEXT NOT NULL,
                 mapped INTEGER NOT NULL DEFAULT 1,
-                surveyed INTEGER NOT NULL DEFAULT 0
+                surveyed INTEGER NOT NULL DEFAULT 0,
+                x_km REAL,
+                y_km REAL
             );
 
             CREATE TABLE IF NOT EXISTS routes (
@@ -153,6 +171,45 @@ def init_db() -> None:
                 PRIMARY KEY(citizen_id, material)
             );
 
+            CREATE TABLE IF NOT EXISTS equipment (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                template_id TEXT NOT NULL,
+                name TEXT NOT NULL,
+                kind TEXT NOT NULL,
+                owner_citizen_id TEXT,
+                location_id TEXT,
+                condition REAL NOT NULL DEFAULT 100,
+                extraction_speed_multiplier REAL NOT NULL DEFAULT 1.0,
+                cargo_bonus REAL NOT NULL DEFAULT 0,
+                created_job_id INTEGER,
+                created_minute INTEGER NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS projects (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                blueprint_id TEXT NOT NULL,
+                name TEXT NOT NULL,
+                location_id TEXT NOT NULL,
+                x_km REAL,
+                y_km REAL,
+                status TEXT NOT NULL DEFAULT 'planned',
+                created_by TEXT NOT NULL,
+                created_minute INTEGER NOT NULL,
+                reserved_minute INTEGER,
+                started_minute INTEGER,
+                completed_minute INTEGER,
+                active_job_id INTEGER,
+                resulting_structure_id INTEGER
+            );
+
+            CREATE TABLE IF NOT EXISTS project_materials (
+                project_id INTEGER NOT NULL,
+                material TEXT NOT NULL,
+                required_amount REAL NOT NULL,
+                reserved_amount REAL NOT NULL DEFAULT 0,
+                PRIMARY KEY(project_id, material)
+            );
+
             CREATE TABLE IF NOT EXISTS jobs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 citizen_id TEXT NOT NULL,
@@ -163,7 +220,9 @@ def init_db() -> None:
                 start_minute INTEGER NOT NULL,
                 end_minute INTEGER NOT NULL,
                 status TEXT NOT NULL DEFAULT 'active',
-                detail TEXT
+                detail TEXT,
+                project_id INTEGER,
+                outcome TEXT
             );
 
             CREATE TABLE IF NOT EXISTS citizen_conversations (
@@ -195,8 +254,18 @@ def init_db() -> None:
         add_column_if_missing(conn, "citizens", "last_planned_minute INTEGER NOT NULL DEFAULT 0", "last_planned_minute")
         add_column_if_missing(conn, "citizens", "active_job_id INTEGER", "active_job_id")
         add_column_if_missing(conn, "jobs", "intent_reason TEXT", "intent_reason")
+        add_column_if_missing(conn, "jobs", "project_id INTEGER", "project_id")
+        add_column_if_missing(conn, "jobs", "outcome TEXT", "outcome")
         add_column_if_missing(conn, "deposits", "discoverer_id TEXT", "discoverer_id")
         add_column_if_missing(conn, "deposits", "discovered_minute INTEGER", "discovered_minute")
+        add_column_if_missing(conn, "locations", "x_km REAL", "x_km")
+        add_column_if_missing(conn, "locations", "y_km REAL", "y_km")
+        add_column_if_missing(conn, "structures", "location_id TEXT", "location_id")
+        add_column_if_missing(conn, "structures", "x_km REAL", "x_km")
+        add_column_if_missing(conn, "structures", "y_km REAL", "y_km")
+        add_column_if_missing(conn, "structures", "kind TEXT NOT NULL DEFAULT 'structure'", "kind")
+        add_column_if_missing(conn, "structures", "provides_charging INTEGER NOT NULL DEFAULT 0", "provides_charging")
+        add_column_if_missing(conn, "structures", "project_id INTEGER", "project_id")
 
         if get_meta(conn, "initialized") is None:
             set_meta(conn, "initialized", "true")
@@ -252,6 +321,30 @@ def init_db() -> None:
                 """,
                 (did, location_id, material, amount, discovered),
             )
+
+        for lid, (x_km, y_km) in LOCATION_COORDINATES.items():
+            conn.execute(
+                """
+                UPDATE locations
+                SET x_km = COALESCE(x_km, ?), y_km = COALESCE(y_km, ?)
+                WHERE id = ?
+                """,
+                (x_km, y_km, lid),
+            )
+
+        # Existing v0.4.x structures are all physically at Seed Site.
+        conn.execute(
+            """
+            UPDATE structures
+            SET location_id = COALESCE(location_id, 'seed_site'),
+                x_km = COALESCE(x_km, 0.0),
+                y_km = COALESCE(y_km, 0.0)
+            """
+        )
+        conn.execute("UPDATE structures SET kind = 'charger', provides_charging = 1 WHERE name = 'Charging Station'")
+        conn.execute("UPDATE structures SET kind = 'storage' WHERE name = 'Storage Unit'")
+        conn.execute("UPDATE structures SET kind = 'workbench' WHERE name = 'Basic Workbench'")
+        conn.execute("UPDATE structures SET kind = 'smelter' WHERE name = 'Crude Smelter'")
 
         conn.execute("UPDATE citizens SET location_id = 'seed_site' WHERE location_id IS NULL OR location_id = ''")
 
@@ -313,6 +406,9 @@ def snapshot() -> dict[str, Any]:
         locations = [dict(r) for r in conn.execute("SELECT * FROM locations ORDER BY rowid")]
         deposits = [dict(r) for r in conn.execute("SELECT * FROM deposits ORDER BY location_id, material")]
         inventory = [dict(r) for r in conn.execute("SELECT * FROM citizen_inventory WHERE amount > 0 ORDER BY citizen_id, material")]
+        equipment = [dict(r) for r in conn.execute("SELECT * FROM equipment WHERE condition > 0 ORDER BY id")]
+        projects = [dict(r) for r in conn.execute("SELECT * FROM projects ORDER BY id DESC LIMIT 50")]
+        project_materials = [dict(r) for r in conn.execute("SELECT * FROM project_materials ORDER BY project_id, material")]
         jobs = [dict(r) for r in conn.execute("SELECT * FROM jobs WHERE status = 'active' ORDER BY id")]
         routes = [dict(r) for r in conn.execute("SELECT * FROM routes ORDER BY a, b")]
         citizen_conversations = [
@@ -343,6 +439,9 @@ def snapshot() -> dict[str, Any]:
             "locations": locations,
             "deposits": deposits,
             "inventory": inventory,
+            "equipment": equipment,
+            "projects": projects,
+            "project_materials": project_materials,
             "jobs": jobs,
             "routes": routes,
             "citizen_conversations": citizen_conversations,
