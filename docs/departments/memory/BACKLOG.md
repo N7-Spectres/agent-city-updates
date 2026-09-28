@@ -328,3 +328,23 @@ Need exact authoritative fields for:
 - [ ] add bounded retrieval by stable subject / nearby observed area
 - [ ] preserve per-citizen isolation and source precision
 - [ ] add focused smoke coverage for same-body repeated encounters and no meter-walk spam
+
+
+### Stage 1 runtime foundation complete
+
+- [x] consume Simulation safe `spatial_observations` contract
+- [x] create `memory/v0.8-spatial-knowledge-stage1`
+- [x] add source-linked spatial observation projection
+- [x] keep hidden `planet_seed` / generated geometry out of Memory
+- [x] preserve stable generated deposit identity across repeat encounters
+- [x] suppress meter-walk/passive-scan noise
+- [x] retain first encounter / new method / improved precision
+- [x] bound stored coordinate precision by `radius_m`
+- [x] preserve per-citizen isolation
+- [x] bounded retrieval by stable subject and nearby observed area
+- [x] exclude spatial events from generic knowledge-fact stream
+- [x] add `tests/smoke_v080_memory.py`
+- [x] full shipped v0.4-v0.7 Memory regression matrix green in CI `36450511959`
+- [ ] Stage 2: consume real exploration/shared-action observation production once coordinator activates it
+- [ ] Stage 2: add samples/scans/place-name aliases if Simulation/Communication introduce those source records
+- [ ] Stage 2: selectively expose spatial context to planner/dialogue/navigation consumers
