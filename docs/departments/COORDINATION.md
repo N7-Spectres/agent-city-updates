@@ -20,33 +20,25 @@ _None._
 
 ### WAITING
 
-- [Coordinator / Stage 2 Integration] all four Stage 2 department branches are ready; final assembly must merge Simulation + Communication + Memory + Assets and run the full regression matrix
+- [Coordinator / v0.8 planning] Stage 2 is fully integrated and green; decide whether to authorize another v0.8 development stage or begin final release hardening
 
 ### READY
 
-- [World & Simulation] Stage 2 local exploration/shared physical activity ready on `simulation/v0.8-exploration-stage2` @ `b81c9bb57884727e7a1c769d95ecb27928d1d489`; final CI `36456647323` passed all v0.4-v0.7 regressions, all Stage 1 department smokes, and `tests/smoke_v080_stage2.py`
-- [World & Simulation] Communication's canonical pre-start reject dependency is resolved by `POST /api/shared-activities/{id}/reject`
-- [Communication & Perception] Stage 2 shared-action proposal/accept/start/reject bridge ready on `communication/v0.8-shared-actions-stage2` @ `ddab4bd445d5eb9f7d6354eb86e58afc0dc53332`; final CI `36457633293` passed unified Stage 1 regressions + Communication Stage 2 smoke + final Simulation adapter signature checks
-- [Memory & Social] no remaining Stage 2 department dependency; ready for coordinator assembly
-- [Coordinator] Stage 1 unified base remains green: `release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`, Actions `36453177128`
-- [Assets & Interface] Stage 2 Assets UI ready on `assets/v0.8-exploration-ui-stage2` @ `7f5294efaab738b44af116514a65d22478851ad0`; PR #15 ready; branch CI `36460454385` passed JS + Stage 1 Assets smoke + Stage 2 Assets smoke
+- [Coordinator] unified v0.8 Stage 2 integration base: `release-v0.8.0` @ `022f7655e9e958e3c35866d90679166a5b1c21e6`
+- [Coordinator] full combined CI `36461596122` passed all v0.4-v0.8 Stage 2 required smokes
 
 ### REVIEW
 
-- [Assets & Interface] authoritative meter-space map/local focus, validated observation uncertainty, shared-action intent-vs-physical UI, canonical reject handling, visitor movement presentation, and presentation-only AssetQueue scaffold complete
-
-- [Communication & Perception] Stage 2 conversational-to-physical bridge complete: explicit meter/cardinal proposals, canonical Simulation proposal validation, separate accept/start, canonical pre-start reject, bounded progress/status dialogue context, and final source-chain handoff
-
-- [World & Simulation] Stage 2 continuous local movement, terrain/energy cost, local inspection, meter-aware proximity, shared proposal/accept/start/reject/complete lifecycle, stable physical source IDs, and additive migration complete
-- [Memory & Social] Stage 2 exploration Memory complete on `memory/v0.8-exploration-stage2` @ `306a9ef4329ab81afa5912846333a1d9782ee9be`; CI `36455394456` passed
+_None._
 
 ### DONE
 
+- [Coordinator] v0.8 Stage 2 Simulation + Communication + Memory + Assets assembled and regression-tested on `release-v0.8.0`
+- [World & Simulation] v0.8 Stage 2 continuous local exploration/shared physical activity integrated
+- [Communication & Perception] v0.8 Stage 2 shared-action proposal/accept/start/reject/status bridge integrated
+- [Memory & Social] v0.8 Stage 2 bounded exploration/shared-activity continuity integrated
+- [Assets & Interface] v0.8 Stage 2 continuous meter-map/shared-action UI/observation uncertainty/AssetQueue scaffold integrated
 - [Coordinator] v0.8 Stage 1 assembled and regression-tested on `release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`
-- [World & Simulation] v0.8 Stage 1 seeded spatial foundation integrated
-- [Communication & Perception] v0.8 Stage 1 grounded RP/capability layer integrated
-- [Memory & Social] v0.8 Stage 1 spatial-memory foundation integrated
-- [Assets & Interface] v0.8 Stage 1 job-progress/chat/visual-profile/asset-worker groundwork integrated
 - [Coordinator] v0.7.0 published from `d81a85bf03b69b969532016f59bbbed2233949ee`
 
 ## v0.8 Stage 1 Coordination Goal
@@ -333,3 +325,36 @@ Verdict:
 **READY FOR COMBINED STAGE 2 INTEGRATION TESTING.**
 
 This is not yet the published v0.8.0 release.
+
+
+## v0.8 Stage 2 Integration Result
+
+Combined Stage 2 integration is complete.
+
+Unified runtime:
+- branch: `release-v0.8.0`
+- commit: `022f7655e9e958e3c35866d90679166a5b1c21e6`
+- GitHub Actions: `36461596122`
+- result: **PASS**
+
+The full assembled matrix passed:
+- Python compile
+- JavaScript syntax
+- v0.4 regression smoke
+- all v0.5 smoke suites
+- all v0.6 smoke suites
+- all v0.7 smoke suites
+- all four v0.8 Stage 1 smokes
+- v0.8 Stage 2 Simulation smoke
+- v0.8 Stage 2 Communication smoke
+- v0.8 Stage 2 Memory smoke
+- v0.8 Stage 2 Assets/UI smoke
+
+Integration preserved the explicit identity chain:
+- conversation/exchange = social source
+- Communication proposal = intent/UI projection
+- Simulation shared activity = canonical physical shared event
+- Simulation job = active physical movement
+- spatial observation = validated exploration evidence
+
+No v0.8 release metadata or `update.json` publication has occurred yet.
