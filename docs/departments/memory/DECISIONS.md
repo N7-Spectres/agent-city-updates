@@ -237,3 +237,55 @@ Prefer:
 - explicit verification labels
 
 Do not feed a citizen every fact they have ever learned.
+
+
+## v0.6 Final Layer Ownership
+
+The integrated v0.6 knowledge model has three distinct authoritative layers:
+
+### Simulation
+Owns hidden world truth, validated discovery records, experiment outcomes, and current validated citizen knowledge possession.
+
+Canonical anchors:
+- `discoveries.id`
+- `experiment_results.id`
+- `citizen_knowledge(citizen_id, discovery_id)`
+
+### Communication
+Owns how information reached a citizen and preserves historical provenance.
+
+Canonical receipt source:
+- `information_receipts.source_key`
+
+Transferred face-to-face assertions are speaker claims and begin unverified. Verified Simulation-grounded observations/results may be mirrored as verified receipts.
+
+### Memory
+Owns bounded durable retrieval and consumer-facing summaries/views.
+
+Memory may reference Simulation and Communication records, but must not replace them with an independent truth model.
+
+## Final v0.6 Source Semantics
+
+For a validated discovery:
+- preferred Memory source type: `simulation_discovery`
+- source ID: `discoveries.id`
+
+For a persisted experiment experience/result:
+- preferred source type: `simulation_experiment_result`
+- source ID: `experiment_results.id`
+
+For a communicated claim:
+- use the Communication receipt/conversation provenance
+- preserve unverified status until a later validated evidence path exists
+
+Do not infer verification from repeated claims or from Memory summaries.
+
+## Integration Rule
+
+Coordinator integration must preserve all three modules/layers.
+
+Do not resolve merge conflicts by:
+- exposing hidden Simulation truth through Memory
+- dropping Communication provenance
+- replacing Memory's bounded APIs with raw global discovery lists
+- unioning all citizen knowledge into a single implied shared encyclopedia
