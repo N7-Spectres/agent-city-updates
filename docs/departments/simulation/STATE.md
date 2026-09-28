@@ -1,9 +1,10 @@
 # World & Simulation — State
 
 _Last updated: 2026-09-28_
-_Current shipped release: v0.7.0_
-_Active implementation branch: `simulation/v0.8-seeded-world-stage1`_
-_Branch head: `7473b6612ea23cf8d22b31176149da188476690e`_
+_Current published release: v0.7.0_
+_Stage 2 unified base: `release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`_
+_Active implementation branch: `simulation/v0.8-exploration-stage2`_
+_Branch head: `7a47da8638351b251f65ff3661dc440e67d9da58`_
 
 ## Mission
 
@@ -11,294 +12,364 @@ Own physical truth.
 
 > **The AI may decide intent. The simulation decides reality.**
 
-For v0.8 Stage 1 this now includes:
+Stage 2 adds:
 
-> **The world is deterministic physical truth before it is discovered.**
+> **Conversation may propose shared action. Only Simulation may start and complete it.**
 
-## Shipped Foundation Preserved
+## Stage 1 Foundation Preserved
 
-Stage 1 starts from immutable shipped v0.7.0 commit:
+The branch starts from the unified green Stage 1 integration base.
 
-`d81a85bf03b69b969532016f59bbbed2233949ee`
+Preserved:
+- persistent hidden planet seed
+- `seed_site_local` meter tangent-plane frame
+- deterministic hidden terrain/geology
+- stable generated deposit bodies
+- hidden/public knowledge boundary
+- `spatial_observations.id` safe evidence
+- all v0.5-v0.7 production/research/provenance/memory/maintenance/talk invariants
 
-All v0.5-v0.7 production, research, knowledge/provenance, maintenance, visitor, and talk-reliability rules remain intact.
+## v0.8 Stage 2 — Continuous Local Exploration
 
-## v0.8 Stage 1 — Seeded Spatial World Foundation
+### Local Movement Job
 
-### Persistent Planet Seed
+New Simulation-owned physical action:
 
-Every save now owns one persistent hidden seed:
+- `local_move`
 
-- `meta.planet_seed`
+Core implementation:
+- `agent_city/exploration.py::start_local_move(...)`
 
-It is created once if absent and preserved on future startups/migrations.
+A local move persists real job fields:
+- `spatial_frame_id`
+- `start_x_m / start_y_m`
+- `target_x_m / target_y_m`
+- `path_distance_m`
+- `terrain_multiplier`
+- `start_minute / end_minute`
+- status/outcome
 
-The raw seed is never exposed through ordinary `/api/state`, visitor/citizen prompts, or UI-facing payloads.
+Current local move limit:
+- 300 m per move
 
-### Local Meter Coordinate Frame
+The planner is given safe nearby movement choices without being shown hidden terrain results.
 
-The existing starter world is now anchored in a local tangent-plane frame:
+### Terrain-Aware Physical Cost
 
-`seed_site_local`
+Local movement samples deterministic hidden terrain along the straight local path.
 
-Safe frame metadata:
+Simulation computes:
+- geometric distance
+- hidden terrain traversal multiplier
+- effective traversal distance
+- simulated duration
+- energy cost
 
-- units: meters
-- origin: Seed Site
-- x axis: east
-- y axis: north
-- frame type: local tangent plane
-- global lat/lon mapping: not yet assigned
+The hidden terrain samples are not exposed merely because they affected movement cost.
 
-This is deliberately compatible with a later global spherical coordinate layer.
+### Return-Energy Reserve
 
-### Existing Landmarks Preserved
+Before local movement or shared activity starts, Simulation checks whether the citizen will retain enough energy to reach a known operational charger from the destination plus a safety margin.
 
-The existing named locations remain the same physical places and IDs.
+The check is coordinate-based against actual charger x/y positions.
 
-Current anchor examples:
+### Authoritative In-Transit Position
 
-- Seed Site: (0 m, 0 m)
-- Northern Ridge: (0 m, 1800 m)
-- Rocky Basin: (1400 m, 0 m)
-- Southern Flats: (0 m, -2100 m)
-- Resin Grove: (-1200 m, 0 m)
+During an active local/shared movement, current position is derived server-side from the real job:
 
-Legacy route distances remain unchanged.
+- start position
+- target position
+- start/end simulation minute
+- current simulation minute
 
-The old x/y-km fields are preserved for compatibility while meter fields are added.
+Safe state exposes this as:
 
-### Meter Positions Added
-
-Persisted meter position foundation now exists for:
-
-- locations: `x_m / y_m`
-- citizens: `position_x_m / position_y_m`
-- structures: `x_m / y_m`
-- projects: `x_m / y_m`
-- visitors: `visitor_presence.x_m / y_m`
-
-Existing saves migrate positions from their current landmark/location.
-
-Current legacy route travel remains landmark-based in Stage 1:
-- a traveler keeps the origin position while the legacy travel job is underway
-- position snaps to the destination landmark when that validated travel completes
-
-Continuous path interpolation/free-roam is intentionally deferred to Stage 2.
-
-### Deterministic Hidden Spatial Engine
-
-New module:
-
-- `agent_city/spatial.py`
-
-Simulation-only hidden query:
-
-- `query_hidden_world(conn, x_m, y_m)`
-- wrapper: `simulation.query_spatial_truth(x_m, y_m)`
-
-The result is authoritative hidden truth and must never be copied directly into UI/LLM state.
-
-Generated fields use deterministic hashing + spatially interpolated noise rather than independent random rolls per scan.
-
-Current hidden query includes:
-
-- terrain class
-- elevation
-- roughness
-- geology class
-- generated deposit bodies covering the coordinate
-
-Same seed + same coordinate always returns the same result.
-
-Nearby coordinates vary coherently.
-
-### Stable Generated Deposit Bodies
-
-New hidden table:
-
-- `generated_deposits`
+`state.citizens[].local_movement`
 
 Fields include:
+- job_id
+- action
+- frame_id
+- start x/y
+- target x/y
+- path distance
+- terrain multiplier
+- start/end minute
+- authoritative x/y
+- progress
+- elapsed/total/remaining minutes
 
-- stable `id`
-- `source_kind` — `procedural` or `legacy`
-- material
-- source chunk coordinates
-- center x/y
-- long/short ellipse axes
-- orientation
-- hidden richness
+While movement is active, the citizen's public `position_x_m / position_y_m` in `/api/state` is the server-derived current position.
 
-Procedural deposit IDs derive deterministically from:
+The persisted base citizen position is updated to the target only when the job completes.
 
-- planet seed
-- source chunk
-- deposit slot
+Closing/reopening does not invent a new position because the job and simulation clock are persistent.
 
-A nearby query that remains inside the same body returns the same stable deposit ID.
+## Local Inspection
 
-Moving one meter does not automatically mint a new deposit.
+New autonomous action:
 
-### Existing Deposits Anchored
-
-All pre-v0.8 named deposits are migrated into the same hidden spatial-body model.
-
-They retain their existing stable IDs:
-
-- `dep_ferrite`
-- `dep_veyra`
-- `dep_silicate`
-- `dep_copper`
-- `dep_carbon`
-- `dep_clay`
-- `dep_fiber`
-- `dep_resin`
-
-Their deterministic geometry is anchored around the existing named location instead of replacing legacy deposit/history records.
-
-### Validated Spatial Observations
-
-New safe persisted table:
-
-- `spatial_observations`
-
-Stable fields:
-
-- `id`
-- `observer_id`
-- `source_job_id`
-- `observation_kind`
-- `frame_id`
-- `x_m / y_m`
-- `radius_m`
-- `observed_minute`
-- terrain class
-- elevation
-- geology class
-- optional stable deposit ID
-- optional material
-- summary
-
-Safe observations do **not** expose:
-
-- planet seed
-- hidden deposit richness
-- full hidden deposit center/axes/orientation
-- raw chunk truth
-
-### Minimal Simulation-Owned Observation Contract
-
-New function:
-
-`record_local_spatial_observation(citizen_id, x_m, y_m, ..., max_range_m, observation_kind, radius_m)`
+- `local_inspect`
 
 It:
+- consumes small real energy
+- takes 15 simulated minutes
+- records one safe `spatial_observations.id` at the actual coordinate on completion
+- stores the resulting observation on `jobs.result_observation_id`
 
-- requires a real citizen
-- checks the observation point against the citizen's real meter position
-- rejects while the citizen is physically traveling
-- validates that any supplied source job belongs to that citizen
-- queries hidden truth internally
-- persists only the safe observation row
-- returns a stable observation ID
+### Baseline Observation Boundary
 
-This is the Stage 1 primitive future survey/scanner/shared-exploration systems may call after their own physical action/tool rules are validated.
+Stage 2 adds observation `detail_level`.
 
-It is **not** itself a scanner or free-roam action.
+Ordinary direct/shared walk inspection uses:
 
-### Ordinary Safe State
+- `detail_level = baseline`
 
-`/api/state` now safely exposes:
+Baseline inspection may reveal:
+- directly observed terrain class
+- elevation
+- stable physical body contact ID if physically encountered
 
-- meter positions carried by existing citizen/location/structure/project rows
-- `state.spatial_frame`
-- `state.spatial_observations[]`
+Baseline inspection does **not** reveal:
+- hidden geology classification
+- material identity
+- chemistry
+- richness
+- body geometry
 
-It does **not** expose:
+For baseline observations:
+- `geology_class = unclassified`
+- `material = null`
 
-- `planet_seed`
-- `generated_deposits`
-- hidden body geometry
-- hidden richness
-- raw hidden world query results
+Stage 1 field/tool observations retain their prior richer field detail where legitimately supported.
 
-All existing v0.6 hidden-property/resource rules remain preserved.
+No scanner was added.
 
-### Visitor Position
+## Meter-Aware Physical Legality
 
-Visitor presence now carries `x_m / y_m`.
+Stage 2 now makes several older systems respect meter-space.
 
-Existing visitor route travel updates the visitor meter position to the destination landmark on validated arrival.
+### Citizen face-to-face talk
 
-### Precision Semantics
+Same `location_id` is no longer enough.
 
-Stored numeric coordinates may contain decimal meters for stable computation.
+Citizens must be within approximately 2 m for face-to-face talk legality.
 
-Those decimals are **not** a promise of measurement precision.
+### Visitor face-to-face access
 
-Observation precision/footprint is represented by `radius_m` and by the future action/tool contract that produced the observation.
+Visitor/citizen access now also uses meter proximity within a named region.
 
-Memory/UI should not infer millimeter-level knowledge merely because a floating-point coordinate has decimals.
+If both are in Seed Site but 80 m apart, the visit is physically remote.
 
-## Stage 1 Non-Goals Preserved
+### Settlement infrastructure
 
-Stage 1 does **not** add:
+Seed Site workbench/storage/maintenance actions are only offered when the citizen is physically near the Seed Site landmark.
 
-- arbitrary continuous citizen movement
-- a globe renderer
-- a scanner tool
-- free-roam exploration
-- generated place naming
-- visitor-controlled physical actions
-- new communication technology
-- arbitrary new citizen technologies
-- generated-resource extraction
-- direct UI access to seeded hidden truth
+Charging requires an operational charger physically within reach.
+
+### Legacy route compatibility
+
+Legacy named-location routes remain supported.
+
+New real Stage 2 local offsets must return to the landmark before entering a legacy route.
+
+For backward compatibility, old saves/tests that have a legacy `location_id` change without any Stage 2 local-movement history retain the old region-based route behavior.
+
+Visitor route departure requires actual landmark proximity after Stage 2 shared/local movement.
+
+## Shared Visitor + Citizen Physical Activity
+
+New persistent table:
+
+- `shared_activities`
+
+Stage 2 supports one narrow physical type:
+
+- `walk_inspect`
+
+This is intentionally not a generic visitor command system.
+
+### Stable Simulation Action Identity
+
+Authoritative shared physical event/action ID:
+
+- `shared_activities.id`
+
+Related stable links:
+- physical citizen job: `citizen_job_id`
+- source visitor visit: `source_visit_id`
+- source visitor exchange: `source_exchange_id`
+- requested runtime equipment: `tool_equipment_id`
+- resulting evidence: `observation_id`
+
+### Lifecycle
+
+Simulation lifecycle is explicitly:
+
+`proposed -> accepted -> active -> complete`
+
+Failure can be represented separately.
+
+Important:
+- `proposed`: intent/proposal only
+- `accepted`: visitor acceptance only, **no physical movement**
+- `active`: a real Simulation job exists and movement has begun
+- `complete`: movement/inspection completed and safe evidence exists
+
+Acceptance and physical start are separate API calls.
+
+### Proposal Validation
+
+A shared proposal validates:
+- real visitor presence
+- real citizen
+- same location
+- <= 2 m physical proximity
+- citizen availability
+- visitor not route-traveling
+- Stage 2 shared distance <= 180 m
+- supplied source visit belongs to that visitor/citizen
+- supplied source exchange belongs to that visitor/citizen/visit
+- requested equipment is real, operational, and physically available
+
+Concept art cannot satisfy equipment requirements.
+
+### Start Revalidation
+
+Physical start rechecks:
+- accepted visitor identity
+- citizen/visitor co-location and proximity
+- citizen availability
+- visitor travel state
+- requested equipment availability
+- target local range
+- terrain-derived movement cost
+- return-energy reserve
+
+Only then does Simulation create the real `shared_local_activity` job.
+
+### Shared Movement
+
+During active shared movement:
+- citizen and visitor follow the same authoritative Simulation job progress
+- visitor presence exposes the same derived current x/y
+- ordinary route travel is blocked
+- face-to-face Visit status returns `shared_activity_active`
+
+### Shared Completion
+
+On completion:
+- citizen persisted x/y moves to the target
+- visitor persisted x/y moves to the same target
+- one baseline-safe `spatial_observations.id` is created
+- job stores `result_observation_id`
+- shared activity stores `observation_id`
+- shared activity becomes `complete` with `outcome = success`
+
+## Shared Activity API
+
+Simulation now exposes:
+
+### Propose
+`POST /api/shared-activities/propose`
+
+Body:
+- visitor
+- citizen_id
+- target_x_m / target_y_m
+- objective
+- source_visit_id
+- source_exchange_id
+- optional tool_equipment_id
+
+Creates proposal only. No movement.
+
+### Accept
+`POST /api/shared-activities/{id}/accept`
+
+Body:
+- visitor
+
+Transitions:
+- proposed -> accepted
+
+No movement.
+
+### Start
+`POST /api/shared-activities/{id}/start`
+
+Body:
+- visitor
+
+Revalidates physical conditions and, if legal:
+- accepted -> active
+- creates real citizen job
+
+### Status
+`GET /api/shared-activities/{id}`
+
+Returns authoritative Simulation lifecycle/status and active movement progress when present.
+
+## Safe State Read Model
+
+`/api/state` now includes:
+
+- existing safe Stage 1 spatial state
+- citizen `local_movement`
+- active jobs with real movement fields
+- `shared_activities[]`
+
+`shared_activities[]` may include:
+- id
+- visitor/citizen
+- activity type/objective
+- frame/start/target coordinates
+- lifecycle times/status
+- source visit/exchange IDs
+- tool equipment ID
+- citizen job ID
+- observation ID
+- outcome/failure reason
+- active movement payload when status = active
+
+No hidden world seed/body geometry/richness is added to the public read model.
+
+## Legacy Travel
+
+Existing named route travel remains intact and all historical travel smoke tests pass.
+
+Stage 2 does not replace the route network or add globe travel.
 
 ## Migration
 
-v0.7 saves migrate additively.
+Stage 2 migration is additive.
 
-No existing location, route, citizen, project, structure, deposit, discovery, maintenance, memory, provenance, or conversation record is reset.
+New schema:
+- `shared_activities`
+- movement/source/result fields on `jobs`
+- `spatial_observations.detail_level`
+
+No save reset is required.
 
 ## Validation
 
-Runtime Stage 1 code passed GitHub Actions run:
+Runtime Stage 2 code passed GitHub Actions:
 
-`36449582788`
+`36455861367`
 
 Passed:
-
 - Python compilation
 - JavaScript syntax
-- all v0.4-v0.7 regression suites
-- `tests/smoke_v080_stage1.py`
+- every v0.4-v0.7 regression suite
+- all four v0.8 Stage 1 department smokes
+- `tests/smoke_v080_stage2.py`
 
-The only later branch commit restored the normal release-only workflow.
+A first run correctly exposed a v0.5 legacy-location compatibility issue; the fix preserves legacy route semantics only when no real Stage 2 local offset exists.
+
+The final branch commit only restored the release-only workflow.
 
 ## Status
 
-World & Simulation v0.8 Stage 1 substrate is ready for coordinator/cross-department review.
+World & Simulation Stage 2 physical exploration/shared-activity core is ready for dependent department integration/review.
 
 No `update.json` or release metadata was changed.
-
-
-## v0.8 Stage 1 Session Close
-
-World & Simulation Stage 1 work is complete and handed off.
-
-Authoritative handoff:
-- branch: `simulation/v0.8-seeded-world-stage1`
-- head: `7473b6612ea23cf8d22b31176149da188476690e`
-- base: shipped v0.7.0 commit `d81a85bf03b69b969532016f59bbbed2233949ee`
-- validation: GitHub Actions run `36449582788`
-
-Dependent department contracts delivered:
-- Communication: safe meter coordinates, validated spatial observations, future shared-action boundary
-- Memory: stable observation/deposit subject IDs and coordinate precision semantics
-- Assets: safe spatial frame/position/observation read model
-
-All Stage 1 departments are now ready/reviewable. The only remaining dependency is coordinator Stage 1 review before Stage 2 is authorized.
-
-No release metadata or `update.json` was changed.
