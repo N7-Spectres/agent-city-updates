@@ -51,7 +51,10 @@
           <div class="eyebrow">WORLD VIEW</div>
           <h2>Known region</h2>
         </div>
-        <div class="muted">Confirmed information only.</div>
+        <div class="world-head-status">
+          <span id="visitor-status" class="pill">Visitor: loading…</span>
+          <span class="muted">Confirmed information only.</span>
+        </div>
       </div>
 
       <div class="world-stage">
@@ -132,6 +135,9 @@
     </div>
 
     <div id="detail-history" class="detail-view hidden">
+      <div class="history-section-label">RECENT CITIZEN CONVERSATIONS</div>
+      <div id="citizen-conversations" class="conversation-feed"></div>
+      <div class="history-section-label">SETTLEMENT CHRONOLOGY</div>
       <div id="history" class="history"></div>
     </div>
 
