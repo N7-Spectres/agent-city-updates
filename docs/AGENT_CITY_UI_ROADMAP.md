@@ -465,6 +465,11 @@ This restores a useful v0.3-v0.5 at-a-glance affordance that was lost during the
 Expand the planet beyond the starter region.
 
 Planned direction:
+- establish a persistent planet seed and seeded coordinate-based hidden world
+- move toward meter-scale local positions inside the existing regional coordinate framework
+- scans/surveys query deterministic hidden truth at the actual coordinate rather than rolling a new result
+- nearby terrain/resource results should vary coherently with geology; one meter of movement does not automatically mean a new deposit
+- discovered deposits gain stable identity and spatial extent so the same vein can be encountered from multiple nearby points
 
 - additional terrain and routes
 - environmental variation
