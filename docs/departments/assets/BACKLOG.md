@@ -8,6 +8,15 @@
 - responsive sanity pass at desktop, tablet, and narrow widths
 - tune label/cluster offsets only if real runtime state reveals collisions
 
+## Near-Term UX Notes
+
+- cap the visitor chat panel height so long conversations scroll internally instead of continuously growing the page
+- keep the chat input anchored and usable while the conversation log scrolls
+- use the available right-side width more efficiently so History and Control Room information can sit beside/under the chat without forcing page scrolling
+- rebalance the overall layout slightly left/center as needed to make room for the right-side information surfaces
+- make citizen conversation history visibly useful: show who talked, where, when, a concise summary of what they discussed, and an expandable transcript when available
+- investigate any case where settlement chronology shows citizens "talked" but the Recent Citizen Conversations section has no matching stored exchange
+
 ## Medium Priority
 
 - arrival / departure visual pulse
