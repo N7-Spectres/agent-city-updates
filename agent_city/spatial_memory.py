@@ -269,9 +269,19 @@ def spatial_context_for(
     citizen_id: str,
     *,
     subject_id: str | None = None,
+    center_x_m: float | None = None,
+    center_y_m: float | None = None,
+    radius_m: float | None = None,
     limit: int = 5,
 ) -> str:
-    memories = spatial_snapshot_for(citizen_id, subject_id=subject_id, limit=limit)
+    memories = spatial_snapshot_for(
+        citizen_id,
+        subject_id=subject_id,
+        center_x_m=center_x_m,
+        center_y_m=center_y_m,
+        radius_m=radius_m,
+        limit=limit,
+    )
     if not memories:
         return "- no retained salient spatial observations"
 
@@ -285,3 +295,30 @@ def spatial_context_for(
             break
 
     return "\n".join(parts)[:MAX_SPATIAL_CONTEXT_CHARS]
+
+
+
+def nearby_spatial_context_for(
+    citizen_id: str,
+    *,
+    x_m: float | None,
+    y_m: float | None,
+    radius_m: float = 250.0,
+    limit: int = 4,
+) -> str:
+    """
+    Bounded retained exploration memory near the citizen's current position.
+
+    This is historical personal memory, not current physical truth. If current
+    coordinates are unavailable, no nearby-memory claim is made.
+    """
+    if x_m is None or y_m is None:
+        return "- current meter-scale position unavailable; no nearby retained spatial memory selected"
+
+    return spatial_context_for(
+        citizen_id,
+        center_x_m=float(x_m),
+        center_y_m=float(y_m),
+        radius_m=max(1.0, float(radius_m)),
+        limit=max(1, min(int(limit), 8)),
+    )

@@ -58,6 +58,12 @@ from agent_city.memory import (
     maintenance_snapshot_for,
     social_context_for,
 )
+from agent_city.spatial_memory import (
+    nearby_spatial_context_for,
+    spatial_context_for,
+    spatial_snapshot_for,
+)
+from agent_city.exploration_memory import shared_exploration_context_for
 from agent_city.world import WorldClock, format_sim_time
 from agent_city.visits import (
     close_visit, ensure_visit_schema, get_or_create_active_visit,
@@ -201,6 +207,55 @@ def get_citizen_knowledge(
             material=material,
             process=process,
             limit=min(safe_limit, 8),
+        ),
+    }
+
+
+@app.get("/api/memory/spatial/{citizen_id}")
+def get_spatial_memory(
+    citizen_id: str,
+    subject_id: str | None = None,
+    center_x_m: float | None = None,
+    center_y_m: float | None = None,
+    radius_m: float | None = None,
+    limit: int = 10,
+):
+    with connect() as conn:
+        citizen = conn.execute(
+            "SELECT id, name FROM citizens WHERE id = ?",
+            (citizen_id,),
+        ).fetchone()
+    if not citizen:
+        raise HTTPException(404, "Citizen not found")
+
+    if (center_x_m is None) != (center_y_m is None):
+        raise HTTPException(400, "center_x_m and center_y_m must be supplied together")
+
+    safe_limit = max(1, min(int(limit), 30))
+    events = spatial_snapshot_for(
+        citizen_id,
+        subject_id=subject_id,
+        center_x_m=center_x_m,
+        center_y_m=center_y_m,
+        radius_m=radius_m,
+        limit=safe_limit,
+    )
+    return {
+        "citizen": {"id": citizen["id"], "name": citizen["name"]},
+        "filters": {
+            "subject_id": subject_id,
+            "center_x_m": center_x_m,
+            "center_y_m": center_y_m,
+            "radius_m": radius_m,
+        },
+        "events": events,
+        "summary": spatial_context_for(
+            citizen_id,
+            subject_id=subject_id,
+            center_x_m=center_x_m,
+            center_y_m=center_y_m,
+            radius_m=radius_m,
+            limit=min(safe_limit, 6),
         ),
     }
 
@@ -627,6 +682,18 @@ async def talk(req: TalkRequest):
         limit=6,
     )
     maintenance_history = maintenance_context_for(citizen["id"], limit=4)
+    retained_exploration_memory = nearby_spatial_context_for(
+        citizen["id"],
+        x_m=citizen.get("position_x_m"),
+        y_m=citizen.get("position_y_m"),
+        radius_m=250.0,
+        limit=4,
+    )
+    shared_exploration_history = shared_exploration_context_for(
+        citizen["id"],
+        visitor=visitor,
+        limit=3,
+    )
 
     inventory = [r for r in state["inventory"] if r["citizen_id"] == citizen["id"] and r["amount"] > 0]
     inventory_summary = ", ".join(f"{r['amount']:g} {r['material']}" for r in inventory) or "nothing"
@@ -709,6 +776,12 @@ RETAINED KNOWLEDGE ABOUT THIS LOCATION:
 SELECTED MEANINGFUL MAINTENANCE EXPERIENCES YOU PARTICIPATED IN:
 {maintenance_history}
 
+RETAINED PERSONAL EXPLORATION MEMORY NEAR YOUR CURRENT POSITION:
+{retained_exploration_memory}
+
+COMPLETED SHARED EXPLORATION MEMORY WITH THIS VISITOR:
+{shared_exploration_history}
+
 {capability_context}
 
 {spatial_context}
@@ -766,6 +839,9 @@ STRICT REALITY RULES:
 11. Conversation summaries are social continuity and are NOT authoritative physical facts.
 12. There is currently no radio, network, telepathy, shared live status channel, or other long-distance communication system.
 13. If asked about a remote citizen/location and you lack provenance-backed information, say you do not know. If you have last-known information, state its source/age or clearly phrase it as something you heard/observed earlier.
+14. Retained exploration memory is historical personal evidence. Do not present it as a fresh current observation unless current spatial grounding independently confirms it.
+15. Preserve the stated observation radius/uncertainty; do not claim a more precise location from remembered coordinates.
+16. Completed shared-exploration memory is valid only when it cites a real Simulation shared activity and linked observation. Proposal or acceptance alone is not physical completion.
 14. Do not claim a shared visitor activity has physically started because you conversationally agreed to it. Until Simulation exposes a real visitor-linked action, agreement is an intention only.
 15. Do not claim a tool, structure, process, or capability from concept art, visual description, or imagination. Use only the authoritative capability surface supplied above.
 16. A shared-action proposal is not a physical action. While status is proposed or accepted-without-Simulation-ID, use proposal/intention language only.
