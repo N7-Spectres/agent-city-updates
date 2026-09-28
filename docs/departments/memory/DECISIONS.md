@@ -184,3 +184,56 @@ Do not create a v0.5 Memory branch, table, or migration merely to anticipate Sim
 The existing `memory_events` source fields are sufficient for the known continuity requirements. Runtime helper code should be added only after Communication and Simulation publish their stable source interfaces.
 
 This keeps migrations additive, minimal, and evidence-driven.
+
+
+## v0.6 Knowledge Projection Rule
+
+Memory may project validated discoveries into per-citizen knowledge records, but it must not copy Simulation's complete hidden world tables into Memory.
+
+A knowledge record requires an information path to that citizen:
+
+- personal validated experience/observation
+- later, a real Communication transfer record
+- later, another explicit physical record the citizen can access
+
+Unknown is a legitimate state.
+
+## Knowledge Source Rule
+
+Use the most specific durable authoritative event ID available.
+
+For current survey discoveries:
+- prefer the completed survey `jobs.id` as `source_type='job'`
+- if a legacy validated discovery has no recoverable job, use a clearly labeled legacy source and do not fabricate precise provenance
+
+Future Simulation discovery/experiment IDs may be consumed through the generic knowledge-event hook once finalized.
+
+## Knowledge Verification Rule
+
+`memory_events.status='verified'` is allowed only when the caller supplies an authoritative validation source.
+
+Communicated claims stay remembered/unverified until later validation. Repetition does not upgrade verification.
+
+Verified and unverified facts may coexist; later verification should create/link evidence rather than silently rewriting history.
+
+## Location Notebook Rule
+
+A location detail surface must not merge all citizens' knowledge into one implied civilization-wide truth record.
+
+Safe presentation is:
+
+- one selected citizen's notebook, or
+- separate labeled per-citizen knowledge sections
+
+Assets may render only the safe Memory read model, not hidden Simulation truth.
+
+## Bounded Knowledge Context Rule
+
+Knowledge retrieval is independently bounded by subject and character budget.
+
+Prefer:
+- subject relevance
+- recent/source-linked facts
+- explicit verification labels
+
+Do not feed a citizen every fact they have ever learned.
