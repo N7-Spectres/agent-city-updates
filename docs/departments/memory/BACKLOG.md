@@ -348,3 +348,19 @@ Need exact authoritative fields for:
 - [ ] Stage 2: consume real exploration/shared-action observation production once coordinator activates it
 - [ ] Stage 2: add samples/scans/place-name aliases if Simulation/Communication introduce those source records
 - [ ] Stage 2: selectively expose spatial context to planner/dialogue/navigation consumers
+
+
+### Final Stage 1 handoff
+
+- [x] Simulation spatial subject/observation contract resolved
+- [x] Stage 1 runtime Memory branch complete
+- [x] stable deposit identity continuity implemented
+- [x] observation precision bounded
+- [x] low-value spatial noise suppressed
+- [x] per-citizen isolation preserved
+- [x] hidden seed/body geometry excluded
+- [x] Stage 1 Memory smoke added
+- [x] full shipped regression chain green in CI `36450511959`
+- [x] no remaining Memory-owned Stage 1 dependency
+- [ ] coordinator reviews/integrates all Stage 1 department branches
+- [ ] Stage 2 only after coordinator authorization
