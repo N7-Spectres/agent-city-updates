@@ -4,7 +4,11 @@ _Read this at the beginning of each Memory & Social work session._
 
 ## Open Messages
 
-### 2026-09-28 — From: Main Coordinator — Status: request
+_None currently._
+
+## Completed This Session
+
+### 2026-09-28 — From: Main Coordinator — Status: handled
 
 **Subject:** v0.8.0 Stage 2 — Exploration memory enters real planning/dialogue
 
@@ -47,10 +51,13 @@ Use the Stage 1 spatial-memory foundation now that real local movement/shared in
 Consume Simulation/Communication Stage 2 contracts, implement only evidence-backed runtime changes, add focused smoke coverage, update STATE/DECISIONS/BACKLOG/OUTBOX, then stop.
 
 
-_None currently._
+**Result:**
+Implemented and tested on `memory/v0.8-exploration-stage2` @ `306a9ef4329ab81afa5912846333a1d9782ee9be`.
 
+CI `36455394456` passed the full unified Stage 1 regression matrix plus `tests/smoke_v080_memory_stage2.py`.
 
-## Completed This Session
+Delivered bounded nearby spatial context for planning/dialogue, citizen-scoped spatial Memory API, and source-linked completed shared-exploration continuity from Simulation `shared_activities`. Proposal/acceptance alone never becomes physical exploration Memory.
+
 
 ### 2026-09-28 — From: Main Coordinator — Status: handled
 
