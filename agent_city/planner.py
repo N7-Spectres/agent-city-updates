@@ -8,7 +8,7 @@ import httpx
 
 from .comms import generate_dialogue, known_deposits_for, recent_dialogues_for, visible_citizens
 from .db import connect, get_meta, snapshot
-from .memory import knowledge_context_for as memory_knowledge_context_for, social_context_for
+from .memory import knowledge_context_for as memory_knowledge_context_for, maintenance_context_for, social_context_for
 from .knowledge import known_properties_for
 from .provenance import knowledge_context_for as provenance_context_for
 from .simulation import possible_actions, start_action
@@ -52,6 +52,10 @@ def citizen_context(citizen: dict[str, Any], state: dict[str, Any], actions: lis
         citizen["id"],
         location_id=citizen["location_id"],
         limit=6,
+    )
+    maintenance_history = maintenance_context_for(
+        citizen["id"],
+        limit=4,
     )
     dialogue_text = "\n".join(
         f"- {d['summary']}"
@@ -98,6 +102,9 @@ DURABLE SOCIAL HISTORY FROM YOUR OWN RECORDED ENCOUNTERS:
 
 RETAINED KNOWLEDGE ABOUT YOUR CURRENT LOCATION:
 {local_knowledge}
+
+SELECTED MEANINGFUL MAINTENANCE EXPERIENCES YOU PARTICIPATED IN:
+{maintenance_history}
 
 INFORMATION BOUNDARY:
 - You know the other five citizens exist.

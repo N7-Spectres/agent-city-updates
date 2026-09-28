@@ -30,6 +30,8 @@ from agent_city.memory import (
     knowledge_context_for as memory_knowledge_context_for,
     knowledge_snapshot_for,
     location_knowledge_snapshot,
+    maintenance_context_for,
+    maintenance_snapshot_for,
     social_context_for,
 )
 from agent_city.world import WorldClock, format_sim_time
@@ -153,6 +155,41 @@ def get_citizen_knowledge(
             material=material,
             process=process,
             limit=min(safe_limit, 8),
+        ),
+    }
+
+
+@app.get("/api/memory/maintenance/{citizen_id}")
+def get_maintenance_memory(
+    citizen_id: str,
+    target_type: str | None = None,
+    target_id: str | None = None,
+    limit: int = 10,
+):
+    with connect() as conn:
+        citizen = conn.execute(
+            "SELECT id, name FROM citizens WHERE id = ?",
+            (citizen_id,),
+        ).fetchone()
+    if not citizen:
+        raise HTTPException(404, "Citizen not found")
+
+    safe_limit = max(1, min(int(limit), 30))
+    events = maintenance_snapshot_for(
+        citizen_id,
+        target_type=target_type,
+        target_id=target_id,
+        limit=safe_limit,
+    )
+    return {
+        "citizen": {"id": citizen["id"], "name": citizen["name"]},
+        "filters": {"target_type": target_type, "target_id": target_id},
+        "events": events,
+        "summary": maintenance_context_for(
+            citizen_id,
+            target_type=target_type,
+            target_id=target_id,
+            limit=min(safe_limit, 6),
         ),
     }
 
@@ -442,6 +479,7 @@ async def talk(req: TalkRequest):
         location_id=citizen["location_id"],
         limit=6,
     )
+    maintenance_history = maintenance_context_for(citizen["id"], limit=4)
 
     inventory = [r for r in state["inventory"] if r["citizen_id"] == citizen["id"] and r["amount"] > 0]
     inventory_summary = ", ".join(f"{r['amount']:g} {r['material']}" for r in inventory) or "nothing"
@@ -513,6 +551,9 @@ DURABLE SOCIAL HISTORY FROM YOUR OWN RECORDED ENCOUNTERS:
 
 RETAINED KNOWLEDGE ABOUT THIS LOCATION:
 {local_knowledge}
+
+SELECTED MEANINGFUL MAINTENANCE EXPERIENCES YOU PARTICIPATED IN:
+{maintenance_history}
 
 YOUR CONFIRMED PERSONAL ACTIVITY HISTORY:
 {confirmed_history_text}
