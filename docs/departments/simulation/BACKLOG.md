@@ -82,3 +82,14 @@ Remaining depth:
 - how should research results remain unknown to the LLM until discovered?
 - how should injuries/damage interrupt active jobs?
 - how should reserved construction materials be physically transported to remote project sites?
+
+
+## Integration Gate
+
+Before this department resumes new physical-feature work:
+
+1. Assets finishes the Making & Building visual layer from the documented Simulation state contract.
+2. Coordinator assembles Simulation + Assets and runs the three smoke suites.
+3. Any merge conflict that changes physical rules returns to World & Simulation for review.
+
+Until then, the v0.5 physical core is considered complete for department handoff.
