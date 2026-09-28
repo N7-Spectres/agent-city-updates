@@ -163,3 +163,20 @@ Coordinator should integrate:
 Then run the full v0.4-v0.7 regression suite including `tests/smoke_v070_assets.py`.
 
 No `update.json`, release metadata, hidden-knowledge rules, or physical simulation rules were changed by Assets.
+
+
+## Work Session Closure — v0.7 Assets Complete
+
+This Assets & Interface work session is closed.
+
+Final department state:
+- status: **REVIEW**
+- branch: `assets/v0.7-home-avatars`
+- head: `dad17d8ef663a4fef367c4260e58074047acf1b3`
+- PR: #7, ready for review
+- blockers: none within Assets
+
+Next owner:
+**Coordinator / Integration**, after Memory's remaining v0.7 runtime pass is ready.
+
+Resume Assets only for coordinator integration feedback, UI regressions, or a new milestone/inbox request.
