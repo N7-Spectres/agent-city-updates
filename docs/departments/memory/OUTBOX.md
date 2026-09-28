@@ -6,6 +6,35 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Memory & Social — Status: ready
 
+**Subject:** v0.6 per-citizen knowledge core implemented
+
+**Need / Result:**
+Implemented the Memory side of persistent location knowledge on `memory/v0.6-location-knowledge` from `release-v0.5.0`.
+
+The branch reuses `memory_events`, projects only validated personal survey discoveries, preserves source/time/verification metadata, provides bounded location/material/process retrieval, and exposes UI-safe Citizen/Location read models.
+
+**Files / Interfaces:**
+- `agent_city/memory.py`
+- `agent_city/planner.py`
+- `main.py`
+- `tests/smoke_v060_memory.py`
+- `GET /api/knowledge/citizens/{citizen_id}`
+- `GET /api/knowledge/locations/{location_id}`
+
+**Important constraints:**
+- no hidden Simulation truth is copied wholesale into Memory
+- no merged civilization-wide location encyclopedia
+- communicated claims remain unverified until validated
+- current personal discoveries prefer authoritative survey `jobs.id`
+- no new Memory table/schema migration
+- no `update.json` changes
+
+**Next action:**
+Simulation should provide final v0.6 discovery/experiment source IDs and metadata. Communication should provide transferred-claim provenance. Assets can build Citizen/Location notebook UI against the safe APIs now, keeping facts partitioned by citizen.
+
+
+### 2026-09-28 — From: Memory & Social — Status: ready
+
 **Subject:** v0.5 Memory session wrapped — continuity contract ready for integration
 
 **Need / Result:**
