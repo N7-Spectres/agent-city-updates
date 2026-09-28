@@ -417,3 +417,12 @@ This prevents character sheets and location notebooks from becoming repair logs.
 Memory's maintenance synchronization must safely no-op when the Simulation `maintenance_events` table does not exist.
 
 This allows the Memory branch to remain regression-safe against its shipped v0.6 base while activating automatically after coordinator merge with the Simulation v0.7 schema.
+
+
+## v0.7 Completion Decision
+
+The Memory department's v0.7 runtime scope is complete.
+
+No additional Memory feature work should be added before coordinator integration unless integration reveals a concrete regression or contract conflict.
+
+The assembled release must preserve the existing Memory source and epistemic boundaries rather than broadening maintenance knowledge during merge.
