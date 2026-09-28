@@ -16,11 +16,12 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-- [Assets & Interface] v0.7.0: finish maintenance presentation on top of the ready Home scaling/search/Recent Activity/avatar slice
+- [Assets & Interface] v0.7.0 final pass: consume authoritative maintenance fields/events into Citizens/Records/Home alerts and rerun Assets smoke
+- [Memory & Social] v0.7.0 final runtime pass: ingest meaningful maintenance events into bounded citizen memory and add Memory smoke
 
 ### WAITING
 
-- [Coordinator / Integration] final v0.7 assembly waits for Assets + Memory completion, then must integrate Simulation + Communication + Memory + Assets and run the full regression suite
+- [Coordinator / Integration] final v0.7 assembly waits for the two final passes above, then integrates Simulation + Communication + Memory + Assets and runs the full regression suite
 
 ### READY
 
@@ -34,8 +35,6 @@ This file is the shared project task board.
 - [Assets & Interface] independent v0.7 Home scaling/search/Recent Activity/avatar framework is already prepared
 
 ### REVIEW
-
-- [Memory & Social] v0.7 maintenance-memory policy/audit complete; runtime implementation intentionally deferred to next Memory session after user-requested wrap
 
 - [World & Simulation] v0.7 gradual equipment/structure wear, battery health, chassis wear, service/repair/replacement jobs, condition-scaled capability, passive structure aging, additive migration, and stable maintenance events complete
 - [Communication & Perception] v0.7 raw-exchange-first persistence, bounded retry, non-fatal claim enrichment, diagnostics, and failure classification complete
