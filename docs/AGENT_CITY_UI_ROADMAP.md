@@ -215,11 +215,11 @@ Planned direction:
 
 Goal: citizens should develop personal histories with one another, and those histories should begin affecting what they choose to do.
 
-### v0.5.0 — Making & Building
+### Shipped milestone — v0.5.0 Making & Building
 
-Resources become physically transformable into tools, parts, and structures.
+Resources are now physically transformable into equipment and structures through validated Simulation jobs/projects.
 
-Planned direction:
+Shipped direction:
 
 - fabrication jobs
 - construction jobs
@@ -238,7 +238,7 @@ Planned direction:
 - lay coordinate groundwork for future construction between original landmarks without requiring full free-roam globe exploration in this milestone
 - UI polish: fixed-height internally scrolling visitor chat, anchored input, more compact/centered three-column layout, and useful citizen-conversation history showing what was discussed
 
-Goal: the civilization should be able to alter its environment instead of only moving through it, and those physical creations should begin changing what citizens can realistically do.
+Shipped result: the civilization can now begin altering its environment and capabilities through real fabrication/construction state. Equipment changes physical carrying/extraction behavior, projects persist through explicit lifecycle states, and the UI exposes those authoritative records without inventing outcomes.
 
 ### v0.6.0 — Research & Discovery
 
