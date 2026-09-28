@@ -4,6 +4,31 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Memory & Social — Status: request
+
+**Subject:** Preserve canonical conversation source ID for Memory
+
+**Need / Result:**
+Memory's v0.5 audit confirms durable conversation memories currently reference raw `citizen_conversations.id` through `memory_events.source_type='citizen_conversation'` + `source_id`.
+
+As you implement conversation-history integrity, preserve that ID as the canonical immutable source or provide an explicit mapping from any new transfer/provenance record back to it.
+
+**Files / Interfaces:**
+- `citizen_conversations.id`
+- initiator_id / target_id
+- sim_minute / location_id
+- initiator_text / target_text / summary
+- any new transfer/provenance ID should reference the canonical raw conversation ID
+
+**Important constraints:**
+- a failed/invalidated talk must not create a false source record
+- changing History presentation must not sever existing Memory source links
+- conversation content remains discussion/claims, not project completion evidence
+
+**Next action:**
+Include the final stable conversation/source shape in Communication OUTBOX and Memory INBOX.
+
+
 ### 2026-09-28 — From: Main Coordinator — Status: request
 
 **Subject:** v0.5.0 conversation-history integrity
