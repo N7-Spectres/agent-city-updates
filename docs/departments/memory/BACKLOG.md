@@ -278,3 +278,13 @@ Before v0.4 can be considered release-ready:
 - [x] full v0.4-v0.7 Memory regression matrix green in CI `36434785293`
 - [x] temporary CI workflow removed
 - [ ] coordinator merges Simulation + Communication + Memory + Assets and runs assembled v0.7 suite
+
+
+### Final v0.7 handoff
+
+- [x] runtime branch complete
+- [x] full Memory regression matrix green
+- [x] coordinator request closed
+- [x] Assets optional maintenance-history API handed off
+- [x] no remaining Memory-owned dependency
+- [ ] coordinator assembles all v0.7 department branches and runs combined release smoke
