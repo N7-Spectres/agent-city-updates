@@ -78,6 +78,7 @@ def main() -> None:
             proposals_for_visit,
             reject_proposal,
             shared_action_context,
+            shared_action_option_context,
         )
         from agent_city.talk_diagnostics import ensure_talk_diagnostic_schema
         from agent_city.visitors import ensure_visitor
@@ -159,6 +160,8 @@ def main() -> None:
         try:
             # No Simulation legal option means dialogue cannot mint a proposal.
             shared.simulation_shared_action_options = lambda v, c: []
+            no_options_context = shared_action_option_context(visitor, citizen_id)
+            assert "none currently exposed" in no_options_context
             none = asyncio.run(
                 maybe_create_proposal_from_exchange(
                     visitor=visitor,
@@ -175,6 +178,10 @@ def main() -> None:
             # With one safe Simulation option, the classifier can only select its
             # key. Target coordinates/capability are copied from Simulation.
             shared.simulation_shared_action_options = lambda v, c: [dict(safe_option)]
+            option_context = shared_action_option_context(visitor, citizen_id)
+            assert "walk_east_5m" in option_context
+            assert "seed_site_local (5.00, 0.00) m" in option_context
+            assert "not physically started" in option_context
             FakeAsyncClient.queue = [{"proposal_key": "walk_east_5m"}]
             shared.httpx.AsyncClient = FakeAsyncClient
 
