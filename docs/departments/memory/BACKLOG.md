@@ -145,3 +145,12 @@ Before v0.4 can be considered release-ready:
 - [ ] link intention and outcome through validated project ID in metadata where useful
 - [ ] keep promise/cooperation/help success memory disabled until outcome semantics justify it
 - [ ] add bounded project-relevant retrieval only if planner/context needs it
+
+
+### Session handoff
+
+- [x] v0.5 Memory audit and source-link contract handed off to coordinator
+- [x] Communication dependency placed in Communication INBOX
+- [x] Simulation dependency placed in Simulation INBOX
+- [x] Memory runtime branch intentionally deferred pending stable interfaces
+- [ ] resume only after Communication and/or Simulation replies arrive
