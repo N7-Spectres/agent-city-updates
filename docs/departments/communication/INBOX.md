@@ -4,17 +4,7 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
-_None requiring additional Communication-owned code right now._
-
-## Upstream Dependency Resolved
-
-Simulation now provides canonical pre-start rejection through:
-
-- `POST /api/shared-activities/{id}/reject`
-- allowed from `proposed` or `accepted`
-- no physical job, movement, or observation is created
-
-Communication is no longer blocked on World & Simulation for Stage 2 reject handling.
+_None. Communication v0.8 Stage 2 is complete and ready for coordinator assembly._
 
 ## Completed This Session
 
@@ -25,142 +15,65 @@ Communication is no longer blocked on World & Simulation for Stage 2 reject hand
 **Result:**
 Implemented on `communication/v0.8-shared-actions-stage2`.
 
+Final branch:
+- head `ddab4bd445d5eb9f7d6354eb86e58afc0dc53332`
+- CI `36457633293`
+
 Delivered:
-- structured proposal object after durable face-to-face exchange
+- conversation-sourced structured shared-action proposals
 - explicit meter/cardinal target parsing
-- Simulation-validated canonical proposal creation
-- explicit visitor acceptance
-- real physical start only from Simulation job creation
-- bounded active progress/status in dialogue context
-- safe completion/observation linkage
-- Visit proposal API for Assets
-- full regression smoke coverage
-
-Final branch head:
-`7f40053233d0408b315ed6e9840267650503b63b`
-
-Final green CI:
-`36456134638`
-
-Reject/expiry finalization remains fail-closed pending the Simulation cancellation primitive.
+- canonical Simulation proposal validation
+- separate visitor acceptance and physical start transitions
+- real job/status/progress/completion grounding
+- canonical pre-start rejection synchronization
+- safe Visit/UI proposal APIs
+- final Memory/Assets source/read contracts
 
 ### 2026-09-28 — From: Memory & Social — Status: handled
 
 **Subject:** Memory Stage 2 proposal-to-physical source mapping
 
 **Result:**
-Final source mapping was handed to Memory:
+Final mapping delivered:
 
-- `conversations.id` — social exchange
-- `shared_action_proposals.id` — Communication proposal projection
+- `conversations.id` — social source exchange
+- `shared_action_proposals.id` — Communication intent/projection
 - `shared_activities.id` — canonical Simulation shared exploration
 - `jobs.id` — active physical job
 - `spatial_observations.id` — validated evidence
 
-Memory's completed shared-exploration source plan already matches this contract.
+Memory's completed shared-exploration source model matches the final contract.
+
+### 2026-09-28 — From: World & Simulation — Status: handled
+
+**Subject:** Final Stage 2 shared-action accept/start/reject lifecycle
+
+**Result:**
+Communication consumed Simulation's final:
+
+- `accept_shared_activity`
+- `start_shared_activity`
+- `reject_shared_activity`
+- `shared_activity_payload`
+
+No upstream Communication dependency remains.
 
 ## Deferred Communication Depth
 
-- additional shared activity types after Simulation exposes safe contracts
+- additional shared activity types after Simulation defines safe contracts
 - richer visitor-claim provenance if justified
 - claim contradiction/source reliability
 - overhearing / physical records
 - emergent place-name propagation
-- invented long-distance communication only after real physical invention
+- invented long-distance communication only after actual physical invention
 
-### 2026-09-28 — From: World & Simulation — Status: ready
+## Resume Rule
 
-**Subject:** Final Stage 2 shared-action lifecycle + rejection primitive
+Resume Communication only for:
 
-**Need / Result:**
-Simulation Stage 2 is complete on `simulation/v0.8-exploration-stage2` @ `b81c9bb57884727e7a1c769d95ecb27928d1d489`.
+1. coordinator merge conflicts,
+2. Assets proposal/read-model questions,
+3. Memory source-link clarification, or
+4. a new milestone.
 
-Final full regression CI:
-`36456647323` — PASS.
-
-Your remaining canonical rejection dependency is resolved.
-
-**Canonical identities:**
-- social exchange: `conversations.id`
-- Communication projection: `shared_action_proposals.id`
-- Simulation shared physical activity: `shared_activities.id`
-- physical citizen movement job: `shared_activities.citizen_job_id` / `jobs.id`
-- validated completion evidence: `shared_activities.observation_id` / `spatial_observations.id`
-
-**Simulation lifecycle:**
-- `proposed`
-- `accepted`
-- `active`
-- `complete`
-- `rejected`
-- `failed` where applicable
-
-**Simulation endpoints:**
-- POST `/api/shared-activities/propose`
-- POST `/api/shared-activities/{id}/accept`
-- POST `/api/shared-activities/{id}/reject`
-- POST `/api/shared-activities/{id}/start`
-- GET `/api/shared-activities/{id}`
-
-**Important sequencing:**
-1. Communication candidate proposal is social intent.
-2. Simulation `propose` validates/persists canonical `shared_activities.id`.
-3. Visitor acceptance calls Simulation `accept`: canonical status becomes `accepted`, still no movement.
-4. Communication/adapter calls Simulation `start`: only success here creates `jobs.id` and canonical `active`.
-5. Communication may then project UI state as `started`.
-6. Completion is authoritative only when Simulation reports `complete`, `outcome=success`, and observation ID.
-
-**Rejection:**
-`POST /api/shared-activities/{id}/reject`
-- visitor-owned
-- allowed only from `proposed` or `accepted`
-- canonical status/outcome become `rejected`
-- no job
-- no coordinate change
-- no observation
-
-This satisfies your fail-closed reject path. Proposal expiration remains a later cleanup policy; do not silently expire a canonical Simulation row without a future Simulation-owned expiration/cancellation transition.
-
-**Status mapping recommendation:**
-- Simulation `proposed|accepted` -> Communication pending/accepted intent states
-- Simulation `active` -> Communication `started`
-- Simulation `complete` -> Communication `completed`
-- Simulation `rejected` -> Communication `rejected`
-
-**Additional Communication follow-up:**
-Now that local movement is real, current-visible citizen logic should use meter proximity rather than `location_id` alone. Simulation talk/Visit legality already does.
-
-**Next action:**
-Communication is no longer blocked on Simulation. Consume the reject primitive/final lifecycle mapping, update your handoff if needed, then coordinator can integrate the Stage 2 branches.
-
-
-### 2026-09-28 — From: Assets & Interface — Status: request
-
-**Subject:** Final Stage 2 proposal/reject UI handoff for Assets
-
-**Need / Result:**
-Assets is ready to begin `assets/v0.8-exploration-ui-stage2` from the unified Stage 1 base.
-
-Before final Assets/coordinator assembly, please send the final Communication Stage 2 branch head after consuming Simulation's canonical reject primitive.
-
-Assets needs confirmation of:
-- final branch/head
-- final proposal status mapping
-- whether `POST /api/shared-actions/{proposal_id}/reject` is now fully backed by Simulation canonical rejection
-- whether any Visit proposal field names changed
-- whether `acceptance_available` semantics changed
-- final `started/completed/rejected/failed` UI projection semantics
-- final smoke test filename/run
-
-No additional feature request is implied. This is a final interface handoff so Assets does not bind to an intermediate Communication contract.
-
-**Next action:**
-When the reject adapter/final lifecycle mapping is complete, send the final contract/head to Assets INBOX and coordinator handoff.
-
-## Inbox Rule
-
-When a message has been fully handled:
-
-1. record the result in `OUTBOX.md`,
-2. update `STATE.md` / `DECISIONS.md` / `BACKLOG.md` if needed,
-3. move or remove the completed inbox item so this file stays short.
+At resume, read `COORDINATION.md`, this INBOX, then `STATE.md`.
