@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-28_
 _Current release: v0.5.0_
-_Current development branch: `memory/v0.4-social-memory-core`_
+_Current development branch: `memory/v0.6-location-knowledge`_
 
 ## Mission
 
@@ -87,23 +87,34 @@ The new relationship history now gives repeated encounters like these durable co
 
 ## Current Dependencies
 
-### Communication & Perception
+No unresolved v0.6 department dependency remains.
 
-Needed next:
+### Simulation contract received
 
-- runtime provenance records for specific communicated claims
-- stable transfer/exchange source IDs
-- verification state for received information
-- last-known source/age data suitable for Memory retrieval
+Memory may consume:
+- `discoveries.id` as stable validated discovery source
+- `experiment_results.id` as stable experiment-result source
+- `citizen_knowledge(citizen_id, discovery_id)` as validated citizen possession of discovery knowledge
+- discovery subject/location/material/property metadata
+- experiment outcomes `discovery | verified | inconclusive`
 
-### World & Simulation
+Simulation remains the authority for hidden world truth and validated discovery state.
 
-Needed next:
+### Communication contract received
 
-- stable validated event IDs / participants for cooperation, help, and other physical social outcomes
-- enough event metadata to link a Memory record to what physically happened
+Memory may consume:
+- `information_receipts`
+- recipient/source actor
+- subject/topic/value
+- observation/transfer source IDs
+- received/observed simulation time
+- assertion kind
+- verification state
+- immutable source key
 
-Neither dependency blocks conversation familiarity, which is already implemented.
+Verified Simulation-grounded receipts remain verified. Face-to-face claims remain unverified unless independently validated.
+
+Coordinator integration must preserve Simulation `agent_city/knowledge.py`, Communication `agent_city/provenance.py`, and Memory's bounded consumer read model as separate layers.
 
 ## Next Memory Work
 
@@ -280,3 +291,27 @@ Temporary branch CI run `36419352645` passed:
 - new v0.6 Memory knowledge smoke
 
 The temporary branch-only workflow was removed after validation.
+
+
+## v0.6 Final Session Handoff
+
+Memory & Social v0.6 work is complete and ready for coordinator integration.
+
+**Branch:** `memory/v0.6-location-knowledge`  
+**Head:** `89c0a3e2d49c4c9236342c10559f92b93b1b7601`  
+**Validation:** CI run `36419352645` passed all v0.4/v0.5 regressions plus the v0.6 Memory smoke.
+
+Final upstream contracts received:
+
+- Simulation: `simulation/v0.6-research-discovery` @ `d1ae3faf0095d22e7a730cf50b3ad6fdbcdc4b94`, CI `36419824468`
+- Communication: `communication/v0.6-knowledge-provenance` @ `6a483fcc4d143606f3e401218002e06ae43076d1`, CI `36421263078`
+
+No further Memory branch change is required before integration. The coordinator should preserve the three-layer model:
+
+1. Simulation owns hidden truth + validated discoveries/current verified citizen knowledge.
+2. Communication owns immutable information receipts and unverified transferred claims.
+3. Memory owns bounded retention/retrieval and consumer-facing Citizen/Location knowledge views.
+
+Assets has already received the safe Memory read-model contract.
+
+No release was published and `update.json` was not changed.
