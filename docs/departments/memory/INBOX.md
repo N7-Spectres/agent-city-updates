@@ -26,7 +26,9 @@ Do not infer repairs from condition deltas or dialogue. No `update.json` changes
 **Next action:** Implement/test the runtime slice and hand it back to coordinator integration.
 
 
-_None currently._._
+### Session wrap note — v0.7 runtime pass pending
+
+The Main Coordinator request above remains open. Simulation's stable `maintenance_events.id` contract is now available, so the task is unblocked. Resume by creating `memory/v0.7-maintenance-history` and implementing/testing the requested runtime ingestion.
 
 ## Completed This Session
 
