@@ -303,6 +303,24 @@ def visit_access_payload(visitor: str, citizen_id: str) -> dict[str, Any]:
                 "reason": "You are currently traveling.",
             }
 
+        if citizen["active_action"] == "shared_local_activity":
+            activity = conn.execute(
+                "SELECT * FROM shared_activities WHERE id = ?",
+                (citizen["shared_activity_id"],),
+            ).fetchone()
+            if activity and str(activity["visitor"]) == str(visitor):
+                return {
+                    "accessible": False,
+                    "status": "shared_activity_active",
+                    "reason": f"You and {citizen['name']} are currently moving together in shared activity #{activity['id']}.",
+                    "shared_activity_id": int(activity["id"]),
+                }
+            return {
+                "accessible": False,
+                "status": "citizen_traveling",
+                "reason": f"{citizen['name']} is currently moving through the local area.",
+            }
+
         if citizen["active_action"] in ("travel", "local_move"):
             target_name = (
                 _location_name(conn, citizen["active_target"])
