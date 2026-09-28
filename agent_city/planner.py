@@ -13,25 +13,52 @@ from .world import format_sim_time
 OLLAMA_URL = "http://127.0.0.1:11434"
 
 
+def _citizen_location_id(citizen: dict[str, Any], state: dict[str, Any]) -> str | None:
+    location_id = citizen.get("location_id")
+    if location_id:
+        return str(location_id)
+
+    location_name = citizen.get("location")
+    if not location_name:
+        return None
+
+    for location in state.get("locations", []):
+        if location.get("name") == location_name:
+            return str(location.get("id"))
+    return None
+
+
+def _is_traveling(citizen: dict[str, Any]) -> bool:
+    if citizen.get("is_traveling") or citizen.get("traveling"):
+        return True
+    activity = str(citizen.get("current_activity") or "").strip().lower()
+    return activity.startswith("travel") or activity.startswith("en route")
+
+
 def citizen_context(citizen: dict[str, Any], state: dict[str, Any], actions: list[dict[str, Any]]) -> str:
-    other = "; ".join(
-        f"{c['name']}: {c['current_activity']} at {c['location']}"
-        for c in state["citizens"]
-        if c["id"] != citizen["id"]
-    )
+    citizen_location_id = _citizen_location_id(citizen, state)
+
+    directly_observable = []
+    for other_citizen in state.get("citizens", []):
+        if other_citizen.get("id") == citizen.get("id") or _is_traveling(other_citizen):
+            continue
+        other_location_id = _citizen_location_id(other_citizen, state)
+        if citizen_location_id and other_location_id == citizen_location_id:
+            directly_observable.append(str(other_citizen.get("name") or other_citizen.get("id")))
+
+    local_people_text = ", ".join(directly_observable) or "no other citizens directly observable here"
 
     inventory = [
         r for r in state["inventory"] if r["citizen_id"] == citizen["id"] and r["amount"] > 0
     ]
     inv_text = ", ".join(f"{r['amount']:g} {r['material']}" for r in inventory) or "nothing"
 
-    discovered = [
-        d for d in state["deposits"] if d["discovered"]
+    local_deposits = [
+        d
+        for d in state.get("deposits", [])
+        if d.get("discovered") and citizen_location_id and str(d.get("location_id")) == citizen_location_id
     ]
-    deposit_text = ", ".join(
-        f"{d['material']} at {next((l['name'] for l in state['locations'] if l['id'] == d['location_id']), d['location_id'])}"
-        for d in discovered
-    ) or "no confirmed deposits yet"
+    deposit_text = ", ".join(str(d["material"]) for d in local_deposits) or "none directly observable here"
 
     action_text = "\n".join(
         f"{i}. {a['label']} | action={a['action']} target={a.get('target')} material={a.get('material')}"
@@ -46,13 +73,17 @@ There is no leader and no assigned long-term objective.
 You should choose what you believe is a reasonable next action from the legal actions provided.
 You may be curious, cautious, practical, exploratory, or cooperative, but do not invent facts.
 
+Information rule: you only know information that could physically have reached you.
+Remote citizens' current location, activity, plans, condition, and discoveries are unknown unless a real communication or observation record is provided.
+A communicated claim is something another citizen said; it is not automatically verified physical truth.
+
 Current time: {format_sim_time(state['sim_minute'])}
 Current location: {citizen['location']}
 Energy: {citizen['energy']:.0f}%
 Integrity: {citizen['integrity']:.0f}%
 Carrying: {inv_text}
-Confirmed deposits known to the settlement: {deposit_text}
-Other citizens: {other}
+Locally confirmed deposits directly observable now: {deposit_text}
+Citizens directly observable at this location: {local_people_text}
 
 LEGAL ACTIONS:
 {action_text}
