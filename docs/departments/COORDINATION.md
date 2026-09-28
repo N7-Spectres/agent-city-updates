@@ -20,15 +20,19 @@ Departments should read this file at the beginning of a work session in addition
 
 ### ACTIVE
 
-_None. v0.4.0 integration/release is complete._
+- [World & Simulation] v0.5.0 lead: fabrication, construction, project state, physical tool/carry effects, energy-return reserve, coordinate groundwork
+- [Assets & Interface] v0.5.0: fixed-height chat, compact/centered layout, useful conversation History, Making & Building UI support
+- [Communication & Perception] v0.5.0: citizen conversation-history persistence/integrity
+- [Memory & Social] v0.5.0: source-linked conversation continuity and minimal project-memory hooks
 
 ### STANDBY
 
-- [All departments] Await next coordinated milestone.
+_None. v0.5.0 work packet is active._
 
 ### WAITING
 
-_None blocking the v0.4.0 release._
+- [Assets & Interface] may need final project/tool/structure schema from World & Simulation for the Making & Building visual layer
+- [Memory & Social] may need stable project/event IDs from World & Simulation and conversation source shape from Communication before adding any new source-linked hooks
 
 ### READY
 
@@ -37,7 +41,7 @@ _None blocking the v0.4.0 release._
 
 ### REVIEW
 
-_None. Coordinator integration smoke test passed for v0.4.0._
+_None yet for v0.5.0. Departments should stop after their branch work/handoffs so the coordinator can integrate and smoke-test the milestone._
 
 ### DONE
 
