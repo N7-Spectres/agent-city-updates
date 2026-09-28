@@ -1,6 +1,6 @@
 {
-  "version": "0.8.3",
-  "notes": "Citizen Personality + Natural Dialogue: Aris, Bex, Cato, Iri, Noma, and Vale now have distinct stable personality tendencies and conversational voices. Personality may bias preferences, tone, curiosity, caution, and cooperation, but never grants authority, rank, command rights, extra capability, or extra knowledge. Visitor and citizen-to-citizen dialogue now keeps planner/system vocabulary backstage, translating status and shared-action availability into more natural speech. Simulation, Memory, and physical authority rules are unchanged.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/e4d216b133a18dc4c68e1bba1ceb0457e952efb6",
+  "version": "0.8.4",
+  "notes": "Conversation Summary Truth: citizen-to-citizen conversation summaries now stay claim-safe. Social exchanges may report, discuss, compare, plan, or agree, but the conversation record itself no longer upgrades those claims into validated, confirmed, verified, proved, demonstrated, or established physical facts. Agreements to inspect, travel, recharge, build, or test remain intentions until Simulation records the physical action/outcome. Existing Simulation, Memory, personality, and UI behavior remain unchanged.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/ff78aab0e85331238eb67c989952a72499d1ed78",
   "sha256": ""
 }
