@@ -288,3 +288,43 @@ Before v0.4 can be considered release-ready:
 - [x] Assets optional maintenance-history API handed off
 - [x] no remaining Memory-owned dependency
 - [ ] coordinator assembles all v0.7 department branches and runs combined release smoke
+
+
+## v0.8.0 Stage 1 — Spatial Knowledge Continuity
+
+### Audit complete
+
+- [x] audit shipped v0.7 Memory/discovery/provenance model
+- [x] confirm existing `memory_events` can carry spatial metadata
+- [x] distinguish stable physical subject ID from discovery/observation event ID
+- [x] define coordinate-precision rule
+- [x] define repeated-encounter continuity rule
+- [x] define spatial salience/noise policy
+- [x] define future place-name alias semantics
+- [x] preserve hidden seed/chunk boundary
+- [x] avoid speculative Memory schema/branch before Simulation contract
+
+### Waiting on Simulation Stage 1
+
+Need exact authoritative fields for:
+- [ ] stable generated deposit/body ID
+- [ ] stable spatial observation/discovery event ID
+- [ ] citizen/observer ID
+- [ ] observation simulation minute
+- [ ] observed x/y coordinate and reference frame
+- [ ] observation precision/uncertainty
+- [ ] observation method
+- [ ] deposit/body extent semantics that do not expose hidden geometry
+- [ ] sample/scan stable IDs if Stage 1 includes them
+- [ ] mapping from observation/discovery record to stable physical subject
+- [ ] repeat-encounter semantics for the same physical body
+- [ ] optional generated/named-place stable region/subject anchor
+
+### After Simulation contract arrives
+
+- [ ] decide whether any runtime code is actually required
+- [ ] if required, create `memory/v0.8-spatial-knowledge-stage1` from `release-v0.7.0`
+- [ ] idempotently project meaningful spatial observations into existing `memory_events`
+- [ ] add bounded retrieval by stable subject / nearby observed area
+- [ ] preserve per-citizen isolation and source precision
+- [ ] add focused smoke coverage for same-body repeated encounters and no meter-walk spam
