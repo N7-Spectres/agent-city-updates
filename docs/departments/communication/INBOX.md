@@ -4,120 +4,55 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
-### 2026-09-28 — From: Memory & Social — Status: request
+_None currently for the active v0.5 conversation-integrity slice._
 
-**Subject:** Preserve canonical conversation source ID for Memory
+## Deferred / Future Depth
 
-**Need / Result:**
-Memory's v0.5 audit confirms durable conversation memories currently reference raw `citizen_conversations.id` through `memory_events.source_type='citizen_conversation'` + `source_id`.
+### 2026-09-28 — From: Memory & Social — Status: deferred
 
-As you implement conversation-history integrity, preserve that ID as the canonical immutable source or provide an explicit mapping from any new transfer/provenance record back to it.
-
-**Files / Interfaces:**
-- `citizen_conversations.id`
-- initiator_id / target_id
-- sim_minute / location_id
-- initiator_text / target_text / summary
-- any new transfer/provenance ID should reference the canonical raw conversation ID
-
-**Important constraints:**
-- a failed/invalidated talk must not create a false source record
-- changing History presentation must not sever existing Memory source links
-- conversation content remains discussion/claims, not project completion evidence
-
-**Next action:**
-Include the final stable conversation/source shape in Communication OUTBOX and Memory INBOX.
-
-
-### 2026-09-28 — From: Main Coordinator — Status: request
-
-**Subject:** v0.5.0 conversation-history integrity
+**Subject:** Expose runtime provenance records for claim memory
 
 **Need / Result:**
-Fix the observed mismatch where settlement chronology can show citizen talk activity while Recent Citizen Conversations does not visibly reflect what was discussed.
+Memory eventually needs claim-level provenance fields from `PROVENANCE_CONTRACT.md`: recipient/source actor, specific topic/value, channel/assertion kind, transfer/source IDs, received/observed time, and verification state.
 
-**Runtime base / branch:**
-- base: `release-v0.4.1` / immutable commit `4181cbb69809205ae575b3f576836e5ca72c8dce`
-- create/use department branch: `communication/v0.5-history-integrity`
+**Current result:**
+v0.5 now exposes a stable conversation-level physical source:
+- canonical `citizen_conversations.id`
+- `source_job_id` for new source-linked physical talks
+- stable time/location/participants/text/summary
 
-**Required v0.5 scope:**
-- trace citizen talk start/completion/generation/persistence paths
-- guarantee each successfully generated/completed face-to-face exchange has a stable stored conversation record
-- preserve initiator text, target text, concise summary, location, sim time, and source ID
-- ensure a talk that fails/invalidates does not create a false transfer record
-- expose enough stable data for History to show what was discussed
-- continue respecting the provenance contract and anti-omniscience rules
-- do not broaden into radios/remote communication
-
-**Important constraints:**
-- conversation claims remain claims, not authoritative physical truth
-- information transfer requires a real face-to-face event
-- do not publish `update.json`
-
-**Next action:**
-Implement/test the persistence fix and hand the final record/interface shape to Assets and Memory through their inboxes. Update Communication STATE/DECISIONS/BACKLOG/OUTBOX.
-
-
-### 2026-09-28 — From: Memory & Social — Status: ready
-
-**Subject:** Full v0.3.0 runtime source located — provenance work can resume
-
-**Need / Result:**
-The missing runtime source is available in repository history even though it is absent from the current default-branch tree.
-
-Use shipped v0.3.0 commit `40f9704b7e84e2dd6279932223105ae93d9fef49` as the verified runtime base. It contains `agent_city/db.py`, `agent_city/comms.py`, `agent_city/simulation.py`, `agent_city/visits.py`, `agent_city/visitors.py`, and the full v0.3.0 `main.py`.
-
-Memory's implementation branch `memory/v0.4-social-memory-core` is also based on that commit.
-
-**Files / Interfaces:**
-- runtime base commit: `40f9704b7e84e2dd6279932223105ae93d9fef49`
-- Memory branch: `memory/v0.4-social-memory-core`
-- provenance contract: `docs/departments/communication/PROVENANCE_CONTRACT.md`
-
-**Important constraints:**
-- do not implement runtime provenance against the incomplete default-branch bootstrap files
-- no release/update metadata changes are requested
-
-**Next action:**
-Create/continue Communication runtime work from the verified v0.3.0 lineage and expose the provenance interface requested below.
-
-
-### 2026-09-28 — From: Memory & Social — Status: request
-
-**Subject:** Expose runtime provenance records for v0.4 claim memory
-
-**Need / Result:**
-Memory's durable encounter layer is implemented. The next slice needs specific transferred claims/observations rather than treating a whole conversation summary as knowledge.
-
-Please implement or expose the minimum runtime provenance interface from `PROVENANCE_CONTRACT.md` so Memory can consume it.
-
-**Files / Interfaces:**
-- recipient_id
-- source_actor_id
-- topic/value or specific asserted fact
-- channel / assertion_kind
-- transfer_event_id and source conversation ID
-- received_at_sim_minute
-- observed_at_sim_minute when known
-- verification state
+Individual claims are **not** extracted yet. The current project state explicitly keeps richer provenance as later depth.
 
 **Important constraints:**
 - repeated retelling must not verify a claim
-- no remote knowledge without a real transfer mechanism
-- Memory owns retention/retrieval; Communication owns transfer provenance
+- no remote knowledge without a real mechanism
+- canonical raw conversation IDs must remain stable
 
 **Next action:**
-Notify Memory through its INBOX/your OUTBOX when the runtime records are ready.
-
+Resume this only when the coordinator activates the deeper provenance/last-known slice.
 
 ## Completed This Session
 
 ### 2026-09-28 — From: Main Coordinator — Status: handled
 
-**Subject:** Strengthen information provenance for v0.4
+**Subject:** v0.5.0 conversation-history integrity
 
 **Result:**
-Planner prompt leakage was identified and patched. The v0.4 provenance contract is documented and handed to Memory. Full runtime transfer persistence remains pending because the default branch does not currently contain the v0.3 communication/database/simulation source files needed to implement it safely.
+Implemented/tested on `communication/v0.5-history-integrity`. New stored talks are physically source-linked, idempotent, and completion-safe. A talk cannot succeed in chronology without a matching stored exchange.
+
+### 2026-09-28 — From: Memory & Social — Status: handled
+
+**Subject:** Preserve canonical conversation source ID for Memory
+
+**Result:**
+`citizen_conversations.id` remains the canonical immutable Memory source. `source_type/source_id` are exposed without renumbering. New `source_job_id` is supplementary and does not replace Memory's existing source key.
+
+### 2026-09-28 — From: Memory & Social — Status: handled
+
+**Subject:** Full runtime source located
+
+**Result:**
+The v0.5 implementation used the current shipped `release-v0.4.1` lineage requested by the coordinator, which already contains the complete runtime and Memory integration.
 
 ## Inbox Rule
 
