@@ -372,6 +372,78 @@ def simulation_shared_activity_status(activity_id: int) -> dict[str, Any] | None
     return _safe_simulation_payload(payload)
 
 
+def simulation_cancel_shared_activity(
+    activity_id: int,
+    visitor: str,
+    *,
+    reason: str,
+) -> dict[str, Any]:
+    """
+    Ask Simulation to cancel/reject an unstarted canonical proposal.
+
+    Communication never mutates Simulation's shared_activities table directly.
+    Until Simulation exposes this primitive, rejection/expiry fails closed.
+    """
+    try:
+        from . import exploration
+    except Exception:
+        return {
+            "available": False,
+            "ok": False,
+            "reason": "Simulation shared-activity cancellation is unavailable.",
+        }
+
+    cancel = getattr(exploration, "cancel_shared_activity", None)
+    if not callable(cancel):
+        return {
+            "available": False,
+            "ok": False,
+            "reason": "Simulation shared-activity cancellation is unavailable.",
+        }
+
+    with connect() as conn:
+        now = int(get_meta(conn, "sim_minute") or "360")
+        try:
+            raw = cancel(
+                conn,
+                int(activity_id),
+                visitor,
+                now=now,
+                reason=reason,
+            )
+        except Exception as exc:
+            return {
+                "available": True,
+                "ok": False,
+                "reason": f"Simulation shared-activity cancellation failed: {type(exc).__name__}.",
+            }
+
+        if isinstance(raw, tuple):
+            ok = bool(raw[0]) if raw else False
+            message = str(raw[1] if len(raw) > 1 else "")
+        elif isinstance(raw, dict):
+            ok = bool(raw.get("ok"))
+            message = str(raw.get("message") or raw.get("reason") or "")
+        else:
+            ok = bool(raw)
+            message = ""
+
+        if not ok:
+            return {
+                "available": True,
+                "ok": False,
+                "reason": message or "Simulation refused to cancel the shared activity proposal.",
+            }
+
+        conn.commit()
+
+    return {
+        "available": True,
+        "ok": True,
+        "reason": message or "Simulation cancelled the shared activity proposal.",
+    }
+
+
 def _row_payload(row: Any) -> dict[str, Any]:
     item = dict(row)
     try:
@@ -782,22 +854,54 @@ async def maybe_create_proposal_from_exchange(
 
 
 def expire_pending_proposals_for_visitor(visitor: str) -> int:
-    """Expire Communication proposals that have no active physical job."""
+    """
+    Expire unstarted proposals only when Simulation can cancel its canonical row.
+
+    This avoids Communication saying "expired" while Simulation still exposes the
+    physical proposal as available.
+    """
     ensure_shared_action_schema()
     with connect() as conn:
-        now = int(get_meta(conn, "sim_minute") or "360")
-        cur = conn.execute(
+        rows = conn.execute(
             """
-            UPDATE shared_action_proposals
-            SET status = 'expired', acceptance_available = 0, updated_minute = ?
+            SELECT *
+            FROM shared_action_proposals
             WHERE visitor = ?
               AND status IN ('proposed', 'accepted')
               AND simulation_action_id IS NULL
+            ORDER BY id
             """,
-            (now, visitor),
-        )
-        conn.commit()
-        return int(cur.rowcount or 0)
+            (visitor,),
+        ).fetchall()
+
+    expired = 0
+    for row in rows:
+        activity_id = row["simulation_activity_id"]
+        if activity_id is not None:
+            result = simulation_cancel_shared_activity(
+                int(activity_id),
+                visitor,
+                reason="visitor_left_or_traveled",
+            )
+            if not result.get("ok"):
+                continue
+
+        with connect() as conn:
+            now = int(get_meta(conn, "sim_minute") or "360")
+            cur = conn.execute(
+                """
+                UPDATE shared_action_proposals
+                SET status = 'expired', acceptance_available = 0, updated_minute = ?
+                WHERE id = ?
+                  AND status IN ('proposed', 'accepted')
+                  AND simulation_action_id IS NULL
+                """,
+                (now, int(row["id"])),
+            )
+            conn.commit()
+            expired += int(cur.rowcount or 0)
+
+    return expired
 
 
 def accept_proposal(proposal_id: int, visitor: str) -> tuple[bool, str, dict[str, Any] | None]:
@@ -908,6 +1012,23 @@ def reject_proposal(proposal_id: int, visitor: str) -> tuple[bool, str, dict[str
         if row["status"] != "proposed":
             return False, f"Proposal is already {row['status']}.", _row_payload(row)
 
+        activity_id = row["simulation_activity_id"]
+
+    if activity_id is not None:
+        result = simulation_cancel_shared_activity(
+            int(activity_id),
+            visitor,
+            reason="visitor_rejected",
+        )
+        if not result.get("ok"):
+            return (
+                False,
+                result.get("reason")
+                or "Simulation has not cancelled the physical proposal, so Communication will not mark it rejected.",
+                proposal_payload(proposal_id, sync=False),
+            )
+
+    with connect() as conn:
         now = int(get_meta(conn, "sim_minute") or "360")
         conn.execute(
             """
@@ -919,4 +1040,6 @@ def reject_proposal(proposal_id: int, visitor: str) -> tuple[bool, str, dict[str
             (now, now, int(proposal_id)),
         )
         conn.commit()
+
     return True, "Proposal declined. No physical action was started.", proposal_payload(proposal_id, sync=False)
+
