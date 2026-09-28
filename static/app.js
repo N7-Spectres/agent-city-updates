@@ -67,6 +67,7 @@ const els = {
   citizens: document.getElementById("citizens"),
   citizenSearch: document.getElementById("citizen-search"),
   recentActivity: document.getElementById("recent-activity"),
+  maintenanceAlerts: document.getElementById("maintenance-alerts"),
   viewAllHistory: document.getElementById("view-all-history"),
   citizenDirectory: document.getElementById("citizen-directory"),
   citizenPortraitSlot: document.getElementById("citizen-portrait-slot"),
@@ -92,6 +93,7 @@ const els = {
   projects: document.getElementById("projects"),
   equipment: document.getElementById("equipment"),
   structures: document.getElementById("structures"),
+  maintenanceEvents: document.getElementById("maintenance-events"),
   history: document.getElementById("history"),
   citizenConversations: document.getElementById("citizen-conversations"),
   visitorStatus: document.getElementById("visitor-status"),
@@ -433,9 +435,163 @@ function trimNumber(value) {
   return Number.isInteger(n) ? String(n) : n.toFixed(1);
 }
 
+function conditionStateLabel(value) {
+  return String(value || "unknown").replaceAll("_", " ");
+}
+
+function maintenanceSeverityRank(severity) {
+  const ranks = { critical: 0, degraded: 1, service_due: 2, nominal: 3 };
+  return ranks[severity] ?? 4;
+}
+
+function maintenanceAlertsForHome(limit = 4) {
+  const alerts = [];
+
+  for (const citizen of state?.citizens || []) {
+    if (citizen.battery_replacement_due) {
+      alerts.push({
+        key: `citizen-battery:${citizen.id}`,
+        severity: citizen.battery_state || "service_due",
+        title: `${citizen.name} battery service`,
+        text: `${trimNumber(citizen.battery_health)}% health • ${conditionStateLabel(citizen.battery_state)}`,
+      });
+    }
+    if (citizen.chassis_service_due) {
+      alerts.push({
+        key: `citizen-chassis:${citizen.id}`,
+        severity: citizen.chassis_service_state || "service_due",
+        title: `${citizen.name} chassis service`,
+        text: `Joint wear ${trimNumber(citizen.joint_wear)} • ${conditionStateLabel(citizen.chassis_service_state)}`,
+      });
+    }
+  }
+
+  for (const item of state?.equipment || []) {
+    if (!item.service_due && item.operational !== false) continue;
+    alerts.push({
+      key: `equipment:${item.id}`,
+      severity: item.condition_state || (item.operational === false ? "critical" : "service_due"),
+      title: item.name || `Equipment #${item.id}`,
+      text: item.operational === false
+        ? `Non-operational • ${trimNumber(item.condition)}%`
+        : `Service due • ${trimNumber(item.condition)}% • ${conditionStateLabel(item.condition_state)}`,
+    });
+  }
+
+  for (const structure of state?.structures || []) {
+    if (!structure.service_due && structure.operational !== false) continue;
+    alerts.push({
+      key: `structure:${structure.id}`,
+      severity: structure.condition_state || (structure.operational === false ? "critical" : "service_due"),
+      title: structure.name || `Structure #${structure.id}`,
+      text: structure.operational === false
+        ? `Non-operational • ${trimNumber(structure.condition)}%`
+        : `Service due • ${trimNumber(structure.condition)}% • ${conditionStateLabel(structure.condition_state)}`,
+    });
+  }
+
+  alerts.sort((a, b) =>
+    maintenanceSeverityRank(a.severity) - maintenanceSeverityRank(b.severity)
+    || a.title.localeCompare(b.title)
+  );
+
+  return {
+    visible: alerts.slice(0, Math.max(1, limit)),
+    total: alerts.length,
+  };
+}
+
+function renderMaintenanceAlerts() {
+  const { visible, total } = maintenanceAlertsForHome(4);
+  if (!visible.length) {
+    els.maintenanceAlerts.classList.add("hidden");
+    els.maintenanceAlerts.innerHTML = "";
+    return;
+  }
+
+  const extra = Math.max(0, total - visible.length);
+  els.maintenanceAlerts.innerHTML = `
+    <div class="maintenance-alerts-head">
+      <strong>Maintenance attention</strong>
+      ${extra ? `<span>+${extra} more in Records</span>` : "<span>Authoritative physical state</span>"}
+    </div>
+    <div class="maintenance-alert-list">
+      ${visible.map(alert => `
+        <div class="maintenance-alert severity-${escapeHtml(alert.severity)}">
+          <span class="maintenance-alert-dot"></span>
+          <div>
+            <strong>${escapeHtml(alert.title)}</strong>
+            <p>${escapeHtml(alert.text)}</p>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+  els.maintenanceAlerts.classList.remove("hidden");
+}
+
+function parseMaterialsJson(value) {
+  if (!value) return {};
+  try {
+    const parsed = typeof value === "string" ? JSON.parse(value) : value;
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function maintenanceTargetLabel(event) {
+  const targetType = String(event?.target_type || "");
+  const targetId = event?.target_id;
+  if (targetType === "citizen") return citizenNameById(targetId);
+  if (targetType === "equipment") {
+    return state?.equipment?.find(item => String(item.id) === String(targetId))?.name || `Equipment #${targetId}`;
+  }
+  if (targetType === "structure") {
+    return state?.structures?.find(item => String(item.id) === String(targetId))?.name || `Structure #${targetId}`;
+  }
+  return targetId != null ? `${targetType || "target"} #${targetId}` : "Target unavailable";
+}
+
+function renderMaintenanceHistory() {
+  const events = (state?.maintenance_events || []).slice(0, 16);
+  els.maintenanceEvents.innerHTML = events.length ? events.map(event => {
+    const materials = parseMaterialsJson(event.materials_json);
+    const materialsText = Object.entries(materials)
+      .map(([name, amount]) => `${trimNumber(amount)} ${name}`)
+      .join(", ");
+    const before = Number(event.before_value);
+    const after = Number(event.after_value);
+    const delta = Number.isFinite(before) && Number.isFinite(after)
+      ? `${trimNumber(before)} → ${trimNumber(after)}`
+      : "";
+
+    return `
+      <article class="maintenance-event-card" data-maintenance-event-id="${escapeHtml(String(event.id))}">
+        <div class="maintenance-event-head">
+          <div>
+            <strong>${escapeHtml(String(event.event_type || "maintenance").replaceAll("_", " "))}</strong>
+            <span>${escapeHtml(maintenanceTargetLabel(event))}</span>
+          </div>
+          <time>${escapeHtml(formatMinute(event.sim_minute))}</time>
+        </div>
+        <p>${escapeHtml(event.summary || "Maintenance event recorded.")}</p>
+        <div class="maintenance-event-meta">
+          <span>Event #${escapeHtml(String(event.id))}</span>
+          ${event.job_id != null ? `<span>Job #${escapeHtml(String(event.job_id))}</span>` : ""}
+          <span>${escapeHtml(event.outcome || "recorded")}</span>
+          ${delta ? `<span>${escapeHtml(delta)}</span>` : ""}
+          ${materialsText ? `<span>${escapeHtml(materialsText)}</span>` : ""}
+        </div>
+      </article>
+    `;
+  }).join("") : '<div class="muted making-empty">No completed maintenance events recorded yet.</div>';
+}
+
 function isMeaningfulHistoryRow(row) {
   const message = String(row?.message || "").trim();
   if (!message) return false;
+  if (row.category === "diagnostic") return false;
 
   // Stored conversation summaries are rendered separately from real conversation rows.
   if (row.category === "conversation") return false;
@@ -452,6 +608,22 @@ function isMeaningfulHistoryRow(row) {
 
 function recentActivityItems(limit = 5) {
   const items = [];
+  const maintenanceSummaryKeys = new Set();
+
+  for (const event of state?.maintenance_events || []) {
+    const summary = String(event.summary || "").trim();
+    if (!summary) continue;
+    const simMinute = Number(event.sim_minute) || 0;
+    maintenanceSummaryKeys.add(`${simMinute}::${summary}`);
+    items.push({
+      key: `maintenance:${event.id}`,
+      kind: "maintenance",
+      simMinute,
+      title: `Maintenance • ${maintenanceTargetLabel(event)}`,
+      text: summary,
+      meta: "",
+    });
+  }
 
   for (const conversation of state?.citizen_conversations || []) {
     const summary = String(conversation.summary || "").trim();
@@ -468,12 +640,20 @@ function recentActivityItems(limit = 5) {
 
   for (const row of state?.history || []) {
     if (!isMeaningfulHistoryRow(row)) continue;
+    const simMinute = Number(row.sim_minute) || 0;
+    const message = String(row.message || "").trim();
+    if (maintenanceSummaryKeys.has(`${simMinute}::${message}`)) continue;
+
     items.push({
       key: `history:${row.id ?? row.sim_minute}:${row.message}`,
-      kind: "event",
-      simMinute: Number(row.sim_minute) || 0,
-      title: row.category === "visitor" ? "Visitor" : "City event",
-      text: String(row.message || "").trim(),
+      kind: row.category === "maintenance" ? "maintenance" : "event",
+      simMinute,
+      title: row.category === "visitor"
+        ? "Visitor"
+        : row.category === "maintenance"
+          ? "Maintenance"
+          : "City event",
+      text: message,
       meta: "",
     });
   }
@@ -481,6 +661,7 @@ function recentActivityItems(limit = 5) {
   items.sort((a, b) => {
     if (b.simMinute !== a.simMinute) return b.simMinute - a.simMinute;
     if (a.kind === b.kind) return 0;
+    if (a.kind === "maintenance") return -1;
     return a.kind === "conversation" ? -1 : 1;
   });
 
@@ -508,6 +689,7 @@ function render() {
   computeLocationPositions();
 
   renderCitizens();
+  renderMaintenanceAlerts();
   renderRecentActivity();
   renderCitizenDirectory();
   renderCitizenSheet();
@@ -782,6 +964,9 @@ function renderCitizenSheet() {
     .filter(row => String(row.citizen_id) === String(citizen.id))
     .slice(0, 6);
   const cargoCapacity = Number(citizen.cargo_capacity);
+  const batteryHealth = Number(citizen.battery_health);
+  const usableEnergyCapacity = Number(citizen.usable_energy_capacity);
+  const jointWear = Number(citizen.joint_wear);
 
   applyCitizenPortrait(citizen);
   els.citizenSheetName.textContent = citizen.name;
@@ -804,15 +989,25 @@ function renderCitizenSheet() {
     </div>
   `;
 
-  const gearMarkup = gear.length ? gear.map(item => `
-    <div class="sheet-list-row">
-      <span><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.kind || "equipment")} • ${Math.round(Number(item.condition) || 0)}%</small></span>
-      <span class="sheet-badges">
-        ${Number(item.cargo_bonus || 0) ? `<em>Cargo +${escapeHtml(trimNumber(item.cargo_bonus))}</em>` : ""}
-        ${Number(item.extraction_speed_multiplier || 1) !== 1 ? `<em>${escapeHtml(trimNumber(item.extraction_speed_multiplier))}× extract</em>` : ""}
-      </span>
-    </div>
-  `).join("") : '<div class="sheet-empty muted">No validated personal equipment.</div>';
+  const gearMarkup = gear.length ? gear.map(item => {
+    const effectiveCargo = Number(item.effective_cargo_bonus || 0);
+    const effectiveExtraction = Number(item.effective_extraction_speed_multiplier || 1);
+    const stateLabel = conditionStateLabel(item.condition_state);
+    return `
+      <div class="sheet-list-row maintenance-row ${item.operational === false ? "non-operational" : ""}">
+        <span>
+          <strong>${escapeHtml(item.name)}</strong>
+          <small>${escapeHtml(item.kind || "equipment")} • ${trimNumber(item.condition)}% • ${escapeHtml(stateLabel)}</small>
+        </span>
+        <span class="sheet-badges">
+          ${item.operational === false ? "<em class=\"maintenance-badge critical\">Non-operational</em>" : ""}
+          ${item.service_due ? "<em class=\"maintenance-badge service\">Service due</em>" : ""}
+          ${effectiveCargo !== 0 ? `<em>Cargo +${escapeHtml(trimNumber(effectiveCargo))}</em>` : ""}
+          ${effectiveExtraction !== 1 ? `<em>${escapeHtml(trimNumber(effectiveExtraction))}× extract</em>` : ""}
+        </span>
+      </div>
+    `;
+  }).join("") : '<div class="sheet-empty muted">No validated personal equipment.</div>';
 
   const cargoMarkup = cargo.length ? cargo.map(row => `
     <div class="sheet-list-row"><span>${escapeHtml(row.material)}</span><strong>${escapeHtml(trimNumber(row.amount))}</strong></div>
@@ -854,6 +1049,31 @@ function renderCitizenSheet() {
       <span class="sheet-label">Physical state</span>
       <strong>${escapeHtml(locationText)}</strong>
       <div class="vital-row"><span>Energy <b>${Math.round(citizen.energy)}%</b></span><span>Integrity <b>${Math.round(citizen.integrity)}%</b></span></div>
+    </div>
+    <div class="sheet-card">
+      <span class="sheet-label">Maintenance state</span>
+      <div class="maintenance-metric-grid">
+        <div>
+          <span>Battery health</span>
+          <strong>${Number.isFinite(batteryHealth) ? `${escapeHtml(trimNumber(batteryHealth))}%` : "Unknown"}</strong>
+          <small>${escapeHtml(conditionStateLabel(citizen.battery_state))}${citizen.battery_replacement_due ? " • replacement due" : ""}</small>
+        </div>
+        <div>
+          <span>Usable capacity</span>
+          <strong>${Number.isFinite(usableEnergyCapacity) ? `${escapeHtml(trimNumber(usableEnergyCapacity))}%` : "Unknown"}</strong>
+          <small>Long-term capacity, distinct from current charge</small>
+        </div>
+        <div>
+          <span>Joint wear</span>
+          <strong>${Number.isFinite(jointWear) ? escapeHtml(trimNumber(jointWear)) : "Unknown"}</strong>
+          <small>${escapeHtml(conditionStateLabel(citizen.chassis_service_state))}${citizen.chassis_service_due ? " • service due" : ""}</small>
+        </div>
+        <div>
+          <span>Last service</span>
+          <strong>${citizen.last_service_minute != null ? escapeHtml(formatMinute(citizen.last_service_minute)) : "No recorded service"}</strong>
+          <small>Validated physical service timestamp</small>
+        </div>
+      </div>
     </div>
     <div class="sheet-card">
       <span class="sheet-label">Current configuration</span>
@@ -1307,11 +1527,11 @@ function renderMakingBuilding() {
       ? citizenNameById(item.owner_citizen_id)
       : "Settlement equipment";
     const location = locationNameById(item.location_id);
-    const cargoBonus = Number(item.cargo_bonus || 0);
-    const extractionMultiplier = Number(item.extraction_speed_multiplier || 1);
+    const effectiveCargoBonus = Number(item.effective_cargo_bonus || 0);
+    const effectiveExtractionMultiplier = Number(item.effective_extraction_speed_multiplier || 1);
     const effects = [];
-    if (cargoBonus !== 0) effects.push(`Cargo capacity ${cargoBonus > 0 ? "+" : ""}${trimNumber(cargoBonus)}`);
-    if (extractionMultiplier !== 1) effects.push(`Extraction speed ${trimNumber(extractionMultiplier)}×`);
+    if (effectiveCargoBonus !== 0) effects.push(`Current cargo capacity ${effectiveCargoBonus > 0 ? "+" : ""}${trimNumber(effectiveCargoBonus)}`);
+    if (effectiveExtractionMultiplier !== 1) effects.push(`Current extraction speed ${trimNumber(effectiveExtractionMultiplier)}×`);
 
     return `
       <article class="equipment-card" data-equipment-id="${escapeHtml(String(item.id))}">
@@ -1320,11 +1540,15 @@ function renderMakingBuilding() {
             <strong>${escapeHtml(item.name || item.template_id || "Equipment")}</strong>
             <span>Equipment #${escapeHtml(String(item.id))} • ${escapeHtml(item.kind || "equipment")}</span>
           </div>
-          <span class="condition-chip">${Math.round(Number(item.condition) || 0)}%</span>
+          <span class="condition-chip condition-${escapeHtml(item.condition_state || "unknown")}">${Math.round(Number(item.condition) || 0)}% • ${escapeHtml(conditionStateLabel(item.condition_state))}</span>
         </div>
         <div class="making-meta">
           <span>${escapeHtml(owner)}</span>
           <span>${escapeHtml(location)}</span>
+          <span>${item.operational === false ? "Non-operational" : "Operational"}</span>
+          ${item.service_due ? "<span>Service due</span>" : ""}
+          ${item.last_service_minute != null ? `<span>Last service ${escapeHtml(formatMinute(item.last_service_minute))}</span>` : ""}
+          ${item.use_count != null ? `<span>${escapeHtml(String(item.use_count))} uses</span>` : ""}
           ${item.created_job_id != null ? `<span>Created by job #${escapeHtml(String(item.created_job_id))}</span>` : ""}
         </div>
         <div class="effect-row">
@@ -1345,17 +1569,24 @@ function renderMakingBuilding() {
             <strong>${escapeHtml(structure.name)}</strong>
             <span>Structure #${escapeHtml(String(structure.id))} • ${escapeHtml(structure.kind || "structure")}</span>
           </div>
-          <span class="condition-chip">${Math.round(Number(structure.condition) || 0)}%</span>
+          <span class="condition-chip condition-${escapeHtml(structure.condition_state || "unknown")}">${Math.round(Number(structure.condition) || 0)}% • ${escapeHtml(conditionStateLabel(structure.condition_state))}</span>
         </div>
         <div class="making-meta">
           <span>${escapeHtml(location)}</span>
           ${coords ? `<span>${escapeHtml(coords)}</span>` : ""}
+          <span>${structure.operational === false ? "Non-operational" : "Operational"}</span>
+          ${structure.service_due ? "<span>Service due</span>" : ""}
+          ${Number.isFinite(Number(structure.efficiency_multiplier)) ? `<span>Efficiency ${escapeHtml(trimNumber(Number(structure.efficiency_multiplier) * 100))}%</span>` : ""}
+          ${structure.last_service_minute != null ? `<span>Last service ${escapeHtml(formatMinute(structure.last_service_minute))}</span>` : ""}
+          ${structure.use_count != null ? `<span>${escapeHtml(String(structure.use_count))} uses</span>` : ""}
           ${charging ? "<span>Provides charging</span>" : ""}
           ${structure.project_id != null ? `<span>From project #${escapeHtml(String(structure.project_id))}</span>` : ""}
         </div>
       </article>
     `;
   }).join("") : '<div class="muted making-empty">No structures are currently exposed.</div>';
+
+  renderMaintenanceHistory();
 }
 
 function normalizedConversationKey(simMinute, personA, personB, locationName) {
@@ -1560,9 +1791,12 @@ function renderDrawerLists() {
   renderCitizenConversationHistory();
 
   els.history.innerHTML = state.history.map(h => `
-    <div class="history-entry">
+    <div class="history-entry ${h.category === "diagnostic" ? "diagnostic" : ""}">
       <div class="history-dot"></div>
-      <div><strong>${formatMinute(h.sim_minute)}</strong><p>${escapeHtml(h.message)}</p></div>
+      <div>
+        <strong>${formatMinute(h.sim_minute)}${h.category === "diagnostic" ? " • diagnostic" : ""}</strong>
+        <p>${escapeHtml(h.message)}</p>
+      </div>
     </div>
   `).join("");
 }
