@@ -23,6 +23,7 @@ def main() -> None:
         from agent_city.exploration import (
             accept_shared_activity,
             propose_shared_activity,
+            reject_shared_activity,
             shared_activity_payload,
             start_local_inspection,
             start_local_move,
@@ -269,6 +270,27 @@ def main() -> None:
             assert proposal.get("movement") is None
             assert float(conn.execute("SELECT position_x_m FROM citizens WHERE id = 'vale'").fetchone()["position_x_m"]) == 0.0
             assert float(conn.execute("SELECT x_m FROM visitor_presence WHERE visitor = ?", (visitor,)).fetchone()["x_m"]) == 0.0
+
+            # A separate proposal may be rejected before physical start.
+            ok, rejected_id, _ = propose_shared_activity(
+                conn,
+                visitor=visitor,
+                citizen_id="vale",
+                target_x_m=30.0,
+                target_y_m=10.0,
+                objective="A second proposed walk that the visitor declines.",
+                source_visit_id=visit_id,
+                source_exchange_id=exchange_id,
+                now=2000,
+            )
+            assert ok
+            ok, message = reject_shared_activity(conn, rejected_id, visitor, now=2001)
+            assert ok, message
+            rejected = shared_activity_payload(conn, rejected_id, 2001)
+            assert rejected["status"] == "rejected"
+            assert rejected["outcome"] == "rejected"
+            assert rejected["citizen_job_id"] is None
+            assert rejected["observation_id"] is None
 
             # Wrong visitor cannot accept.
             ok, _, _ = accept_shared_activity(conn, activity_id, "Other Visitor", now=2001)
