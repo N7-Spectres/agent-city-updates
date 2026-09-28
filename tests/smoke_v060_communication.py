@@ -99,6 +99,137 @@ def main() -> None:
             for r in information_receipts_for("cato")
         )
 
+        # Simulate the final v0.6 Simulation contract. Communication syncs only
+        # citizen-local validated knowledge, never hidden truth by itself.
+        with connect() as conn:
+            conn.executescript(
+                """
+                CREATE TABLE IF NOT EXISTS world_properties (
+                    id TEXT PRIMARY KEY,
+                    subject_type TEXT NOT NULL,
+                    subject_id TEXT NOT NULL,
+                    property_key TEXT NOT NULL,
+                    value_text TEXT NOT NULL,
+                    unit TEXT,
+                    assay_method TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS discoveries (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    discovery_kind TEXT NOT NULL,
+                    subject_type TEXT NOT NULL,
+                    subject_id TEXT NOT NULL,
+                    property_id TEXT,
+                    citizen_id TEXT NOT NULL,
+                    location_id TEXT NOT NULL,
+                    source_job_id INTEGER,
+                    discovered_minute INTEGER NOT NULL,
+                    summary TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS citizen_knowledge (
+                    citizen_id TEXT NOT NULL,
+                    discovery_id INTEGER NOT NULL,
+                    learned_minute INTEGER NOT NULL,
+                    acquisition_kind TEXT NOT NULL,
+                    source_type TEXT NOT NULL,
+                    source_id TEXT NOT NULL,
+                    verification_state TEXT NOT NULL,
+                    PRIMARY KEY(citizen_id, discovery_id)
+                );
+
+                CREATE TABLE IF NOT EXISTS experiment_results (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    job_id INTEGER NOT NULL UNIQUE,
+                    citizen_id TEXT NOT NULL,
+                    location_id TEXT NOT NULL,
+                    material TEXT NOT NULL,
+                    method TEXT NOT NULL,
+                    outcome TEXT NOT NULL,
+                    discovery_id INTEGER,
+                    summary TEXT NOT NULL,
+                    completed_minute INTEGER NOT NULL
+                );
+                """
+            )
+            conn.execute(
+                """
+                INSERT INTO world_properties
+                (id, subject_type, subject_id, property_key, value_text, unit, assay_method)
+                VALUES ('prop_test', 'material', 'Plant Fiber', 'tensile_behavior',
+                        'high tensile strength for its mass', NULL, 'mechanical_assay')
+                """
+            )
+            cur = conn.execute(
+                """
+                INSERT INTO discoveries
+                (discovery_kind, subject_type, subject_id, property_id, citizen_id,
+                 location_id, source_job_id, discovered_minute, summary)
+                VALUES ('world_property', 'material', 'Plant Fiber', 'prop_test',
+                        'noma', 'seed_site', 501, 650,
+                        'Plant Fiber: tensile_behavior — high tensile strength for its mass.')
+                """
+            )
+            discovery_id = int(cur.lastrowid)
+            conn.execute(
+                """
+                INSERT INTO citizen_knowledge
+                (citizen_id, discovery_id, learned_minute, acquisition_kind,
+                 source_type, source_id, verification_state)
+                VALUES ('noma', ?, 650, 'direct_experiment', 'discovery', ?, 'verified')
+                """,
+                (discovery_id, str(discovery_id)),
+            )
+            conn.execute(
+                """
+                INSERT INTO citizen_knowledge
+                (citizen_id, discovery_id, learned_minute, acquisition_kind,
+                 source_type, source_id, verification_state)
+                VALUES ('cato', ?, 660, 'communicated_claim', 'citizen_conversation', '99', 'reported')
+                """,
+                (discovery_id,),
+            )
+            conn.execute(
+                """
+                INSERT INTO experiment_results
+                (job_id, citizen_id, location_id, material, method, outcome,
+                 discovery_id, summary, completed_minute)
+                VALUES (502, 'vale', 'seed_site', 'Clay', 'electrical_assay',
+                        'inconclusive', NULL,
+                        'Vale tested Clay electrically; the assay produced no validated property finding.',
+                        670)
+                """
+            )
+            conn.commit()
+
+        ensure_information_schema()
+
+        synced_noma = [
+            r for r in information_receipts_for("noma")
+            if r["origin_event_type"] == "simulation_discovery"
+            and r["origin_event_id"] == discovery_id
+        ]
+        assert len(synced_noma) == 1
+        assert synced_noma[0]["verification"] == "verified"
+        assert synced_noma[0]["channel"] == "experiment_result"
+        assert "high tensile strength" in synced_noma[0]["value_text"]
+
+        # A Simulation row marked merely reported is not upgraded into a verified
+        # Communication receipt by synchronization.
+        assert not any(
+            r["origin_event_type"] == "simulation_discovery"
+            and r["origin_event_id"] == discovery_id
+            for r in information_receipts_for("cato")
+        )
+
+        vale_results = [
+            r for r in information_receipts_for("vale")
+            if r["origin_event_type"] == "simulation_experiment_result"
+        ]
+        assert len(vale_results) == 1
+        assert vale_results[0]["topic"] == "experiment_inconclusive"
+        assert "no validated property finding" in vale_results[0]["value_text"]
+
         # Put Bex/Aris together and persist one real talk with explicit claims.
         with connect() as conn:
             set_meta(conn, "sim_minute", 700)
