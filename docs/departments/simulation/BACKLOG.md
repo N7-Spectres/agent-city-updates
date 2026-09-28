@@ -71,3 +71,16 @@ Remaining cross-department/integration work:
 - when should communicated verified discoveries become reproducible skill/process knowledge rather than merely known facts?
 - how should damage interrupt active experiment/construction jobs?
 - how should reserved construction materials be transported to remote sites?
+
+
+## v0.6 Integration Gate
+
+Before starting new Simulation feature work:
+
+1. Assets finishes the remaining data-driven v0.6 UI.
+2. Coordinator integrates Simulation, Communication, Memory, and Assets.
+3. Preserve both `agent_city/knowledge.py` and `agent_city/provenance.py`.
+4. Run the full v0.4/v0.5 regression suite plus all v0.6 Simulation/Communication/Memory/Assets smoke tests.
+5. Any merge conflict that changes physical truth, discovery semantics, or known-state filtering returns to World & Simulation for review.
+
+Until that gate is complete, the v0.6 Simulation core is considered handed off and feature-complete for this session.
