@@ -16,27 +16,24 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-- [Communication & Perception] v0.6.0: discovery/claim provenance, local information flow, anti-omniscience audits, visitor busy/talk status fix
-- [Assets & Interface] v0.6.0: finish data-driven Home/Citizens/Locations using safe Simulation/Memory/Communication contracts
+- [Assets & Interface] v0.6.0: finish data-driven Home/Citizens/Locations using the now-ready Simulation, Memory, and Communication contracts
 
 ### WAITING
 
-- [Assets & Interface] Simulation safe known-state contract is now ready; final UI semantics still depend on Communication's provenance/status shape and Memory's bounded consumer read model
-- [Memory & Social] Simulation discovery/result IDs are now stable; any richer ingestion that depends on transferred claims still waits on Communication's final provenance shape
-- [Coordinator / Integration] final v0.6 assembly waits for Communication + Assets completion
+- [Coordinator / Integration] final v0.6 assembly waits for Assets completion, then must merge Simulation + Communication + Memory + Assets while preserving the layered knowledge boundaries below
 
 ### READY
 
-- [World & Simulation] v0.6 Research/Discovery core ready on `simulation/v0.6-research-discovery` @ `d1ae3faf0095d22e7a730cf50b3ad6fdbcdc4b94`
-- [World & Simulation] CI run `36419824468` passed Python compile, JS syntax, all v0.4/v0.5 regressions, and `tests/smoke_v060.py`
-- [World & Simulation] stable discovery/knowledge/result/read-model contracts delivered to Communication, Memory, and Assets
-- [Memory & Social] v0.6 per-citizen knowledge core on `memory/v0.6-location-knowledge` @ `89c0a3e2d49c4c9236342c10559f92b93b1b7601`; CI run `36419352645` passed
-- [Communication & Perception] deeper claim-level `PROVENANCE_CONTRACT.md` remains available as design reference
+- [World & Simulation] v0.6 Research/Discovery core ready on `simulation/v0.6-research-discovery` @ `d1ae3faf0095d22e7a730cf50b3ad6fdbcdc4b94`; CI `36419824468` passed
+- [Communication & Perception] v0.6 provenance/availability ready on `communication/v0.6-knowledge-provenance` @ `6a483fcc4d143606f3e401218002e06ae43076d1`; CI `36421263078` passed
+- [Memory & Social] v0.6 per-citizen bounded knowledge core ready on `memory/v0.6-location-knowledge` @ `89c0a3e2d49c4c9236342c10559f92b93b1b7601`; CI `36419352645` passed
+- [Assets & Interface] all upstream data/status contracts needed for the remaining UI pass are now available
 
 ### REVIEW
 
-- [World & Simulation] hidden world truth, experiments, persistent discoveries, citizen-local knowledge, learned verification processes, safe public state, and migration are complete for v0.6
-- [Memory & Social] v0.6 per-citizen knowledge core ready; final transferred-claim integration may consume Communication provenance after it stabilizes
+- [World & Simulation] hidden truth, experiments, validated discoveries, citizen-local validated knowledge, learned verification processes, safe public state, and migration complete
+- [Communication & Perception] information receipts, transcript-grounded unverified claims, Simulation-knowledge synchronization, anti-omniscience prompt context, and structured Visit availability complete
+- [Memory & Social] bounded citizen/location knowledge read model complete; Communication provenance can sit beneath it during integration
 
 ### DONE
 
@@ -44,16 +41,16 @@ This file is the shared project task board.
 - [World & Simulation] v0.5 Making & Building physical core + energy reserve + coordinate groundwork
 - [Assets & Interface] v0.5 bounded Visit/History + Making state UI
 - [Communication & Perception] v0.5 source-linked talk integrity
-- [Memory & Social] v0.5 project/source continuity audit, no schema change required
-- [Coordinator] v0.4.0 assembled on `release-v0.4.0`, tested, versioned, and published
-- [Coordinator] v0.4.1 blank-reply conversation hotfix tested and published
-- [Memory & Social] Durable directional conversation memory + bounded social context
-- [Assets & Interface] Control Room redesign + distance-aware map readability pass
-- [Communication & Perception] Information-boundary rules / anti-omniscience architecture preserved; provenance contract documented
-- [Communication & Perception] Same-location citizen talk system
-- [World & Simulation] Visitor physical presence and travel
-- [Assets & Interface] v0.3.0 live job progress and moving map markers
-- [Memory & Social] Persistent visitor visits and bounded conversation context
+- [Memory & Social] v0.5 project/source continuity audit
+- [Coordinator] v0.4.0 assembled/tested/published
+- [Coordinator] v0.4.1 conversation hotfix tested/published
+- [Memory & Social] durable directional conversation memory + bounded social context
+- [Assets & Interface] Control Room redesign + distance-aware map readability
+- [Communication & Perception] anti-omniscience architecture + provenance contract
+- [Communication & Perception] same-location citizen talk
+- [World & Simulation] visitor physical presence/travel
+- [Assets & Interface] v0.3.0 live job progress/moving map markers
+- [Memory & Social] persistent visitor visits/bounded conversation context
 
 ## v0.6 Coordination Goal
 
@@ -63,26 +60,84 @@ Primary rule:
 
 Integration dependency:
 
-1. Simulation defines hidden world truth + validated discovery/experiment records. **READY**
-2. Communication defines how discoveries/claims move between citizens and fixes visit-status wording. **ACTIVE**
-3. Memory retains/retrieves per-citizen knowledge without creating a global encyclopedia. **CORE READY; transfer provenance pending**
+1. Simulation defines hidden world truth and validated discovery/experiment records. **READY**
+2. Communication records how information actually reached specific citizens and separates verified observation from unverified claim. **READY**
+3. Memory retains/retrieves bounded per-citizen knowledge without creating a global encyclopedia. **READY**
 4. Assets renders Home/Citizens/Locations only from safe known-state interfaces. **ACTIVE**
 5. Coordinator assembles all branches and runs regression + v0.6 smoke tests before publication.
 
-## Simulation v0.6 Contract Locks
+## v0.6 Layered Knowledge Contract
 
-Coordinator integration must preserve:
+Coordinator integration must preserve all layers rather than selecting one:
+
+### Simulation
+
+`agent_city/knowledge.py` owns:
+- `world_properties` hidden truth
+- `discoveries`
+- `citizen_knowledge`
+- `experiment_results`
+- validated discovery possession/current verification state
+
+### Communication
+
+`agent_city/provenance.py` owns:
+- `information_receipts`
+- transfer/source/time/age history
+- unverified face-to-face claims
+- synchronization of only recipient-local **verified** Simulation knowledge
+- experiment-result experience receipts
+- structured Visit availability
+
+### Memory
+
+Owns:
+- durable bounded retrieval/summaries
+- consumer-facing per-citizen and per-location knowledge views
+- no physical truth creation
+
+### Assets
+
+Consumes:
+- Simulation safe public state for physical configuration/current validated world facts
+- Memory bounded knowledge APIs for citizen/location notebooks
+- Communication `status/availability` for Visit messaging
+
+## Simulation v0.6 Contract Locks
 
 1. `world_properties` remains hidden from ordinary `/api/state`
 2. undiscovered deposits are absent from ordinary state
 3. discovered deposits do not expose hidden reserve quantity
 4. `discoveries.id` is the stable validated discovery anchor
-5. direct discovery grants knowledge only to the discovering citizen
-6. communicated claims do not become verified Simulation knowledge automatically
+5. direct discovery grants validated knowledge only to the discovering citizen
+6. communicated claims do not automatically become verified Simulation knowledge
 7. `experiment_results` persists `discovery | verified | inconclusive` outcomes
 8. learned processes descend from validated discoveries and are not tech-tree nodes
-9. missing knowledge renders as absence, not a UI hint that hidden content exists
-10. no `update.json` publication by departments
+9. missing knowledge renders as absence, not a hint that hidden content exists
+10. no department publishes `update.json`
+
+## Communication v0.6 Contract Locks
+
+1. Simulation `agent_city/knowledge.py` and Communication `agent_city/provenance.py` are separate modules and both must survive merge
+2. only verified recipient-local `citizen_knowledge` is mirrored into verified Communication receipts
+3. `reported` knowledge is not silently upgraded to verified
+4. face-to-face claims are tied to canonical stored conversation IDs and begin unverified
+5. persisted claim text must occur verbatim in the attributed speaker's durable transcript
+6. retelling does not verify a claim
+7. remote visitor access must not leak local busy/talk details
+8. merged planner/dialogue context should retain both Simulation-validated property knowledge and Communication provenance/claims
+
+## Required Integration Tests
+
+At minimum preserve and run:
+
+- `tests/smoke_v040.py`
+- `tests/smoke_v050.py`
+- `tests/smoke_v050_communication.py`
+- Simulation `tests/smoke_v060.py`
+- Communication `tests/smoke_v060_communication.py`
+- Memory v0.6 smoke
+- Assets v0.6 UI/integration smoke when its branch is complete
 
 ## Handoff Protocol
 
