@@ -493,14 +493,27 @@ def record_local_spatial_observation(
     with connect() as conn:
         citizen = conn.execute(
             """
-            SELECT id, name, position_x_m, position_y_m
-            FROM citizens
-            WHERE id = ?
+            SELECT c.id, c.name, c.position_x_m, c.position_y_m,
+                   j.action AS active_action
+            FROM citizens c
+            LEFT JOIN jobs j ON j.id = c.active_job_id
+            WHERE c.id = ?
             """,
             (citizen_id,),
         ).fetchone()
         if not citizen:
             return False, None, "Citizen not found."
+
+        if citizen["active_action"] == "travel":
+            return False, None, "Citizen is traveling and cannot make a local stationary observation."
+
+        if source_job_id is not None:
+            source_job = conn.execute(
+                "SELECT citizen_id FROM jobs WHERE id = ?",
+                (int(source_job_id),),
+            ).fetchone()
+            if not source_job or str(source_job["citizen_id"]) != str(citizen_id):
+                return False, None, "Observation source job does not belong to this citizen."
 
         cx = float(citizen["position_x_m"] or 0.0)
         cy = float(citizen["position_y_m"] or 0.0)
