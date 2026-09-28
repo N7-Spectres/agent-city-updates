@@ -1016,8 +1016,27 @@ function renderRecentActivity() {
   `).join("") : '<div class="muted recent-activity-empty">No meaningful recent activity yet.</div>';
 }
 
+function visualDayPhase(simMinute) {
+  const minute = ((Number(simMinute) % 1440) + 1440) % 1440;
+  if (minute >= 300 && minute < 420) return "dawn";
+  if (minute >= 420 && minute < 1080) return "day";
+  if (minute >= 1080 && minute < 1320) return "dusk";
+  return "night";
+}
+
+function visualDayPhaseLabel(phase) {
+  return {
+    dawn: "Dawn",
+    day: "Daylight",
+    dusk: "Dusk",
+    night: "Night",
+  }[phase] || "Daylight";
+}
+
 function render() {
-  els.simTime.textContent = `${state.sim_label} • ${state.paused ? "Paused" : "Running"}`;
+  const dayPhase = visualDayPhase(state.sim_minute);
+  document.body.dataset.dayPhase = dayPhase;
+  els.simTime.textContent = `${state.sim_label} • ${visualDayPhaseLabel(dayPhase)} • ${state.paused ? "Paused" : "Running"}`;
   els.pauseButton.textContent = state.paused ? "Resume" : "Pause";
   computeLocationPositions();
   renderVisitorStatus();
