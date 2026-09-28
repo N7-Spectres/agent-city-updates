@@ -54,7 +54,7 @@ Major shipped v0.7 changes:
 - bounded Home maintenance alerts
 - final coordinator integration fixed the avatar fallback semantic-lock comment so the assembled Assets smoke matched the intended presentation-only identity rule
 
-v0.8.0 — Living World is the next planned milestone. It should not be treated as active implementation until the coordinator explicitly assigns it.
+v0.8.0 — Living World is now in **Stage 1 foundation development**. Stage 1 covers the seeded spatial-world substrate, dialogue/RP grounding, spatial-knowledge continuity, citizen visual-identity refinement, restored UI glanceability, and local asset-worker architecture. It is not yet the full v0.8 release.
 
 
 The richer provenance layer for individual claims, source reliability, promises, help, and validated cooperation remains future depth. Those features must wait for explicit Communication provenance and Simulation event references rather than being inferred from ordinary conversation.
