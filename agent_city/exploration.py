@@ -451,6 +451,40 @@ def accept_shared_activity(conn, activity_id: int, visitor: str, *, now: int) ->
     return True, None, "Shared activity accepted; a separate Simulation start is still required."
 
 
+def reject_shared_activity(conn, activity_id: int, visitor: str, *, now: int) -> tuple[bool, str]:
+    row = conn.execute(
+        "SELECT * FROM shared_activities WHERE id = ?",
+        (int(activity_id),),
+    ).fetchone()
+    if not row:
+        return False, "Shared activity not found."
+
+    visitor_name = (visitor or "Visitor").strip()[:40] or "Visitor"
+    if visitor_name != row["visitor"]:
+        return False, "Only the proposed visitor may reject this activity."
+    if row["status"] not in ("proposed", "accepted"):
+        return False, f"Shared activity cannot be rejected from status {row['status']}."
+
+    conn.execute(
+        """
+        UPDATE shared_activities
+        SET status = 'rejected',
+            completed_minute = ?,
+            outcome = 'rejected',
+            failure_reason = 'Visitor rejected the proposal before physical start.'
+        WHERE id = ?
+        """,
+        (int(now), int(activity_id)),
+    )
+    add_history(
+        conn,
+        int(now),
+        "activity",
+        f"{visitor_name} rejected shared activity #{activity_id} before physical start.",
+    )
+    return True, "Shared activity rejected; no physical movement occurred."
+
+
 def start_shared_activity(conn, activity_id: int, visitor: str, *, now: int) -> tuple[bool, int | None, str]:
     row = conn.execute(
         "SELECT * FROM shared_activities WHERE id = ?",
