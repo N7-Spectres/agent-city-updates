@@ -274,6 +274,7 @@ def record_validated_observation(
     source_job_id: int | None = None,
     observation_kind: str = "field_observation",
     radius_m: float = 1.0,
+    detail_level: str = "field",
 ) -> int:
     """
     Convert a hidden query into one safe, persisted physical observation.
@@ -284,26 +285,32 @@ def record_validated_observation(
     hidden = query_hidden_world(conn, x_m, y_m)
     primary = hidden["deposit_bodies"][0] if hidden["deposit_bodies"] else None
 
+    baseline = detail_level == "baseline"
     summary_parts = [
         f"Terrain {hidden['terrain_class']}",
         f"elevation {hidden['elevation_m']:.1f} m",
-        f"geology {hidden['geology_class']}",
     ]
+    if not baseline:
+        summary_parts.append(f"geology {hidden['geology_class']}")
     if primary:
-        summary_parts.append(f"contact with {primary['material']} body {primary['id']}")
+        if baseline:
+            summary_parts.append(f"contact with distinct physical body {primary['id']}")
+        else:
+            summary_parts.append(f"contact with {primary['material']} body {primary['id']}")
 
     cur = conn.execute(
         """
         INSERT INTO spatial_observations
-        (observer_id, source_job_id, observation_kind, frame_id,
+        (observer_id, source_job_id, observation_kind, detail_level, frame_id,
          x_m, y_m, radius_m, observed_minute, terrain_class, elevation_m,
          geology_class, deposit_id, material, summary)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             observer_id,
             source_job_id,
             observation_kind,
+            detail_level,
             SPATIAL_FRAME_ID,
             round(float(x_m), 4),
             round(float(y_m), 4),
@@ -311,9 +318,9 @@ def record_validated_observation(
             int(observed_minute),
             hidden["terrain_class"],
             hidden["elevation_m"],
-            hidden["geology_class"],
+            "unclassified" if baseline else hidden["geology_class"],
             primary["id"] if primary else None,
-            primary["material"] if primary else None,
+            None if baseline else (primary["material"] if primary else None),
             "; ".join(summary_parts),
         ),
     )
@@ -326,6 +333,7 @@ def safe_observation_payload(row: Any) -> dict[str, Any]:
         "observer_id": row["observer_id"],
         "source_job_id": row["source_job_id"],
         "observation_kind": row["observation_kind"],
+        "detail_level": row["detail_level"],
         "frame_id": row["frame_id"],
         "x_m": float(row["x_m"]),
         "y_m": float(row["y_m"]),

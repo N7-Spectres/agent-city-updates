@@ -31,6 +31,13 @@ from agent_city.provenance import (
 from agent_city.planner import planning_loop
 from agent_city.talk_diagnostics import ensure_talk_diagnostic_schema
 from agent_city.simulation import cargo_capacity as physical_cargo_capacity
+from agent_city.exploration import (
+    accept_shared_activity,
+    propose_shared_activity,
+    reject_shared_activity,
+    shared_activity_payload,
+    start_shared_activity,
+)
 from agent_city.memory import (
     ensure_memory_schema,
     knowledge_context_for as memory_knowledge_context_for,
@@ -45,7 +52,13 @@ from agent_city.visits import (
     close_visit, ensure_visit_schema, get_or_create_active_visit,
     get_recent_exchanges, previous_visits, summarize_visit_if_needed, visit_payload,
 )
-from agent_city.visitors import can_visit_citizen, presence_payload, start_visitor_travel, visit_access_payload
+from agent_city.visitors import (
+    can_visit_citizen,
+    ensure_visitor,
+    presence_payload,
+    start_visitor_travel,
+    visit_access_payload,
+)
 from agent_city.updater import (
     PROJECT_ROOT, check_for_update, current_version, fetch_manifest,
     load_settings, make_backup, save_settings, stage_update
@@ -102,6 +115,21 @@ class TalkRequest(BaseModel):
 class VisitorTravelRequest(BaseModel):
     visitor: str = Field(default="N7", min_length=1, max_length=40)
     target: str = Field(min_length=1, max_length=80)
+
+
+class SharedActivityProposalRequest(BaseModel):
+    visitor: str = Field(default="N7", min_length=1, max_length=40)
+    citizen_id: str = Field(min_length=1, max_length=40)
+    target_x_m: float
+    target_y_m: float
+    objective: str = Field(default="Walk together and inspect the destination.", min_length=1, max_length=500)
+    source_visit_id: int | None = None
+    source_exchange_id: int | None = None
+    tool_equipment_id: int | None = None
+
+
+class SharedActivityAcceptRequest(BaseModel):
+    visitor: str = Field(default="N7", min_length=1, max_length=40)
 
 
 @app.get("/")
@@ -342,6 +370,95 @@ def visitor_travel(req: VisitorTravelRequest):
     if not ok:
         raise HTTPException(400, message)
     return {"ok": True, "message": message, "presence": presence_payload(req.visitor)}
+
+
+@app.post("/api/shared-activities/propose")
+def create_shared_activity_proposal(req: SharedActivityProposalRequest):
+    visitor = req.visitor.strip()[:40] or "Visitor"
+    ensure_visitor(visitor)
+    with connect() as conn:
+        now = int(get_meta(conn, "sim_minute") or "360")
+        ok, activity_id, message = propose_shared_activity(
+            conn,
+            visitor=visitor,
+            citizen_id=req.citizen_id,
+            target_x_m=req.target_x_m,
+            target_y_m=req.target_y_m,
+            objective=req.objective,
+            source_visit_id=req.source_visit_id,
+            source_exchange_id=req.source_exchange_id,
+            tool_equipment_id=req.tool_equipment_id,
+            now=now,
+        )
+        if not ok:
+            raise HTTPException(409, message)
+        conn.commit()
+        payload = shared_activity_payload(conn, int(activity_id), now)
+    return {"ok": True, "message": message, "activity": payload}
+
+
+@app.post("/api/shared-activities/{activity_id}/accept")
+def accept_shared_activity_endpoint(activity_id: int, req: SharedActivityAcceptRequest):
+    visitor = req.visitor.strip()[:40] or "Visitor"
+    with connect() as conn:
+        now = int(get_meta(conn, "sim_minute") or "360")
+        ok, _, message = accept_shared_activity(
+            conn,
+            int(activity_id),
+            visitor,
+            now=now,
+        )
+        if not ok:
+            raise HTTPException(409, message)
+        conn.commit()
+        payload = shared_activity_payload(conn, int(activity_id), now)
+    return {"ok": True, "message": message, "activity": payload}
+
+
+@app.post("/api/shared-activities/{activity_id}/reject")
+def reject_shared_activity_endpoint(activity_id: int, req: SharedActivityAcceptRequest):
+    visitor = req.visitor.strip()[:40] or "Visitor"
+    with connect() as conn:
+        now = int(get_meta(conn, "sim_minute") or "360")
+        ok, message = reject_shared_activity(
+            conn,
+            int(activity_id),
+            visitor,
+            now=now,
+        )
+        if not ok:
+            raise HTTPException(409, message)
+        conn.commit()
+        payload = shared_activity_payload(conn, int(activity_id), now)
+    return {"ok": True, "message": message, "activity": payload}
+
+
+@app.post("/api/shared-activities/{activity_id}/start")
+def start_shared_activity_endpoint(activity_id: int, req: SharedActivityAcceptRequest):
+    visitor = req.visitor.strip()[:40] or "Visitor"
+    with connect() as conn:
+        now = int(get_meta(conn, "sim_minute") or "360")
+        ok, job_id, message = start_shared_activity(
+            conn,
+            int(activity_id),
+            visitor,
+            now=now,
+        )
+        if not ok:
+            raise HTTPException(409, message)
+        conn.commit()
+        payload = shared_activity_payload(conn, int(activity_id), now)
+    return {"ok": True, "message": message, "job_id": job_id, "activity": payload}
+
+
+@app.get("/api/shared-activities/{activity_id}")
+def get_shared_activity(activity_id: int):
+    with connect() as conn:
+        now = int(get_meta(conn, "sim_minute") or "360")
+        payload = shared_activity_payload(conn, int(activity_id), now)
+    if not payload:
+        raise HTTPException(404, "Shared activity not found.")
+    return payload
 
 
 @app.get("/api/visit/{citizen_id}")

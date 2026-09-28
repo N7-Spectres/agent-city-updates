@@ -7,6 +7,14 @@ from typing import Any
 from .db import add_history, connect, get_meta, set_meta
 from .knowledge import citizen_knows_property, record_discovery
 from .spatial import query_hidden_world, record_validated_observation
+from .exploration import (
+    DIRECT_INSPECTION_RADIUS_M,
+    LOCAL_MOVE_MAX_M,
+    path_profile as local_path_profile,
+    return_energy_from_coordinate,
+    start_local_inspection,
+    start_local_move as start_local_move_job,
+)
 from .talk_diagnostics import concise_failure_code_from_conn
 
 BASE_CARRY_CAPACITY = 20.0
@@ -327,6 +335,12 @@ def _apply_citizen_job_wear(conn, citizen: Any, job: Any, now: int) -> None:
         distance = route_distance(conn, str(citizen["location_id"]), str(job["target"])) or 0.0
         energy_cost = max(2.0, distance * 3.0)
         joint_added = distance * 0.12
+    elif action in {"local_move", "shared_local_activity"}:
+        payload = json.loads(job["detail"] or "{}")
+        energy_cost = float(payload.get("energy_cost", 0.2))
+        joint_added = max(0.01, float(job["path_distance_m"] or 0.0) / 1000.0 * 0.12)
+    elif action == "local_inspect":
+        energy_cost, joint_added = 0.5, 0.02
     elif action == "survey":
         energy_cost, joint_added = 8.0, 0.30
     elif action == "extract":
@@ -395,8 +409,19 @@ def _apply_post_job_asset_wear(conn, citizen: Any, job: Any, now: int) -> None:
     action = str(job["action"])
     if action == "extract":
         _wear_equipment(conn, str(citizen["id"]), "extraction", 1.5, now)
-    elif action == "travel" and carried_amount(conn, str(citizen["id"])) > 0:
-        _wear_equipment(conn, str(citizen["id"]), "cargo", 0.35, now)
+    elif action in {"travel", "local_move", "shared_local_activity"} and carried_amount(conn, str(citizen["id"])) > 0:
+        distance_m = (
+            float(job["path_distance_m"] or 0.0)
+            if action != "travel"
+            else (route_distance(conn, str(citizen["location_id"]), str(job["target"])) or 0.0) * 1000.0
+        )
+        _wear_equipment(
+            conn,
+            str(citizen["id"]),
+            "cargo",
+            max(0.02, 0.35 * (distance_m / 1000.0)),
+            now,
+        )
     elif action == "fabricate":
         _wear_structure(conn, "Basic Workbench", str(citizen["location_id"]), 0.35, now)
     elif action == "experiment":
@@ -538,6 +563,61 @@ def record_local_spatial_observation(
         )
         conn.commit()
         return True, observation_id, "Validated spatial observation recorded."
+
+
+def location_anchor_distance(conn, citizen: Any) -> float:
+    row = conn.execute(
+        "SELECT x_m, y_m FROM locations WHERE id = ?",
+        (citizen["location_id"],),
+    ).fetchone()
+    if not row or row["x_m"] is None or row["y_m"] is None:
+        return 0.0
+    return math.hypot(
+        float(citizen["position_x_m"] or 0.0) - float(row["x_m"]),
+        float(citizen["position_y_m"] or 0.0) - float(row["y_m"]),
+    )
+
+
+def has_intentional_local_offset(conn, citizen_id: str) -> bool:
+    row = conn.execute(
+        """
+        SELECT action
+        FROM jobs
+        WHERE citizen_id = ?
+          AND action IN ('travel', 'local_move', 'shared_local_activity')
+          AND status = 'complete'
+        ORDER BY end_minute DESC, id DESC
+        LIMIT 1
+        """,
+        (citizen_id,),
+    ).fetchone()
+    return bool(row and row["action"] in ("local_move", "shared_local_activity"))
+
+
+def nearby_operational_charger(conn, x_m: float, y_m: float, radius_m: float = 5.0):
+    rows = conn.execute(
+        """
+        SELECT *
+        FROM structures
+        WHERE provides_charging = 1
+          AND condition > ?
+          AND x_m IS NOT NULL
+          AND y_m IS NOT NULL
+        ORDER BY id
+        """,
+        (MIN_OPERATIONAL_CONDITION,),
+    ).fetchall()
+    for row in rows:
+        if math.hypot(float(row["x_m"]) - float(x_m), float(row["y_m"]) - float(y_m)) <= radius_m:
+            return row
+    return None
+
+
+def citizens_physically_close(a: Any, b: Any, radius_m: float = 2.0) -> bool:
+    return math.hypot(
+        float(a["position_x_m"] or 0.0) - float(b["position_x_m"] or 0.0),
+        float(a["position_y_m"] or 0.0) - float(b["position_y_m"] or 0.0),
+    ) <= radius_m
 
 
 def location_name(conn, location_id: str) -> str:
@@ -756,15 +836,59 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
         energy = float(c["energy"])
         cargo = carried_amount(conn, citizen_id)
         capacity = cargo_capacity(conn, citizen_id, location_id)
+        x_m = float(c["position_x_m"] or 0.0)
+        y_m = float(c["position_y_m"] or 0.0)
+        anchor_distance = location_anchor_distance(conn, c)
+        at_landmark = anchor_distance <= 5.0
+        route_departure_ready = at_landmark or not has_intentional_local_offset(conn, citizen_id)
 
-        if location_id in charging_locations(conn) and energy < 95:
+        charger_here = nearby_operational_charger(conn, x_m, y_m)
+        if charger_here and energy < 95:
             actions.append({
                 "action": "charge",
-                "target": location_id,
-                "label": f"Recharge at an operational charging structure here at {location_name(conn, location_id)}.",
+                "target": str(charger_here["id"]),
+                "label": f"Recharge at {charger_here['name']} here.",
             })
 
-        if location_id == "seed_site":
+        # Baseline local exploration choices reveal no hidden terrain/result data.
+        if energy >= 1.0:
+            for dx, dy, direction in (
+                (60.0, 0.0, "east"),
+                (-60.0, 0.0, "west"),
+                (0.0, 60.0, "north"),
+                (0.0, -60.0, "south"),
+            ):
+                tx, ty = x_m + dx, y_m + dy
+                profile = local_path_profile(conn, x_m, y_m, tx, ty)
+                reserve = return_energy_from_coordinate(conn, tx, ty)
+                if reserve is not None and energy - float(profile["energy_cost"]) >= reserve:
+                    actions.append({
+                        "action": "local_move",
+                        "target": f"{tx:.3f},{ty:.3f}",
+                        "target_x_m": tx,
+                        "target_y_m": ty,
+                        "label": f"Explore locally about 60 m {direction}.",
+                    })
+
+            if not at_landmark:
+                loc = conn.execute("SELECT x_m, y_m, name FROM locations WHERE id = ?", (location_id,)).fetchone()
+                if loc:
+                    actions.append({
+                        "action": "local_move",
+                        "target": f"{float(loc['x_m']):.3f},{float(loc['y_m']):.3f}",
+                        "target_x_m": float(loc["x_m"]),
+                        "target_y_m": float(loc["y_m"]),
+                        "label": f"Return locally to the {loc['name']} landmark.",
+                    })
+
+        if energy >= 0.5:
+            actions.append({
+                "action": "local_inspect",
+                "target": "current_position",
+                "label": "Inspect the immediate surroundings directly.",
+            })
+
+        if location_id == "seed_site" and at_landmark:
             if cargo > 0 and structure_operational(conn, "Storage Unit", location_id):
                 actions.append({
                     "action": "deposit_cargo",
@@ -954,7 +1078,7 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
             (location_id,),
         ).fetchall()
 
-        if cargo <= 0:
+        if cargo <= 0 and route_departure_ready:
             for row in rows:
                 travel_cost = max(2.0, float(row["distance_km"]) * 3.0)
                 target_reserve = return_energy_required(conn, row["target"])
@@ -996,11 +1120,11 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
                     "label": f"Extract {amount:g} units of {dep['material']} (capacity {capacity:g}).",
                 })
 
-        # Face-to-face conversation is possible only with a co-located citizen who is also free.
+        # Face-to-face conversation requires actual meter-scale proximity.
         if energy >= 5:
             others = conn.execute(
                 """
-                SELECT id, name
+                SELECT *
                 FROM citizens
                 WHERE location_id = ? AND id != ? AND active_job_id IS NULL
                 ORDER BY rowid
@@ -1008,10 +1132,12 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
                 (location_id, citizen_id),
             ).fetchall()
             for other in others:
+                if not citizens_physically_close(c, other):
+                    continue
                 actions.append({
                     "action": "talk",
                     "target": other["id"],
-                    "label": f"Talk face-to-face with {other['name']} here at {c['location']}.",
+                    "label": f"Talk face-to-face with {other['name']} here.",
                 })
 
         actions.append({"action": "wait", "target": location_id, "label": "Remain where you are and observe for a while."})
@@ -1048,7 +1174,33 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
         project_id = None
         experiment_method = None
 
-        if action == "travel":
+        if action == "local_move":
+            ok, _, message = start_local_move_job(
+                conn,
+                citizen_id,
+                float(chosen["target_x_m"]),
+                float(chosen["target_y_m"]),
+                now=now,
+                reason=intent_reason,
+                max_distance_m=LOCAL_MOVE_MAX_M,
+            )
+            if ok:
+                conn.commit()
+            return ok, message
+
+        elif action == "local_inspect":
+            ok, _, message = start_local_inspection(
+                conn,
+                citizen_id,
+                now=now,
+            )
+            if ok:
+                conn.commit()
+            return ok, message
+
+        elif action == "travel":
+            if location_anchor_distance(conn, c) > 5.0 and has_intentional_local_offset(conn, citizen_id):
+                return False, "Return locally to the landmark before using the legacy route network."
             distance = route_distance(conn, c["location_id"], target)
             if distance is None:
                 return False, "No known route exists."
@@ -1284,8 +1436,9 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
                 not target_citizen
                 or target_citizen["location_id"] != c["location_id"]
                 or target_citizen["active_job_id"] is not None
+                or not citizens_physically_close(c, target_citizen)
             ):
-                return False, "That citizen is no longer available for a face-to-face conversation here."
+                return False, "That citizen is no longer physically available for a face-to-face conversation here."
             duration = 20
             conn.execute("UPDATE citizens SET energy = MAX(0, energy - 1) WHERE id IN (?, ?)", (citizen_id, target))
             detail = f"talk:{target}"
@@ -1297,9 +1450,13 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             activity = "Unloading material into Seed Site storage"
 
         elif action == "charge":
-            charger = charging_structure_at(conn, c["location_id"])
+            charger = nearby_operational_charger(
+                conn,
+                float(c["position_x_m"] or 0.0),
+                float(c["position_y_m"] or 0.0),
+            )
             if not charger:
-                return False, "No operational charging structure is available here."
+                return False, "No operational charging structure is physically within reach here."
             charger_efficiency = condition_factor(float(charger["condition"]))
             duration = max(60, int(round(60 / charger_efficiency)))
             detail = json.dumps(
@@ -1379,7 +1536,131 @@ def complete_due_jobs(now: int) -> None:
             job_status = "complete"
             outcome = "success"
 
-            if action == "service_chassis":
+            if action == "local_move":
+                target_x = float(job["target_x_m"])
+                target_y = float(job["target_y_m"])
+                conn.execute(
+                    """
+                    UPDATE citizens
+                    SET position_x_m = ?, position_y_m = ?,
+                        current_activity = 'Available', active_job_id = NULL
+                    WHERE id = ?
+                    """,
+                    (target_x, target_y, c["id"]),
+                )
+                message = (
+                    f"{c['name']} completed local movement to "
+                    f"({target_x:.0f} m, {target_y:.0f} m)."
+                )
+
+            elif action == "local_inspect":
+                x_m = float(job["target_x_m"] if job["target_x_m"] is not None else c["position_x_m"] or 0.0)
+                y_m = float(job["target_y_m"] if job["target_y_m"] is not None else c["position_y_m"] or 0.0)
+                payload = json.loads(job["detail"] or "{}")
+                observation_id = record_validated_observation(
+                    conn,
+                    observer_id=str(c["id"]),
+                    x_m=x_m,
+                    y_m=y_m,
+                    observed_minute=now,
+                    source_job_id=int(job["id"]),
+                    observation_kind=str(payload.get("observation_kind") or "direct_inspection"),
+                    radius_m=DIRECT_INSPECTION_RADIUS_M,
+                    detail_level="baseline",
+                )
+                conn.execute(
+                    """
+                    UPDATE jobs SET result_observation_id = ? WHERE id = ?
+                    """,
+                    (observation_id, job["id"]),
+                )
+                conn.execute(
+                    """
+                    UPDATE citizens
+                    SET current_activity = 'Available', active_job_id = NULL
+                    WHERE id = ?
+                    """,
+                    (c["id"],),
+                )
+                message = (
+                    f"{c['name']} completed local inspection "
+                    f"(spatial observation #{observation_id})."
+                )
+
+            elif action == "shared_local_activity":
+                activity = conn.execute(
+                    "SELECT * FROM shared_activities WHERE id = ?",
+                    (job["shared_activity_id"],),
+                ).fetchone()
+                if not activity or activity["status"] != "active":
+                    job_status = "failed"
+                    outcome = "failed"
+                    conn.execute(
+                        """
+                        UPDATE citizens
+                        SET current_activity = 'Available', active_job_id = NULL
+                        WHERE id = ?
+                        """,
+                        (c["id"],),
+                    )
+                    message = f"{c['name']}'s shared local activity ended without a valid lifecycle record."
+                else:
+                    target_x = float(job["target_x_m"])
+                    target_y = float(job["target_y_m"])
+                    visitor = str(activity["visitor"])
+                    conn.execute(
+                        """
+                        UPDATE citizens
+                        SET position_x_m = ?, position_y_m = ?,
+                            current_activity = 'Available', active_job_id = NULL
+                        WHERE id = ?
+                        """,
+                        (target_x, target_y, c["id"]),
+                    )
+                    conn.execute(
+                        """
+                        UPDATE visitor_presence
+                        SET x_m = ?, y_m = ?
+                        WHERE visitor = ?
+                        """,
+                        (target_x, target_y, visitor),
+                    )
+                    observation_id = record_validated_observation(
+                        conn,
+                        observer_id=str(c["id"]),
+                        x_m=target_x,
+                        y_m=target_y,
+                        observed_minute=now,
+                        source_job_id=int(job["id"]),
+                        observation_kind="shared_walk_inspect",
+                        radius_m=DIRECT_INSPECTION_RADIUS_M,
+                        detail_level="baseline",
+                    )
+                    conn.execute(
+                        """
+                        UPDATE jobs
+                        SET result_observation_id = ?
+                        WHERE id = ?
+                        """,
+                        (observation_id, job["id"]),
+                    )
+                    conn.execute(
+                        """
+                        UPDATE shared_activities
+                        SET status = 'complete',
+                            completed_minute = ?,
+                            observation_id = ?,
+                            outcome = 'success'
+                        WHERE id = ?
+                        """,
+                        (now, observation_id, activity["id"]),
+                    )
+                    message = (
+                        f"{c['name']} and {visitor} completed shared activity "
+                        f"#{activity['id']} with spatial observation #{observation_id}."
+                    )
+
+            elif action == "service_chassis":
                 payload = json.loads(job["detail"] or "{}")
                 before = float(payload.get("before", c["joint_wear"] or 0))
                 materials = dict(payload.get("materials") or {})
