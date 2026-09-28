@@ -538,3 +538,12 @@ Stage 1 uses a conservative improved-precision threshold of at least 25%.
 Do not inject spatial memory into every planner/dialogue prompt yet.
 
 Stage 1 establishes persistence, identity, precision, salience, and bounded retrieval. Stage 2 should add context only where exploration/navigation intent makes it relevant.
+
+
+## v0.8 Stage 1 Completion Decision
+
+The Stage 1 Memory scope is complete and should not expand before coordinator review.
+
+No planner/dialogue-wide spatial context injection is part of Stage 1.
+
+Future Stage 2 changes should be driven by real exploration/navigation/shared-action consumers and should reuse the existing spatial retrieval primitives rather than broadening Memory into a global map or hidden-world cache.
