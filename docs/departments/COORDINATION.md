@@ -16,33 +16,27 @@ This file is the shared project task board.
 
 ### ACTIVE
 
+_None._
 
 ### WAITING
 
-- [Coordinator / Integration] all v0.7 department branches are ready; assemble Simulation + Communication + Memory + Assets and run the full regression suite
+_None._
 
 ### READY
 
-- [Memory & Social] no remaining v0.7 department-owned dependency; branch and smoke are ready for coordinator assembly
-
-- [World & Simulation] v0.7 Maintenance & Consequences core ready on `simulation/v0.7-maintenance` @ `54f5d838f674d0b278a51382f3a880cc0738b417`; runtime CI `36429729279` passed all v0.4-v0.7 smoke suites
-- [World & Simulation] authoritative condition/effective-capability fields delivered to Assets
-- [World & Simulation] stable `maintenance_events.id` physical anchors delivered to Memory
-- [Communication & Perception] v0.7 talk reliability ready on `communication/v0.7-talk-reliability` @ `61eecc4c047dd3fd22b71612251769a8cb456737`; CI `36428495003` passed
-- [Memory & Social] v0.6 per-citizen knowledge core remains available on `memory/v0.6-location-knowledge`
-- [Assets & Interface] independent v0.7 Home scaling/search/Recent Activity/avatar framework is already prepared
+_None._
 
 ### REVIEW
 
-- [Memory & Social] v0.7 maintenance history complete on `memory/v0.7-maintenance-history` @ `dda84cdf6a46fbd79e48ce9eea59adce363c5714`; CI `36434785293` passed all v0.4-v0.6 regressions + v0.7 Memory smoke
-
-- [Assets & Interface] v0.7 complete on `assets/v0.7-home-avatars` @ `dad17d8ef663a4fef367c4260e58074047acf1b3`; PR #7 ready for integration with Home scaling/search/Recent Activity/avatar framework + authoritative maintenance UI + Assets smoke
-
-- [World & Simulation] v0.7 gradual equipment/structure wear, battery health, chassis wear, service/repair/replacement jobs, condition-scaled capability, passive structure aging, additive migration, and stable maintenance events complete
-- [Communication & Perception] v0.7 raw-exchange-first persistence, bounded retry, non-fatal claim enrichment, diagnostics, and failure classification complete
+_None._
 
 ### DONE
 
+- [Coordinator] v0.7.0 assembled on `release-v0.7.0`, full v0.4-v0.7 smoke suite passed in Actions run `36436548845`, versioned, and published from immutable runtime commit `d81a85bf03b69b969532016f59bbbed2233949ee`
+- [World & Simulation] v0.7 maintenance/consequences core integrated
+- [Communication & Perception] v0.7 talk reliability/diagnostics integrated
+- [Memory & Social] v0.7 bounded maintenance history integrated
+- [Assets & Interface] v0.7 Home scaling/search/Recent Activity/avatar/maintenance UI integrated
 - [Coordinator] v0.6.0 assembled on `release-v0.6.0`, full smoke suite passed, versioned, and published from `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`
 - [World & Simulation] v0.6 hidden truth, experiments, discoveries, per-citizen validated knowledge, safe state
 - [Communication & Perception] v0.6 provenance receipts, grounded claims, anti-omniscience context, structured Visit availability
@@ -155,6 +149,8 @@ At minimum preserve and run:
 - `tests/smoke_v070_communication.py`
 - Memory v0.7 maintenance smoke if a runtime branch is added
 - Assets v0.7 UI/integration smoke after its final pass
+
+Assembled release validation: `36436548845` passed the complete required v0.4-v0.7 chain.
 
 ## Handoff Protocol
 
