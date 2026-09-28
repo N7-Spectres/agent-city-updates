@@ -9,7 +9,7 @@ _Record completed handoffs, requests to other departments, and major deliverable
 **Subject:** v0.7 independent Home scaling + avatar framework ready
 
 **Need / Result:**
-Implemented the independent v0.7 Assets slice on `assets/v0.7-home-avatars`, head `f1b356100711a53ab2d7884009f84308b95ce5ce`, draft PR #7.
+Implemented the independent v0.7 Assets slice on `assets/v0.7-home-avatars`, head `e0daf26a4249584d1560c7aea06b29cd1b5818fb`, draft PR #7.
 
 Delivered:
 - desktop full-height citizen/world/Visit alignment
@@ -25,6 +25,7 @@ Delivered:
 - matching Home/directory/map avatar tokens
 - validated-state idle/travel/charge/talk/work animation
 - reduced-motion support
+- Assets smoke test: `tests/smoke_v070_assets.py`
 
 **Verification:**
 - 69 HTML IDs
@@ -32,7 +33,7 @@ Delivered:
 - no missing referenced IDs
 - no duplicate IDs
 - JavaScript parses
-- 3 commits ahead / 0 behind v0.6.0 base
+- 4 commits ahead / 0 behind v0.6.0 base
 
 **Important constraints:**
 - no physical equipment/wear/damage appearance invented
