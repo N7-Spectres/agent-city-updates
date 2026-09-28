@@ -16,28 +16,25 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-- [World & Simulation] v0.8 Stage 2: continuous local movement/exploration + visitor-linked shared physical activity
-- [Assets & Interface] v0.8 Stage 2: continuous local map, explicit shared-action acceptance UI, citizen art/runtime integration, worker scaffold
+- [Communication & Perception] consume Simulation's final reject/start/status contract and finish Stage 2 bridge/handoff
+- [Assets & Interface] finish Stage 2 continuous local map/shared-action UI using final Simulation + Communication contracts
 
 ### WAITING
 
-- [Communication & Perception] Stage 2 proposal/start/status bridge is green; reject/expiry finalization waits only on Simulation canonical `shared_activities` cancellation/rejection primitive
-- [Assets & Interface] final continuous-movement/shared-action read model from Simulation and proposal API from Communication
+- [Coordinator / Stage 2 Integration] final assembly waits for Communication and Assets Stage 2 completion, then must merge Simulation + Communication + Memory + Assets and run the full regression matrix
 
 ### READY
 
-- [Communication & Perception] Stage 2 proposal/start/status bridge ready on `communication/v0.8-shared-actions-stage2` @ `7f40053233d0408b315ed6e9840267650503b63b`; CI `36456134638` passed unified Stage 1 regressions + Communication Stage 2 smoke
-
+- [World & Simulation] Stage 2 local exploration/shared physical activity ready on `simulation/v0.8-exploration-stage2` @ `b81c9bb57884727e7a1c769d95ecb27928d1d489`; final CI `36456647323` passed all v0.4-v0.7 regressions, all Stage 1 department smokes, and `tests/smoke_v080_stage2.py`
+- [World & Simulation] Communication's canonical pre-start reject dependency is resolved by `POST /api/shared-activities/{id}/reject`
+- [Communication & Perception] Stage 2 proposal/start/status bridge ready on `communication/v0.8-shared-actions-stage2` @ `7f40053233d0408b315ed6e9840267650503b63b`; CI `36456134638` passed before final reject-adapter consumption
 - [Memory & Social] no remaining Stage 2 department dependency; ready for coordinator assembly
-
-- [Coordinator] v0.8 Stage 1 combined integration base is green: `release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`, Actions `36453177128`
-- [All departments] Stage 1 contracts are integrated and Stage 2 is authorized from the unified base
+- [Coordinator] Stage 1 unified base remains green: `release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`, Actions `36453177128`
 
 ### REVIEW
 
-- [Memory & Social] v0.8 Stage 2 exploration Memory complete on `memory/v0.8-exploration-stage2` @ `306a9ef4329ab81afa5912846333a1d9782ee9be`; CI `36455394456` passed unified Stage 1 regressions + Stage 2 Memory smoke
-
-_None yet for Stage 2._
+- [World & Simulation] Stage 2 continuous local movement, terrain/energy cost, local inspection, meter-aware proximity, shared proposal/accept/start/reject/complete lifecycle, stable physical source IDs, and additive migration complete
+- [Memory & Social] Stage 2 exploration Memory complete on `memory/v0.8-exploration-stage2` @ `306a9ef4329ab81afa5912846333a1d9782ee9be`; CI `36455394456` passed
 
 ### DONE
 
@@ -203,6 +200,40 @@ Stage 1 review verdict:
 This is not yet a v0.8 release and does not authorize Stage 2 by itself.
 
 
+## Simulation v0.8 Stage 2 Contract Locks
+
+Coordinator integration must preserve:
+
+1. `jobs.id` remains the physical authority for active local/shared movement.
+2. `state.citizens[].local_movement` is server-derived from stored start/target/time fields; UI may smooth only that exact segment.
+3. terrain affects duration/energy internally without exposing hidden seeded terrain merely because it influenced cost.
+4. local/shared movement must preserve coordinate-based return-energy reserve.
+5. face-to-face talk/Visit and local infrastructure use remain meter-proximity aware.
+6. baseline walk/inspect observations use `detail_level='baseline'`, `material=NULL`, and `geology_class='unclassified'`.
+7. `spatial_observations.id` is evidence identity; `deposit_id` is stable subject identity.
+8. `shared_activities.id` is canonical Simulation shared-event identity; Communication proposal IDs remain separate intent/projection identities.
+9. Simulation shared lifecycle separates `proposed`, `accepted`, `active`, `complete`, and pre-start `rejected`.
+10. acceptance alone never creates movement; only the separate Simulation start transition creates `citizen_job_id`.
+11. canonical rejection is allowed only before physical start and creates no job, coordinate change, or observation.
+12. proposal source visit/exchange ownership and requested runtime equipment are validated by Simulation.
+13. concept art never satisfies tool capability.
+14. successful shared completion moves both participant positions and creates one linked safe observation.
+15. legacy route compatibility is preserved for old location-only records, while real Stage 2 local offsets must return to the landmark before route departure.
+16. hidden planet seed/generated body geometry/richness remain hidden.
+17. preserve `tests/smoke_v080_stage2.py` in assembled Stage 2 regression testing.
+18. no department publishes `update.json`.
+
+## Required v0.8 Stage 2 Integration Tests
+
+At minimum run together after merge:
+
+- all existing v0.4-v0.7 regression suites
+- all four v0.8 Stage 1 department smokes
+- `tests/smoke_v080_stage2.py`
+- `tests/smoke_v080_communication_stage2.py`
+- `tests/smoke_v080_memory_stage2.py`
+- Assets Stage 2 smoke when complete
+
 ## Memory v0.8 Stage 2 Integration Locks
 
 Coordinator integration must preserve:
@@ -244,5 +275,6 @@ Coordinator integration must preserve:
 14. Preserve Stage 1 grounding, v0.7 raw-exchange-first reliability, remote-store privacy, and all provenance boundaries.
 15. Preserve `tests/smoke_v080_communication_stage2.py` in assembled Stage 2 regression testing.
 
-Current remaining dependency:
-- Simulation adds a narrow cancellation/rejection primitive for unstarted canonical `shared_activities.status='proposed'` rows.
+Final dependency resolution:
+- Simulation now provides visitor-owned `POST /api/shared-activities/{id}/reject` for canonical `proposed` or `accepted` rows; it creates no job, movement, or observation.
+- Communication should consume this primitive before final Stage 2 assembly.
