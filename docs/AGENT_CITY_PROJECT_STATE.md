@@ -4,7 +4,7 @@ _Last updated: 2026-09-28_
 
 ## Current Release
 
-**v0.4.0 — Memory & Relationships / Control Room**
+**v0.4.1 — Conversation Hotfix**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -20,7 +20,7 @@ Human users such as N7 are **visitors**, not gods, rulers, or omniscient operato
 
 ## Current Milestone
 
-v0.4.0 has been assembled and published from immutable runtime commit `f539298bc811ecdb4133b4b302250e74efe8a93e`.
+v0.4.0 shipped the Memory & Relationships / Control Room milestone. v0.4.1 is a tested conversation hotfix published from immutable runtime commit `4181cbb69809205ae575b3f576836e5ca72c8dce`.
 
 Major shipped changes:
 
@@ -36,6 +36,7 @@ Major shipped changes:
 - map layout now uses route-distance data for clearer relative spacing
 - route distance labels, citizen initials/clusters, selected-route highlighting, and clearer visitor/traveler separation
 - v0.4 release smoke tests compile Python, syntax-check JavaScript, test migration idempotency, test relationship memory, test anti-omniscience, test visitor travel, and import the FastAPI app
+- v0.4.1 prevents empty Ollama content from being stored/rendered as blank citizen replies and forces direct output for local model calls
 
 The richer provenance layer for individual claims, source reliability, promises, help, and validated cooperation remains future depth. Those features must wait for explicit Communication provenance and Simulation event references rather than being inferred from ordinary conversation.
 
