@@ -87,3 +87,12 @@ Communication runtime work is complete. These are integration tasks, not new Com
   - `tests/smoke_v050_communication.py`
 - Assets must consume merged `equipment`, `projects`, `project_materials`, and extended `structures` state before v0.5 Making & Building UI is considered complete
 - after integration, Memory may reference stable `projects.id` / completed `jobs.id` physical outcomes without treating project discussion as completion evidence
+
+
+## v0.6 Knowledge-Bound UI / Perception
+
+- define what location facts may appear in visitor-facing knowledge sheets without leaking hidden Simulation truth
+- preserve the difference between direct observation, survey/measurement, and communicated last-known information
+- support provenance/source age for facts shown in Locations/Citizen detail where useful
+- ensure a discovery by one citizen does not automatically become global knowledge unless a real sharing mechanism makes it available
+- coordinate with Memory on retention/retrieval and with Assets on how unknown fields are omitted rather than teased as hidden secrets
