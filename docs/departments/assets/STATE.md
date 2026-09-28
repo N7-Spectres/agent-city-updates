@@ -1,7 +1,7 @@
 # Assets & Interface — State
 
 _Last updated: 2026-09-28_
-_Current release: v0.4.1_
+_Current release: v0.5.0_
 _Current department branch: `assets/v0.5-making-ui`_
 _Current branch head: `71e30d3ca02edc97f5286436bc5ef03f93b77088`_
 _Current review surface: draft PR #2_
@@ -163,3 +163,13 @@ Next owner: **Coordinator / Integration**.
 Coordinator should combine this branch with `simulation/v0.5-making-building` at `773299189d22d214b3376c72b396015a4a7a762e`, run the assembled v0.5 smoke/runtime checks, and preserve the documented cross-department invariants.
 
 No Assets inbox item or external dependency remains open.
+
+
+## Shipped v0.5.0 Integration
+
+Coordinator integrated the completed Assets branch with the authoritative Simulation/Communication runtime on `release-v0.5.0`.
+
+Immutable published runtime commit:
+`d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
+
+The combined release smoke suite passed, including the assembled UI integration check.
