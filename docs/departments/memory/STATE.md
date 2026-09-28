@@ -1,7 +1,7 @@
 # Memory & Social — State
 
 _Last updated: 2026-09-28_
-_Current release: v0.4.0_
+_Current release: v0.4.1_
 _Current development branch: `memory/v0.4-social-memory-core`_
 
 ## Mission
@@ -141,3 +141,48 @@ The exact full v0.3.0 runtime source location has been sent to both departments 
 - exercise Ollama-backed citizen/visitor dialogue with the new social-history context
 
 No release was published and `update.json` remains unchanged.
+
+
+## v0.5.0 Project Continuity Audit
+
+_Audited against immutable runtime commit `4181cbb69809205ae575b3f576836e5ca72c8dce` (`release-v0.4.1`)._
+
+No Memory runtime code change is required yet.
+
+The existing v0.4 schema already provides the minimum v0.5 source-linking primitive:
+
+- every durable citizen conversation memory uses `source_type = 'citizen_conversation'`
+- `source_id` is the stable raw `citizen_conversations.id`
+- the raw record retains simulation minute, location, both participant IDs, both utterances, and the concise summary
+- the model-facing relationship context explicitly labels remembered conversation content as claims rather than automatic physical facts
+- unique source keys keep conversation backfill idempotent
+
+This means a discussion such as "we should build a field charger" can remain traceable to the exact conversation without implying that a field charger exists.
+
+### v0.5 project/source rule
+
+Project discussion/intention and physical project outcome must be separate evidence records.
+
+**Conversation / intention record**
+- source remains the raw conversation or other real communication record
+- semantic class: discussion, idea, intention, proposal, or commitment
+- never establishes fabrication/construction success
+
+**Physical outcome record**
+- source must be a Simulation-owned validated project/job/event ID
+- may record underway/completed/failed/cancelled physical outcome only after Simulation validates it
+- does not overwrite or rewrite the earlier conversation memory
+
+The existing `memory_events.source_type`, `source_id`, `event_kind`, `status`, and `metadata_json` fields are sufficient for this distinction. No new table or column should be added until the Simulation project/event interface is final.
+
+### Current v0.5 dependencies
+
+Communication should preserve `citizen_conversations.id` as the canonical source ID when it fixes conversation-history integrity.
+
+Simulation should expose stable project IDs plus stable validated event/job IDs and state transitions. Memory can then add project-intention/outcome helpers without changing the storage schema.
+
+### Branch status
+
+No `memory/v0.5-project-continuity` branch has been created because this audit found no safe runtime code change to make before the upstream source interfaces are finalized.
+
+No release metadata or `update.json` was changed.
