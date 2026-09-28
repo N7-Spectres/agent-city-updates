@@ -486,6 +486,17 @@ Planned direction:
 
 Goal: make the planet itself an evolving participant in the civilization.
 
+
+### v0.8.1 — Citizen Visual Assets
+
+Visual-only follow-up:
+- export/import approved runtime-ready citizen art
+- populate full-body, bust/head-token, and map-token slots where assets exist
+- keep optional equipment as separate removable layers
+- preserve existing fallback silhouettes for any missing expression/frame
+- concept art remains identity reference; depicted gear is not physical inventory
+- no Simulation behavior changes
+
 ### v0.9.0 — Civilization Continuity
 
 Support long-running autonomous development across months and simulated years.
