@@ -61,3 +61,15 @@
 _None._ Simulation, Communication, and Memory contracts are all ready.
 
 The remaining v0.6 work is implementation on PR #3 in the next Assets session, not an external dependency.
+
+
+## v0.7 Home Polish
+
+- full-height scrollable citizen rail aligned to the map on desktop
+- reserve a citizen name search/filter control for future population growth
+- full-height Visit/chat rail aligned to the map on desktop
+- internal chat scroll with anchored input and actions
+- compact Home Recent Activity feed with about 5 latest meaningful events/conversations
+- "View all history" action opens Records → History
+- conversation summaries only from real stored exchanges
+- failed talk attempts remain events, never synthetic conversation cards
