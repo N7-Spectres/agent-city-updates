@@ -6,59 +6,61 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Assets & Interface — Status: ready
 
-**Subject:** v0.8 Stage 2 Assets complete — ready for final integration
+**Subject:** v0.8.1 citizen visuals + map readability hotfix ready
 
 **Need / Result:**
-Assets & Interface Stage 2 is complete.
+Assets completed the v0.8.1 visual hotfix.
 
 **Final branch:**
-- `assets/v0.8-exploration-ui-stage2`
-- head `7f5294efaab738b44af116514a65d22478851ad0`
-- PR #15 — ready for review
+- `assets/v0.8.1-citizen-visuals-map`
+- head `588dd08558a3b9aaed4a0ab8fe1d6e45a7838337`
+- base `release-v0.8.1@c55eb76b89b35a660275ac97f095dcc4f511683e`
+- PR #19 — ready for review
+- mergeable
+- 16 ahead / 0 behind
 
-**Validated by:**
-- GitHub Actions `36460454385` — PASS
-- Node JavaScript syntax
-- Stage 1 Assets smoke
-- Stage 2 Assets smoke
-- functional AssetQueue SQLite lifecycle smoke
+**Citizen assets:**
+All six citizens now have:
+- approved equipment-free full-body WebP
+- approved matching token WebP
+- runtime full/bust/token slots wired
 
-**Delivered:**
-- authoritative meter-space regional map
-- automatic local meter focus
-- authoritative citizen/shared visitor movement
-- Simulation start/target segment rendering only
-- validated spatial-observation evidence
-- `radius_m` uncertainty rings
-- baseline observation privacy
-- Communication shared-action proposal cards
-- explicit accept/start
-- canonical reject
-- physical progress only after real Simulation job exists
-- proposal/physical identity separation
-- presentation-only AssetQueue scaffold
+Semantic expression slots remain null until separate approved frames exist.
 
-**Citizen art:**
-Approved runtime-ready source art files are not present in the repository, so visual slots remain intentionally empty. No substitute art or concept-art equipment was made canonical.
+Optional equipment layers remain empty and physical-state driven.
 
-**Truth constraints preserved:**
-- no raw planet seed
-- no hidden `generated_deposits`
-- no hidden body geometry/richness
-- no proposal-as-movement
-- no chat-driven coordinate mutation
-- no concept-art gear as equipment
-- no Simulation database mutation by AssetQueue
-- no Blender dependency
+**Map hotfix:**
+- zoom out / zoom in / Region reset
+- visible zoom indicator
+- location click centers/focuses presentation viewport
+- no coordinate mutation
+- location button rectangle no longer renders
+- dot/label carry hover/focus state
+- keyboard focus preserved
+- reduced motion preserved
+- screen-space cluster spread improves with zoom
+
+**Validation:**
+GitHub Actions `36467360376` — PASS across the complete v0.4 through v0.8 matrix plus `tests/smoke_v081_assets.py`.
+
+Final static audit:
+- 77 HTML IDs
+- 73 JS DOM refs
+- 0 missing
+- 0 duplicate
+- JS parses
+- 12 art files
+- hidden-world fields absent
+
+**Important constraints:**
+- no Simulation/Communication/Memory behavior change
+- no concept-art gear becomes inventory
+- no semantic expression frame inferred from a static token
+- no hidden spatial truth
 - no `update.json` changes
 
-**Final upstreams consumed:**
-- Simulation `b81c9bb57884727e7a1c769d95ecb27928d1d489`
-- Communication `ddab4bd445d5eb9f7d6354eb86e58afc0dc53332`
-- Memory `306a9ef4329ab81afa5912846333a1d9782ee9be`
-
 **Next action:**
-Coordinator integrates all Stage 2 department branches and runs the full v0.4-v0.8 regression matrix including `tests/smoke_v080_assets_stage2.py`.
+Coordinator merges/reviews PR #19, bumps VERSION, runs the definitive release smoke once, then publishes v0.8.1 if green.
 
 ## Outbox Rule
 
