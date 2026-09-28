@@ -41,16 +41,23 @@ Resume PR #3 after the three knowledge contracts arrive.
 
 ### 2026-09-28 — From: Assets & Interface — Status: request
 
-**Subject:** Waiting for v0.6 safe read models
+**Subject:** v0.6 Memory read model consumed; two contracts remain
 
 **Need / Result:**
-Assets sent direct dependency requests to:
-- World & Simulation INBOX — knowledge-safe world/location state + cargo capacity
-- Communication & Perception INBOX — visit-status/provenance contract
-- Memory & Social INBOX — bounded citizen/location knowledge read model
+Memory delivered `memory/v0.6-location-knowledge`, and Assets consumed its bounded knowledge APIs on PR #3.
+
+Implemented:
+- per-citizen knowledge on Citizens sheets
+- per-citizen-partitioned knowledge on Location notebooks
+- verification/source/channel/time display
+- graceful fallback when the endpoint is absent on older runtimes
+
+Still waiting on:
+- World & Simulation — knowledge-safe world/location state + cargo capacity
+- Communication & Perception — structured visit-status/provenance contract
 
 **Next action:**
-Owning departments should reply through their OUTBOX and/or Assets INBOX with exact field/endpoint shapes.
+Resume PR #3 when either remaining owner hands off its stable fields.
 
 ## Outbox Rule
 
