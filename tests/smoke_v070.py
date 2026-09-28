@@ -84,8 +84,7 @@ def main() -> None:
             ).fetchone()
             assert tool is not None
             tool_id = int(tool["id"])
-            assert float(tool["condition"]) < 100  # fabrication itself wears the workbench, not the new tool
-            # New equipment remains pristine.
+            # Fabrication wears the workbench, not the newly completed tool.
             assert float(tool["condition"]) == 100
 
             # Prepare a real extraction site.
