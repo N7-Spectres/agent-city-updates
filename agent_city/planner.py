@@ -8,7 +8,7 @@ import httpx
 
 from .comms import generate_dialogue, known_deposits_for, recent_dialogues_for, visible_citizens
 from .db import connect, get_meta, snapshot
-from .memory import social_context_for
+from .memory import knowledge_context_for, social_context_for
 from .simulation import possible_actions, start_action
 from .world import format_sim_time
 
@@ -38,6 +38,11 @@ def citizen_context(citizen: dict[str, Any], state: dict[str, Any], actions: lis
         citizen["id"],
         preferred_counterparties=[c["id"] for c in visible],
         limit=4,
+    )
+    local_knowledge = knowledge_context_for(
+        citizen["id"],
+        location_id=citizen["location_id"],
+        limit=6,
     )
     dialogue_text = "\n".join(
         f"- {d['summary']}"
@@ -73,6 +78,9 @@ THINGS YOU ACTUALLY HEARD OR SAID IN RECENT FACE-TO-FACE CITIZEN CONVERSATIONS:
 
 DURABLE SOCIAL HISTORY FROM YOUR OWN RECORDED ENCOUNTERS:
 {social_history}
+
+RETAINED KNOWLEDGE ABOUT YOUR CURRENT LOCATION:
+{local_knowledge}
 
 INFORMATION BOUNDARY:
 - You know the other five citizens exist.
