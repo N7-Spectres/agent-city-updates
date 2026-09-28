@@ -265,6 +265,7 @@ Recent coordinator decisions already captured in the repository include:
 - long-term world generation may use a persistent hierarchical random seed so planets/star systems are deterministic hidden reality rather than handcrafted or rerolled on discovery
 - if citizens eventually invent spaceflight, additional seeded planets/moons/stars can be revealed through the same system
 - stellar-scale engineering, including a possible Dyson-style swarm, is allowed only as an emergent citizen-built outcome rather than a predetermined unlock
+- v0.8 should begin a local asynchronous asset-generation foundation: validated Simulation objects/projects can queue visual work for a local worker/procedural 3D pipeline; visual generation never blocks or defines physical reality
 - v0.6.0 Research, Discovery & Knowledge UI shipped
 - Home should answer "What is happening right now?"
 - Citizens and Locations should hold deeper detail
