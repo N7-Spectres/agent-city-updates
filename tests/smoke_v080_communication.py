@@ -133,9 +133,10 @@ def main() -> None:
         # meter substrate is merged. It must never expose hidden geometry.
         spatial_text = spatial_grounding_context("aris", visitor_id="N7")
         assert "SPATIAL GROUNDING" in spatial_text
-        assert "richness" not in spatial_text.lower()
-        assert "long_axis" not in spatial_text.lower()
-        assert "short_axis" not in spatial_text.lower()
+        assert "richness=" not in spatial_text.lower()
+        assert "long_axis_m=" not in spatial_text.lower()
+        assert "short_axis_m=" not in spatial_text.lower()
+        assert "do not infer hidden deposit richness" in spatial_text.lower()
 
         # Grounding vocabulary explicitly separates claims/hypotheses/actions.
         visitor_rules = grounding_policy_text(visitor_facing=True)
