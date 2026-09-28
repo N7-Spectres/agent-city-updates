@@ -659,51 +659,133 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
             })
 
         if location_id == "seed_site":
-            if cargo > 0:
-                actions.append({"action": "deposit_cargo", "target": "seed_site", "label": f"Deposit {cargo:g} carried material into Seed Site storage."})
+            if cargo > 0 and structure_operational(conn, "Storage Unit", location_id):
+                actions.append({
+                    "action": "deposit_cargo",
+                    "target": "seed_site",
+                    "label": f"Deposit {cargo:g} carried material into Seed Site storage.",
+                })
 
-            assay_materials = conn.execute(
+            if float(c["joint_wear"] or 0) >= CHASSIS_SERVICE_WEAR:
+                requirements = {"Lubricant": 1.0}
+                if resources_available(conn, requirements):
+                    actions.append({
+                        "action": "service_chassis",
+                        "target": citizen_id,
+                        "label": (
+                            f"Service chassis joints with lubricant "
+                            f"(current joint wear {float(c['joint_wear']):.0f}%)."
+                        ),
+                    })
+
+            if float(c["battery_health"] or 100) < BATTERY_REPLACE_THRESHOLD:
+                requirements = {"Battery cells": 4.0, "Mechanical components": 2.0}
+                if resources_available(conn, requirements):
+                    actions.append({
+                        "action": "replace_battery",
+                        "target": citizen_id,
+                        "label": (
+                            f"Replace the degraded battery pack "
+                            f"(health {float(c['battery_health']):.0f}%)."
+                        ),
+                    })
+
+            equipment_rows = conn.execute(
                 """
-                SELECT DISTINCT wp.subject_id AS material
-                FROM world_properties wp
-                JOIN resources r ON r.name = wp.subject_id
-                WHERE wp.subject_type = 'material'
-                  AND r.amount >= 1
-                ORDER BY wp.subject_id
-                """
+                SELECT *
+                FROM equipment
+                WHERE owner_citizen_id = ? AND condition < ?
+                ORDER BY condition, id
+                LIMIT 3
+                """,
+                (citizen_id, SERVICE_DUE_CONDITION),
             ).fetchall()
-            for row in assay_materials:
-                for method_id, method in EXPERIMENT_METHODS.items():
-                    if action_energy_safe(conn, location_id, energy, float(method["energy_cost"])):
-                        material_name = str(row["material"])
-                        actions.append({
-                            "action": "experiment",
-                            "target": f"{method_id}:{material_name}",
-                            "material": material_name,
-                            "experiment_method": method_id,
-                            "label": (
-                                f"Run a {method['label']} on "
-                                f"{method['sample_amount']:g} unit of stored {material_name}."
-                            ),
-                        })
-
-            for process_id, process in FABRICATION_PROCESSES.items():
-                already_owned = conn.execute(
-                    """
-                    SELECT 1 FROM equipment
-                    WHERE template_id = ? AND owner_citizen_id = ? AND condition > 0
-                    LIMIT 1
-                    """,
-                    (process_id, citizen_id),
-                ).fetchone()
-                if not already_owned and resources_available(conn, process["materials"]) and action_energy_safe(
-                    conn, location_id, energy, float(process["energy_cost"])
+            for item in equipment_rows:
+                target_id = str(item["id"])
+                requirements = equipment_service_requirements(float(item["condition"]))
+                if (
+                    resources_available(conn, requirements)
+                    and not _maintenance_in_progress(conn, "service_equipment", target_id)
                 ):
                     actions.append({
-                        "action": "fabricate",
-                        "target": process_id,
-                        "label": f"Fabricate one {process['name']} at the Basic Workbench.",
+                        "action": "service_equipment",
+                        "target": target_id,
+                        "label": (
+                            f"Service {item['name']} "
+                            f"(condition {float(item['condition']):.0f}%)."
+                        ),
                     })
+
+            structure = conn.execute(
+                """
+                SELECT *
+                FROM structures
+                WHERE location_id = ? AND condition < ?
+                ORDER BY condition, id
+                LIMIT 1
+                """,
+                (location_id, SERVICE_DUE_CONDITION),
+            ).fetchone()
+            if structure:
+                target_id = str(structure["id"])
+                requirements = structure_service_requirements(structure)
+                if (
+                    resources_available(conn, requirements)
+                    and not _maintenance_in_progress(conn, "service_structure", target_id)
+                ):
+                    actions.append({
+                        "action": "service_structure",
+                        "target": target_id,
+                        "label": (
+                            f"Service {structure['name']} "
+                            f"(condition {float(structure['condition']):.0f}%)."
+                        ),
+                    })
+
+            workbench_ok = structure_operational(conn, "Basic Workbench", location_id)
+            if workbench_ok:
+                assay_materials = conn.execute(
+                    """
+                    SELECT DISTINCT wp.subject_id AS material
+                    FROM world_properties wp
+                    JOIN resources r ON r.name = wp.subject_id
+                    WHERE wp.subject_type = 'material'
+                      AND r.amount >= 1
+                    ORDER BY wp.subject_id
+                    """
+                ).fetchall()
+                for row in assay_materials:
+                    for method_id, method in EXPERIMENT_METHODS.items():
+                        if action_energy_safe(conn, location_id, energy, float(method["energy_cost"])):
+                            material_name = str(row["material"])
+                            actions.append({
+                                "action": "experiment",
+                                "target": f"{method_id}:{material_name}",
+                                "material": material_name,
+                                "experiment_method": method_id,
+                                "label": (
+                                    f"Run a {method['label']} on "
+                                    f"{method['sample_amount']:g} unit of stored {material_name}."
+                                ),
+                            })
+
+                for process_id, process in FABRICATION_PROCESSES.items():
+                    already_owned = conn.execute(
+                        """
+                        SELECT 1 FROM equipment
+                        WHERE template_id = ? AND owner_citizen_id = ? AND condition > ?
+                        LIMIT 1
+                        """,
+                        (process_id, citizen_id, MIN_OPERATIONAL_CONDITION),
+                    ).fetchone()
+                    if not already_owned and resources_available(conn, process["materials"]) and action_energy_safe(
+                        conn, location_id, energy, float(process["energy_cost"])
+                    ):
+                        actions.append({
+                            "action": "fabricate",
+                            "target": process_id,
+                            "label": f"Fabricate one {process['name']} at the Basic Workbench.",
+                        })
 
             for blueprint_id, blueprint in CONSTRUCTION_BLUEPRINTS.items():
                 unfinished = conn.execute(
