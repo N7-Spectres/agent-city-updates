@@ -24,23 +24,19 @@ _None._
 
 ### READY
 
-- [Coordinator / Integration] Both v0.5 implementation branches are ready for final assembly and smoke testing: Simulation `simulation/v0.5-making-building` @ `773299189d22d214b3376c72b396015a4a7a762e` + Assets `assets/v0.5-making-ui` @ `71e30d3ca02edc97f5286436bc5ef03f93b77088`.
-- [World & Simulation] Integrated Making & Building + Communication physical-talk invariant ready: `simulation/v0.5-making-building` @ `773299189d22d214b3376c72b396015a4a7a762e`.
-- [World & Simulation] Integrated CI run `36372991331` passed Python compile, JavaScript syntax, `tests/smoke_v040.py`, `tests/smoke_v050.py`, and `tests/smoke_v050_communication.py`.
-- [Assets & Interface] Complete v0.5 UI is ready in draft PR #2: compact Visit/chat, canonical conversation History, and authoritative Making & Building state visualization.
-- [Communication & Perception] Canonical conversation source and physical talk-job integrity are already preserved inside the Simulation branch; no separate conflict-resolution step remains for those changes.
-- [Memory & Social] Stable Simulation project/job/equipment/structure anchors are confirmed; no v0.5 Memory schema change is required.
 - [Communication & Perception] Deeper claim-level `PROVENANCE_CONTRACT.md` remains ready for a later milestone.
 
 ### REVIEW
 
-- [World & Simulation] v0.5 physical core complete and cross-department talk invariant integrated. Ready for coordinator review.
-- [Communication & Perception] Conversation-history integrity complete and incorporated into Simulation's integrated branch.
-- [Memory & Social] Project-continuity audit complete; physical outcome references are stable.
-- [Assets & Interface] Complete v0.5 branch `assets/v0.5-making-ui` @ `71e30d3ca02edc97f5286436bc5ef03f93b77088` is ready for coordinator review/integration.
+_None. v0.5.0 integration is complete._
 
 ### DONE
 
+- [Coordinator] v0.5.0 assembled on `release-v0.5.0`, full smoke suite passed, versioned, and published from `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
+- [World & Simulation] v0.5 Making & Building physical core + energy reserve + coordinate groundwork
+- [Assets & Interface] v0.5 bounded Visit/History + Making state UI
+- [Communication & Perception] v0.5 source-linked talk integrity
+- [Memory & Social] v0.5 project/source continuity audit, no schema change required
 - [Coordinator] v0.4.0 assembled on `release-v0.4.0`, tested, versioned, and published
 - [Coordinator] v0.4.1 blank-reply conversation hotfix tested and published
 - [Memory & Social] Durable directional conversation memory + bounded social context
@@ -51,18 +47,16 @@ _None._
 - [Assets & Interface] v0.3.0 live job progress and moving map markers
 - [Memory & Social] Persistent visitor visits and bounded conversation context
 
-## Final v0.5 Integration Gate
+## v0.5 Integration Result
 
-Before v0.5 can be treated as one coherent milestone:
+v0.5.0 passed the assembled release gate on `release-v0.5.0`.
 
-1. Assets Making & Building visualization is complete.
-2. Coordinator integrates `simulation/v0.5-making-building` with `assets/v0.5-making-ui`.
-3. Preserve canonical `citizen_conversations.id` and nullable unique `citizen_conversations.source_job_id`.
-4. Preserve the rule that a talk with no stored exchange fails rather than completing successfully.
-5. Preserve Simulation's project/equipment/structure state without frontend-derived physical facts.
-6. Run the v0.4 regression smoke, v0.5 Simulation smoke, and v0.5 Communication integrity smoke on the assembled milestone.
-7. Keep Memory project discussion distinct from validated physical project outcomes.
-8. Do not publish or alter `update.json` until the human explicitly requests release publication.
+Preserved invariants:
+1. canonical `citizen_conversations.id` and nullable unique `source_job_id`
+2. talk with no stored exchange fails instead of falsely completing
+3. project/equipment/structure UI comes only from Simulation state
+4. Memory keeps project discussion separate from validated physical outcomes
+5. v0.4 regression, v0.5 Simulation, v0.5 Communication, and v0.5 UI integration smoke suites all passed
 
 ## Handoff Protocol
 
