@@ -293,6 +293,7 @@ Return only the updated summary.
                         {"role": "user", "content": prompt},
                     ],
                     "stream": False,
+                    "think": False,
                     "options": {
                         "temperature": 0.2,
                         "num_ctx": 2048,
