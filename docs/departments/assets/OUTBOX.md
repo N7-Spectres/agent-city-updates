@@ -6,6 +6,29 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Assets & Interface — Status: ready
 
+**Subject:** v0.8 citizen visual-system plan captured
+
+**Need / Result:**
+A durable v0.8 citizen asset architecture has been written to:
+`docs/departments/assets/V080_CITIZEN_VISUAL_SYSTEM.md`
+
+It captures:
+- six refined canonical body directions
+- body vs equipment separation
+- Home/map head tokens
+- blink + expressive visor sprites
+- full-body character-sheet assets
+- modular equipment layers
+- lightweight motion/performance rules
+- future 3D translation
+- Simulation authority guardrails
+
+**Important constraints:**
+This is planning only. v0.8 is the next milestone but should not begin implementation until coordinator activation.
+
+
+### 2026-09-28 — From: Assets & Interface — Status: ready
+
 **Subject:** Assets v0.7 session closed — ready for assembly
 
 **Need / Result:**
