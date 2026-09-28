@@ -492,3 +492,73 @@ Coordinator integration must preserve all of these together:
 - v0.7 raw-exchange-first reliability and v0.6 provenance/anti-omniscience remain intact
 
 If integration makes chat itself a physical command surface, Stage 1 grounding has been violated.
+
+## v0.8 Stage 2 Shared-Action Authority
+
+Conversation may create intent; Simulation creates the physical action.
+
+### Proposal truth
+
+A structured shared-action proposal exists only after Simulation validates/persists its canonical `shared_activities.id`.
+
+Communication must not create a proposal merely because dialogue sounds willing.
+
+### Coordinate parsing boundary
+
+Communication may derive a candidate local target only from explicit visitor meter/cardinal language.
+
+It must not infer coordinates from:
+
+- pointing
+- "over there"
+- "this way"
+- visual imagination
+- hidden spatial truth
+- LLM-selected arbitrary numbers
+
+Simulation remains responsible for validating the final target/path/range/energy/capability.
+
+### Explicit visitor acceptance
+
+Proposal creation and visitor acceptance are separate transitions.
+
+No physical activity begins until:
+
+1. the visitor explicitly accepts the Communication proposal, and
+2. Simulation `accept_shared_activity` succeeds and creates a real citizen job.
+
+### Physical start/completion language
+
+Dialogue/UI may use "started/underway" only with a real Simulation job ID.
+
+Dialogue/UI may use "completed" only when canonical Simulation activity state is complete.
+
+Validated observation/result language requires Simulation evidence IDs.
+
+### Proposal vs physical identities
+
+Do not collapse:
+
+- source conversation
+- Communication proposal
+- Simulation shared activity
+- Simulation movement job
+- Simulation spatial observation
+
+into one generic event ID.
+
+Each has a distinct semantic role.
+
+### Reject/expiry consistency
+
+Communication may not mark a proposal rejected or expired while Simulation's canonical proposal remains active/proposed.
+
+Rejection/expiry must be synchronized through a Simulation-owned cancellation primitive.
+
+Until that primitive exists, rejection fails closed rather than creating split-brain state.
+
+### UI authority
+
+Assets should render Communication's proposal projection for conversational accept/reject affordances and Simulation's movement/status fields for physical progress.
+
+Neither layer may invent missing physical transitions.
