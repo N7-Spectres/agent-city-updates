@@ -57,3 +57,10 @@ Citizen avatars/tokens may become richer over time, but identity art must remain
 ## Ownership Boundary
 
 Assets may request additional state fields from Simulation but should not alter action duration, resource outcomes, or physical legality simply to improve UI behavior.
+
+
+## Review / Merge Rule
+
+The v0.4 interface work remains presentation-only until runtime-tested.
+
+Do not merge or publish the interface branch solely because static structural checks pass. Runtime behavior must confirm that visitor travel, citizen travel, selection, chat persistence, pause controls, updater controls, and responsive layout still work with real application state.
