@@ -6,6 +6,7 @@ from typing import Any
 import httpx
 
 from .db import add_history, connect, get_meta
+from .memory import record_conversation_memory, social_context_for
 from .world import format_sim_time
 
 OLLAMA_URL = "http://127.0.0.1:11434"
@@ -80,6 +81,7 @@ def _citizen_private_context(citizen_id: str) -> str:
 
     discoveries = known_deposits_for(citizen_id)
     dialogues = recent_dialogues_for(citizen_id, limit=4)
+    social_history = social_context_for(citizen_id, limit=3)
     cargo_text = ", ".join(f"{r['amount']:g} {r['material']}" for r in cargo) or "nothing"
     discovery_text = "; ".join(
         f"{d['material']} at {d['location_name']}" for d in discoveries
@@ -99,6 +101,8 @@ Carrying: {cargo_text}
 Personally confirmed discoveries: {discovery_text}
 Recent things actually heard or said in face-to-face citizen conversations:
 {dialogue_text}
+Durable relationship history derived from actual recorded encounters:
+{social_history}
 """.strip()
 
 
@@ -112,7 +116,7 @@ def record_dialogue(
     summary: str,
 ) -> None:
     with connect() as conn:
-        conn.execute(
+        cur = conn.execute(
             """
             INSERT INTO citizen_conversations
             (sim_minute, location_id, initiator_id, target_id, initiator_text, target_text, summary)
@@ -128,6 +132,7 @@ def record_dialogue(
                 summary[:1200],
             ),
         )
+        conversation_id = int(cur.lastrowid)
         initiator = conn.execute("SELECT name FROM citizens WHERE id = ?", (initiator_id,)).fetchone()
         target = conn.execute("SELECT name FROM citizens WHERE id = ?", (target_id,)).fetchone()
         loc = conn.execute("SELECT name FROM locations WHERE id = ?", (location_id,)).fetchone()
@@ -139,6 +144,8 @@ def record_dialogue(
                 f"{initiator['name']} and {target['name']} talked at {loc['name']}.",
             )
         conn.commit()
+
+    record_conversation_memory(conversation_id)
 
 
 async def generate_dialogue(
