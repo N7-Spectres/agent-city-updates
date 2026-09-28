@@ -31,8 +31,8 @@ Delivered:
 - initiator/target counterpart bug fixed
 - remote state no longer leaks local busy/talk details
 
-Final branch head: `0cd9642c720e2950cb2a50728e19c08092408591`  
-Final green CI run: `36420188139`.
+Final branch head: `0fc75220610f52f9701b19df1a22caaaa60c341a`  
+Final green CI run: `36420788364`.
 
 ## Deferred / Future Depth
 
