@@ -16,11 +16,11 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-- [Assets & Interface] v0.8.1 Citizen Visual Assets + map zoom/readability hotfix
+_None._
 
 ### WAITING
 
-- [Coordinator / v0.8.1 Release] waiting for Assets implementation, runtime-ready citizen art, and green hotfix regression suite
+- [Coordinator / v0.8.1 Release] Assets hotfix is ready; review/merge PR #19, bump VERSION, run the one definitive full release smoke, then publish if green
 
 ### READY
 
@@ -28,7 +28,7 @@ This file is the shared project task board.
 
 ### REVIEW
 
-_None._
+- [Assets & Interface] v0.8.1 complete: six citizen full/token assets, runtime profile wiring, presentation-only map zoom/focus, node rectangle removal, accessibility/reduced-motion preservation, and hotfix smoke
 
 ### DONE
 
@@ -385,3 +385,22 @@ Hotfix release workflow:
 - coordinator performs the one definitive full release smoke at the final version bump before updating `update.json`
 
 This keeps real failures visible while avoiding a mailbox full of intermediate integration noise.
+
+
+## Assets v0.8.1 Release Locks
+
+Coordinator release must preserve:
+
+1. PR #19 is based on `release-v0.8.1@c55eb76b89b35a660275ac97f095dcc4f511683e`.
+2. All six citizens retain approved full-body + token WebP assets.
+3. Full-body, bust, and token slots may be populated; semantic expression slots remain null until separately approved.
+4. Optional equipment layers remain empty unless authoritative physical state later supplies attachment semantics.
+5. Concept-art props never create equipment or capability.
+6. Map zoom/focus is presentation-only and never mutates Simulation coordinates.
+7. Region reset clears presentation center override and returns zoom to 1×.
+8. Location hit targets remain generous but visually transparent; dot/label carry hover/focus indication.
+9. Keyboard focus and `prefers-reduced-motion` behavior remain intact.
+10. No hidden seed/deposit geometry/richness becomes visible.
+11. Preserve `tests/smoke_v081_assets.py`.
+12. Assets branch full regression `36467360376` is green; coordinator still performs the definitive full release run at VERSION bump.
+13. No department updates `update.json` before the final release run succeeds.
