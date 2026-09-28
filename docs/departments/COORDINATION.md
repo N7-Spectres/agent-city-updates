@@ -16,27 +16,26 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-- [World & Simulation] v0.7.0 lead: equipment/structure wear, lubrication/service, battery health, repair/replacement, preventative maintenance
+- [Assets & Interface] v0.7.0: finish maintenance presentation on top of the ready Home scaling/search/Recent Activity/avatar slice
+- [Memory & Social] v0.7.0: stable Simulation maintenance-event anchors are now available for bounded maintenance/repair history
 
 ### WAITING
 
-- [Assets & Interface] independent v0.7 Home scaling/search/Recent Activity/avatar slice is ready in draft PR #7; waiting on final maintenance/condition fields from World & Simulation
-- [Memory & Social] maintenance-memory policy audit complete; waiting for stable Simulation maintenance/failure event anchors before runtime ingestion
+- [Coordinator / Integration] final v0.7 assembly waits for Assets + Memory completion, then must integrate Simulation + Communication + Memory + Assets and run the full regression suite
 
 ### READY
 
-- [Communication & Perception] v0.7 talk reliability ready on `communication/v0.7-talk-reliability` @ `61eecc4c047dd3fd22b71612251769a8cb456737`; CI `36428495003` passed all v0.4-v0.7 regression suites
-
-- [World & Simulation] v0.6 Research/Discovery core ready on `simulation/v0.6-research-discovery` @ `d1ae3faf0095d22e7a730cf50b3ad6fdbcdc4b94`; CI `36419824468` passed
-- [Communication & Perception] v0.6 provenance/availability ready on `communication/v0.6-knowledge-provenance` @ `6a483fcc4d143606f3e401218002e06ae43076d1`; CI `36421263078` passed
-- [Memory & Social] v0.6 per-citizen bounded knowledge core ready on `memory/v0.6-location-knowledge` @ `89c0a3e2d49c4c9236342c10559f92b93b1b7601`; CI `36419352645` passed
-- [Assets & Interface] all upstream data/status contracts needed for the remaining UI pass are now available
+- [World & Simulation] v0.7 Maintenance & Consequences core ready on `simulation/v0.7-maintenance` @ `54f5d838f674d0b278a51382f3a880cc0738b417`; runtime CI `36429729279` passed all v0.4-v0.7 smoke suites
+- [World & Simulation] authoritative condition/effective-capability fields delivered to Assets
+- [World & Simulation] stable `maintenance_events.id` physical anchors delivered to Memory
+- [Communication & Perception] v0.7 talk reliability ready on `communication/v0.7-talk-reliability` @ `61eecc4c047dd3fd22b71612251769a8cb456737`; CI `36428495003` passed
+- [Memory & Social] v0.6 per-citizen knowledge core remains available on `memory/v0.6-location-knowledge`
+- [Assets & Interface] independent v0.7 Home scaling/search/Recent Activity/avatar framework is already prepared
 
 ### REVIEW
 
-- [Communication & Perception] v0.7 raw-exchange-first persistence, bounded retry, non-fatal claim enrichment, talk diagnostics, and failure classification complete
-
-- [Memory & Social] v0.7 maintenance-memory policy/audit ready; no runtime branch until Simulation event anchors exist
+- [World & Simulation] v0.7 gradual equipment/structure wear, battery health, chassis wear, service/repair/replacement jobs, condition-scaled capability, passive structure aging, additive migration, and stable maintenance events complete
+- [Communication & Perception] v0.7 raw-exchange-first persistence, bounded retry, non-fatal claim enrichment, diagnostics, and failure classification complete
 
 ### DONE
 
@@ -60,92 +59,98 @@ This file is the shared project task board.
 - [Assets & Interface] v0.3.0 live job progress/moving map markers
 - [Memory & Social] persistent visitor visits/bounded conversation context
 
-## v0.6 Coordination Goal
+## v0.7 Coordination Goal
 
-Primary rule:
+v0.7.0 is **Maintenance, Consequences & Home Polish**.
 
-> **The UI may show what the civilization knows, not everything the Simulation secretly knows.**
+Primary goals:
 
-Integration dependency:
+1. mechanical life gains gradual physical wear/repair consequences without repetitive chore spam
+2. Home scales cleanly for longer conversations and future population growth
+3. lightweight 2D/static avatar identity begins without a 3D dependency
+4. autonomous talk failures become substantially more reliable without fabricated dialogue
 
-1. Simulation defines hidden world truth and validated discovery/experiment records. **READY**
-2. Communication records how information actually reached specific citizens and separates verified observation from unverified claim. **READY**
-3. Memory retains/retrieves bounded per-citizen knowledge without creating a global encyclopedia. **READY**
-4. Assets renders Home/Citizens/Locations only from safe known-state interfaces. **ACTIVE**
-5. Coordinator assembles all branches and runs regression + v0.6 smoke tests before publication.
+## Simulation v0.7 Contract Locks
 
-## v0.6 Layered Knowledge Contract
+Coordinator integration must preserve:
 
-Coordinator integration must preserve all layers rather than selecting one:
+1. `battery_health` is long-term capacity and remains distinct from current `energy`
+2. real use gradually wears relevant equipment and citizen chassis/battery state
+3. structure aging advances only with simulation time, never while the app is closed
+4. equipment capability uses Simulation's authoritative effective modifiers
+5. equipment/structures at condition <= 20 are visible but non-operational
+6. service/repair consumes real materials and simulation time
+7. remote service does not consume Seed Site materials until remote logistics exists
+8. future chargers remain capability-based via `provides_charging`, not hard-coded by starter name
+9. `maintenance_events.id` is the stable meaningful maintenance event anchor
+10. routine microscopic wear does not generate one durable memory-grade event per tick/job
+11. all v0.6 knowledge/provenance boundaries remain intact
+12. no department publishes `update.json`
 
-### Simulation
+## Assets v0.7 Consumption Contract
 
-`agent_city/knowledge.py` owns:
-- `world_properties` hidden truth
-- `discoveries`
-- `citizen_knowledge`
-- `experiment_results`
-- validated discovery possession/current verification state
+Assets should consume directly:
 
-### Communication
+**Citizen**
+- battery_health / battery_state
+- usable_energy_capacity
+- battery_replacement_due
+- joint_wear
+- chassis_service_state / chassis_service_due
 
-`agent_city/provenance.py` owns:
-- `information_receipts`
-- transfer/source/time/age history
-- unverified face-to-face claims
-- synchronization of only recipient-local **verified** Simulation knowledge
-- experiment-result experience receipts
-- structured Visit availability
+**Equipment**
+- condition / condition_state / operational / service_due
+- effective_cargo_bonus
+- effective_extraction_speed_multiplier
+- last_service_minute / use_count
 
-### Memory
+**Structures**
+- condition / condition_state / operational / service_due
+- efficiency_multiplier
+- last_service_minute / use_count
 
-Owns:
-- durable bounded retrieval/summaries
-- consumer-facing per-citizen and per-location knowledge views
-- no physical truth creation
+Do not rederive thresholds or current capability from pristine raw modifier fields.
 
-### Assets
+## Memory v0.7 Event Contract
 
-Consumes:
-- Simulation safe public state for physical configuration/current validated world facts
-- Memory bounded knowledge APIs for citizen/location notebooks
-- Communication `status/availability` for Visit messaging
+Meaningful completed maintenance uses:
 
-## Simulation v0.6 Contract Locks
+- `maintenance_events.id`
+- `job_id`
+- citizen actor
+- target type/id
+- before/after value
+- consumed materials
+- outcome
+- sim minute
+- summary
 
-1. `world_properties` remains hidden from ordinary `/api/state`
-2. undiscovered deposits are absent from ordinary state
-3. discovered deposits do not expose hidden reserve quantity
-4. `discoveries.id` is the stable validated discovery anchor
-5. direct discovery grants validated knowledge only to the discovering citizen
-6. communicated claims do not automatically become verified Simulation knowledge
-7. `experiment_results` persists `discovery | verified | inconclusive` outcomes
-8. learned processes descend from validated discoveries and are not tech-tree nodes
-9. missing knowledge renders as absence, not a hint that hidden content exists
-10. no department publishes `update.json`
+Memory should avoid turning every tiny wear decrement into durable narrative memory.
 
-## Communication v0.6 Contract Locks
+## Communication v0.7 Contract Locks
 
-1. Simulation `agent_city/knowledge.py` and Communication `agent_city/provenance.py` are separate modules and both must survive merge
-2. only verified recipient-local `citizen_knowledge` is mirrored into verified Communication receipts
-3. `reported` knowledge is not silently upgraded to verified
-4. face-to-face claims are tied to canonical stored conversation IDs and begin unverified
-5. persisted claim text must occur verbatim in the attributed speaker's durable transcript
-6. retelling does not verify a claim
-7. remote visitor access must not leak local busy/talk details
-8. merged planner/dialogue context should retain both Simulation-validated property knowledge and Communication provenance/claims
+Coordinator integration must preserve:
+
+1. raw exchange generation/persistence happens before claim/provenance enrichment
+2. claim extraction failure does not invalidate an existing durable conversation
+3. there is still no fabricated fallback dialogue
+4. raw dialogue may retry once, but success still requires real model-generated content
+5. `talk_diagnostics` is debug metadata, not citizen knowledge or physical truth
+6. a talk physically succeeds only when its `source_job_id` has a durable `citizen_conversations` row
+7. failed talk chronology remains distinct from conversation transcript/history
+8. diagnostic History rows use `category = "diagnostic"` and should not be rendered as citizen speech
 
 ## Required Integration Tests
 
 At minimum preserve and run:
 
 - `tests/smoke_v040.py`
-- `tests/smoke_v050.py`
-- `tests/smoke_v050_communication.py`
-- Simulation `tests/smoke_v060.py`
-- Communication `tests/smoke_v060_communication.py`
-- Memory v0.6 smoke
-- Assets v0.6 UI/integration smoke when its branch is complete
+- all v0.5 smoke suites
+- all v0.6 Simulation/Communication/Memory/UI smoke suites
+- `tests/smoke_v070.py`
+- `tests/smoke_v070_communication.py`
+- Memory v0.7 maintenance smoke if a runtime branch is added
+- Assets v0.7 UI/integration smoke after its final pass
 
 ## Handoff Protocol
 
@@ -169,69 +174,3 @@ Cross-department integration must preserve:
 > **Information must travel through a real mechanism.**
 
 A green department branch is not sufficient if merging it would silently remove another department's invariant.
-
-
-## Memory v0.6 Final Handoff
-
-Memory's final upstream contracts are resolved.
-
-Coordinator should integrate:
-- Simulation `agent_city/knowledge.py`
-- Communication `agent_city/provenance.py`
-- Memory `agent_city/memory.py` bounded knowledge extensions
-- Memory Citizen/Location knowledge APIs
-- Memory `tests/smoke_v060_memory.py`
-
-Do not substitute any one layer for another during conflict resolution.
-
-
-## v0.6 Integration Result
-
-Published runtime:
-`6092aeafd685a3ba4cb8e9d455e586771d3f6d26`
-
-Preserved layers:
-1. Simulation hidden truth + validated discovery/experiment state
-2. Communication immutable provenance + unverified transferred claims
-3. Memory bounded per-citizen/location knowledge retrieval
-4. Assets consumes safe known-state interfaces rather than hidden truth
-
-Final CI passed:
-- Python compile
-- JavaScript syntax
-- v0.4 regression smoke
-- all v0.5 smoke suites
-- v0.6 Simulation smoke
-- v0.6 Communication provenance smoke
-- v0.6 Memory knowledge smoke
-- v0.6 assembled UI/integration smoke
-
-
-## v0.7 Coordination Goal
-
-v0.7.0 is the active milestone: **Maintenance, Consequences & Home Polish**.
-
-Primary goals:
-1. mechanical life gains gradual physical wear/repair consequences without repetitive chore spam
-2. Home scales cleanly for longer conversations and future population growth
-3. a lightweight 2D/static avatar identity layer begins without requiring Mixamo/3D
-4. repeated autonomous talk failures are diagnosed and made substantially more reliable without ever fabricating dialogue
-
-Coordinator integration must preserve all v0.6 knowledge/provenance boundaries and all v0.5 physical production/energy invariants.
-
-No department publishes `update.json`.
-
-## Communication v0.7 Contract Locks
-
-Coordinator integration must preserve:
-
-1. raw exchange generation/persistence happens before claim/provenance enrichment
-2. claim extraction failure does not invalidate an existing durable conversation
-3. there is still no fabricated fallback dialogue
-4. raw dialogue may retry once, but success still requires real model-generated content
-5. `talk_diagnostics` is debug metadata, not citizen knowledge or physical truth
-6. a talk physically succeeds only when its `source_job_id` has a durable `citizen_conversations` row
-7. failed talk chronology remains distinct from conversation transcript/history
-8. diagnostic History rows use `category = "diagnostic"` and should not be rendered as citizen speech
-
-Required regression coverage includes `tests/smoke_v070_communication.py` in addition to the existing v0.4-v0.6 suite.
