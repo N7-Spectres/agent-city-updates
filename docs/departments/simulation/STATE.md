@@ -193,3 +193,17 @@ The normal release-only workflow trigger was restored afterward.
 ## Integration Status
 
 Ready for coordinator integration. No `update.json` or release metadata was published or changed.
+
+
+## Work Session Handoff
+
+This Simulation work session is complete.
+
+Handoff source of truth:
+- branch: `simulation/v0.5-making-building`
+- head: `773299189d22d214b3376c72b396015a4a7a762e`
+- integrated validation: GitHub Actions run `36372991331`
+- coordinator state: Simulation is ready for review/integration
+- next active dependency: Assets & Interface consumes the authoritative Making & Building state and finishes the v0.5 visual layer
+
+No release metadata or `update.json` was changed.
