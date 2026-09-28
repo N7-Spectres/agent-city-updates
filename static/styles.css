@@ -312,13 +312,31 @@ button:disabled {
 }
 
 .map-node:hover,
-.map-node.focused {
-  border-color: rgba(213,166,91,.3);
-  background: rgba(213,166,91,.075);
+.map-node.focused,
+.map-node:focus-visible {
+  border-color: transparent;
+  background: transparent;
+  outline: none;
 }
 
-.map-node.selected-location {
-  box-shadow: 0 0 0 1px rgba(213,166,91,.35), 0 0 24px rgba(213,166,91,.12);
+.map-node:hover .node-dot,
+.map-node.focused .node-dot,
+.map-node:focus-visible .node-dot,
+.map-node.selected-location .node-dot {
+  box-shadow:
+    0 0 0 7px rgba(213,166,91,.16),
+    0 0 18px rgba(213,166,91,.30);
+  transform: scale(1.12);
+}
+
+.map-node:hover .node-label,
+.map-node.focused .node-label,
+.map-node:focus-visible .node-label,
+.map-node.selected-location .node-label {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: rgba(213,166,91,.45);
+  text-underline-offset: 4px;
 }
 
 .node-dot,
@@ -3379,5 +3397,77 @@ input:focus, textarea:focus { border-color: var(--accent); }
   .shared-action-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+
+/* v0.8.1 map readability hotfix */
+.map-controls {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 16;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(9,13,18,.86);
+  backdrop-filter: blur(8px);
+}
+
+.map-controls button {
+  min-width: 32px;
+  height: 30px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(20,27,35,.92);
+  font-size: 12px;
+  line-height: 1;
+}
+
+#map-zoom-reset {
+  min-width: 54px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+#map-zoom-label {
+  min-width: 34px;
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 900;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.map-node .node-dot {
+  transition: transform .14s ease, box-shadow .14s ease;
+}
+
+.map-node .node-label {
+  transition: color .14s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-node .node-dot,
+  .map-node .node-label {
+    transition: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .map-controls {
+    left: 8px;
+    top: 8px;
+  }
+
+  .map-controls button {
+    min-width: 30px;
+    height: 28px;
   }
 }
