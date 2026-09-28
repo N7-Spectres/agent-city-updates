@@ -287,3 +287,17 @@ Communication `diagnostic` history is system/debug information.
 Assets v0.7 is complete once its branch is in REVIEW with branch-level UI contracts verified.
 
 Final cross-department assembly belongs to the coordinator. Assets must not merge Simulation, Communication, or Memory runtime code into its presentation branch merely to produce a single combined release branch.
+
+
+## Citizen Concept Sheets / Canonical Visual Identity
+
+The six generated Agent City character sheets are approved as strong visual identity references for the citizens' bodies, silhouettes, face-display style, accent families, and overall mechanical design language.
+
+Important authority boundary:
+- embedded role labels, slogans, depicted tools, packs, drones, tablets, medical kits, or other accessories in concept art are **visual concept material**, not automatic Simulation truth
+- current canonical citizen aptitudes remain defined by the project/runtime unless explicitly changed by coordinator decision
+- gear shown in a concept sheet does not mean that citizen physically owns that equipment
+- when the runtime later supports authoritative equipped gear, the rendered avatar may add/remove/alter visible equipment to match actual state
+- preserve the core body/face/color identity even as real equipment changes
+
+The visual layer must not convert concept-art props into physical inventory or capabilities.
