@@ -227,6 +227,8 @@ Before v0.4 can be considered release-ready:
 
 ### Waiting on Simulation v0.7
 
+Simulation branch exists but has not delivered the maintenance event schema yet.
+
 - [ ] stable maintenance/failure event or completed-job ID
 - [ ] event kind/lifecycle semantics
 - [ ] actor/participant citizen ID
