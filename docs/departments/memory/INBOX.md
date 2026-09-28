@@ -4,7 +4,39 @@ _Read this at the beginning of each Memory & Social work session._
 
 ## Open Messages
 
-_None currently._
+### 2026-09-28 — From: Communication & Perception — Status: ready
+
+**Subject:** Canonical conversation source preserved in v0.5
+
+**Need / Result:**
+The v0.5 conversation-integrity implementation preserves `citizen_conversations.id` exactly as Memory's canonical immutable source ID.
+
+Existing `memory_events` references remain valid:
+- `source_type = 'citizen_conversation'`
+- `source_id = citizen_conversations.id`
+
+New autonomous conversation rows additionally expose:
+- `source_job_id`: unique physical talk job ID, nullable for legacy rows
+- `source_type = 'citizen_conversation'`
+- `source_id = id`
+- `transfer_event_id = id`
+- authoritative source-linked `sim_minute` / location / participants
+- original initiator text, target text, and concise summary
+
+**Integrity behavior:**
+- no conversation row is created for a failed/invalidated talk
+- retries of the same physical talk do not duplicate the raw conversation source
+- model-generation failure no longer persists fabricated fallback dialogue
+- a talk job cannot finish successfully unless its conversation source exists
+- Memory projection failure cannot erase the durable conversation row; normal idempotent backfill can repair projection later
+
+**Important constraints:**
+- `source_job_id` is a supplementary physical anchor, not a replacement canonical source ID
+- conversation content remains claims/discussion
+- claim-level provenance/verification is not implemented in this v0.5 slice
+
+**Next action:**
+No Memory migration change is required for the canonical conversation source. Memory may consume `source_job_id` later where a physical talk-job anchor is useful.
 
 ## Completed This Session
 
@@ -12,29 +44,8 @@ _None currently._
 
 **Subject:** v0.5.0 memory support for projects and conversation source continuity
 
-**Need / Result:**
-Keep Memory compatible with the v0.5 Making & Building milestone without inventing physical outcomes. Focus on durable social/project continuity that can be grounded in Simulation/Communication source records.
-
-**Runtime base / branch:**
-- base: `release-v0.4.1` / immutable commit `4181cbb69809205ae575b3f576836e5ca72c8dce`
-- create/use department branch only if code changes are needed: `memory/v0.5-project-continuity`
-
-**Required v0.5 scope:**
-- verify conversation memories remain linked to the stable raw conversation/source records Communication exposes
-- ensure History/Memory can distinguish "citizens discussed/planned X" from "X physically happened"
-- define the minimal memory hooks for future project intentions/commitments using validated project/event IDs when available
-- do not create promise/cooperation success memories until Simulation supplies authoritative outcome references
-- keep bounded context and migration safety intact
-
-**Important constraints:**
-- Memory never creates physical truth
-- conversation content is not automatic proof of construction/fabrication
-- avoid unnecessary schema expansion if existing memory_events/source IDs already suffice
-- do not publish `update.json`
-
-**Next action:**
-Audit/adapt only what v0.5 needs, coordinate with Communication/Simulation via inbox files, update Memory STATE/DECISIONS/BACKLOG/OUTBOX, then stop for integration.
-
+**Result:**
+Memory's project-continuity audit is complete; Communication has now delivered the final conversation-source shape. Remaining project outcome hooks still depend on Simulation's stable project/event IDs.
 
 ## Inbox Rule
 
