@@ -71,7 +71,7 @@ const CITIZEN_VISUAL_PROFILES = {
       bust: "/static/assets/citizens/aris/token.webp",
       token: "/static/assets/citizens/aris/token.webp",
       head: {
-        neutral: "/static/assets/citizens/aris/token.webp",
+        neutral: null,
         blink: null,
         happy: null,
         focused: null,
@@ -89,7 +89,7 @@ const CITIZEN_VISUAL_PROFILES = {
       bust: "/static/assets/citizens/bex/token.webp",
       token: "/static/assets/citizens/bex/token.webp",
       head: {
-        neutral: "/static/assets/citizens/bex/token.webp",
+        neutral: null,
         blink: null,
         happy: null,
         focused: null,
@@ -107,7 +107,7 @@ const CITIZEN_VISUAL_PROFILES = {
       bust: "/static/assets/citizens/cato/token.webp",
       token: "/static/assets/citizens/cato/token.webp",
       head: {
-        neutral: "/static/assets/citizens/cato/token.webp",
+        neutral: null,
         blink: null,
         happy: null,
         focused: null,
@@ -125,7 +125,7 @@ const CITIZEN_VISUAL_PROFILES = {
       bust: "/static/assets/citizens/iri/token.webp",
       token: "/static/assets/citizens/iri/token.webp",
       head: {
-        neutral: "/static/assets/citizens/iri/token.webp",
+        neutral: null,
         blink: null,
         happy: null,
         focused: null,
@@ -143,7 +143,7 @@ const CITIZEN_VISUAL_PROFILES = {
       bust: "/static/assets/citizens/noma/token.webp",
       token: "/static/assets/citizens/noma/token.webp",
       head: {
-        neutral: "/static/assets/citizens/noma/token.webp",
+        neutral: null,
         blink: null,
         happy: null,
         focused: null,
@@ -161,7 +161,7 @@ const CITIZEN_VISUAL_PROFILES = {
       bust: "/static/assets/citizens/vale/token.webp",
       token: "/static/assets/citizens/vale/token.webp",
       head: {
-        neutral: "/static/assets/citizens/vale/token.webp",
+        neutral: null,
         blink: null,
         happy: null,
         focused: null,
