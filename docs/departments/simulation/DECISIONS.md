@@ -223,3 +223,87 @@ Keep a clear distinction between:
 A newly created citizen should not automatically inherit another citizen's personal memories. Any future shared baseline knowledge must be explicitly designed and must not erase individual experience.
 
 Population growth belongs later, after research, fabrication, maintenance, energy, and continuity systems are mature enough to support it meaningfully.
+
+
+## Hidden Truth / Known Truth Boundary
+
+Simulation may persist physical facts that no citizen knows.
+
+Hidden truth must not appear in:
+
+- ordinary `/api/state`
+- planner prompts
+- visitor-facing location/resource views
+- Memory merely because the truth exists
+
+A hidden fact becomes eligible for known-state interfaces only after a validated discovery event.
+
+Absence from known state means unknown. Do not render an artificial "locked secret" that confirms hidden content exists.
+
+## Discovery Is Local Knowledge First
+
+A discovery event records what physically became knowable and who directly discovered it.
+
+Direct discovery grants knowledge only to that citizen.
+
+Do not automatically copy a discovery into every citizen's knowledge.
+
+A second citizen may learn it later through:
+
+- their own validated observation/experiment
+- a real Communication transfer
+- a future legitimate information mechanism
+
+## Claims vs Verified Knowledge
+
+A conversation claim is not itself a Simulation discovery.
+
+Communication may attach a transferred claim to a validated `discoveries.id` only when the actual communicated fact can be mapped to that discovery.
+
+If the speaker's statement cannot safely be tied to a validated discovery, keep it as an unverified/remembered claim in Communication/Memory instead of inserting verified Simulation knowledge.
+
+Repeated retelling never upgrades verification by itself.
+
+## Experiments
+
+Generic assay availability does not imply a hidden property exists for that method.
+
+Simulation determines experiment outcome.
+
+A completed experiment may be:
+
+- `discovery`
+- `verified`
+- `inconclusive`
+
+Inconclusive results persist.
+
+Wrong-method experiments are allowed because failure is part of research rather than a UI-hidden answer key.
+
+## Learned Processes
+
+A learned process must descend from a validated discovery.
+
+Current v0.6 learned processes are repeatable verification procedures only.
+
+They are not technology-tree nodes and do not automatically unlock named civilization solutions.
+
+## Survey Repetition
+
+Survey legality must not leak whether hidden facts remain.
+
+Repeat surveys may produce:
+
+- new discovery
+- independent confirmation
+- no new finding
+
+This also gives parallel/redundant survey work an intentional physical outcome instead of a race-condition-only meaning.
+
+## Public Deposit State
+
+Undiscovered deposits are absent from ordinary state.
+
+Even after discovery, raw hidden remaining reserve quantity is not exposed unless a future validated measurement system explicitly discovers that quantity.
+
+Extraction still uses authoritative hidden reserve accounting internally.
