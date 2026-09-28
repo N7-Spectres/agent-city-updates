@@ -1,0 +1,34 @@
+name: Agent City Assets v0.8 Stage 2 smoke
+
+on:
+  pull_request:
+    branches:
+      - release-v0.8.0
+    paths:
+      - "static/**"
+      - "agent_city/asset_worker.py"
+      - "tests/smoke_v080_assets.py"
+      - "tests/smoke_v080_assets_stage2.py"
+      - ".github/workflows/assets-v080-stage2-smoke.yml"
+
+jobs:
+  assets-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check JavaScript syntax
+        run: node --check static/app.js
+
+      - name: Run Stage 1 Assets smoke
+        run: python tests/smoke_v080_assets.py
+
+      - name: Run Stage 2 Assets smoke
+        run: python tests/smoke_v080_assets_stage2.py
