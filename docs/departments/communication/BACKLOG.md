@@ -84,3 +84,16 @@ Desired rule:
 
 Noma target tone:
 curious, thoughtful, observational, concise; research-minded without sounding like a diagnostic terminal.
+
+
+## Conversation summary truth-language audit
+
+Live v0.8 feedback: recent citizen conversation summaries can use words such as "validated", "confirmed", or "proceed to inspect" too strongly.
+
+Rule:
+- conversation summaries describe what was communicated, not authoritative physical completion
+- "validated" / "confirmed" may appear only when the exchange is explicitly backed by a real Simulation observation/experiment/shared-activity source
+- otherwise use claim-safe wording such as "compared reports", "discussed", "said they had observed", "agreed to inspect", or "planned to verify"
+- future intent must stay future intent; "agreed to inspect" is not "inspected"
+- a citizen may truthfully report their own live inventory/current state, but another citizen hearing it does not independently validate the physical fact
+- completed shared exploration should cite the canonical Simulation shared activity / observation chain before summary language upgrades from report to verified evidence
