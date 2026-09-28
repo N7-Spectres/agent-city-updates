@@ -33,9 +33,17 @@ def main() -> None:
     assert 'openControlRoomView("history"' in js
 
     # Lightweight avatar framework supports all starting citizens and future art.
+    # v0.8 may wrap the same contract in richer citizen visual profiles, so verify
+    # the stable citizen IDs plus the backward-compatible flat asset view.
     assert "CITIZEN_AVATAR_ASSETS" in js
     for citizen_id in ("aris", "bex", "cato", "iri", "noma", "vale"):
-        assert f"{citizen_id}: {{ full: null, token: null }}" in js
+        assert f"{citizen_id}:" in js
+    if "CITIZEN_VISUAL_PROFILES" in js:
+        assert "profile.assets.full" in js
+        assert "profile.assets.token" in js
+    else:
+        for citizen_id in ("aris", "bex", "cato", "iri", "noma", "vale"):
+            assert f"{citizen_id}: {{ full: null, token: null }}" in js
     for state_name in ("idle", "traveling", "charging", "talking", "working"):
         assert f"state-{state_name}" in css or f'"{state_name}"' in js
     assert "citizenAvatarMarkup" in js
