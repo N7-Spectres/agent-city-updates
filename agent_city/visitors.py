@@ -238,6 +238,13 @@ def can_visit_citizen(visitor: str, citizen_id: str) -> tuple[bool, str]:
         if citizen["active_action"] == "travel":
             target_name = _location_name(conn, citizen["active_target"]) if citizen["active_target"] else "another location"
             return False, f"{citizen['name']} is currently traveling toward {target_name}."
+        if citizen["active_action"] == "talk":
+            other = conn.execute(
+                "SELECT name FROM citizens WHERE id = ?",
+                (citizen["active_target"],),
+            ).fetchone()
+            other_name = other["name"] if other else "another citizen"
+            return False, f"{citizen['name']} is currently speaking with {other_name}."
         if presence["location_id"] != citizen["location_id"]:
             return False, f"{citizen['name']} is at {citizen['location']}; you are not there."
     return True, ""
