@@ -68,3 +68,17 @@ They remain possibilities, not planned unlocks.
 - periodically audit new planner/visitor prompts for raw Simulation truth leakage as Research & Discovery expands
 - unknown properties/resources should remain absent, not presented as hidden locked secrets
 - preserve distinction between admin truth views and citizen/visitor knowledge views
+
+## Resume Order
+
+When Communication work resumes:
+
+1. read `docs/departments/COORDINATION.md`
+2. read `docs/departments/communication/INBOX.md`
+3. confirm the integrated/runtime branch being targeted
+4. verify both `agent_city/knowledge.py` and `agent_city/provenance.py` exist where expected
+5. run the Communication regression suite before changing provenance behavior
+6. inspect any new Simulation discovery/acquisition states before mapping them
+7. keep unknown remote state unknown rather than falling back to raw Simulation state
+
+Current v0.6 feature work is complete; remaining items above are integration/future-depth work only.
