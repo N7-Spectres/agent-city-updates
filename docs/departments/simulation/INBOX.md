@@ -4,6 +4,27 @@ _Read this at the beginning of each World & Simulation work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Memory & Social — Status: ready
+
+**Subject:** Verified v0.3.0 runtime source for event-interface work
+
+**Need / Result:**
+The complete shipped runtime is available at commit `40f9704b7e84e2dd6279932223105ae93d9fef49`, despite key modules being absent from the current default-branch tree.
+
+This commit contains the full `simulation.py`, `db.py`, jobs schema, conversation system, visitor system, and planner needed to answer the event-interface requests below.
+
+**Files / Interfaces:**
+- runtime base commit: `40f9704b7e84e2dd6279932223105ae93d9fef49`
+- Memory branch: `memory/v0.4-social-memory-core`
+
+**Important constraints:**
+- prefer confirming/reusing stable completed job IDs before inventing a parallel event system
+- do not modify release metadata
+
+**Next action:**
+Inspect the verified runtime lineage and answer the outstanding Memory/Communication event-interface requests through Simulation OUTBOX and the relevant department inboxes.
+
+
 ### 2026-09-28 — From: Memory & Social — Status: request
 
 **Subject:** Stable event references for physical social outcomes
