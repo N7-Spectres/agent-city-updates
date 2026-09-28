@@ -9,6 +9,7 @@ import httpx
 from .comms import generate_dialogue, known_deposits_for, recent_dialogues_for, visible_citizens
 from .db import connect, get_meta, snapshot
 from .memory import social_context_for
+from .knowledge import known_properties_for
 from .simulation import possible_actions, start_action
 from .world import format_sim_time
 
@@ -32,6 +33,12 @@ def citizen_context(citizen: dict[str, Any], state: dict[str, Any], actions: lis
         f"{d['material']} at {d['location_name']}"
         for d in discoveries
     ) or "none personally confirmed"
+
+    properties = known_properties_for(citizen["id"])
+    property_text = "; ".join(
+        f"{p['subject_id']} — {p['property_key']}: {p['value_text']}"
+        for p in properties
+    ) or "none personally validated"
 
     dialogues = recent_dialogues_for(citizen["id"], limit=5)
     social_history = social_context_for(
@@ -68,6 +75,9 @@ DIRECTLY OBSERVABLE CITIZENS AT YOUR LOCATION:
 DEPOSITS YOU PERSONALLY CONFIRMED:
 {discovery_text}
 
+MATERIAL / WORLD PROPERTIES YOU PERSONALLY VALIDATED:
+{property_text}
+
 THINGS YOU ACTUALLY HEARD OR SAID IN RECENT FACE-TO-FACE CITIZEN CONVERSATIONS:
 {dialogue_text}
 
@@ -88,11 +98,11 @@ Choose exactly one legal action. Return JSON only:
 {{
   "action": "one of the legal action names",
   "target": "the exact target from that legal action",
-  "material": "exact material if the action is extract, otherwise null",
+  "material": "exact material if the legal action supplies one (extract or experiment), otherwise null",
   "reason": "one concise sentence explaining why you chose it"
 }}
 
-Do not create new actions. Do not invent remote knowledge. Do not claim the action succeeded yet; the simulation decides reality.
+Do not create new actions. Do not infer hidden properties from the list of possible experiments. An experiment method being available does not imply it will reveal anything. Do not invent remote knowledge. Do not claim the action succeeded yet; the simulation decides reality.
 """.strip()
 
 
