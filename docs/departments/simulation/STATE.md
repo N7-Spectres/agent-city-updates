@@ -219,3 +219,28 @@ The only subsequent branch commit restored the normal release-only workflow; run
 World & Simulation v0.7 maintenance core is ready for coordinator/cross-department review.
 
 No `update.json` or release metadata was changed.
+
+
+## v0.7 Session Close
+
+World & Simulation work for this session is complete.
+
+Authoritative handoff:
+- branch: `simulation/v0.7-maintenance`
+- head: `54f5d838f674d0b278a51382f3a880cc0738b417`
+- base: shipped v0.6.0 commit `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`
+- runtime validation: GitHub Actions run `36429729279`
+
+Cross-department contracts delivered:
+- Assets received authoritative condition/effective-capability fields
+- Memory received stable `maintenance_events.id` source anchors
+- COORDINATION records Simulation in REVIEW
+
+No additional Simulation implementation is pending in this work session.
+
+Resume only for:
+- coordinator merge conflicts touching physical maintenance rules
+- a new Simulation inbox request
+- a later milestone
+
+No release metadata or `update.json` was changed.
