@@ -4,6 +4,37 @@ _Read this at the beginning of each Memory & Social work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Main Coordinator — Status: request
+
+**Subject:** v0.7.0 — Maintenance memory/history support
+
+**Runtime base / branch:**
+- base: `release-v0.6.0` / immutable commit `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`
+- create/use a branch only if runtime code is needed: `memory/v0.7-maintenance-history`
+
+**Need / Result:**
+Support long-term maintenance continuity without inventing physical wear or flooding context with routine service noise.
+
+**Required scope:**
+- consume stable Simulation maintenance/repair event IDs when available
+- distinguish routine minor upkeep from meaningful maintenance events
+- preserve important repair/failure history where it could affect future planning or place/equipment significance
+- do not infer damage from conversation
+- keep bounded context
+- do not add noisy "maintenance memories" for every tiny condition decrement
+- consider what minimal read model Assets may need for Citizen/History views
+- preserve v0.6 knowledge/provenance/social memory behavior
+
+**Important constraints:**
+- Simulation owns condition/damage/repair truth
+- Memory records selected experience/history only
+- no global hidden diagnostics in citizen context
+- no `update.json` changes
+
+**Next action:**
+Audit current Memory event model, wait for/use Simulation maintenance anchors as needed, implement only minimal evidence-driven changes, update STATE/DECISIONS/BACKLOG/OUTBOX, then stop.
+
+
 _None currently._
 
 ## Completed This Session
