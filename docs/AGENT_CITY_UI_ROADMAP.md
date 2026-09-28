@@ -8,7 +8,9 @@ Agent City should gradually become a visual, living world rather than a dashboar
 
 The long-term goal is to see the **planet itself**, with each of the six citizens represented by a small avatar moving around the world, traveling between regions, interacting with structures, gathering materials, researching, building, repairing, and talking with visitors.
 
-This should happen in **small, stable steps**. The simulation remains more important than flashy visuals.
+This should happen in **stable, meaningful milestones**. Avoid micro-updates when several related improvements can ship together. The simulation remains more important than flashy visuals.
+
+Development is allowed to move faster than the original phase order when the citizens naturally begin using capabilities earlier than expected. The roadmap should describe the direction of travel, not artificially hold the civilization back.
 
 ## Core Experience
 
@@ -35,9 +37,11 @@ The preferred main-screen structure is:
 
 **Left:** six citizens  
 **Center:** world / planet view  
-**Right:** visitor conversation
+**Right:** persistent Control Room rail
 
-Secondary information should be available through obvious controls near the upper-right rather than permanently filling the screen.
+The right rail should keep important information above the fold rather than opening a large drawer below the world. It should support the visitor conversation plus easy access to History, Stores, Structures, Region details, and Updates. A future layout may keep Visit visible while switching a secondary right-side panel between those utility views.
+
+Secondary information should be immediately reachable without repeated page scrolling.
 
 Secondary views include:
 
@@ -64,6 +68,21 @@ The UI should feel like **visiting a place**, not operating a spreadsheet.
 
 This is the first step from a status dashboard toward a visibly inhabited world.
 
+### Current emergent-development note
+
+The civilization is already showing behavior that was originally expected later in the roadmap.
+
+During v0.3.0 testing:
+
+- Noma traveled to Resin Grove while Cato was working there.
+- Noma later autonomously initiated a face-to-face conversation with Cato.
+- Bex initiated conversation with Aris before considering distant travel.
+- Iri initiated conversation with Vale because Vale might have useful local information.
+- Citizens are beginning to choose **who to talk to and why** as part of their own planning.
+
+This is not yet a full relationship system. It is early social behavior emerging from local awareness, legal talk actions, recorded dialogue, and autonomous planning.
+
+**Roadmap rule:** when later-stage behavior begins emerging naturally, build the missing persistence and consequences around the behavior that already exists instead of replacing it with a scripted system.
 
 ### Phase 1 — Current Map Polish
 
@@ -162,6 +181,138 @@ Examples:
 
 Goal: a visitor should be able to look at the settlement and see years of accumulated history.
 
+## Major Milestone Roadmap
+
+### v0.4.0 — Memory & Relationships
+
+The current communication layer is already producing proto-v0.4 behavior, so this milestone should deepen what the citizens are naturally doing rather than inventing a social system from scratch.
+
+Planned direction:
+
+- durable memories of meaningful citizen-to-citizen interactions
+- familiarity and relationship history built from actual events
+- remembered cooperation, disagreements, promises, help, and information exchange
+- future decisions influenced by prior interactions
+- last-known information remains separate from confirmed physical truth
+- no arbitrary RPG-style relationship score exposed as the social reality
+- Control Room UI redesign: move History / Stores / Structures / Region / Updates from the bottom drawer into the right-side interface
+
+Goal: citizens should develop personal histories with one another, and those histories should begin affecting what they choose to do.
+
+### v0.5.0 — Making & Building
+
+Resources become physically transformable into tools, parts, and structures.
+
+Planned direction:
+
+- fabrication jobs
+- construction jobs
+- material requirements
+- tool / capability requirements
+- multi-step projects
+- structures placed at real locations
+- new construction appears in the world only after successful completion
+- settlement layout begins visibly changing over time
+
+Goal: the civilization should be able to alter its environment instead of only moving through it.
+
+### v0.6.0 — Research & Discovery
+
+Research becomes experimental rather than a fixed technology tree.
+
+Planned direction:
+
+- hidden world-specific material properties
+- experiments with simulation-determined outcomes
+- successful and failed experiments become knowledge
+- citizens can reproduce learned processes
+- research can unlock new fabrication possibilities without exposing predetermined recipes
+- communication technology is **not granted**; it may emerge only if citizen need, experimentation, materials, and fabrication capability make it possible
+
+Goal: knowledge should be discovered through interaction with this particular world.
+
+### v0.7.0 — Maintenance & Consequences
+
+Mechanical life gains deeper physical consequences.
+
+Planned direction:
+
+- component wear
+- lubrication needs
+- battery health
+- damaged tools and structures
+- repairs and replacement parts
+- preventative maintenance
+- scarcity-driven reprioritization
+
+Routine maintenance should remain mostly autonomous. Interesting failures and shortages should create decisions rather than repetitive chores.
+
+Goal: survival and upkeep should matter without turning Agent City into a maintenance-clicking game.
+
+### v0.8.0 — Living World
+
+Expand the planet beyond the starter region.
+
+Planned direction:
+
+- additional terrain and routes
+- environmental variation
+- more native materials and vegetation
+- distant work sites
+- richer exploration
+- reasons for new infrastructure away from Seed Site
+- cultivation or agriculture may emerge if renewable biological materials become valuable
+
+Goal: make the planet itself an evolving participant in the civilization.
+
+### v0.9.0 — Civilization Continuity
+
+Support long-running autonomous development across months and simulated years.
+
+Planned direction:
+
+- multi-step citizen projects and plans
+- abandoned or revised plans
+- skill growth through repeated practice
+- emergent specialization without permanent classes
+- teaching and knowledge transfer
+- routines and personal work preferences
+- longer resource strategies
+- places that accumulate meaning through history
+- social customs or traditions only when repeated events actually create them
+
+Goal: the civilization's present should increasingly be explainable by its own accumulated history.
+
+### v1.0 — Bonsai Civilization
+
+v1.0 is reached when Agent City can be left running, revisited over a long period, and produce a settlement whose world state, relationships, knowledge, structures, habits, and decisions meaningfully descend from its own history.
+
+The core loop should be:
+
+**observe → decide → act → experience consequences → remember → communicate → learn → build → change the world → repeat**
+
+The save/database is the continuity of the civilization. The local language model may later be upgraded without replacing the citizens or erasing their history.
+
+## Development Pace Philosophy
+
+The release numbers are milestones, not gates.
+
+If citizens begin demonstrating behavior associated with a later milestone early, treat that as evidence about what systems should be strengthened next. Do not suppress emergent behavior merely to preserve the planned order.
+
+Prefer:
+
+- observing what the citizens actually do
+- identifying where the simulation or memory model is too shallow
+- adding persistence, constraints, and consequences
+- bundling related work into substantial releases
+
+Avoid:
+
+- scripting interesting behavior that is already emerging on its own
+- rushing every observation into a micro-release
+- adding technologies or conveniences before the civilization has earned them
+- changing physical reality merely because an LLM says something happened
+
 ## Important Technical Rule
 
 > **The AI may decide intent. The simulation decides reality.**
@@ -216,8 +367,10 @@ The visual world should become a window into the simulation, not a separate game
 
 ## Development Rule
 
-**Small steps first.**
+**Stable milestones, emergent direction.**
 
-Do not sacrifice simulation integrity, persistence, grounding, or citizen continuity for graphical complexity.
+Do not sacrifice simulation integrity, persistence, grounding, or citizen continuity for graphical complexity or release speed.
 
 A simple visual representation of a real event is always better than a beautiful animation of something that did not actually happen.
+
+When the citizens surprise us, treat the surprise as test data. Strengthen the systems underneath it rather than scripting the outcome.
