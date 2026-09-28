@@ -1,123 +1,76 @@
 # Assets & Interface — Backlog
 
-## Review / Integration — v0.8 Stage 2
+## Review / Release — v0.8.1
 
 Assets implementation is complete.
 
 Review surface:
 
-- branch `assets/v0.8-exploration-ui-stage2`
-- head `7f5294efaab738b44af116514a65d22478851ad0`
-- PR #15 — ready for review
-- Assets branch CI `36460454385` — PASS
+- branch `assets/v0.8.1-citizen-visuals-map`
+- head `588dd08558a3b9aaed4a0ab8fe1d6e45a7838337`
+- base `release-v0.8.1@c55eb76b89b35a660275ac97f095dcc4f511683e`
+- PR #19 — ready for review
+- full regression `36467360376` — PASS
+- 16 commits ahead / 0 behind official hotfix base
 
-Coordinator integration should verify:
+Coordinator release checklist:
 
-- meter-space map keeps +x east / +y north
-- automatic local focus is readable without changing physical coordinates
-- citizen local movement follows authoritative current x/y
-- local route line uses only Simulation start/target segment
-- reduced-motion disables browser smoothing
-- visitor shared movement uses authoritative visitor presence
-- proposed/accepted proposal cards remain visibly nonphysical
-- active proposal styling requires real `simulation_action_id`
-- accept calls final Communication endpoint
-- reject calls canonical final Communication/Simulation rejection path
-- rejected proposals never produce movement markers
-- completed exploration evidence appears only from real observation IDs
-- baseline observations do not expose material/geology
-- `radius_m` uncertainty remains visible
-- hidden seed/generated-body geometry remains inaccessible
-- Stage 1 Home progress/chat behavior remains intact
-- v0.7 maintenance/history truth boundaries remain intact
-- AssetQueue database remains presentation-only and separate from Simulation
+- merge/review PR #19
+- visually verify Home head tokens
+- visually verify Citizens full-body renders
+- verify Cato retains heavy silhouette
+- verify Iri retains slim silhouette
+- verify zoom + / − / Region controls
+- click Seed Site and other locations to confirm viewport focus
+- confirm location hover/focus has no visible rectangle
+- confirm keyboard focus highlights dot/label
+- confirm dense Seed Site cluster improves as zoom increases
+- confirm no optional gear appears from the art
+- bump VERSION to v0.8.1
+- run one definitive full release matrix
+- publish only after green final run
 
-Required Assets test:
-`tests/smoke_v080_assets_stage2.py`
+## Completed — v0.8.1 Assets
 
-## Completed — v0.8 Stage 2 Assets
+- six approved full-body WebP assets
+- six approved head/token WebP assets
+- all six runtime visual profiles wired
+- full-body contain rendering
+- token cover rendering
+- equipment-layer separation preserved
+- expression-frame slots deliberately left null
+- map zoom-in control
+- map zoom-out control
+- map Region reset
+- zoom indicator
+- presentation-only focused location viewport
+- zoom-aware cluster separation
+- visible node rectangle removed
+- invisible generous node hit target preserved
+- keyboard focus preserved
+- reduced-motion preserved
+- dedicated `tests/smoke_v081_assets.py`
+- complete v0.4-v0.8.1 branch regression pass
 
-- authoritative continuous local meter-space map
-- regional + automatic local-focus viewport
-- physical landmark anchors
-- authoritative citizen local movement positions
-- authoritative visitor shared-walk position
-- Simulation-defined movement segment display
-- validated observation markers
-- observation uncertainty rings
-- baseline evidence privacy
-- shared-action proposal cards
-- explicit accept/start control
-- canonical reject control
-- active physical progress display
-- proposal-vs-physical truth styling
-- final Communication/Simulation ID binding
-- presentation-only persistent AssetQueue scaffold
-- Stage 2 Assets smoke
-- real GitHub Actions branch validation
+## Later Citizen Visual Work
 
-## Citizen Art — Pending Source Files
+When separately approved assets exist:
 
-Approved visual direction is documented, but runtime-ready source art is not currently stored in the repository.
+- neutral expression frame
+- blink frame
+- happy `^ ^` frame
+- focused frame
+- curious frame
+- optional richer bust crops
+- transparent/higher-resolution archival masters if desired
+- physically validated equipment overlays
+- eventual 3D translation preserving the same silhouettes
 
-When source files become available:
-
-- export transparent equipment-free full bodies
-- export matching head tokens
-- export neutral / blink / happy / focused / curious frames as approved
-- preserve common canvas/anchor conventions
-- keep optional equipment separate
-- optimize for WebP/AVIF where appropriate
-- populate the existing runtime manifest/profile slots
-- add asset-presence/lazy-load smoke coverage
-
-Do not generate replacement runtime art merely to fill these slots.
-
-## Later Asset / Rendering Work
-
-- actual local worker process consuming `asset_jobs`
-- deterministic procedural geometry recipes
-- runtime generated-asset lookup/cache API
-- GLB output integration
-- Blender/headless generator only if later justified
-- richer object/structure visuals
-- equipment overlay attachment slots after Simulation exposes authoritative equipped-state semantics
-- LOD / instancing
-- quantity-aware resource pile/fullness presentation
-- later globe/global-coordinate rendering
+Do not synthesize these into runtime canon without an approved source.
 
 ## Current Blockers
 
-_None for Assets Stage 2._
+_None._
 
 Next owner:
-**Coordinator / Stage 2 Integration**
-
-
-## v0.8.1 Citizen Visual Asset Hotfix
-
-### Map readability polish
-
-- add explicit map zoom controls: zoom in, zoom out, reset/region view
-- clicking a location node should be able to focus/center that area without changing Simulation coordinates
-- preserve authoritative x/y; zoom/pan is presentation-only
-- remove the visible rectangular focus/hover box around location nodes
-- keep the larger invisible click target for usability, but highlight only the dot/label when hovered or focused
-- prevent dense Seed Site citizen/location tokens from becoming unreadable at region scale
-- keep reduced-motion and keyboard-focus accessibility
-- no extra physical rendering or hidden spatial data should be introduced
-
-
-- prepare runtime-ready art exports for all six founding citizens
-- recommended minimum per citizen:
-  - transparent full-body PNG
-  - bust/head token PNG
-  - compact map/home token PNG
-- optional expression frames may follow if approved source art supports them
-- populate existing `CITIZEN_VISUAL_PROFILES` asset slots
-- preserve silhouette/color/base-body canon
-- do not bake optional gear into authoritative identity if it is meant to reflect runtime equipment later
-- do not treat concept-art props, scanners, packs, tools, drones, medical kits, or cargo rigs as owned inventory
-- keep clean fallbacks when a frame is absent
-- no Simulation/Communication/Memory behavior changes
-- run Assets smoke plus the full assembled regression suite before publication
+**Coordinator / v0.8.1 Release**
