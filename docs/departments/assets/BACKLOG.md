@@ -49,6 +49,8 @@ Schema request is in `docs/departments/simulation/INBOX.md`.
 - accumulated settlement history in the environment
 - animated miniature citizens
 
-## Current Blocker
+## Current Blocker / Next Session Gate
 
 Assets is waiting on World & Simulation's stable v0.5 project/tool/equipment/structure schema for the remaining Making & Building UI layer.
+
+Do not continue physical-state UI implementation until that contract is handed off through Simulation OUTBOX and/or Assets INBOX.
