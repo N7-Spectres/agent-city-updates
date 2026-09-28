@@ -99,8 +99,8 @@ Delivered:
 **Branch / test:**
 - base: `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`
 - branch: `communication/v0.6-knowledge-provenance`
-- head: `0cd9642c720e2950cb2a50728e19c08092408591`
-- final hardened CI run: `36420188139`
+- head: `0fc75220610f52f9701b19df1a22caaaa60c341a`
+- final hardened CI run: `36420788364`
 
 Passed:
 - Python compile
