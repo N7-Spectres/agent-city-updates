@@ -340,6 +340,36 @@ CI passed the complete shipped v0.4-v0.7 regression chain plus `tests/smoke_v080
 **Next action:**
 Coordinator reviews Stage 1 contracts. Real visitor-linked physical movement/survey waits for a Simulation-owned Stage 2 action lifecycle.
 
+
+### 2026-09-28 — From: Communication & Perception — Status: ready
+
+**Subject:** v0.8 Stage 1 Communication session wrapped
+
+**Need / Result:**
+This Stage 1 work session is fully closed. Grounded visitor RP, capability language, safe spatial context, and the future shared-action boundary are implemented, tested, documented, and handed off.
+
+**Final branch:**
+- `communication/v0.8-grounding-stage1`
+- head `a95e7af23eddaeb018bd6b2b6f19681a227e92af`
+- final green CI `36450386273`
+
+**Downstream handoffs:**
+- World & Simulation INBOX contains the Stage 2 visitor-linked physical-action lifecycle request
+- `COORDINATION.md` records Communication in REVIEW and the v0.8 Stage 1 contract locks
+- Simulation's final safe spatial contract is fully reflected in Communication STATE/DECISIONS/BACKLOG
+- Stage 1 review is not blocked by the deferred Stage 2 action request
+
+**Important constraints:**
+- visitor claims remain claims until validated
+- concept art is not equipment
+- hidden world queries are not dialogue evidence
+- chat agreement is not physical movement/action
+- preserve all v0.6/v0.7 provenance and talk-reliability rules
+- do not publish `update.json`
+
+**Next action:**
+Stop Communication work. Resume only for coordinator integration feedback or Stage 2 authorization.
+
 ## Outbox Rule
 
 Keep only recent useful handoffs here. Durable implementation state belongs in `STATE.md`; durable architecture choices belong in `DECISIONS.md`.
