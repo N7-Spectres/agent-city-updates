@@ -4,6 +4,7 @@ import asyncio
 import json
 import sys
 import tempfile
+import types
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -138,6 +139,70 @@ def main() -> None:
         original_status = shared.simulation_shared_activity_status
         original_cancel = shared.simulation_cancel_shared_activity
         original_client = shared.httpx.AsyncClient
+
+        # Directly verify the final Simulation adapter signatures. The unified
+        # Stage 1 branch does not yet contain exploration.py, so inject a tiny
+        # contract-faithful module for this adapter-only check.
+        original_exploration_module = sys.modules.get("agent_city.exploration")
+        fake_exploration = types.ModuleType("agent_city.exploration")
+        lifecycle_calls: list[str] = []
+
+        def fake_accept(conn, activity_id, who, *, now):
+            lifecycle_calls.append("accept")
+            return True, None, "accepted without movement"
+
+        def fake_start(conn, activity_id, who, *, now):
+            lifecycle_calls.append("start")
+            return True, 901, "physical start"
+
+        def fake_reject(conn, activity_id, who, *, now):
+            lifecycle_calls.append("reject")
+            return True, "rejected before physical start"
+
+        def fake_payload(conn, activity_id, now):
+            status = "active" if "start" in lifecycle_calls else "accepted"
+            return {
+                "id": activity_id,
+                "status": status,
+                "citizen_job_id": 901 if "start" in lifecycle_calls else None,
+                "started_minute": now if "start" in lifecycle_calls else None,
+                "completed_minute": None,
+                "observation_id": None,
+                "outcome": None,
+                "failure_reason": None,
+                "frame_id": "seed_site_local",
+                "target_x_m": 5.0,
+                "target_y_m": 0.0,
+                "activity_type": "walk_inspect",
+                "objective": "Walk together and inspect.",
+                "tool_equipment_id": None,
+                "movement": {"progress": 0.0} if "start" in lifecycle_calls else None,
+            }
+
+        fake_exploration.accept_shared_activity = fake_accept
+        fake_exploration.start_shared_activity = fake_start
+        fake_exploration.reject_shared_activity = fake_reject
+        fake_exploration.shared_activity_payload = fake_payload
+        fake_exploration.propose_shared_activity = lambda *args, **kwargs: (True, 41, "proposed")
+        sys.modules["agent_city.exploration"] = fake_exploration
+
+        adapter_start = shared.simulation_accept_shared_activity(41, visitor)
+        assert adapter_start["ok"] is True
+        assert adapter_start["payload"]["action_id"] == "901"
+        assert lifecycle_calls[:2] == ["accept", "start"]
+
+        adapter_reject = shared.simulation_cancel_shared_activity(
+            42,
+            visitor,
+            reason="visitor_rejected",
+        )
+        assert adapter_reject["ok"] is True
+        assert lifecycle_calls[-1] == "reject"
+
+        if original_exploration_module is None:
+            sys.modules.pop("agent_city.exploration", None)
+        else:
+            sys.modules["agent_city.exploration"] = original_exploration_module
 
         next_activity_id = 40
 
@@ -434,6 +499,10 @@ def main() -> None:
             shared.simulation_shared_activity_status = original_status
             shared.simulation_cancel_shared_activity = original_cancel
             shared.httpx.AsyncClient = original_client
+            if original_exploration_module is None:
+                sys.modules.pop("agent_city.exploration", None)
+            else:
+                sys.modules["agent_city.exploration"] = original_exploration_module
 
 
 if __name__ == "__main__":
