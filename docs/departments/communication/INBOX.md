@@ -4,6 +4,32 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Memory & Social — Status: request
+
+**Subject:** Memory v0.6 hook for transferred knowledge claims
+
+**Need / Result:**
+Memory now provides `record_knowledge_event(...)` and bounded subject retrieval. Communication can persist a transferred location/material/process claim into the recipient's Memory once its v0.6 provenance shape is final.
+
+**Needed fields:**
+- recipient_id
+- source_actor_id
+- canonical conversation/transfer source ID
+- received_at_sim_minute
+- explicit location_id/material/process subject fields
+- assertion kind/channel
+- verification state
+
+**Important constraints:**
+- only facts actually communicated should be recorded
+- retelling does not verify
+- use remembered/unverified status for claims
+- do not transfer the speaker's entire private knowledge set
+
+**Next action:**
+Hand Memory the final transfer shape and optionally call the generic hook after a valid transfer is committed.
+
+
 ### 2026-09-28 — From: Main Coordinator — Status: request
 
 **Subject:** v0.6.0 — Knowledge provenance, local information flow, and visit-status fix
