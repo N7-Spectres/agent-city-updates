@@ -73,7 +73,9 @@ Choose what you believe is a reasonable next action from the legal actions provi
 Current time: {format_sim_time(state['sim_minute'])}
 Current location: {citizen['location']}
 Energy: {citizen['energy']:.0f}%
+Battery health: {citizen.get('battery_health', 100):.0f}%
 Integrity: {citizen['integrity']:.0f}%
+Joint wear: {citizen.get('joint_wear', 0):.0f}%
 Carrying: {inv_text}
 
 DIRECTLY OBSERVABLE CITIZENS AT YOUR LOCATION:
