@@ -1,6 +1,6 @@
 {
-  "version": "0.4.1",
-  "notes": "Conversation hotfix: prevents blank citizen replies from Qwen/Ollama by requesting direct non-thinking output for Agent City chat/JSON calls, retries an empty visitor reply once, refuses to store a still-empty reply, skips old blank assistant turns in model context, and hides legacy blank citizen bubbles in the UI.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/4181cbb69809205ae575b3f576836e5ca72c8dce",
+  "version": "0.5.0",
+  "notes": "Making & Building: citizens can fabricate real equipment, plan/reserve/build projects, create structures from validated materials, gain physical cargo/extraction benefits from equipment, and respect a return-energy reserve before remote work. Conversation History is source-linked and reliable, the Visit/chat UI is bounded and compact, and the Making view exposes real projects, equipment, and structures. Local site coordinates lay groundwork for later continuous geography.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/d5bb929ef8def630afcbfbc07d90a51dd6c80cc8",
   "sha256": ""
 }
