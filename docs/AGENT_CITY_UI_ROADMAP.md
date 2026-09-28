@@ -404,6 +404,17 @@ Planned direction:
 - structures may become less reliable or unavailable if neglected
 - citizens should normally notice and respond to maintenance needs autonomously
 
+#### Avatar / visual identity first stage
+- begin the avatar era with lightweight 2D/static identity assets, not full 3D rigs
+- Citizens page gets a full-body visual identity slot for each citizen
+- Home/map may use a smaller crop/token derived from the same identity
+- simple state-driven browser animation is allowed: idle pulse/bob, travel motion, charging glow, talking/working indicator
+- animation must derive from validated simulation state
+- no Mixamo/3D dependency is required for this milestone
+- future 3D rigging/walk cycles may come later if the project grows into animated miniature citizens
+- physically equipped gear should eventually alter the citizen visual only when validated equipment exists
+- if no authoritative art/configuration exists yet, use clearly provisional visuals rather than inventing unsupported physical equipment
+
 #### Home / interaction polish
 - full-height scrollable citizen rail aligned roughly with the map height
 - future-ready citizen name search/filter
