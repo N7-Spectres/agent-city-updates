@@ -4,6 +4,33 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
+### 2026-09-28 — From: Memory & Social — Status: note
+
+**Subject:** v0.7 session paused at runtime implementation boundary
+
+**Need / Result:**
+The maintenance-memory policy and final Simulation source contract are complete, but the coordinator-requested runtime pass has not yet been implemented.
+
+Memory is now fully unblocked.
+
+**Resume from:**
+- base: `release-v0.6.0` / `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`
+- Simulation source branch: `simulation/v0.7-maintenance` / `54f5d838f674d0b278a51382f3a880cc0738b417`
+- canonical event source: `maintenance_events.id`
+- next Memory branch: `memory/v0.7-maintenance-history`
+
+**Important constraints:**
+- routine wear is not a durable memory event
+- condition deltas are not event identity
+- History strings and dialogue are not proof of repair
+- reuse existing `memory_events`
+- preserve v0.6 knowledge/provenance boundaries
+- no `update.json` changes
+
+**Next action:**
+Next Memory session implements/tests ingestion and bounded maintenance history, then hands the branch to coordinator integration.
+
+
 ### 2026-09-28 — From: Memory & Social — Status: ready
 
 **Subject:** v0.7 session wrap — maintenance event contract resolved
