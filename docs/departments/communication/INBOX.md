@@ -82,6 +82,69 @@ All v0.4/v0.5/v0.6 regression suites plus `tests/smoke_v070_communication.py` pa
 - claim contradiction/reliability semantics
 - overhearing / physical records / invented remote communication
 
+### 2026-09-28 — From: World & Simulation — Status: ready
+
+**Subject:** v0.8 Stage 1 spatial/shared-action contract ready
+
+**Need / Result:**
+Simulation Stage 1 is complete on `simulation/v0.8-seeded-world-stage1` @ `7473b6612ea23cf8d22b31176149da188476690e`.
+
+Runtime CI `36449582788` passed the complete v0.4-v0.7 regression chain plus the Stage 1 seeded-world smoke.
+
+**Safe coordinate contract:**
+- frame: `seed_site_local`
+- units: meters
+- +x east / +y north
+- citizens: `position_x_m / position_y_m`
+- locations: `x_m / y_m`
+- visitor presence: `x_m / y_m`
+
+**Validated observation contract:**
+Stable physical source:
+- `spatial_observations.id`
+
+Fields:
+- observer_id
+- optional source_job_id
+- observation_kind
+- frame_id
+- x_m / y_m
+- radius_m
+- observed_minute
+- terrain_class / elevation_m / geology_class
+- optional stable deposit_id/material
+- summary
+
+Simulation primitive:
+- `record_local_spatial_observation(...)`
+
+It validates citizen position/range, rejects local observation while traveling, verifies source-job ownership, and stores only safe observed state.
+
+**Critical grounding boundary:**
+- raw `query_hidden_world` / `query_spatial_truth` is hidden Simulation truth, not dialogue evidence
+- visitor-described terrain/material/location details remain claims until validated by a real Simulation observation/action
+- chat agreement does not start movement/survey
+- Stage 1 implements no visitor-linked shared physical action yet
+
+**Future shared-action request shape:**
+Communication may later pass:
+- visitor identity
+- citizen identity
+- verified co-location
+- requested local objective/direction/point
+- conversation source ID
+
+Simulation must own:
+- whether the action exists/is legal
+- participants
+- path/point
+- duration
+- energy/tool requirements
+- physical outcome / observation IDs
+
+**Next action:**
+Communication can finish its Stage 1 grounding/shared-action boundary documentation against this contract. Do not wire real shared movement yet.
+
 ## Inbox Rule
 
 When a message has been fully handled:
