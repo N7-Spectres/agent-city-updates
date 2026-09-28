@@ -19,11 +19,9 @@ This file is the shared project task board.
 
 ### WAITING
 
-- [Coordinator / Integration] final v0.7 assembly now waits only for Memory's remaining runtime pass, then integrates Simulation + Communication + Memory + Assets and runs the full regression suite
+- [Coordinator / Integration] all v0.7 department branches are ready; assemble Simulation + Communication + Memory + Assets and run the full regression suite
 
 ### READY
-
-- [Memory & Social] v0.7 runtime pass is unblocked but not yet implemented; next session creates `memory/v0.7-maintenance-history` from `release-v0.6.0`, ingests `maintenance_events.id`, adds bounded retrieval + smoke validation
 
 - [World & Simulation] v0.7 Maintenance & Consequences core ready on `simulation/v0.7-maintenance` @ `54f5d838f674d0b278a51382f3a880cc0738b417`; runtime CI `36429729279` passed all v0.4-v0.7 smoke suites
 - [World & Simulation] authoritative condition/effective-capability fields delivered to Assets
@@ -34,9 +32,9 @@ This file is the shared project task board.
 
 ### REVIEW
 
-- [Assets & Interface] v0.7 complete on `assets/v0.7-home-avatars` @ `dad17d8ef663a4fef367c4260e58074047acf1b3`; PR #7 ready for integration with Home scaling/search/Recent Activity/avatar framework + authoritative maintenance UI + Assets smoke
+- [Memory & Social] v0.7 maintenance history complete on `memory/v0.7-maintenance-history` @ `dda84cdf6a46fbd79e48ce9eea59adce363c5714`; CI `36434785293` passed all v0.4-v0.6 regressions + v0.7 Memory smoke
 
-- [Memory & Social] v0.7 maintenance policy/source contract reviewed; runtime branch still pending and must not be treated as integration-ready
+- [Assets & Interface] v0.7 complete on `assets/v0.7-home-avatars` @ `dad17d8ef663a4fef367c4260e58074047acf1b3`; PR #7 ready for integration with Home scaling/search/Recent Activity/avatar framework + authoritative maintenance UI + Assets smoke
 
 - [World & Simulation] v0.7 gradual equipment/structure wear, battery health, chassis wear, service/repair/replacement jobs, condition-scaled capability, passive structure aging, additive migration, and stable maintenance events complete
 - [Communication & Perception] v0.7 raw-exchange-first persistence, bounded retry, non-fatal claim enrichment, diagnostics, and failure classification complete
@@ -178,3 +176,18 @@ Cross-department integration must preserve:
 > **Information must travel through a real mechanism.**
 
 A green department branch is not sufficient if merging it would silently remove another department's invariant.
+
+
+## Memory v0.7 Integration Locks
+
+Coordinator integration must preserve:
+
+1. `maintenance_events.id` as the canonical physical maintenance source.
+2. Actor receives direct maintenance memory; a different citizen target also receives serviced-subject memory.
+3. Equipment owners, bystanders, and the settlement do not automatically receive maintenance memory.
+4. Passive wear and condition deltas do not create durable Memory events.
+5. `simulation_maintenance_event` records stay out of generic v0.6 knowledge-fact retrieval.
+6. Maintenance model context remains bounded.
+7. `GET /api/memory/maintenance/{citizen_id}` is citizen-scoped history, not physical admin truth.
+8. Memory synchronization safely no-ops before Simulation's maintenance table exists, preserving merge compatibility.
+9. Preserve `tests/smoke_v070_memory.py` in the assembled v0.7 suite.
