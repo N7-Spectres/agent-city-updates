@@ -114,3 +114,30 @@ After provenance/event interfaces are available:
 3. update source reliability only when claims are physically verified or contradicted
 4. add explicit commitment lifecycle once promises can be safely extracted and linked to outcomes
 5. expose relationship history through an API for Assets, without a simplistic social leaderboard
+
+
+## Session Close — 2026-09-28
+
+Memory & Social work for this session is complete and handed off.
+
+**Development branch:** `memory/v0.4-social-memory-core`  
+**Current branch head:** `eb1ccc17e2fc7a44a15fbb73c44fc2b87d47f997`  
+**Base runtime commit:** `40f9704b7e84e2dd6279932223105ae93d9fef49`
+
+The implemented slice is ready for integration review. The next richer memory work is intentionally waiting on:
+
+- Communication runtime provenance for specific claims / last-known information
+- Simulation-confirmed stable event references for physical cooperation/help/outcome memories
+
+The exact full v0.3.0 runtime source location has been sent to both departments so they do not need this chat history to resume.
+
+### Verification still required before release
+
+- start Agent City against an existing v0.3.0 SQLite database
+- confirm startup backfill creates exactly one participant memory per prior conversation
+- restart again and confirm idempotency / no relationship-count inflation
+- create several new citizen conversations and confirm relationship history updates immediately
+- confirm planner context remains bounded and does not promote conversation claims into physical truth
+- exercise Ollama-backed citizen/visitor dialogue with the new social-history context
+
+No release was published and `update.json` remains unchanged.
