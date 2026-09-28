@@ -280,3 +280,10 @@ Communication `diagnostic` history is system/debug information.
 - exclude diagnostics from normal Home Recent Activity
 - never render diagnostics as citizen speech or conversation summaries
 - diagnostics may remain visible as muted system/debug rows in full History
+
+
+## v0.7 Integration Handoff Rule
+
+Assets v0.7 is complete once its branch is in REVIEW with branch-level UI contracts verified.
+
+Final cross-department assembly belongs to the coordinator. Assets must not merge Simulation, Communication, or Memory runtime code into its presentation branch merely to produce a single combined release branch.
