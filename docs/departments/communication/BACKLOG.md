@@ -3,8 +3,10 @@
 ## v0.6 Integration Follow-Up
 
 - integrate `communication/v0.6-knowledge-provenance` with Simulation's final v0.6 discovery/experiment branch
-- ensure each Simulation discovery calls `record_validated_information(...)` only for the citizen(s) who physically learned the result
-- preserve authoritative Simulation event IDs and simulation minutes in receipts
+- preserve both modules during merge: Simulation `agent_city/knowledge.py` and Communication `agent_city/provenance.py`
+- preserve Communication's idempotent sync from verified recipient-local `citizen_knowledge` / `discoveries` and `experiment_results`
+- preserve authoritative Simulation discovery/result IDs and simulation minutes in receipts
+- merged planner context must include both Simulation-validated property knowledge and Communication provenance/claims
 - integrate with Memory's v0.6 bounded knowledge read model without duplicating or globally merging citizen knowledge
 - ensure Assets consumes structured Visit `status/availability` instead of generic inaccessible-location wording
 - run combined v0.6 smoke suites after all department branches merge
