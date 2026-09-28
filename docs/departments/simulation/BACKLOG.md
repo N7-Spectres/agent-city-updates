@@ -88,3 +88,15 @@ Before starting new Simulation feature work:
 5. Any merge conflict that changes physical truth, discovery semantics, or known-state filtering returns to World & Simulation for review.
 
 Until that gate is complete, the v0.6 Simulation core is considered handed off and feature-complete for this session.
+
+
+## Long-Term Procedural Universe
+
+- persistent hierarchical deterministic universe seed
+- deterministic star systems / planets / moons / regions generated from seed
+- lazy generation allowed only when results remain seed-stable
+- no rerolling hidden reality because citizens chose to observe it
+- spaceflight can reveal additional seeded bodies/systems if citizens actually invent/build it
+- keep hidden astronomical/planetary truth separate from citizen knowledge
+- future orbital industry / stellar-scale energy collection may emerge if civilization capability supports it
+- do not hard-code a Dyson structure as an unlock; if it emerges, prefer physical orbital construction and energy accounting
