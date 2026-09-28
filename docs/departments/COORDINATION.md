@@ -22,7 +22,6 @@ Departments should read this file at the beginning of a work session in addition
 
 - [Memory & Social] Lead v0.4.0 relationship-memory architecture and implementation
 - [Assets & Interface] v0.4 Control Room + map readability pass
-- [Communication & Perception] Information provenance / last-known knowledge support for v0.4
 
 ### STANDBY
 
@@ -30,15 +29,16 @@ Departments should read this file at the beginning of a work session in addition
 
 ### WAITING
 
-_None recorded yet._
+- [Communication & Perception] Runtime provenance persistence is waiting for the v0.3 communication/database/simulation source files to be present on the default branch
 
 ### READY
 
-_None recorded yet._
+- [Memory & Social] Communication provenance contract is ready for memory integration
+- [World & Simulation] Communication request for authoritative time/co-location/event interfaces is in Simulation inbox
 
 ### REVIEW
 
-_None recorded yet._
+- [Communication & Perception] Planner anti-omniscience patch + v0.4 provenance contract
 
 ### DONE
 
