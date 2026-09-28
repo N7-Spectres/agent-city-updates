@@ -1,3 +1,4 @@
+import secrets
 import sqlite3
 from pathlib import Path
 from typing import Any
@@ -123,7 +124,9 @@ def init_db() -> None:
                 battery_health REAL NOT NULL DEFAULT 100,
                 last_service_minute INTEGER,
                 location TEXT NOT NULL DEFAULT 'Seed Site',
-                current_activity TEXT NOT NULL DEFAULT 'Orienting at Seed Site'
+                current_activity TEXT NOT NULL DEFAULT 'Orienting at Seed Site',
+                position_x_m REAL,
+                position_y_m REAL
             );
 
             CREATE TABLE IF NOT EXISTS structures (
@@ -137,7 +140,9 @@ def init_db() -> None:
                 provides_charging INTEGER NOT NULL DEFAULT 0,
                 project_id INTEGER,
                 last_service_minute INTEGER,
-                use_count INTEGER NOT NULL DEFAULT 0
+                use_count INTEGER NOT NULL DEFAULT 0,
+                x_m REAL,
+                y_m REAL
             );
 
             CREATE TABLE IF NOT EXISTS resources (
@@ -168,7 +173,9 @@ def init_db() -> None:
                 mapped INTEGER NOT NULL DEFAULT 1,
                 surveyed INTEGER NOT NULL DEFAULT 0,
                 x_km REAL,
-                y_km REAL
+                y_km REAL,
+                x_m REAL,
+                y_m REAL
             );
 
             CREATE TABLE IF NOT EXISTS routes (
@@ -223,7 +230,9 @@ def init_db() -> None:
                 started_minute INTEGER,
                 completed_minute INTEGER,
                 active_job_id INTEGER,
-                resulting_structure_id INTEGER
+                resulting_structure_id INTEGER,
+                x_m REAL,
+                y_m REAL
             );
 
             CREATE TABLE IF NOT EXISTS project_materials (
@@ -316,6 +325,47 @@ def init_db() -> None:
             CREATE INDEX IF NOT EXISTS idx_maintenance_events_target
             ON maintenance_events(target_type, target_id, id);
 
+            CREATE TABLE IF NOT EXISTS generated_deposits (
+                id TEXT PRIMARY KEY,
+                source_kind TEXT NOT NULL DEFAULT 'procedural',
+                material TEXT NOT NULL,
+                source_chunk_x INTEGER NOT NULL,
+                source_chunk_y INTEGER NOT NULL,
+                center_x_m REAL NOT NULL,
+                center_y_m REAL NOT NULL,
+                long_axis_m REAL NOT NULL,
+                short_axis_m REAL NOT NULL,
+                angle_rad REAL NOT NULL,
+                richness REAL NOT NULL
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_generated_deposits_center
+            ON generated_deposits(center_x_m, center_y_m);
+
+            CREATE TABLE IF NOT EXISTS spatial_observations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                observer_id TEXT NOT NULL,
+                source_job_id INTEGER,
+                observation_kind TEXT NOT NULL,
+                frame_id TEXT NOT NULL,
+                x_m REAL NOT NULL,
+                y_m REAL NOT NULL,
+                radius_m REAL NOT NULL DEFAULT 1,
+                observed_minute INTEGER NOT NULL,
+                terrain_class TEXT NOT NULL,
+                elevation_m REAL NOT NULL,
+                geology_class TEXT NOT NULL,
+                deposit_id TEXT,
+                material TEXT,
+                summary TEXT NOT NULL
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_spatial_observations_observer
+            ON spatial_observations(observer_id, observed_minute, id);
+
+            CREATE INDEX IF NOT EXISTS idx_spatial_observations_deposit
+            ON spatial_observations(deposit_id, id);
+
             CREATE TABLE IF NOT EXISTS jobs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 citizen_id TEXT NOT NULL,
@@ -355,7 +405,9 @@ def init_db() -> None:
                 from_location_id TEXT,
                 to_location_id TEXT,
                 travel_start_minute INTEGER,
-                travel_end_minute INTEGER
+                travel_end_minute INTEGER,
+                x_m REAL,
+                y_m REAL
             );
             """
         )
@@ -365,6 +417,8 @@ def init_db() -> None:
         add_column_if_missing(conn, "citizens", "active_job_id INTEGER", "active_job_id")
         add_column_if_missing(conn, "citizens", "battery_health REAL NOT NULL DEFAULT 100", "battery_health")
         add_column_if_missing(conn, "citizens", "last_service_minute INTEGER", "last_service_minute")
+        add_column_if_missing(conn, "citizens", "position_x_m REAL", "position_x_m")
+        add_column_if_missing(conn, "citizens", "position_y_m REAL", "position_y_m")
         add_column_if_missing(conn, "jobs", "intent_reason TEXT", "intent_reason")
         add_column_if_missing(conn, "jobs", "project_id INTEGER", "project_id")
         add_column_if_missing(conn, "jobs", "outcome TEXT", "outcome")
@@ -375,6 +429,8 @@ def init_db() -> None:
         add_column_if_missing(conn, "deposits", "discovered_minute INTEGER", "discovered_minute")
         add_column_if_missing(conn, "locations", "x_km REAL", "x_km")
         add_column_if_missing(conn, "locations", "y_km REAL", "y_km")
+        add_column_if_missing(conn, "locations", "x_m REAL", "x_m")
+        add_column_if_missing(conn, "locations", "y_m REAL", "y_m")
         add_column_if_missing(conn, "structures", "location_id TEXT", "location_id")
         add_column_if_missing(conn, "structures", "x_km REAL", "x_km")
         add_column_if_missing(conn, "structures", "y_km REAL", "y_km")
@@ -383,8 +439,14 @@ def init_db() -> None:
         add_column_if_missing(conn, "structures", "project_id INTEGER", "project_id")
         add_column_if_missing(conn, "structures", "last_service_minute INTEGER", "last_service_minute")
         add_column_if_missing(conn, "structures", "use_count INTEGER NOT NULL DEFAULT 0", "use_count")
+        add_column_if_missing(conn, "structures", "x_m REAL", "x_m")
+        add_column_if_missing(conn, "structures", "y_m REAL", "y_m")
         add_column_if_missing(conn, "equipment", "last_service_minute INTEGER", "last_service_minute")
         add_column_if_missing(conn, "equipment", "use_count INTEGER NOT NULL DEFAULT 0", "use_count")
+        add_column_if_missing(conn, "projects", "x_m REAL", "x_m")
+        add_column_if_missing(conn, "projects", "y_m REAL", "y_m")
+        add_column_if_missing(conn, "visitor_presence", "x_m REAL", "x_m")
+        add_column_if_missing(conn, "visitor_presence", "y_m REAL", "y_m")
         add_column_if_missing(conn, "citizen_conversations", "source_job_id INTEGER", "source_job_id")
         conn.execute(
             """
@@ -393,6 +455,9 @@ def init_db() -> None:
             WHERE source_job_id IS NOT NULL
             """
         )
+
+        if get_meta(conn, "planet_seed") is None:
+            set_meta(conn, "planet_seed", secrets.token_hex(16))
 
         if get_meta(conn, "initialized") is None:
             set_meta(conn, "initialized", "true")
@@ -463,10 +528,13 @@ def init_db() -> None:
             conn.execute(
                 """
                 UPDATE locations
-                SET x_km = COALESCE(x_km, ?), y_km = COALESCE(y_km, ?)
+                SET x_km = COALESCE(x_km, ?),
+                    y_km = COALESCE(y_km, ?),
+                    x_m = COALESCE(x_m, ?),
+                    y_m = COALESCE(y_m, ?)
                 WHERE id = ?
                 """,
-                (x_km, y_km, lid),
+                (x_km, y_km, x_km * 1000.0, y_km * 1000.0, lid),
             )
 
         # Existing v0.4.x structures are all physically at Seed Site.
@@ -475,7 +543,9 @@ def init_db() -> None:
             UPDATE structures
             SET location_id = COALESCE(location_id, 'seed_site'),
                 x_km = COALESCE(x_km, 0.0),
-                y_km = COALESCE(y_km, 0.0)
+                y_km = COALESCE(y_km, 0.0),
+                x_m = COALESCE(x_m, x_km * 1000.0, 0.0),
+                y_m = COALESCE(y_m, y_km * 1000.0, 0.0)
             """
         )
         conn.execute("UPDATE structures SET kind = 'charger', provides_charging = 1 WHERE name = 'Charging Station'")
@@ -484,6 +554,75 @@ def init_db() -> None:
         conn.execute("UPDATE structures SET kind = 'smelter' WHERE name = 'Crude Smelter'")
 
         conn.execute("UPDATE citizens SET location_id = 'seed_site' WHERE location_id IS NULL OR location_id = ''")
+        conn.execute(
+            """
+            UPDATE citizens
+            SET position_x_m = COALESCE(
+                    position_x_m,
+                    (SELECT x_m FROM locations WHERE locations.id = citizens.location_id),
+                    0.0
+                ),
+                position_y_m = COALESCE(
+                    position_y_m,
+                    (SELECT y_m FROM locations WHERE locations.id = citizens.location_id),
+                    0.0
+                )
+            """
+        )
+        conn.execute(
+            """
+            UPDATE projects
+            SET x_m = COALESCE(x_m, x_km * 1000.0),
+                y_m = COALESCE(y_m, y_km * 1000.0)
+            """
+        )
+        conn.execute(
+            """
+            UPDATE visitor_presence
+            SET x_m = COALESCE(
+                    x_m,
+                    (SELECT x_m FROM locations WHERE locations.id = visitor_presence.location_id),
+                    0.0
+                ),
+                y_m = COALESCE(
+                    y_m,
+                    (SELECT y_m FROM locations WHERE locations.id = visitor_presence.location_id),
+                    0.0
+                )
+            """
+        )
+
+        from .spatial import legacy_body_geometry
+        planet_seed = get_meta(conn, "planet_seed") or ""
+        for dep in conn.execute(
+            """
+            SELECT d.id, d.material, l.x_m, l.y_m
+            FROM deposits d
+            JOIN locations l ON l.id = d.location_id
+            """
+        ).fetchall():
+            body = legacy_body_geometry(
+                planet_seed,
+                str(dep["id"]),
+                str(dep["material"]),
+                float(dep["x_m"] or 0.0),
+                float(dep["y_m"] or 0.0),
+            )
+            conn.execute(
+                """
+                INSERT OR IGNORE INTO generated_deposits
+                (id, source_kind, material, source_chunk_x, source_chunk_y,
+                 center_x_m, center_y_m, long_axis_m, short_axis_m, angle_rad, richness)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    body["id"], body["source_kind"], body["material"],
+                    body["source_chunk_x"], body["source_chunk_y"],
+                    body["center_x_m"], body["center_y_m"],
+                    body["long_axis_m"], body["short_axis_m"],
+                    body["angle_rad"], body["richness"],
+                ),
+            )
         conn.execute(
             "UPDATE jobs SET outcome = 'legacy_complete' WHERE status = 'complete' AND outcome IS NULL"
         )
@@ -733,6 +872,12 @@ def snapshot() -> dict[str, Any]:
                 "SELECT * FROM maintenance_events ORDER BY id DESC LIMIT 80"
             )
         ]
+        from .spatial import SPATIAL_FRAME_ID, safe_observation_payload
+        spatial_observations = [
+            safe_observation_payload(r) for r in conn.execute(
+                "SELECT * FROM spatial_observations ORDER BY id DESC LIMIT 120"
+            )
+        ]
 
         # Location cards begin sparse and accumulate only validated facts.
         facts_by_location: dict[str, list[dict[str, Any]]] = {loc["id"]: [] for loc in locations}
@@ -804,5 +949,15 @@ def snapshot() -> dict[str, Any]:
             "experiment_results": experiment_results,
             "learned_processes": learned_processes,
             "maintenance_events": maintenance_events,
+            "spatial_frame": {
+                "id": SPATIAL_FRAME_ID,
+                "units": "meters",
+                "origin_location_id": "seed_site",
+                "frame_type": "local_tangent_plane",
+                "x_axis": "east",
+                "y_axis": "north",
+                "global_mapping": "not_yet_assigned",
+            },
+            "spatial_observations": spatial_observations,
             "citizen_conversations": citizen_conversations,
         }
