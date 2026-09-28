@@ -1,7 +1,7 @@
 # Memory & Social — State
 
 _Last updated: 2026-09-28_
-_Current release: v0.3.0_
+_Current release: v0.4.0_
 _Current development branch: `memory/v0.4-social-memory-core`_
 
 ## Mission
