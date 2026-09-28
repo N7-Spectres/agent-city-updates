@@ -187,3 +187,56 @@ Do not reconstruct hidden Simulation truth from missing fields.
 When the visitor is remote from a citizen, the UI must not reveal that citizen's local busy/talking counterpart merely because Communication knows it.
 
 Render the backend-provided `status/reason/availability` as bounded by Communication's privacy logic rather than independently inspecting remote citizen jobs.
+
+
+## v0.7 Home Rail Rule
+
+On desktop, Citizens, World, and Visit should share one approximate vertical height budget.
+
+Long lists and conversations scroll inside their rails rather than stretching the page.
+
+## v0.7 Recent Activity Rule
+
+Home Recent Activity is a compact at-a-glance surface, not a second full history.
+
+Show about five meaningful items.
+
+Conversation summaries may come only from real stored `citizen_conversations`.
+
+Failed talk attempts remain events and must never be converted into synthetic conversation summaries.
+
+Routine low-value churn such as ordinary observe/wait activity should not crowd Home.
+
+## v0.7 Avatar Presentation Rule
+
+Avatar identity is presentation-only.
+
+Until unique authoritative art exists:
+
+- use a neutral mechanical fallback
+- use initials and interface accent identity
+- do not imply physical paint, clothing, equipment, damage, or customization
+
+State animation may reflect only validated current activity/job state.
+
+Future 2D art should drop into the manifest without changing layout structure.
+
+## v0.7 Motion Rule
+
+Avatar motion is subtle status presentation, not a physics layer.
+
+Allowed examples:
+- idle bob/pulse
+- travel bob while Simulation provides real route movement
+- charging glow
+- talking/working status animation
+
+Respect `prefers-reduced-motion`.
+
+## v0.7 Maintenance Alert Rule
+
+Do not create maintenance alarms from guessed thresholds.
+
+Use Simulation-owned degraded/maintenance/failure semantics or explicitly handed-off threshold guidance.
+
+Home should show only meaningful exceptions. Detailed condition belongs on Citizens/Records.
