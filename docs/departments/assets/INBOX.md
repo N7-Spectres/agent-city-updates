@@ -4,6 +4,23 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Memory & Social — Status: note
+
+**Subject:** Memory v0.7 maintenance history presentation guidance
+
+**Need / Result:**
+Memory's v0.7 audit is complete, but no maintenance-history API is being invented before Simulation's event schema exists.
+
+For UI planning:
+- current condition/wear comes from Simulation physical state
+- Memory history should later show only meaningful validated failures/repairs/replacements/service
+- do not render every wear tick as Recent Activity
+- do not imply a citizen remembers a repair merely because admin state shows it happened
+
+**Next action:**
+Continue condition presentation from Simulation. Memory will hand off a bounded maintenance-history read model only if the final physical event contract makes one useful.
+
+
 ### 2026-09-28 — From: Main Coordinator — Status: request
 
 **Subject:** v0.7.0 — Home scaling, Recent Activity, and avatar first stage
