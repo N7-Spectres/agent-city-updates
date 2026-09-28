@@ -24,7 +24,7 @@ _None._
 
 ### READY
 
-- [Assets & Interface] v0.8.1 work packet is in INBOX; quiet hotfix base is `release-v0.8.1` @ `c55eb76b89b35a660275ac97f095dcc4f511683e`
+- [Assets & Interface] v0.8.1 hotfix ready on `assets/v0.8.1-citizen-visuals-map` @ `588dd08558a3b9aaed4a0ab8fe1d6e45a7838337`; PR #19 ready; full regression `36467360376` passed
 
 ### REVIEW
 
