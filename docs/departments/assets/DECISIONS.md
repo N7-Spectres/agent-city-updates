@@ -458,3 +458,56 @@ Until Simulation provides continuous movement:
 - do not interpolate a physically meaningful path from endpoint x/y values
 
 Presentation animation may continue to use existing non-authoritative map interpolation only where it is clearly presentation, but it must not be relabeled as continuous-world physical position.
+
+
+## v0.8 Stage 2 Continuous Movement Rendering Rule
+
+Stage 2 allows continuous local movement rendering only from Simulation's final authoritative movement payload.
+
+Assets may smooth/render only the exact authoritative segment described by:
+- start x/y
+- target x/y
+- start/end minute
+- current authoritative x/y
+- progress
+
+Do not derive alternate routes, waypoints, hidden terrain paths, or inferred geometry.
+
+## v0.8 Stage 2 Shared-Action UI Rule
+
+Shared-action presentation has three separate identity layers:
+
+1. Communication proposal/provenance ID
+2. Simulation shared physical activity ID
+3. Simulation physical movement job ID
+
+UI labels must preserve the physical boundary:
+
+- `proposed` / `accepted` = intent, no movement
+- `active` / Communication `started` = real physical job exists
+- `complete` / Communication `completed` = Simulation completion
+- `rejected` / failed / cancelled = no active physical movement
+
+A proposal card must never look like an active movement marker before `simulation_action_id` exists.
+
+## v0.8 Stage 2 Observation Rendering Rule
+
+Render an exploration observation only when Simulation supplies a real `spatial_observations.id`.
+
+Use `radius_m` or equivalent uncertainty visually when practical.
+
+Baseline observation must not visually imply:
+- known material
+- known geology
+- exact deposit center
+- hidden generated-body shape
+
+Stable deposit identity may be used only after safe discovery exposes it.
+
+## v0.8 Stage 2 Visitor Shared-Activity Rule
+
+Visitor presence during a shared walk comes from the authoritative visitor-presence/shared-activity state.
+
+Assets must not independently move the visitor because chat accepted a proposal.
+
+Conversation agreement is intent; Simulation start is physical movement.
