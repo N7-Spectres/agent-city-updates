@@ -123,6 +123,11 @@ function depositsForLocation(locationId) {
 }
 
 function activeJobFor(citizenId) {
+  const citizen = state.citizens.find(c => c.id === citizenId);
+  if (citizen?.active_job_id != null) {
+    const sharedJob = state.jobs.find(j => Number(j.id) === Number(citizen.active_job_id));
+    if (sharedJob) return sharedJob;
+  }
   return state.jobs.find(j => j.citizen_id === citizenId) || null;
 }
 
@@ -485,7 +490,7 @@ window.startVisitorTravel = async function(target) {
 
     visitorPresence = data.presence;
     if (selectedCitizen) {
-      clearVisitSelection(`You left ${escapeHtml(visitorPresence.from_location_name || "the location")} and began traveling.`);
+      clearVisitSelection(`You left ${visitorPresence.from_location_name || "the location"} and began traveling.`);
     }
     focusedLocation = target;
     render();
