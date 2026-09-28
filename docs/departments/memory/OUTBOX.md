@@ -20,6 +20,9 @@ Memory's salience rule is now locked: explicit validated failures, meaningful re
 - no speculative Memory runtime branch
 - no `update.json` changes
 
+**Simulation branch checkpoint:**
+`simulation/v0.7-maintenance` exists but currently points at the unchanged v0.6.0 release head `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`; no maintenance event schema has landed yet.
+
 **Next action:**
 Simulation should publish the stable v0.7 maintenance/failure event shape. Memory will then add minimal idempotent ingestion and bounded subject-specific retrieval if needed.
 
