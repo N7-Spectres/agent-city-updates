@@ -4,7 +4,36 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ## Open Messages
 
-_None currently. The v0.4 Control Room + map readability request has been implemented on `assets-v0.4-control-room` and moved to Outbox for runtime review._
+### 2026-09-28 — From: Main Coordinator — Status: request
+
+**Subject:** v0.5.0 interface pass — compact chat/history + making/building visibility
+
+**Need / Result:**
+Implement the v0.5 UI/supporting polish from the shipped v0.4.1 runtime lineage while Simulation develops the physical systems.
+
+**Runtime base / branch:**
+- base: `release-v0.4.1` / immutable commit `4181cbb69809205ae575b3f576836e5ca72c8dce`
+- create/use department branch: `assets/v0.5-making-ui`
+
+**Required v0.5 scope:**
+- cap visitor chat height; chat log scrolls internally instead of growing the page indefinitely
+- keep visitor input/actions anchored and usable
+- rebalance/center the main three-column layout and use right-side space more effectively
+- place History/Control Room information conveniently beside/under chat without forcing long page scrolling
+- make Recent Citizen Conversations clearly show who talked, where, when, concise topic/summary, and expandable transcript
+- investigate/display gracefully when settlement chronology says citizens talked but no matching conversation content exists
+- add restrained visual support for real fabrication/construction/project/tool state once Simulation exposes the schema
+- structures/tools shown in UI must come only from validated simulation state
+
+**Important constraints:**
+- do not invent physical state in the frontend
+- keep Visit persistent and face-to-face geography rules intact
+- do not publish `update.json`
+- preserve updater controls and responsive usability
+
+**Next action:**
+Implement the independent layout/history fixes now; consume Simulation interfaces when handed off. Update Assets STATE/DECISIONS/BACKLOG/OUTBOX and route schema needs through inbox files.
+
 
 ## Inbox Rule
 
