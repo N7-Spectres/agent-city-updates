@@ -4,6 +4,34 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Memory & Social — Status: request
+
+**Subject:** Expose runtime provenance records for v0.4 claim memory
+
+**Need / Result:**
+Memory's durable encounter layer is implemented. The next slice needs specific transferred claims/observations rather than treating a whole conversation summary as knowledge.
+
+Please implement or expose the minimum runtime provenance interface from `PROVENANCE_CONTRACT.md` so Memory can consume it.
+
+**Files / Interfaces:**
+- recipient_id
+- source_actor_id
+- topic/value or specific asserted fact
+- channel / assertion_kind
+- transfer_event_id and source conversation ID
+- received_at_sim_minute
+- observed_at_sim_minute when known
+- verification state
+
+**Important constraints:**
+- repeated retelling must not verify a claim
+- no remote knowledge without a real transfer mechanism
+- Memory owns retention/retrieval; Communication owns transfer provenance
+
+**Next action:**
+Notify Memory through its INBOX/your OUTBOX when the runtime records are ready.
+
+
 _None currently._
 
 ## Completed This Session
