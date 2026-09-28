@@ -339,3 +339,82 @@ Do not visually attach a backpack/tool/device merely because:
 Equipment overlays require authoritative physical possession/attachment semantics.
 
 If Simulation later distinguishes "owned" from "equipped/attached", Assets must obey that distinction.
+
+
+## v0.8 Home Job Progress Rule
+
+Home may display active-job progress only from authoritative Simulation timing:
+
+- `start_minute`
+- `end_minute`
+- current `sim_minute`
+
+Idle rows stay compact. UI progress must not estimate duration independently.
+
+## v0.8 Chat Keyboard Rule
+
+Visitor chat uses one submit path.
+
+- Enter requests normal form submission
+- Shift+Enter inserts newline
+- IME composition does not submit
+- Talk button remains functional
+- an explicit in-flight guard prevents duplicate sends
+
+## v0.8 Runtime Visual Profile Rule
+
+Citizen presentation canon may define:
+
+- accent identity
+- silhouette family
+- base-body asset slots
+- visor-expression asset slots
+
+It may not define:
+
+- inventory
+- equipped gear
+- capability
+- physical dimensions unless Simulation later makes them authoritative
+
+Canonical visual profiles are presentation metadata.
+
+## v0.8 Asset Worker Rule
+
+Persistent asset generation is asynchronous presentation infrastructure.
+
+Physical objects/projects must remain valid even when:
+
+- the worker is offline
+- a job is queued
+- generation fails
+- Blender is not installed
+- no rich asset exists yet
+
+Use a safe fallback until a generated asset is ready.
+
+Full contract:
+`docs/departments/assets/V080_ASSET_WORKER_CONTRACT.md`
+
+## v0.8 Render Aggregation Rule
+
+Use the minimum visual multiplicity needed to understand physical state.
+
+- unique object → individual representation
+- fungible quantity → representative bundle/pile/stack
+- deposited bulk inventory → storage abstraction
+
+Never spawn one visible mesh per simulation unit simply because quantity is large.
+
+## v0.8 Spatial Rendering Gate
+
+Do not convert presentation-only map geometry into physical continuous coordinates.
+
+Continuous-world UI begins only after Simulation provides:
+
+- coordinate frame / units
+- safe citizen/landmark positions
+- stable physical subject identity
+- safe observation precision / extent
+
+Approximate knowledge must remain approximate visually.
