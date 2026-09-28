@@ -1,17 +1,17 @@
 # Assets & Interface — Backlog
 
-## Waiting — v0.7 Maintenance Contract
+## Ready for Next Session — v0.7 Maintenance Contract
 
-- consume final Simulation equipment condition/wear/service fields
-- consume structure condition/wear/service fields
-- consume battery / power-storage health if exposed
-- use Simulation-owned degraded / maintenance-needed / failed semantics
-- add meaningful condition presentation to Citizens and Records
-- add Home alerts only for meaningful degradation
-- never render every wear tick as Recent Activity
-- never infer visible damage from a percentage alone
+Simulation contract is ready on `simulation/v0.7-maintenance` @ `54f5d838f674d0b278a51382f3a880cc0738b417`.
 
-Assets request is recorded in `docs/departments/simulation/INBOX.md`.
+Next implementation:
+- Citizens: battery health/state, usable capacity, replacement/service due, joint wear, chassis service state
+- Equipment: condition/state/operational/service due + **effective** cargo/extraction capability
+- Structures: condition/state/operational/service due/efficiency/charging
+- Records: bounded `maintenance_events[]` history
+- Home: meaningful service/degradation alerts only
+- Recent Activity: omit tiny wear churn and Communication `diagnostic` rows from normal citizen activity
+- preserve Memory's rule that physical maintenance state is not automatically remembered social knowledge
 
 ## Review / Validation — v0.7 Branch
 
@@ -56,4 +56,6 @@ Assets request is recorded in `docs/departments/simulation/INBOX.md`.
 
 ## Current Blocker
 
-Assets is waiting on World & Simulation's v0.7 maintenance/condition state contract.
+_None._ The Simulation maintenance contract is ready.
+
+The remaining v0.7 Assets work is implementation on PR #7 in the next session.
