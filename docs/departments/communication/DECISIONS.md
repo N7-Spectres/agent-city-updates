@@ -562,3 +562,46 @@ Until that primitive exists, rejection fails closed rather than creating split-b
 Assets should render Communication's proposal projection for conversational accept/reject affordances and Simulation's movement/status fields for physical progress.
 
 Neither layer may invent missing physical transitions.
+
+
+## v0.8 Stage 2 Final Lifecycle Locks
+
+The final Simulation shared-action lifecycle is:
+
+- `proposed` — canonical Simulation proposal exists, no movement
+- `accepted` — visitor accepted, still no movement
+- `active` — separate Simulation start transition created a real job
+- `complete` — physical activity completed
+- `rejected` — pre-start proposal ended, no job/movement/observation
+- `failed` — physical/validation failure
+
+Communication must preserve that separation.
+
+### Explicit accept/start UI semantics
+
+A single explicit visitor UI action may call both Simulation transitions in sequence:
+
+1. accept canonical proposal
+2. start canonical activity
+
+but the system must still preserve internally that acceptance itself does not cause movement.
+
+If start fails after acceptance, Communication must not invent movement.
+
+### Canonical pre-start rejection
+
+Communication rejection/expiry finalization must synchronize through Simulation `reject_shared_activity`.
+
+Communication never edits `shared_activities` directly.
+
+### Source identities remain distinct
+
+Do not collapse:
+
+- `conversations.id`
+- `shared_action_proposals.id`
+- `shared_activities.id`
+- `jobs.id`
+- `spatial_observations.id`
+
+They represent social source, Communication projection, physical shared event, active physical job, and validated evidence respectively.
