@@ -124,6 +124,15 @@ def start_visitor_travel(visitor: str, target: str) -> tuple[bool, str]:
             """,
             (origin, target, now, now + duration, visitor),
         )
+        # Choosing to leave a location physically ends any open face-to-face visits.
+        conn.execute(
+            """
+            UPDATE conversation_visits
+            SET ended_minute = COALESCE(ended_minute, ?)
+            WHERE visitor = ? AND ended_minute IS NULL
+            """,
+            (now, visitor),
+        )
         add_history(
             conn,
             now,
@@ -177,13 +186,22 @@ def can_visit_citizen(visitor: str, citizen_id: str) -> tuple[bool, str]:
     presence = ensure_visitor(visitor)
     with connect() as conn:
         citizen = conn.execute(
-            "SELECT name, location_id, location FROM citizens WHERE id = ?",
+            """
+            SELECT c.name, c.location_id, c.location, c.active_job_id,
+                   j.action AS active_action, j.target AS active_target
+            FROM citizens c
+            LEFT JOIN jobs j ON j.id = c.active_job_id
+            WHERE c.id = ?
+            """,
             (citizen_id,),
         ).fetchone()
         if not citizen:
             return False, "Citizen not found."
         if presence.get("travel_end_minute") is not None:
             return False, "You are currently traveling."
+        if citizen["active_action"] == "travel":
+            target_name = _location_name(conn, citizen["active_target"]) if citizen["active_target"] else "another location"
+            return False, f"{citizen['name']} is currently traveling toward {target_name}."
         if presence["location_id"] != citizen["location_id"]:
             return False, f"{citizen['name']} is at {citizen['location']}; you are not there."
     return True, ""
