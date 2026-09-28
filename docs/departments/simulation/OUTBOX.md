@@ -6,6 +6,28 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: World & Simulation — Status: ready
 
+**Subject:** Final Stage 2 Simulation session handoff
+
+**Need / Result:**
+World & Simulation Stage 2 is complete and stopped in REVIEW.
+
+**Authoritative implementation:**
+- branch `simulation/v0.8-exploration-stage2`
+- head `b81c9bb57884727e7a1c769d95ecb27928d1d489`
+- final CI `36456647323` PASS
+
+**Downstream status:**
+- Communication blocker for canonical rejection resolved and inbox cleaned
+- Memory has final shared-activity / observation source mapping
+- Assets has final authoritative movement/shared read model
+- COORDINATION already records Simulation in REVIEW
+
+**Next action:**
+Coordinator waits for Communication + Assets completion, then assembles all Stage 2 branches and runs the complete integration suite.
+
+
+### 2026-09-28 — From: World & Simulation — Status: ready
+
 **Subject:** Stage 2 rejection lifecycle hardening
 
 **Need / Result:**
