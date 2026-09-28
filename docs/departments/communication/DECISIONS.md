@@ -553,9 +553,9 @@ Each has a distinct semantic role.
 
 Communication may not mark a proposal rejected or expired while Simulation's canonical proposal remains active/proposed.
 
-Rejection/expiry must be synchronized through a Simulation-owned cancellation primitive.
+Rejection/expiry must be synchronized through Simulation's canonical pre-start `reject_shared_activity` transition.
 
-Until that primitive exists, rejection fails closed rather than creating split-brain state.
+If that transition fails, Communication fails closed rather than creating split-brain state.
 
 ### UI authority
 
