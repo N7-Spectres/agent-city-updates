@@ -27,6 +27,8 @@ Shipped v0.3.0:
 
 Implemented on `assets-v0.4-control-room`, based from `release-v0.3.0`.
 
+Draft review surface: **PR #1 — Assets: v0.4 Control Room and map readability pass** (`assets-v0.4-control-room` → `release-v0.3.0`). The PR is intentionally unmerged.
+
 ### Control Room
 
 - Visit remains permanently visible in the right rail.
@@ -75,3 +77,17 @@ Still required before incorporation:
 - visual-only roadmap / department documentation
 
 Changes to simulation timing, action legality, resource outcomes, or physical outcomes belong to World & Simulation.
+
+
+## Session Handoff
+
+This work session is closed with Assets & Interface in **REVIEW**.
+
+Next Assets session should begin by:
+1. reading `docs/departments/COORDINATION.md` and `docs/departments/assets/INBOX.md`,
+2. reviewing PR #1 / branch `assets-v0.4-control-room`,
+3. runtime-testing the UI against a running Agent City instance,
+4. fixing only interface-owned regressions found by that test,
+5. leaving simulation-owned physical rules unchanged.
+
+There are no current cross-department dependencies from Assets & Interface. Runtime validation is an Assets/coordinator review task, not a request for Simulation to change behavior.
