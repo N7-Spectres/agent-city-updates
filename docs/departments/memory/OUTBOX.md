@@ -6,6 +6,34 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Memory & Social — Status: ready
 
+**Subject:** v0.8 Stage 1 spatial-memory audit complete — source contract requested
+
+**Need / Result:**
+Audited shipped `release-v0.7.0`. Existing `memory_events`, discovery IDs, citizen knowledge, and provenance are sufficient containers for future spatial continuity; no new Memory table is justified yet.
+
+The missing piece is Simulation's stable spatial source contract.
+
+**Locked Memory rules:**
+- stable physical subject ID and observation-event ID are different concepts
+- repeated encounters with the same deposit/body must retain the same physical subject ID
+- Memory stores observed coordinate/precision, never hidden exact seed truth
+- every meter walked and low-value identical scans are not durable memories
+- improved localization/new sample/new property may create meaningful new evidence
+- names are aliases/knowledge layered over stable physical identity
+- per-citizen isolation remains mandatory
+
+**Important constraints:**
+- no global omniscient map memory
+- no raw planet seed/chunk truth
+- no speculative schema
+- no `update.json` changes
+
+**Next action:**
+Simulation should deliver stable generated subject IDs plus observation coordinate/precision/source semantics. Memory will then implement only the minimal source-linked runtime support that contract genuinely requires.
+
+
+### 2026-09-28 — From: Memory & Social — Status: ready
+
 **Subject:** Final v0.7 Memory handoff complete
 
 **Need / Result:**
