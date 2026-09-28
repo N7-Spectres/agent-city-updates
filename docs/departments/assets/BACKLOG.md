@@ -1,28 +1,43 @@
 # Assets & Interface — Backlog
 
-## Review / Validation — Next Session
+## Waiting — v0.5 Making & Building Schema
 
-- runtime-test PR #1 / `assets-v0.4-control-room` against a running Agent City instance
-- visually inspect distance-derived map spacing with actual route distances
-- verify citizen travel, visitor travel, selection, chat persistence, pause, and updater controls
-- responsive sanity pass at desktop, tablet, and narrow widths
-- tune label/cluster offsets only if real runtime state reveals collisions
+- consume Simulation's final project/tool/equipment/structure state contract when handed off
+- add restrained project lifecycle visibility
+- show fabricated tools/equipment only when authoritative records exist
+- show physical tool/carry modifiers only from explicit Simulation fields
+- show constructed structures/sites only after validated Simulation state says they exist
+- use stable IDs so project/history/map surfaces can refer to the same physical objects
 
-## Near-Term UX Notes
+Schema request is in `docs/departments/simulation/INBOX.md`.
 
-- cap the visitor chat panel height so long conversations scroll internally instead of continuously growing the page
-- keep the chat input anchored and usable while the conversation log scrolls
-- use the available right-side width more efficiently so History and Control Room information can sit beside/under the chat without forcing page scrolling
-- rebalance the overall layout slightly left/center as needed to make room for the right-side information surfaces
-- make citizen conversation history visibly useful: show who talked, where, when, a concise summary of what they discussed, and an expandable transcript when available
-- investigate any case where settlement chronology shows citizens "talked" but the Recent Citizen Conversations section has no matching stored exchange
+## Review / Validation — v0.5 Branch
+
+- runtime-test draft PR #2 / `assets/v0.5-making-ui`
+- verify long visitor conversations stay inside the bounded chat viewport
+- verify Previous visits does not push input/actions off the Visit panel
+- verify visitor input and Talk button remain usable at wide and narrow widths
+- verify History opens by default and all other Control Room tabs still work
+- verify chronology-only conversation cards against real saves with older/missing snapshot content
+- verify updater, pause, visitor travel, citizen selection, and conversation persistence are unchanged
+- responsive sanity pass at wide desktop, 1220-ish two-column layout, tablet, and narrow mobile
+
+## Completed in v0.5 Independent UI Slice
+
+- cap visitor chat height
+- make chat log scroll internally
+- anchor visitor input/actions
+- rebalance and center main three-column layout
+- use more right-side width for interaction/state surfaces
+- make History the default Control Room companion beneath Visit
+- show citizen-conversation participants, location, time, summary, and expandable transcript
+- gracefully distinguish chronology-only conversation events from available exchange content
 
 ## Medium Priority
 
 - arrival / departure visual pulse
 - richer hover cards for citizens and locations
 - clearer activity indicators on map tokens
-- refine responsive behavior after runtime testing
 - consider route direction / travel-progress affordances beyond selected-route highlight
 
 ## Later
@@ -30,27 +45,10 @@
 - tiny robot tokens
 - portrait/avatar chips
 - planet/globe representation
-- visible structures
-- visible work-site activity
+- richer visible work-site activity
 - accumulated settlement history in the environment
 - animated miniature citizens
 
-## Resolved in v0.4 Interface Pass
+## Current Blocker
 
-- right-side Control Room layout
-- retire giant bottom drawer
-- distance-aware map readability pass
-- stronger route-distance readability
-- separate location / citizen / visitor presentation zones
-- explicit map label placement
-- clearer traveler marker
-- better citizen cluster readability
-- citizen initials on markers
-- selected-citizen route highlighting
-- decision: Visit remains permanently visible above utility views
-- decision: multi-citizen locations use compact labeled token clusters
-
-
-## Current Blockers
-
-_None._ The branch is waiting on runtime review, not another department's implementation.
+Assets is waiting on World & Simulation's stable v0.5 project/tool/equipment/structure schema for the remaining Making & Building UI layer.
