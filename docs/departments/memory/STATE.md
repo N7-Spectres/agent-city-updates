@@ -323,3 +323,61 @@ Memory v0.6 work is included in the published runtime:
 `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`.
 
 The assembled release passed the full cross-department smoke suite. Coordinator integration preserved Simulation truth, Communication provenance, Memory bounded retrieval, and Assets safe presentation as distinct layers.
+
+
+## v0.7 Maintenance Memory Audit
+
+_Audited against published `release-v0.6.0` / `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`._
+
+No Memory runtime branch has been created yet.
+
+### Existing physical substrate
+
+v0.6 already has durable physical condition fields:
+
+- citizens: `integrity`, `joint_wear`
+- equipment: stable `id`, `condition`, owner/location
+- structures: stable `id`, `condition`, location/type
+- jobs: stable physical action IDs and outcomes
+
+However, v0.6 does **not** yet expose a durable maintenance/failure event ledger with enough semantics to distinguish routine wear from meaningful service history.
+
+### Memory direction
+
+The existing `memory_events` table remains sufficient.
+
+Maintenance should enter Memory only from explicit validated Simulation events. Memory should not poll condition values and synthesize history from deltas.
+
+Examples that can become durable memories once validated:
+
+- breakdown/failure that affects operation or interrupts work
+- explicit repair that restores a damaged citizen/equipment/structure
+- component/battery/equipment replacement
+- preventative service that is substantial enough to be a real action/event
+- major maintenance tied to a meaningful place, tool, or repeated reliability issue
+
+Routine noise that should **not** become a memory:
+
+- every small condition decrement
+- ordinary charging
+- passive wear ticks
+- tiny lubrication/service adjustments with no meaningful consequence
+- inferred damage from conversation or current condition alone
+
+### Knowledge boundary
+
+A maintenance event is not automatically known by every citizen.
+
+A citizen may remember it when they:
+- experienced the failure themselves
+- performed the repair/service
+- directly observed it through a valid mechanism
+- later received it through Communication provenance
+
+Memory will not inject hidden diagnostics or settlement-wide maintenance truth into citizen context.
+
+### Branch status
+
+No `memory/v0.7-maintenance-history` branch is justified until Simulation publishes stable maintenance/repair event anchors.
+
+No release metadata or `update.json` was changed.
