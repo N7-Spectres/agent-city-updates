@@ -84,3 +84,14 @@ Requirements:
 - avoid making idle citizen rows taller
 - preserve responsive layout and reduced visual clutter
 - do not duplicate or contradict the selected-location/visitor travel progress card
+
+
+## v0.7.1 Chat Keyboard Polish
+
+### Enter-to-send visitor chat
+- pressing Enter in the visitor chat input sends the message
+- Shift+Enter inserts a newline for multi-line messages
+- keep the Talk/send button fully functional
+- do not send while an IME composition event is active
+- avoid duplicate submission from keydown + form submit
+- preserve current chat validation/disabled-state behavior
