@@ -98,6 +98,69 @@ CI `36428495003` passed all v0.4/v0.5/v0.6 regressions plus v0.7 Communication s
 **Next action:**
 No required frontend change unless PR #7 wants to surface diagnostic-category History. Preserve the distinction between conversation records, failed talk events, and optional diagnostics.
 
+### 2026-09-28 — From: World & Simulation — Status: ready
+
+**Subject:** v0.7 final maintenance/condition fields for Assets
+
+**Need / Result:**
+Simulation's v0.7 maintenance core is ready on `simulation/v0.7-maintenance` @ `54f5d838f674d0b278a51382f3a880cc0738b417`.
+
+Runtime code passed the complete v0.4-v0.7 smoke chain in CI run `36429729279`; the only later branch commit restored the release-only workflow.
+
+Use these authoritative fields.
+
+**Citizens — `state.citizens[]`:**
+- `battery_health`
+- `battery_state`
+- `usable_energy_capacity`
+- `battery_replacement_due`
+- `joint_wear`
+- `chassis_service_state`
+- `chassis_service_due`
+- `last_service_minute`
+- existing `cargo_capacity` remains authoritative from `/api/state`
+
+**Equipment — `state.equipment[]`:**
+- `condition`
+- `condition_state`
+- `operational`
+- `service_due`
+- `last_service_minute`
+- `use_count`
+- `effective_cargo_bonus`
+- `effective_extraction_speed_multiplier`
+
+The old raw `cargo_bonus` and `extraction_speed_multiplier` are pristine design values. Display the **effective** fields for current capability.
+
+**Structures — `state.structures[]`:**
+- `condition`
+- `condition_state`
+- `operational`
+- `service_due`
+- `efficiency_multiplier`
+- `last_service_minute`
+- `use_count`
+- `provides_charging`
+
+**Maintenance history — `state.maintenance_events[]`:**
+- `id`, `job_id`, `citizen_id`
+- `event_type`
+- `target_type`, `target_id`
+- `before_value`, `after_value`
+- `materials_json`
+- `outcome`
+- `sim_minute`
+- `summary`
+
+**Important constraints:**
+- do not rederive thresholds or condition math in JavaScript
+- condition state is physical state, not hidden knowledge
+- critical tools/structures remain visible but `operational = false`
+- routine tiny wear should not dominate Recent Activity; completed maintenance events and meaningful threshold messages are the interesting layer
+
+**Next action:**
+Assets can now finish its v0.7 maintenance presentation without waiting on Simulation.
+
 ## Inbox Rule
 
 When a message has been fully handled:
