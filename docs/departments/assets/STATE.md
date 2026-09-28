@@ -1,205 +1,193 @@
 # Assets & Interface — State
 
 _Last updated: 2026-09-28_
-_Current shipped release: v0.6.0_
-_Current department branch: `assets/v0.7-home-avatars`_
-_Current branch head: `dad17d8ef663a4fef367c4260e58074047acf1b3`_
-_Current review surface: PR #7 — ready for review_
+_Current shipped release: v0.7.0_
+_Current department branch: `assets/v0.8-visual-stage1`_
+_Current branch head: `af2e058780103755360d143ca964855145e2254a`_
+_Current review surface: PR #11 — ready for review_
 
 ## Mission
 
-Make Agent City visually understandable and alive while never allowing presentation to invent physical state, hidden knowledge, wear, damage, equipment, or outcomes.
+Make Agent City visually understandable and alive while never allowing presentation or generated assets to invent physical reality, hidden knowledge, equipment, quantity, capability, or spatial truth.
 
-## v0.7 Assets Scope — Complete
+## v0.8 Stage 1 — Independent Assets Scope Complete
 
 Base:
-`release-v0.6.0` / `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`
+`release-v0.7.0` / `d81a85bf03b69b969532016f59bbbed2233949ee`
 
-### Home
+Stage 1 intentionally establishes visual/UI/asset-generation foundations before continuous-world rendering.
 
-- citizen / world / Visit rails share one desktop height budget
-- citizen list scrolls internally
-- citizen name search/filter supports future population growth
-- Visit/chat scrolls internally with input/actions anchored
-- compact five-item Recent Activity surface
-- "View all history" opens Records → History
+### Home active-job progress
 
-Recent Activity rules:
+Compact progress is restored to active Home citizen rows.
 
-- real stored conversation summaries only
-- successful conversation begin/completion chronology is deduplicated
-- failed talk attempts remain events only
-- Communication `diagnostic` rows are excluded from normal Home activity
-- validated maintenance events can appear once
-- routine observe/wait churn is filtered
+Displayed only when a real active job exists:
 
-### Avatar first stage
+- elapsed simulation minutes
+- total simulation minutes
+- remaining simulation minutes
+- ETA
+- progress bar
 
-- 2D/static asset manifest for full/token art
-- full-body Citizens identity surface
-- matching Home / directory / map tokens
-- neutral mechanical fallback when final art is absent
-- interface accent hue is presentation-only
-- state animation derives only from validated jobs:
-  - idle
-  - traveling
-  - charging
-  - talking
-  - working
-- reduced-motion preference disables animation
+Source of truth:
 
-### Citizen maintenance
+- `job.start_minute`
+- `job.end_minute`
+- `state.sim_minute`
 
-Consumes Simulation's authoritative v0.7 fields:
+Idle rows remain compact.
 
-- `battery_health`
-- `battery_state`
-- `usable_energy_capacity`
-- `battery_replacement_due`
-- `joint_wear`
-- `chassis_service_state`
-- `chassis_service_due`
-- `last_service_minute`
-- authoritative `cargo_capacity`
+### Visitor chat keyboard behavior
 
-Citizens page shows battery/chassis service state without inventing visible damage.
+- Enter submits
+- Shift+Enter inserts newline
+- Talk button still uses the same form-submit path
+- IME composition never triggers a send
+- explicit `chatSubmitting` guard prevents double submission
 
-### Equipment maintenance
+### Runtime citizen visual profiles
 
-Consumes:
+All six founding citizens now have explicit presentation profiles.
 
-- `condition`
-- `condition_state`
-- `operational`
-- `service_due`
-- `last_service_minute`
-- `use_count`
-- `effective_cargo_bonus`
-- `effective_extraction_speed_multiplier`
+- Aris — extraction / prospecting — lean
+- Bex — fabrication — compact
+- Cato — logistics / resource planning — heavy
+- Iri — construction — slim
+- Noma — research / experimentation — soft
+- Vale — generalist / cooperation — balanced
 
-Current capability uses **effective** fields, never pristine raw modifier fields.
+Each profile provides:
 
-### Structure maintenance
+- approved UI accent identity
+- silhouette family
+- canonical aptitude note
+- full / bust / token asset slots
+- head expression slots:
+  - neutral
+  - blink
+  - happy
+  - focused
+  - curious
+- empty equipment-layer slots:
+  - rear
+  - body
+  - waist
+  - held
+  - foreground
 
-Consumes:
+Optional gear is not baked into base identity.
 
-- `condition`
-- `condition_state`
-- `operational`
-- `service_due`
-- `efficiency_multiplier`
-- `last_service_minute`
-- `use_count`
-- `provides_charging`
+The existing v0.7 renderer remains compatible through a flat `CITIZEN_AVATAR_ASSETS` view.
 
-Critical/non-operational structures remain visible.
+### Fallback silhouette exercise
 
-### Maintenance history
+Until real full-body art is added, the fallback body now exercises the approved silhouette architecture:
 
-Records → Making now includes bounded `state.maintenance_events[]`:
+- Cato heavier
+- Iri slimmer/taller-feeling
+- Bex more compact
+- Aris leaner
+- Noma softer
+- Vale balanced
 
-- event / job IDs
-- actor / target
-- before → after value when present
-- material use when present
-- outcome / simulation time / summary
+These are presentation proportions only and are not authoritative physical dimensions.
 
-This is physical history. It is not automatically citizen memory.
+## Durable v0.8 Asset Architecture
 
-### Home maintenance alerts
+### Citizen visual system
 
-Alerts use Simulation-owned:
+`docs/departments/assets/V080_CITIZEN_VISUAL_SYSTEM.md`
 
-- battery replacement due
-- chassis service due
-- equipment/structure `service_due`
-- equipment/structure `operational`
-- provided condition states
+Covers:
 
-Assets does not rederive thresholds.
+- shared mechanical species language
+- six refined citizen body directions
+- identity vs equipment separation
+- head tokens
+- blink / happy / focused / curious visor expressions
+- full-body Citizens-page art
+- modular equipment overlays
+- later 3D translation rules
+- performance/lazy-loading strategy
 
-Alerts are capped and sorted by provided severity to avoid maintenance spam.
+Core rule:
 
-## Communication / Memory boundaries preserved
+> **Identity stays. Equipment changes. Expressions live. Simulation remains truth.**
 
-- diagnostic talk rows are system/debug history, not citizen dialogue
-- failed talk attempts never get conversation cards/transcripts
-- claim-extraction diagnostics do not convert a successful stored exchange into a failed conversation
-- maintenance physical state does not imply remembered maintenance history
+### Local Asset Worker
+
+`docs/departments/assets/V080_ASSET_WORKER_CONTRACT.md`
+
+Defines:
+
+- persistent visual spec identity keyed to authoritative source IDs
+- asset job queue lifecycle
+- provenance
+- asynchronous worker boundary
+- fallback behavior
+- output/cache strategy
+- no Simulation blocking
+- no mandatory Blender dependency in Stage 1
+
+Render tiers:
+
+1. unique individual object
+2. representative bundle / pile / stack
+3. storage abstraction
+
+Core rules:
+
+> **Simulation defines the object. Assets renders the object.**
+
+> **Rendering may aggregate. It may not alter quantity.**
+
+## Spatial Dependency — Deferred Correctly
+
+Continuous-world UI is **not** implemented in this branch.
+
+World & Simulation has not yet published the final seeded spatial read model.
+
+Assets sent a direct request to:
+`docs/departments/simulation/INBOX.md`
+
+Needed later:
+
+- safe citizen x/y
+- known landmark anchors
+- stable discovered subject IDs
+- safe observed coordinates
+- extent/uncertainty
+- reference frame / units
+- observation event/source identity
+- repeat-encounter subject identity
+
+Assets must not derive continuous coordinates from the current presentation-only map layout.
 
 ## Verification
 
-Branch-level verification:
+Static branch audit:
 
 - 71 HTML IDs
 - 67 JavaScript `getElementById` refs
-- zero missing referenced IDs
+- zero missing refs
 - zero duplicate IDs
 - JavaScript parsed successfully
-- all v0.7 Assets contract assertions pass
-- branch is 8 commits ahead / 0 behind v0.6.0
-- PR #7 is mergeable and marked ready for review
+- all Stage 1 contract checks pass
+- branch is 6 commits ahead / 0 behind v0.7.0
+- PR #11 is mergeable and ready for review
 
-Changed files:
+Added:
 
-- `static/index.html`
-- `static/app.js`
-- `static/styles.css`
-- `tests/smoke_v070_assets.py`
+- `tests/smoke_v080_assets.py`
+
+The current GitHub workflow runs only on `release-v*` pushes, so coordinator integration should run the new smoke with the full assembled suite.
 
 ## Status
 
-Assets & Interface is **REVIEW**.
+Assets & Interface Stage 1 is **REVIEW**.
 
-Next owner: **Coordinator / Integration**.
+Independent Stage 1 scope is complete.
 
-Coordinator should integrate:
+Continuous-world rendering remains a later dependency on Simulation's seeded spatial contract and should not block review of this foundation.
 
-- Simulation `simulation/v0.7-maintenance` @ `54f5d838f674d0b278a51382f3a880cc0738b417`
-- Communication `communication/v0.7-talk-reliability` @ `61eecc4c047dd3fd22b71612251769a8cb456737`
-- Memory's final v0.7 maintenance branch when ready
-- Assets `assets/v0.7-home-avatars` @ `dad17d8ef663a4fef367c4260e58074047acf1b3`
-
-Then run the full v0.4-v0.7 regression suite including `tests/smoke_v070_assets.py`.
-
-No `update.json`, release metadata, hidden-knowledge rules, or physical simulation rules were changed by Assets.
-
-
-## Work Session Closure — v0.7 Assets Complete
-
-This Assets & Interface work session is closed.
-
-Final department state:
-- status: **REVIEW**
-- branch: `assets/v0.7-home-avatars`
-- head: `dad17d8ef663a4fef367c4260e58074047acf1b3`
-- PR: #7, ready for review
-- blockers: none within Assets
-
-Next owner:
-**Coordinator / Integration**, after Memory's remaining v0.7 runtime pass is ready.
-
-Resume Assets only for coordinator integration feedback, UI regressions, or a new milestone/inbox request.
-
-
-## Planned v0.8 Citizen Visual System
-
-Durable design spec:
-`docs/departments/assets/V080_CITIZEN_VISUAL_SYSTEM.md`
-
-This plan captures the approved next-stage citizen visual direction:
-
-- canonical base-body identity for all six citizens
-- clean body/equipment separation
-- Home/map head tokens
-- blink + expressive visor sprite system
-- full-body Citizens-page assets
-- modular validated-equipment overlays
-- lightweight state-driven animation
-- strong per-citizen accent identity
-- consistent mechanical species proportions
-- later 3D translation rules
-- performance/lazy-loading strategy
-- future equipped/attachment-state dependency from Simulation
-
-This is **planned v0.8 scope**, not shipped v0.7 runtime state.
+No `update.json`, release metadata, Simulation rules, hidden seed/world state, or physical coordinate truth were changed by Assets.
