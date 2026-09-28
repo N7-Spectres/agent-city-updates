@@ -650,3 +650,116 @@ Coordinator integration must preserve the seeded-world substrate as one coherent
 - Stage 1 route travel remains discrete and must not be visually or narratively upgraded to continuous movement
 - Stage 1 does not grant scanners, free-roam movement, shared visitor actions, or other technologies
 - all v0.5-v0.7 physical/knowledge/provenance/maintenance invariants remain intact
+
+
+## v0.8 Stage 2 Continuous Local Movement
+
+Local continuous movement is a timed Simulation job.
+
+Authoritative movement state consists of:
+- stable job ID
+- frame ID
+- start coordinate
+- target coordinate
+- start/end simulation time
+- path distance
+- terrain-derived traversal multiplier
+
+Current position during movement is derived by Simulation from those fields and current simulation time.
+
+Frontend interpolation may visually smooth the same authoritative segment, but it must not invent a different path or timing.
+
+## Local Movement / Legacy Route Boundary
+
+Stage 2 local movement does not replace legacy named routes.
+
+If a citizen has intentionally moved away from a landmark through a completed Stage 2 local/shared action, they must physically return to the landmark before entering the legacy route network.
+
+Legacy records/saves that only contain old `location_id` state and no Stage 2 offset history retain region-based route compatibility.
+
+This compatibility rule is transitional and should be removed only when the route network itself becomes fully coordinate-based.
+
+## Baseline Direct Observation
+
+Baseline walking/inspection is not a scanner.
+
+It may establish:
+- directly visible terrain
+- approximate elevation
+- stable physical contact with a seeded body
+
+It must not establish:
+- material identity
+- chemistry
+- hidden geology classification
+- deposit richness
+- hidden geometry
+
+Those require future validated capability/tool/process.
+
+## Shared Activity Authority
+
+Communication proposal identity and Simulation physical action identity are separate.
+
+Simulation canonical shared physical source:
+- `shared_activities.id`
+
+Physical job source:
+- `jobs.id`
+
+Evidence source:
+- `spatial_observations.id`
+
+Do not use a Communication proposal row as proof that movement occurred.
+
+## Shared Lifecycle Separation
+
+Proposal, acceptance, and physical start are separate transitions.
+
+Acceptance is consent/intention only.
+
+Only `start_shared_activity` may create the real movement job after physical revalidation.
+
+Chat text, proposal status, or acceptance status must never mutate coordinates or create observations.
+
+## Shared Participant Rule
+
+Current shared physical scope is deliberately narrow:
+- one visitor
+- one citizen
+- local walk
+- direct inspection at destination
+
+It is not a general party/group/command system.
+
+Stage 2 validates co-location, proximity, citizen energy, target range, and real equipment if requested.
+
+## Shared Tool Rule
+
+Only runtime equipment records may satisfy a requested tool.
+
+Owned citizen equipment is physically available with the citizen.
+
+Shared location equipment is considered physically available only while the citizen is near its landmark.
+
+Concept art, dialogue, or visual layers never create tool capability.
+
+## Exploration Evidence Identity
+
+`spatial_observations.id` remains the physical evidence identity.
+
+`deposit_id` remains stable subject identity.
+
+A shared experience and its spatial observation are related but distinct records:
+- shared activity = social/physical event
+- observation = evidence produced by that event
+
+Memory must not collapse them into one source.
+
+## Continuous Proximity
+
+Named location membership no longer implies face-to-face proximity.
+
+Talk/Visit requires actual meter-scale proximity.
+
+This is a durable Stage 2 spatial law for future continuous-world systems.
