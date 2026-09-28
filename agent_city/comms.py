@@ -6,7 +6,7 @@ from typing import Any
 import httpx
 
 from .db import add_history, connect, get_meta
-from .knowledge import knowledge_context_for, record_face_to_face_claims
+from .provenance import knowledge_context_for, record_face_to_face_claims
 from .memory import record_conversation_memory, social_context_for
 from .world import format_sim_time
 
