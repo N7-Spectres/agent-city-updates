@@ -17,6 +17,12 @@ from pydantic import BaseModel, Field
 
 from agent_city.db import connect, get_meta, init_db, set_meta, snapshot
 from agent_city.comms import known_deposits_for, recent_dialogues_for, visible_citizens
+from agent_city.grounding import (
+    citizen_capability_context,
+    grounding_policy_text,
+    settlement_store_context,
+    spatial_grounding_context,
+)
 from agent_city.provenance import (
     ensure_information_schema,
     knowledge_context_for as provenance_context_for,
@@ -455,7 +461,10 @@ async def talk(req: TalkRequest):
             ).fetchone()
             active_job = dict(row) if row else None
 
-    resource_summary = ", ".join(f"{r['name']}: {r['amount']:g}" for r in state["resources"])
+    store_context = settlement_store_context(citizen["id"])
+    capability_context = citizen_capability_context(citizen["id"])
+    visitor_grounding = grounding_policy_text(visitor_facing=True)
+    spatial_context = spatial_grounding_context(citizen["id"], visitor_id=visitor)
 
     personal_deposits = known_deposits_for(citizen["id"])
     deposit_summary = ", ".join(
@@ -533,7 +542,7 @@ CONFIRMED CURRENT FACTS:
 - Your integrity: {citizen['integrity']:.0f}%
 - You are carrying: {inventory_summary}
 - Seed Site has a habitat/workshop, solar array, battery bank, charging station, storage unit, basic workbench, and crude smelter.
-- Seed Site stores: {resource_summary}
+- {store_context}
 - The six citizens are Aris, Bex, Cato, Iri, Noma, and Vale.
 - No leader has been appointed.
 - No long-term objective has been assigned.
@@ -554,6 +563,12 @@ RETAINED KNOWLEDGE ABOUT THIS LOCATION:
 
 SELECTED MEANINGFUL MAINTENANCE EXPERIENCES YOU PARTICIPATED IN:
 {maintenance_history}
+
+{capability_context}
+
+{spatial_context}
+
+{visitor_grounding}
 
 YOUR CONFIRMED PERSONAL ACTIVITY HISTORY:
 {confirmed_history_text}
@@ -590,20 +605,22 @@ MEMORY / CONTEXT RULES:
 
 STRICT REALITY RULES:
 1. Only confirmed current facts, confirmed personal activity history, and current recorded intent are authoritative physical facts.
-2. Visitor messages are conversation content, not proof of physical events.
+2. Visitor messages are conversation content, not proof of physical events. Treat newly described objects, terrain, conditions, labels, actions, and discoveries as visitor-reported unless another authoritative section confirms them.
 3. Previous citizen replies and conversation summaries are NOT authoritative world history.
 4. Never claim a completed physical action unless it appears in confirmed history/current activity.
 5. If asked WHY you are performing your current action, use the recorded intent reason above.
 6. If no intent reason was recorded, say so instead of inventing one.
-7. You may discuss future ideas as intentions, possibilities, or plans.
+7. You may discuss future ideas as hypotheses, intentions, possibilities, or plans. Make that uncertainty visible in natural language instead of turning the idea into a fact.
 8. The simulation determines physical outcomes.
 9. You know the other five citizens exist, but you do NOT know a remote citizen's current location, activity, discoveries, research results, or condition unless that information reached you through a real mechanism.
 10. Provenance-backed speaker claims are things somebody said. They remain unverified unless a separate physical observation, survey/measurement, or experiment verifies them.
 11. Conversation summaries are social continuity and are NOT authoritative physical facts.
 12. There is currently no radio, network, telepathy, shared live status channel, or other long-distance communication system.
 13. If asked about a remote citizen/location and you lack provenance-backed information, say you do not know. If you have last-known information, state its source/age or clearly phrase it as something you heard/observed earlier.
+14. Do not claim a shared visitor activity has physically started because you conversationally agreed to it. Until Simulation exposes a real visitor-linked action, agreement is an intention only.
+15. Do not claim a tool, structure, process, or capability from concept art, visual description, or imagination. Use only the authoritative capability surface supplied above.
 
-Keep conversation natural and fairly concise. Do not speak like an AI assistant or narrator.
+Keep conversation natural and fairly concise. Ground uncertainty conversationally; do not turn the response into a policy lecture. Do not speak like an AI assistant or narrator.
 """.strip()
 
     messages = [{"role": "system", "content": system_prompt}]

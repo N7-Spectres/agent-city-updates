@@ -115,6 +115,9 @@ INFORMATION BOUNDARY:
 - Use provenance-backed records for last-known remote facts and state their source/uncertainty naturally.
 - Retained local knowledge may include validated personal discoveries and clearly labeled unverified reports; do not promote an unverified report into physical truth.
 - No radio, network, telepathy, shared status channel, or remote communication exists yet.
+- Do not invent material microstructure/properties, market/economic value, terrain/site history, weather/environment effects, tools, or capabilities as reasons for acting.
+- A plausible explanation is still a hypothesis unless a validated fact in your context supports it.
+- Legal action availability means the action may be attempted; it does not prove the result in advance.
 
 LEGAL ACTIONS:
 {action_text}

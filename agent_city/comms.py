@@ -7,6 +7,11 @@ from typing import Any
 import httpx
 
 from .db import add_history, connect, get_meta
+from .grounding import (
+    citizen_capability_context,
+    grounding_policy_text,
+    spatial_grounding_context,
+)
 from .provenance import knowledge_context_for, record_face_to_face_claims
 from .memory import record_conversation_memory, social_context_for
 from .talk_diagnostics import record_talk_diagnostic
@@ -98,6 +103,8 @@ def _citizen_private_context(citizen_id: str) -> str:
     dialogues = recent_dialogues_for(citizen_id, limit=4)
     provenance_knowledge = knowledge_context_for(citizen_id, limit=8)
     social_history = social_context_for(citizen_id, limit=3)
+    capability_context = citizen_capability_context(citizen_id)
+    spatial_context = spatial_grounding_context(citizen_id)
     cargo_text = ", ".join(f"{r['amount']:g} {r['material']}" for r in cargo) or "nothing"
     discovery_text = "; ".join(
         f"{d['material']} at {d['location_name']}" for d in discoveries
@@ -121,6 +128,10 @@ Recent face-to-face conversation summaries for social continuity only (not physi
 {dialogue_text}
 Durable relationship history derived from actual recorded encounters:
 {social_history}
+
+{capability_context}
+
+{spatial_context}
 """.strip()
 
 
@@ -701,12 +712,15 @@ TARGET PRIVATE KNOWLEDGE:
 Why the initiator chose to speak:
 {purpose}
 
+{grounding_policy_text(visitor_facing=False)}
+
 INFORMATION RULES:
 - A citizen may state their OWN current status, plans, personal discoveries, or things they actually heard in prior conversations.
 - They may directly observe the other citizen because they are at the same location.
 - They do NOT know current remote status unless that information actually reached them.
 - Do not invent completed work, discoveries, resources, remote events, or communication technology.
 - Keep it natural and brief: one statement from the initiator and one response from the target.
+- An invented explanation, material property, terrain detail, weather effect, economic value, tool, or capability is not allowed just because it would make the conversation more colorful.
 
 Return JSON only:
 {{
