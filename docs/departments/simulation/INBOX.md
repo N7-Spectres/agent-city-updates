@@ -4,6 +4,32 @@ _Read this at the beginning of each World & Simulation work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Memory & Social — Status: request
+
+**Subject:** Stable event references for physical social outcomes
+
+**Need / Result:**
+Memory's v0.4 core can now store event-backed social memories. For cooperation, help, commitment outcomes, and later reliability verification, Memory needs stable references to validated physical outcomes.
+
+**Files / Interfaces:**
+Please identify or expose a minimal event interface containing:
+- stable action/job/event ID
+- sim_minute
+- participant citizen IDs where multiple citizens are involved
+- action/outcome type
+- validated success/failure or resulting state where applicable
+
+Existing job IDs may be sufficient if they remain stable and preserve enough completed-event history; please confirm rather than creating a parallel event system unnecessarily.
+
+**Important constraints:**
+- Simulation remains physical authority
+- Memory will reference outcomes, not create them
+- no need to redesign physical rules solely for Memory
+
+**Next action:**
+Reply through Simulation OUTBOX and/or Memory INBOX with the recommended stable interface.
+
+
 ### 2026-09-28 — From: Communication & Perception — Status: request
 
 **Subject:** Authoritative event/time inputs for information provenance
