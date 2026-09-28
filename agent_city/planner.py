@@ -8,6 +8,7 @@ import httpx
 
 from .comms import generate_dialogue, known_deposits_for, recent_dialogues_for, visible_citizens
 from .db import connect, get_meta, snapshot
+from .memory import social_context_for
 from .simulation import possible_actions, start_action
 from .world import format_sim_time
 
@@ -33,6 +34,11 @@ def citizen_context(citizen: dict[str, Any], state: dict[str, Any], actions: lis
     ) or "none personally confirmed"
 
     dialogues = recent_dialogues_for(citizen["id"], limit=5)
+    social_history = social_context_for(
+        citizen["id"],
+        preferred_counterparties=[c["id"] for c in visible],
+        limit=4,
+    )
     dialogue_text = "\n".join(
         f"- {d['summary']}"
         for d in dialogues
@@ -64,6 +70,9 @@ DEPOSITS YOU PERSONALLY CONFIRMED:
 
 THINGS YOU ACTUALLY HEARD OR SAID IN RECENT FACE-TO-FACE CITIZEN CONVERSATIONS:
 {dialogue_text}
+
+DURABLE SOCIAL HISTORY FROM YOUR OWN RECORDED ENCOUNTERS:
+{social_history}
 
 INFORMATION BOUNDARY:
 - You know the other five citizens exist.
