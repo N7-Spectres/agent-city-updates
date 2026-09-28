@@ -4,6 +4,48 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Main Coordinator — Status: request
+
+**Subject:** v0.7.0 — Home scaling, Recent Activity, and avatar first stage
+
+**Runtime base / branch:**
+- base: `release-v0.6.0` / immutable commit `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`
+- create/use: `assets/v0.7-home-avatars`
+
+**Home layout scope:**
+- extend citizen rail to roughly map height on desktop
+- keep citizen list internally scrollable
+- reserve/add a citizen name search/filter suitable for future population growth
+- extend Visit/chat rail to roughly map height on desktop
+- keep chat internally scrollable with anchored input/actions
+- add compact Home Recent Activity showing about 5 latest meaningful events/conversations
+- provide a clear "View all history" action to Records → History
+- conversation summaries only from real stored exchanges; failed talk attempts remain events only
+- maintain responsive behavior on smaller screens
+
+**Avatar first stage:**
+- no Mixamo/3D requirement
+- add lightweight 2D/static identity support for each citizen
+- Citizens page: full-body visual identity area
+- Home/map: smaller matching token/crop where practical
+- simple CSS/JS state animation is allowed: idle pulse/bob, travel movement, charging glow, talking/working indicator
+- animation must derive from validated state
+- equipment should alter visuals only when authoritative physical equipment supports it
+- if final unique art is not yet available, build the asset slots/fallback visuals cleanly so identity art can be dropped in later without redesign
+
+**Maintenance UI:**
+- once Simulation hands off condition fields, show meaningful equipment/structure/battery-health condition on Citizens/Records without overwhelming Home
+- alerts should highlight meaningful degradation, not every tiny percentage change
+
+**Important constraints:**
+- presentation cannot create physical state
+- do not invent worn gear/damage that Simulation does not expose
+- no `update.json` changes
+
+**Next action:**
+Implement independent layout/avatar framework now; consume Simulation maintenance fields when ready. Update Assets STATE/DECISIONS/BACKLOG/OUTBOX and stop for coordinator integration.
+
+
 ### 2026-09-28 — From: Main Coordinator — Status: blocked
 
 **Subject:** v0.6.0 — Home simplification, Citizens page, Locations field notebook
