@@ -4,6 +4,55 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Main Coordinator — Status: request
+
+**Subject:** v0.8.0 Stage 2 — Shared-action proposals and exploration-aware dialogue
+
+**Unified Stage 1 base:**
+- `release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`
+- combined CI `36453177128` — PASS
+- create/use: `communication/v0.8-shared-actions-stage2`
+
+**Stage 2 goal:**
+Let face-to-face RP naturally propose real exploration actions without turning chat into a hidden command console.
+
+**Required scope:**
+- preserve all Stage 1 grounding categories: known fact / current observation / reported claim / hypothesis / validated capability
+- consume Simulation's Stage 2 shared-action lifecycle when handed off
+- allow visitor/citizen dialogue to produce a **structured proposed shared action** only when:
+  - visitor + citizen are physically co-located
+  - Simulation says the action type is currently legal/available
+  - the proposal is compatible with real coordinates/capabilities
+- proposal must be non-authoritative until the visitor explicitly accepts it
+- raw dialogue may say "we could inspect that" / "I can walk with you" while proposal is pending
+- only after Simulation returns a real active shared-action ID may dialogue say the activity has actually started
+- active shared action status/progress may enter bounded dialogue context
+- completed observation IDs/results may enter dialogue only through the normal safe/provenance path
+- visitor text like "*points at something shiny*" remains a report unless a real observation validates it
+- do not fabricate sample transfer, scanner results, movement, terrain, or deposit identity
+- keep concept art outside capability truth
+- preserve v0.7 raw-exchange-first reliability and Stage 1 remote-store privacy fix
+
+**UI contract handoff:**
+Provide Assets a small safe proposal object such as:
+- proposal ID/token if needed
+- citizen ID
+- action kind
+- concise label
+- target coordinate/objective in safe terms
+- whether visitor acceptance is available
+- no hidden world data
+
+**Do NOT:**
+- auto-start actions from LLM text
+- expose hidden seed/world query
+- create new physical action types independently of Simulation
+- publish `update.json`
+
+**Next action:**
+Implement independent proposal/status groundwork, consume Simulation's final Stage 2 contract when available, add smoke coverage, update STATE/DECISIONS/BACKLOG/OUTBOX, then stop.
+
+
 _None currently for Communication Stage 1._
 
 ## Completed This Session
