@@ -98,6 +98,9 @@ def main() -> None:
                 )
                 """
             )
+            improved_id = int(
+                conn.execute("SELECT last_insert_rowid() AS id").fetchone()["id"]
+            )
 
             # Salient but distant personal observation should not enter nearby
             # context around Noma's current position.
