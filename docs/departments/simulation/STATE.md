@@ -282,3 +282,23 @@ The only later branch commit restored the normal release-only workflow.
 World & Simulation v0.8 Stage 1 substrate is ready for coordinator/cross-department review.
 
 No `update.json` or release metadata was changed.
+
+
+## v0.8 Stage 1 Session Close
+
+World & Simulation Stage 1 work is complete and handed off.
+
+Authoritative handoff:
+- branch: `simulation/v0.8-seeded-world-stage1`
+- head: `7473b6612ea23cf8d22b31176149da188476690e`
+- base: shipped v0.7.0 commit `d81a85bf03b69b969532016f59bbbed2233949ee`
+- validation: GitHub Actions run `36449582788`
+
+Dependent department contracts delivered:
+- Communication: safe meter coordinates, validated spatial observations, future shared-action boundary
+- Memory: stable observation/deposit subject IDs and coordinate precision semantics
+- Assets: safe spatial frame/position/observation read model
+
+All Stage 1 departments are now ready/reviewable. The only remaining dependency is coordinator Stage 1 review before Stage 2 is authorized.
+
+No release metadata or `update.json` was changed.
