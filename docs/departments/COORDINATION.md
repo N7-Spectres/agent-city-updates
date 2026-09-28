@@ -42,6 +42,7 @@ _None. Coordinator integration smoke test passed for v0.4.0._
 ### DONE
 
 - [Coordinator] v0.4.0 assembled on `release-v0.4.0`, tested, versioned, and published
+- [Coordinator] v0.4.1 blank-reply conversation hotfix tested and published
 - [Memory & Social] Durable directional conversation memory + bounded social context
 - [Assets & Interface] Control Room redesign + distance-aware map readability pass
 - [Communication & Perception] Information-boundary rules / anti-omniscience architecture preserved; provenance contract documented
