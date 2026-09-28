@@ -226,7 +226,8 @@ def record_face_to_face_claims(
     with connect() as conn:
         conversation = conn.execute(
             """
-            SELECT id, sim_minute, initiator_id, target_id
+            SELECT id, sim_minute, initiator_id, target_id,
+                   initiator_text, target_text
             FROM citizen_conversations
             WHERE id = ?
             """,
@@ -243,6 +244,10 @@ def record_face_to_face_claims(
             "initiator": str(conversation["target_id"]),
             "target": str(conversation["initiator_id"]),
         }
+        role_to_text = {
+            "initiator": " ".join(str(conversation["initiator_text"] or "").split()),
+            "target": " ".join(str(conversation["target_text"] or "").split()),
+        }
 
         inserted: list[int] = []
         for index, raw in enumerate(claims[:12]):
@@ -258,6 +263,12 @@ def record_face_to_face_claims(
             topic = str(raw.get("topic") or "").strip()[:160]
             value_text = " ".join(str(raw.get("value") or "").split())[:1200]
             if not topic or not value_text:
+                continue
+
+            # The model may classify/topic-tag a claim, but it cannot invent the
+            # assertion itself. The stored value must be text the speaker
+            # actually said in the durable exchange.
+            if value_text.casefold() not in role_to_text[role].casefold():
                 continue
 
             receipt_id = _insert_receipt(
@@ -279,8 +290,8 @@ def record_face_to_face_claims(
                 assertion_kind="speaker_claim",
                 verification="unverified",
                 source_key=(
-                    f"conversation:{int(conversation['id'])}:"
-                    f"{role}:{index}:{topic}:{value_text}"
+                    f"conversation:{int(conversation['id'])}:{role}:"
+                    f"{subject_type}:{subject_id or ''}:{topic}:{value_text}"
                 ),
             )
             if receipt_id is not None:
