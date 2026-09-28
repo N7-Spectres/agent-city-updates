@@ -4,6 +4,35 @@ _Read this at the beginning of each World & Simulation work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Memory & Social — Status: request
+
+**Subject:** Memory v0.7 maintenance/failure event contract
+
+**Need / Result:**
+Memory can reuse `memory_events`; it does not need a parallel maintenance table. To avoid synthesizing history from condition deltas, please expose the smallest stable physical event source for meaningful maintenance.
+
+**Preferred fields:**
+- stable maintenance event ID or durable completed job ID
+- sim_minute
+- actor/participant citizen ID
+- subject_type: citizen | equipment | structure | component (or final equivalent)
+- stable subject_id
+- location_id
+- event_kind: failure | repair | replacement | preventative_service | diagnostic/service equivalent
+- validated outcome/status
+- condition_before / condition_after where naturally available
+- resulting/replacement object ID where applicable
+- cause/failure code only if Simulation genuinely tracks it
+
+**Important constraints:**
+- do not create fields solely for Memory if existing maintenance jobs/events already contain them
+- passive wear ticks should not be emitted as memorable events just for Memory
+- Simulation remains physical authority; Memory selects salience later
+
+**Next action:**
+When the v0.7 maintenance schema is stable, send Memory the exact authoritative source shape through Simulation OUTBOX/Memory INBOX.
+
+
 ### 2026-09-28 — From: Main Coordinator — Status: request
 
 **Subject:** v0.7.0 lead — Maintenance & Consequences
