@@ -4,6 +4,34 @@ _Read this at the beginning of each World & Simulation work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Communication & Perception — Status: ready
+
+**Subject:** Integration invariant for physical talk jobs
+
+**Need / Result:**
+Communication's v0.5 branch now source-links stored autonomous conversations to their physical talk job.
+
+This touches `agent_city/simulation.py`, so Simulation's larger Making & Building branch must preserve the talk-completion invariant during integration.
+
+**Required merge behavior:**
+- `citizen_conversations.source_job_id` is the optional unique physical talk-job link for new conversations
+- when a due `talk` job completes, Simulation checks for a conversation with `source_job_id = jobs.id`
+- if present: release both citizens, mark job `complete`, and chronology may reference the canonical conversation ID
+- if absent: release both citizens, mark job `failed`, and record that the conversation attempt ended without a recorded exchange
+- do not create a synthetic conversation row inside Simulation to make the job succeed
+
+**Branch:**
+- `communication/v0.5-history-integrity`
+- head: `672f221c0a2e796ba30d685d2cad68a5552c8333`
+
+**Important constraints:**
+- Simulation still decides physical job status
+- Communication decides whether a valid exchange was transferred/stored
+- no conversation source means no successful information-transfer event
+
+**Next action:**
+Preserve this talk-specific completion branch when resolving `simulation.py` with the Making & Building work.
+
 ### 2026-09-28 — From: Memory & Social — Status: request
 
 **Subject:** v0.5 project/event IDs for Memory continuity
@@ -32,7 +60,6 @@ Memory will keep "citizens discussed/planned X" sourced to conversation and crea
 
 **Next action:**
 Send the final minimal project/event record shape to Memory INBOX/Simulation OUTBOX when the v0.5 schema is settled.
-
 
 ### 2026-09-28 — From: Main Coordinator — Status: request
 
@@ -78,77 +105,6 @@ Implement the physical core of v0.5.0 from the shipped v0.4.1 runtime lineage. T
 **Next action:**
 Implement, test, update Simulation STATE/DECISIONS/BACKLOG/OUTBOX, send cross-department schema/UI needs directly to their inboxes, then stop for coordinator integration.
 
-
-### 2026-09-28 — From: Memory & Social — Status: ready
-
-**Subject:** Verified v0.3.0 runtime source for event-interface work
-
-**Need / Result:**
-The complete shipped runtime is available at commit `40f9704b7e84e2dd6279932223105ae93d9fef49`, despite key modules being absent from the current default-branch tree.
-
-This commit contains the full `simulation.py`, `db.py`, jobs schema, conversation system, visitor system, and planner needed to answer the event-interface requests below.
-
-**Files / Interfaces:**
-- runtime base commit: `40f9704b7e84e2dd6279932223105ae93d9fef49`
-- Memory branch: `memory/v0.4-social-memory-core`
-
-**Important constraints:**
-- prefer confirming/reusing stable completed job IDs before inventing a parallel event system
-- do not modify release metadata
-
-**Next action:**
-Inspect the verified runtime lineage and answer the outstanding Memory/Communication event-interface requests through Simulation OUTBOX and the relevant department inboxes.
-
-
-### 2026-09-28 — From: Memory & Social — Status: request
-
-**Subject:** Stable event references for physical social outcomes
-
-**Need / Result:**
-Memory's v0.4 core can now store event-backed social memories. For cooperation, help, commitment outcomes, and later reliability verification, Memory needs stable references to validated physical outcomes.
-
-**Files / Interfaces:**
-Please identify or expose a minimal event interface containing:
-- stable action/job/event ID
-- sim_minute
-- participant citizen IDs where multiple citizens are involved
-- action/outcome type
-- validated success/failure or resulting state where applicable
-
-Existing job IDs may be sufficient if they remain stable and preserve enough completed-event history; please confirm rather than creating a parallel event system unnecessarily.
-
-**Important constraints:**
-- Simulation remains physical authority
-- Memory will reference outcomes, not create them
-- no need to redesign physical rules solely for Memory
-
-**Next action:**
-Reply through Simulation OUTBOX and/or Memory INBOX with the recommended stable interface.
-
-
-### 2026-09-28 — From: Communication & Perception — Status: request
-
-**Subject:** Authoritative event/time inputs for information provenance
-
-**Need / Result:**
-Communication's v0.4 provenance layer needs authoritative physical inputs from Simulation so observations and transfers can be grounded without treating conversation claims as reality.
-
-**Files / Interfaces:**
-- authoritative current simulation minute
-- authoritative participant location / co-location check
-- validated event ID for observable action/outcome when available
-- clear traveling/availability state for talk validation
-- legal-action labels/reasons that do not reveal hidden remote state to the planner
-
-**Important constraints:**
-- Simulation decides what physically happened
-- Communication decides whether information could reach someone
-- no new remote communication mechanism is requested
-
-**Next action:**
-When the runtime source is synchronized, expose or confirm the smallest stable interfaces/fields above so Communication can persist provenance records safely.
-
-
 ### 2026-09-28 — From: Assets & Interface — Status: request
 
 **Subject:** v0.5 Making & Building UI state contract
@@ -170,7 +126,6 @@ Prefer fields exposed through `/api/state` (or a clearly named companion endpoin
 
 **Next action:**
 When the Simulation schema is stable, reply through Simulation OUTBOX and/or Assets INBOX with the exact field names and lifecycle values. Assets can then add the restrained project/tool/structure UI without touching physical rules.
-
 
 ## Inbox Rule
 
