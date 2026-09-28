@@ -20,7 +20,11 @@ Human users such as N7 are **visitors**, not gods, rulers, or omniscient operato
 
 ## Current Milestone
 
-v0.6.0 is assembled, tested, and published from immutable runtime commit `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`.
+**v0.7.0 — Maintenance, Consequences & Home Polish is now the active development milestone.**
+
+v0.6.0 remains the current shipped release, assembled, tested, and published from immutable runtime commit `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`.
+
+v0.7.0 adds long-term mechanical wear/repair consequences, a first lightweight avatar/visual-identity stage, stronger Home layout scaling, recent-activity-at-a-glance, and autonomous talk reliability work.
 
 Major shipped v0.6 changes:
 
@@ -270,3 +274,35 @@ Recent coordinator decisions already captured in the repository include:
 - updates should add possibility, not answers
 
 If a future chat needs to resume coordinator work, these repository files should be treated as the persistent source of truth rather than relying on old chat transcript memory alone.
+
+
+## v0.7 Active Scope
+
+### Maintenance / Consequences
+- gradual component/equipment/structure wear
+- lubrication and repair needs where physically appropriate
+- battery health as a long-term condition separate from current charge
+- damaged tools/structures can lose capability or become unavailable
+- repair/replacement/preventative maintenance are real simulation actions
+- maintenance should create occasional decisions, not constant busywork
+- no arbitrary RPG debuffs; consequences come from physical condition/state
+
+### Home Polish
+- citizen rail roughly matches map height and scrolls internally
+- future-ready citizen search/filter
+- Visit/chat roughly matches map height on desktop
+- chat remains internally scrollable with anchored input
+- compact Home Recent Activity, around 5 meaningful events/conversations
+- Records remains the full archive
+
+### Avatar First Stage
+- full-body 2D/static citizen identity area on Citizens
+- smaller matching map/home token
+- simple state-driven browser animation only
+- no Mixamo or 3D rigging required in v0.7
+- visual equipment changes only when backed by validated physical equipment
+
+### Talk Reliability
+- investigate repeated valid talk attempts ending without durable exchanges
+- preserve the hard invariant that failed generation never creates fake dialogue
+- improve reliability and add internal diagnostics for failure causes
