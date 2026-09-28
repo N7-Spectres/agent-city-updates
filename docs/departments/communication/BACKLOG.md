@@ -76,3 +76,17 @@ Needed grounding:
 - citizens may say they are willing to do something with the visitor, but should not imply it has begun until Simulation creates a valid shared/visitor-linked action
 - preserve natural language such as "we could" / "I can do that" when capability exists but no action has started
 - once visitor-linked physical actions exist, dialogue may reference their real state/progress
+
+
+## v0.7.1 Visitor roleplay grounding
+
+Live testing showed the visitor naturally roleplaying actions such as pointing out or handing over a possible mineral sample. Keep this interaction style, but tighten physical-truth boundaries.
+
+Required behavior:
+- visitor text may describe the visitor's own gestures, questions, suspicions, and suggestions
+- visitor text does not create an authoritative object/deposit/sample/transfer merely by saying it exists
+- citizen dialogue should interpret unvalidated visitor-described physical details as a claim/observation to inspect
+- prefer uncertainty-aware language when Simulation has not validated the fact
+- do not invent site history, prior operations, weather effects, or material properties as settled truth unless that information has a valid source
+- keep the conversation natural and roleplay-friendly rather than replacing it with rigid refusals
+- any later real pickup/transfer/inspection/shared-action mechanic must be Simulation-owned
