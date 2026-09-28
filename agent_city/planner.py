@@ -53,6 +53,10 @@ def citizen_context(citizen: dict[str, Any], state: dict[str, Any], actions: lis
         location_id=citizen["location_id"],
         limit=6,
     )
+    maintenance_history = maintenance_context_for(
+        citizen["id"],
+        limit=4,
+    )
     dialogue_text = "\n".join(
         f"- {d['summary']}"
         for d in dialogues
