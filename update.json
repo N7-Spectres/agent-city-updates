@@ -1,6 +1,6 @@
 {
-  "version": "0.4.0",
-  "notes": "Memory & Relationships + Control Room: citizens now build durable directional relationship history from real face-to-face conversations, use bounded social memories during planning and dialogue, and preserve raw history without turning conversation claims into physical truth. The interface now keeps Visit visible in a right-side Control Room, moves Region/Stores/Structures/History/Updates out of the bottom drawer, and improves map readability with distance-derived spacing, route labels, citizen initials/clusters, and clearer traveler/visitor separation.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/f539298bc811ecdb4133b4b302250e74efe8a93e",
+  "version": "0.4.1",
+  "notes": "Conversation hotfix: prevents blank citizen replies from Qwen/Ollama by requesting direct non-thinking output for Agent City chat/JSON calls, retries an empty visitor reply once, refuses to store a still-empty reply, skips old blank assistant turns in model context, and hides legacy blank citizen bubbles in the UI.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/4181cbb69809205ae575b3f576836e5ca72c8dce",
   "sha256": ""
 }
