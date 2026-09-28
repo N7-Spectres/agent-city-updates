@@ -7,6 +7,7 @@ let currentView = "home";
 let sheetCitizenId = null;
 let citizenSearchQuery = "";
 let currentVisitAccessKey = null;
+let chatSubmitting = false;
 const citizenKnowledgeCache = new Map();
 const locationKnowledgeCache = new Map();
 const knowledgeLoading = new Set();
@@ -49,16 +50,92 @@ let locationPositions = {
   seed_site: { x: 50, y: 52 },
 };
 
-// Drop-in 2D art manifest. Keep values null until authoritative identity art exists.
-// Later art can be added without changing the layout/rendering contract.
-const CITIZEN_AVATAR_ASSETS = {
-  aris: { full: null, token: null },
-  bex: { full: null, token: null },
-  cato: { full: null, token: null },
-  iri: { full: null, token: null },
-  noma: { full: null, token: null },
-  vale: { full: null, token: null },
+// v0.8 Stage 1 citizen visual profiles.
+// These describe presentation canon only. They do not grant skills, equipment,
+// physical paint, dimensions, inventory, or capability.
+const CITIZEN_VISUAL_PROFILES = {
+  aris: {
+    accent_hue: 184,
+    silhouette: "lean",
+    canonical_aptitude: "extraction / prospecting",
+    assets: {
+      full: null,
+      bust: null,
+      token: null,
+      head: { neutral: null, blink: null, happy: null, focused: null, curious: null },
+    },
+    equipment_layers: { rear: [], body: [], waist: [], held: [], foreground: [] },
+  },
+  bex: {
+    accent_hue: 28,
+    silhouette: "compact",
+    canonical_aptitude: "fabrication",
+    assets: {
+      full: null,
+      bust: null,
+      token: null,
+      head: { neutral: null, blink: null, happy: null, focused: null, curious: null },
+    },
+    equipment_layers: { rear: [], body: [], waist: [], held: [], foreground: [] },
+  },
+  cato: {
+    accent_hue: 43,
+    silhouette: "heavy",
+    canonical_aptitude: "logistics / resource planning",
+    assets: {
+      full: null,
+      bust: null,
+      token: null,
+      head: { neutral: null, blink: null, happy: null, focused: null, curious: null },
+    },
+    equipment_layers: { rear: [], body: [], waist: [], held: [], foreground: [] },
+  },
+  iri: {
+    accent_hue: 270,
+    silhouette: "slim",
+    canonical_aptitude: "construction",
+    assets: {
+      full: null,
+      bust: null,
+      token: null,
+      head: { neutral: null, blink: null, happy: null, focused: null, curious: null },
+    },
+    equipment_layers: { rear: [], body: [], waist: [], held: [], foreground: [] },
+  },
+  noma: {
+    accent_hue: 92,
+    silhouette: "soft",
+    canonical_aptitude: "research / experimentation",
+    assets: {
+      full: null,
+      bust: null,
+      token: null,
+      head: { neutral: null, blink: null, happy: null, focused: null, curious: null },
+    },
+    equipment_layers: { rear: [], body: [], waist: [], held: [], foreground: [] },
+  },
+  vale: {
+    accent_hue: 4,
+    silhouette: "balanced",
+    canonical_aptitude: "generalist / cooperation",
+    assets: {
+      full: null,
+      bust: null,
+      token: null,
+      head: { neutral: null, blink: null, happy: null, focused: null, curious: null },
+    },
+    equipment_layers: { rear: [], body: [], waist: [], held: [], foreground: [] },
+  },
 };
+
+// Backward-compatible flat asset view used by the existing v0.7 renderer/smoke.
+// Real asset files can populate the profile slots later without changing layout.
+const CITIZEN_AVATAR_ASSETS = Object.fromEntries(
+  Object.entries(CITIZEN_VISUAL_PROFILES).map(([id, profile]) => [
+    id,
+    { full: profile.assets.full, token: profile.assets.token },
+  ])
+);
 
 const els = {
   simTime: document.getElementById("sim-time"),
@@ -324,11 +401,23 @@ function initialsFor(name) {
 }
 
 // UI-only interface accent, not physical paint or authoritative citizen appearance.
+function citizenVisualProfile(citizenId) {
+  return CITIZEN_VISUAL_PROFILES[String(citizenId)] || null;
+}
+
 function avatarHueFor(citizenId) {
+  const profile = citizenVisualProfile(citizenId);
+  if (profile?.accent_hue != null) return Number(profile.accent_hue);
+
   const text = String(citizenId || "");
   let hash = 0;
   for (const char of text) hash = ((hash * 31) + char.charCodeAt(0)) % 360;
   return hash;
+}
+
+function citizenSilhouetteClass(citizenId) {
+  const silhouette = citizenVisualProfile(citizenId)?.silhouette || "balanced";
+  return `silhouette-${silhouette}`;
 }
 
 function citizenVisualState(citizen) {
@@ -355,6 +444,7 @@ function citizenAvatarMarkup(citizen, variant = "token") {
     `avatar-${variant}`,
     `state-${stateClass}`,
     asset ? "has-image" : "fallback-avatar",
+    citizenSilhouetteClass(citizen.id),
   ].join(" ");
 
   if (asset) {
@@ -389,7 +479,7 @@ function applyCitizenPortrait(citizen) {
   const asset = citizenAvatarAsset(citizen.id, "full");
   const hue = avatarHueFor(citizen.id);
 
-  els.citizenPortraitArt.className = `citizen-avatar avatar-full state-${stateClass} ${asset ? "has-image" : "fallback-avatar"}`;
+  els.citizenPortraitArt.className = `citizen-avatar avatar-full state-${stateClass} ${asset ? "has-image" : "fallback-avatar"} ${citizenSilhouetteClass(citizen.id)}`;
   els.citizenPortraitArt.style.setProperty("--avatar-hue", String(hue));
   els.citizenPortraitArt.style.removeProperty("--avatar-image");
 
@@ -723,8 +813,21 @@ function renderCitizens() {
   els.citizens.innerHTML = visible.length ? visible.map(c => {
     const cargo = inventoryFor(c.id);
     const job = activeJobFor(c.id);
+    const progress = job ? jobProgress(job) : null;
     const destination = job?.action === "travel" ? locationById(job.target)?.name : null;
     const where = destination ? `${c.location} → ${destination}` : c.location;
+    const progressMarkup = job && progress ? `
+      <div class="citizen-job-progress" aria-label="${escapeHtml(c.current_activity)} progress ${progress.percent}%">
+        <div class="citizen-job-progress-meta">
+          <span>${progress.elapsed} / ${progress.total} sim min</span>
+          <span>${progress.remaining} remaining • ETA ${escapeHtml(formatMinute(job.end_minute))}</span>
+        </div>
+        <div class="citizen-job-progress-track">
+          <span style="width:${progress.percent}%"></span>
+        </div>
+      </div>
+    ` : "";
+
     return `
       <button class="citizen-row compact-citizen-row ${selectedCitizen === c.id ? "selected" : ""}" onclick="selectCitizen('${c.id}')">
         <div class="compact-citizen-main">
@@ -735,6 +838,7 @@ function renderCitizens() {
             <div class="location-line">${escapeHtml(where)}${cargo ? ` • ${escapeHtml(cargo)}` : ""}</div>
           </div>
         </div>
+        ${progressMarkup}
         <div class="compact-vitals">
           <span>⚡ ${Math.round(c.energy)}%</span>
           <span>⛭ ${Math.round(c.integrity)}%</span>
@@ -2100,14 +2204,31 @@ els.pauseButton.addEventListener("click", async () => {
   await loadState();
 });
 
+els.chatInput.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" || event.shiftKey) return;
+  if (event.isComposing || event.keyCode === 229) return;
+
+  event.preventDefault();
+
+  if (
+    chatSubmitting ||
+    els.chatInput.disabled ||
+    els.sendButton.disabled ||
+    !selectedCitizen
+  ) return;
+
+  els.chatForm.requestSubmit(els.sendButton);
+});
+
 els.chatForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  if (!selectedCitizen) return;
+  if (!selectedCitizen || chatSubmitting) return;
 
   const message = els.chatInput.value.trim();
   const visitor = els.visitorName.value.trim() || "Visitor";
   if (!message) return;
 
+  chatSubmitting = true;
   appendChat(visitor, message, "visitor");
   els.chatInput.value = "";
   els.chatInput.disabled = true;
@@ -2127,6 +2248,7 @@ els.chatForm.addEventListener("submit", async (event) => {
   } catch (error) {
     appendChat("System", error.message, "system");
   } finally {
+    chatSubmitting = false;
     els.chatInput.disabled = false;
     els.sendButton.disabled = false;
     els.sendButton.textContent = "Talk";
