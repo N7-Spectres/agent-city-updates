@@ -1549,6 +1549,7 @@ def complete_due_jobs(now: int) -> None:
                     source_job_id=int(job["id"]),
                     observation_kind=str(payload.get("observation_kind") or "direct_inspection"),
                     radius_m=DIRECT_INSPECTION_RADIUS_M,
+                    detail_level="baseline",
                 )
                 conn.execute(
                     """
@@ -1616,6 +1617,7 @@ def complete_due_jobs(now: int) -> None:
                         source_job_id=int(job["id"]),
                         observation_kind="shared_walk_inspect",
                         radius_m=DIRECT_INSPECTION_RADIUS_M,
+                        detail_level="baseline",
                     )
                     conn.execute(
                         """
