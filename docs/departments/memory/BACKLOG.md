@@ -163,3 +163,40 @@ Before v0.4 can be considered release-ready:
 - keep unknown world truth out of memory/UI context
 - support gradual accumulation of location summaries as new surveys, experiments, and communicated facts arrive
 - avoid treating a single conversation claim as verified location truth unless later validated
+
+
+## v0.6.0 — Location / Research Knowledge
+
+### Implemented on `memory/v0.6-location-knowledge`
+
+- [x] reuse `memory_events` instead of adding a speculative knowledge table
+- [x] durable personal survey/discovery memories with source/time
+- [x] idempotent sync of newly validated personal survey discoveries
+- [x] bounded retrieval by citizen/location/material/process
+- [x] verified vs unverified labeling
+- [x] bounded planner-facing local knowledge context
+- [x] safe citizen knowledge API
+- [x] safe location notebook API partitioned by citizen
+- [x] focused v0.6 Memory smoke test
+
+### Waiting on Simulation v0.6
+
+- [ ] final stable discovery / experiment record IDs
+- [ ] final subject metadata for material property/process discoveries
+- [ ] explicit validated discovery outcome fields suitable for Memory source links
+- [ ] confirm whether experiment/discovery IDs are integer event IDs or provide a durable integer event anchor compatible with current `memory_events.source_id`
+
+### Waiting on Communication v0.6
+
+- [ ] final claim/discovery transfer provenance shape
+- [ ] source conversation / transfer ID mapping
+- [ ] recipient, source actor, received time, assertion kind, verification state
+- [ ] hook transferred location/material/process claims into `record_knowledge_event` as unverified
+
+### Integration follow-up
+
+- [ ] consume final Simulation discovery/experiment records without importing hidden truth
+- [ ] consume Communication claim transfers without automatic verification
+- [ ] extend structured metadata only as needed; avoid schema churn
+- [ ] add material/process read-model examples after Simulation finalizes fields
+- [ ] run combined v0.6 smoke suite after coordinator integration
