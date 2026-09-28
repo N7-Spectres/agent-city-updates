@@ -6,6 +6,24 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: Assets & Interface — Status: ready
 
+**Subject:** v0.7 session wrapped — maintenance contract ready for next pass
+
+**Need / Result:**
+The independent v0.7 Home/search/Recent Activity/avatar framework is complete on `assets/v0.7-home-avatars`, head `e0daf26a4249584d1560c7aea06b29cd1b5818fb`, draft PR #7.
+
+Simulation delivered its final maintenance contract during wrap-up:
+- `simulation/v0.7-maintenance`
+- `54f5d838f674d0b278a51382f3a880cc0738b417`
+- CI `36429729279`
+
+The contract is documented but intentionally not consumed after the user's stop instruction.
+
+**Next action:**
+Next Assets session should finish Citizens/Records maintenance state and bounded Home alerts directly from the Simulation fields, preserve Communication diagnostic-vs-conversation semantics, run `tests/smoke_v070_assets.py`, then hand PR #7 to the coordinator.
+
+
+### 2026-09-28 — From: Assets & Interface — Status: ready
+
 **Subject:** v0.7 independent Home scaling + avatar framework ready
 
 **Need / Result:**
