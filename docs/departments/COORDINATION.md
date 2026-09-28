@@ -16,11 +16,11 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-- [Assets & Interface] Stage 2 final implementation still required: continuous local map, shared-action UI, observation uncertainty, Stage 2 Assets smoke
+_None._
 
 ### WAITING
 
-- [Coordinator / Stage 2 Integration] final assembly waits for Assets Stage 2 completion, then must merge Simulation + Communication + Memory + Assets and run the full regression matrix
+- [Coordinator / Stage 2 Integration] all four Stage 2 department branches are ready; final assembly must merge Simulation + Communication + Memory + Assets and run the full regression matrix
 
 ### READY
 
@@ -29,8 +29,11 @@ This file is the shared project task board.
 - [Communication & Perception] Stage 2 shared-action proposal/accept/start/reject bridge ready on `communication/v0.8-shared-actions-stage2` @ `ddab4bd445d5eb9f7d6354eb86e58afc0dc53332`; final CI `36457633293` passed unified Stage 1 regressions + Communication Stage 2 smoke + final Simulation adapter signature checks
 - [Memory & Social] no remaining Stage 2 department dependency; ready for coordinator assembly
 - [Coordinator] Stage 1 unified base remains green: `release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`, Actions `36453177128`
+- [Assets & Interface] Stage 2 Assets UI ready on `assets/v0.8-exploration-ui-stage2` @ `7f5294efaab738b44af116514a65d22478851ad0`; PR #15 ready; branch CI `36460454385` passed JS + Stage 1 Assets smoke + Stage 2 Assets smoke
 
 ### REVIEW
+
+- [Assets & Interface] authoritative meter-space map/local focus, validated observation uncertainty, shared-action intent-vs-physical UI, canonical reject handling, visitor movement presentation, and presentation-only AssetQueue scaffold complete
 
 - [Communication & Perception] Stage 2 conversational-to-physical bridge complete: explicit meter/cardinal proposals, canonical Simulation proposal validation, separate accept/start, canonical pre-start reject, bounded progress/status dialogue context, and final source-chain handoff
 
@@ -233,7 +236,7 @@ At minimum run together after merge:
 - `tests/smoke_v080_stage2.py`
 - `tests/smoke_v080_communication_stage2.py`
 - `tests/smoke_v080_memory_stage2.py`
-- Assets Stage 2 smoke when complete
+- `tests/smoke_v080_assets_stage2.py`
 
 ## Memory v0.8 Stage 2 Integration Locks
 
@@ -279,3 +282,29 @@ Coordinator integration must preserve:
 Final dependency resolution:
 - Simulation provides canonical pre-start reject for `proposed`/`accepted` rows with no job, movement, or observation.
 - Communication now consumes and tests the final accept -> start -> reject lifecycle. No Communication Stage 2 dependency remains.
+
+
+## Assets v0.8 Stage 2 Integration Locks
+
+Coordinator integration must preserve:
+
+1. Meter-space rendering consumes only safe Simulation spatial state.
+2. +x is east and +y is north in `seed_site_local`.
+3. Local-focus viewport may change camera scale/center but never physical coordinates.
+4. Citizen local movement uses server-derived current x/y plus the Simulation-defined start/target segment only.
+5. Browser smoothing is presentation-only and must respect `prefers-reduced-motion`.
+6. Visitor shared movement uses authoritative visitor presence; chat agreement alone never moves the visitor.
+7. Communication proposal ID, Simulation shared-activity ID, and Simulation job ID remain distinct.
+8. Proposed/accepted intent must not look physically active.
+9. Active presentation requires a real `simulation_action_id`.
+10. Canonical rejection creates no movement path/marker.
+11. Observation markers require a real `spatial_observations.id`.
+12. `radius_m` communicates observation uncertainty; coordinate decimals do not imply greater precision.
+13. Baseline observation UI must not reveal material or classified geology.
+14. Assets must never consume `planet_seed`, hidden `generated_deposits`, hidden body geometry, or richness.
+15. Citizen concept art still does not create equipment/capability.
+16. Runtime-ready citizen art is absent; keep asset slots empty until approved source files exist.
+17. `agent_city/asset_worker.py` and `data/asset_worker.db` are presentation infrastructure only and must never mutate Simulation truth.
+18. No Blender or 3D generator dependency is required for v0.8.
+19. Preserve `tests/smoke_v080_assets_stage2.py` in the final Stage 2 regression matrix.
+20. No department publishes `update.json`.
