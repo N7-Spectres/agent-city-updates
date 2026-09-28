@@ -110,7 +110,16 @@ def presence_payload(visitor: str) -> dict[str, Any]:
             presence["y_m"] = shared_payload["movement"]["y_m"]
 
         destinations = []
-        if not presence.get("travel_end_minute") and not active_shared:
+        landmark = conn.execute(
+            "SELECT x_m, y_m FROM locations WHERE id = ?",
+            (presence["location_id"],),
+        ).fetchone()
+        at_landmark = bool(
+            landmark
+            and ((float(presence.get("x_m") or 0.0) - float(landmark["x_m"] or 0.0)) ** 2
+                 + (float(presence.get("y_m") or 0.0) - float(landmark["y_m"] or 0.0)) ** 2) ** 0.5 <= 5.0
+        )
+        if not presence.get("travel_end_minute") and not active_shared and at_landmark:
             rows = conn.execute(
                 """
                 SELECT r.b AS id, r.distance_km, l.name
@@ -176,6 +185,17 @@ def start_visitor_travel(visitor: str, target: str) -> tuple[bool, str]:
             return False, "You are already participating in an active shared physical activity."
 
         origin = row["location_id"]
+        landmark = conn.execute(
+            "SELECT x_m, y_m FROM locations WHERE id = ?",
+            (origin,),
+        ).fetchone()
+        if landmark:
+            separation = (
+                (float(row["x_m"] or 0.0) - float(landmark["x_m"] or 0.0)) ** 2
+                + (float(row["y_m"] or 0.0) - float(landmark["y_m"] or 0.0)) ** 2
+            ) ** 0.5
+            if separation > 5.0:
+                return False, "Return to the local landmark before using the legacy route network."
         if target == origin:
             return False, "You are already there."
 
