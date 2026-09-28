@@ -131,3 +131,40 @@ Do not render them as proof of a continuous globe/free-roam world until Simulati
 Once the Assets branch is complete and marked REVIEW, cross-branch assembly belongs to the coordinator.
 
 Assets should not merge Simulation-owned code into its department branch merely to produce a single milestone branch. The coordinator must integrate completed department branches while preserving each department's invariants and then smoke-test the assembled runtime.
+
+
+## v0.6 Information Architecture Rule
+
+Home is the place to visit the city, not the place to display every dataset.
+
+Keep Home focused on:
+- compact citizens
+- world/map
+- selected-citizen Visit
+
+Move deeper information into dedicated top-level views:
+- Citizens
+- Locations
+- Records
+
+## v0.6 Knowledge-Bound UI Rule
+
+The UI may show known state, not hidden Simulation truth.
+
+For Locations and Citizens:
+- undiscovered resources/properties are absent
+- communicated claims remain distinguishable from verified discovery/observation
+- one citizen's knowledge must not silently become every citizen's knowledge
+- placeholder visuals must not imply real equipment, structures, appearance, or environment details that are not authoritative
+
+## v0.6 Missing-Knowledge Presentation Rule
+
+Missing knowledge is normal.
+
+Do not render unknown facts as tantalizing locked fields, silhouettes of undiscovered resources, question-mark technologies, or other UI that reveals the shape of hidden truth.
+
+Prefer omission or a neutral empty state.
+
+## v0.6 Records Separation Rule
+
+Making, Stores, History, Region, and Updates/Admin remain accessible, but they live outside Home in a dedicated Records view so secondary state does not compete with the world/visit experience.
