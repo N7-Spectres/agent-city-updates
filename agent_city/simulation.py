@@ -977,6 +977,101 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             detail = f"extract:{target}:speed={speed:.2f}"
             activity = f"Extracting {material}"
 
+        elif action == "service_chassis":
+            if c["location_id"] != "seed_site" or float(c["joint_wear"] or 0) < CHASSIS_SERVICE_WEAR:
+                return False, "Chassis service is not currently required or available here."
+            requirements = {"Lubricant": 1.0}
+            if not consume_resources(conn, requirements):
+                return False, "Required lubricant is no longer available."
+            before = float(c["joint_wear"] or 0)
+            duration = 60
+            detail = json.dumps(
+                {
+                    "maintenance": "chassis_service",
+                    "before": before,
+                    "materials": requirements,
+                },
+                separators=(",", ":"),
+                sort_keys=True,
+            )
+            activity = "Servicing chassis joints"
+
+        elif action == "replace_battery":
+            if c["location_id"] != "seed_site" or float(c["battery_health"] or 100) >= BATTERY_REPLACE_THRESHOLD:
+                return False, "Battery replacement is not currently required or available here."
+            requirements = {"Battery cells": 4.0, "Mechanical components": 2.0}
+            if not consume_resources(conn, requirements):
+                return False, "Required battery replacement parts are no longer available."
+            before = float(c["battery_health"] or 0)
+            duration = 120
+            detail = json.dumps(
+                {
+                    "maintenance": "battery_replacement",
+                    "before": before,
+                    "materials": requirements,
+                },
+                separators=(",", ":"),
+                sort_keys=True,
+            )
+            activity = "Replacing battery pack"
+
+        elif action == "service_equipment":
+            if c["location_id"] != "seed_site":
+                return False, "Equipment service currently requires the Seed Site workshop."
+            item = conn.execute(
+                "SELECT * FROM equipment WHERE id = ? AND owner_citizen_id = ?",
+                (int(target), citizen_id),
+            ).fetchone()
+            if not item or float(item["condition"]) >= SERVICE_DUE_CONDITION:
+                return False, "That equipment does not currently require service."
+            requirements = equipment_service_requirements(float(item["condition"]))
+            if not consume_resources(conn, requirements):
+                return False, "Required equipment service materials are no longer available."
+            before = float(item["condition"])
+            severity = max(0.0, 100.0 - before)
+            duration = 60 + int(severity * 0.6)
+            detail = json.dumps(
+                {
+                    "maintenance": "equipment_service",
+                    "equipment_id": int(item["id"]),
+                    "before": before,
+                    "materials": requirements,
+                },
+                separators=(",", ":"),
+                sort_keys=True,
+            )
+            activity = f"Servicing {item['name']}"
+
+        elif action == "service_structure":
+            structure = conn.execute(
+                "SELECT * FROM structures WHERE id = ?",
+                (int(target),),
+            ).fetchone()
+            if (
+                not structure
+                or structure["location_id"] != c["location_id"]
+                or c["location_id"] != "seed_site"
+                or float(structure["condition"]) >= SERVICE_DUE_CONDITION
+            ):
+                return False, "That structure does not currently require service here."
+            requirements = structure_service_requirements(structure)
+            if not consume_resources(conn, requirements):
+                return False, "Required structure service materials are no longer available."
+            before = float(structure["condition"])
+            severity = max(0.0, 100.0 - before)
+            duration = 90 + int(severity * 0.8)
+            detail = json.dumps(
+                {
+                    "maintenance": "structure_service",
+                    "structure_id": int(structure["id"]),
+                    "before": before,
+                    "materials": requirements,
+                },
+                separators=(",", ":"),
+                sort_keys=True,
+            )
+            activity = f"Servicing {structure['name']}"
+
         elif action == "experiment":
             experiment_method = str(chosen.get("experiment_method") or "")
             protocol = EXPERIMENT_METHODS.get(experiment_method)
@@ -993,7 +1088,13 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             sample_amount = float(protocol["sample_amount"])
             if not consume_resources(conn, {material: sample_amount}):
                 return False, "The required physical sample is no longer available."
-            duration = int(protocol["duration"])
+            workbench_efficiency = structure_efficiency(conn, "Basic Workbench", c["location_id"])
+            if workbench_efficiency <= 0:
+                return False, "The Basic Workbench is not operational."
+            duration = max(
+                int(protocol["duration"]),
+                int(round(float(protocol["duration"]) / workbench_efficiency)),
+            )
             conn.execute(
                 "UPDATE citizens SET energy = MAX(0, energy - ?) WHERE id = ?",
                 (float(protocol["energy_cost"]), citizen_id),
@@ -1012,7 +1113,13 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
                 return False, "Fabrication would leave insufficient return-energy reserve."
             if not consume_resources(conn, process["materials"]):
                 return False, "Required fabrication materials are no longer available."
-            duration = int(process["duration"])
+            workbench_efficiency = structure_efficiency(conn, "Basic Workbench", c["location_id"])
+            if workbench_efficiency <= 0:
+                return False, "The Basic Workbench is not operational."
+            duration = max(
+                int(process["duration"]),
+                int(round(float(process["duration"]) / workbench_efficiency)),
+            )
             conn.execute(
                 "UPDATE citizens SET energy = MAX(0, energy - ?) WHERE id = ?",
                 (float(process["energy_cost"]), citizen_id),
@@ -1076,7 +1183,10 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
         elif action == "charge":
             if c["location_id"] not in charging_locations(conn):
                 return False, "No operational charging structure is available here."
-            duration = 60
+            charger_efficiency = structure_efficiency(conn, "Charging Station", c["location_id"])
+            if charger_efficiency <= 0:
+                return False, "No operational charging structure is available here."
+            duration = max(60, int(round(60 / charger_efficiency)))
             detail = f"charge:{c['location_id']}"
             activity = f"Charging at {location_name(conn, c['location_id'])}"
 
