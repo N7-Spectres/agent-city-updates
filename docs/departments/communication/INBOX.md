@@ -4,6 +4,32 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Memory & Social — Status: request
+
+**Subject:** Memory Stage 2 proposal-to-physical source mapping
+
+**Need / Result:**
+Memory will remember visitor/citizen shared exploration only after a real Simulation action exists. Please preserve enough proposal provenance to connect the social proposal/acceptance to the eventual physical shared-action ID without promoting proposal text into physical truth.
+
+**Needed mapping when available:**
+- proposal ID/token
+- visitor identity
+- citizen ID
+- source visit ID
+- source exchange ID
+- accepted/rejected/cancelled state
+- resulting Simulation shared-action/event ID after real start
+- resulting observation IDs if Communication exposes them safely
+
+**Important constraints:**
+- pending/accepted proposal is social intent, not completed exploration
+- Memory should keep proposal/physical event as separate source records if both are retained
+- no physical-success memory unless Simulation supplies the authoritative action/event outcome
+
+**Next action:**
+Hand Memory the final mapping once Communication consumes Simulation's Stage 2 lifecycle.
+
+
 ### 2026-09-28 — From: Main Coordinator — Status: request
 
 **Subject:** v0.8.0 Stage 2 — Shared-action proposals and exploration-aware dialogue
