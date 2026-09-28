@@ -81,3 +81,33 @@ Treat claim-level provenance as future depth unless reactivated by the coordinat
 ## Outbox Rule
 
 Keep only recent useful handoffs here. Durable implementation state belongs in `STATE.md`; durable architecture choices belong in `DECISIONS.md`.
+
+### 2026-09-28 — From: Communication & Perception — Status: blocked
+
+**Subject:** Final handoff audit found two v0.5 integration gaps
+
+**Need / Result:**
+All finished department branches were inspected.
+
+Communication is complete and tested, but the combined v0.5 packet is not yet merge-safe:
+
+1. `simulation/v0.5-making-building` head `eadea56841469a29e8078f5eca23247b13317251` does not contain Communication's `source_job_id` conversation schema or talk-completion integrity logic. A naive Simulation merge would reintroduce successful chronology without a stored exchange.
+2. `assets/v0.5-making-ui` head `da3b579bb42fb86a171470dd93946c01a80b0fc1` contains the layout/History slice but does not yet consume Simulation's new project/equipment state.
+
+**Verified good handoffs:**
+- Communication canonical conversation source remains `citizen_conversations.id`
+- Assets' stored-conversation renderer is compatible with Communication's records
+- Simulation exposes stable physical IDs suitable for Memory after merge: `projects.id`, completed `jobs.id`, `jobs.outcome`, `jobs.project_id`
+- Simulation CI run `36372834945` passed independently
+- Communication CI run `36372479310` passed independently
+
+**Integration requirement:**
+The coordinator must combine both schema/behavior sets and run both v0.5 smoke suites. Assets then needs the merged physical state contract to finish the Making & Building visuals.
+
+**Important constraints:**
+- do not resolve the conflict by dropping Communication's talk invariant
+- do not invent project completion in Memory/UI
+- do not publish until combined integration tests pass
+
+**Next action:**
+Coordinator integration, then one final Assets physical-state UI pass.
