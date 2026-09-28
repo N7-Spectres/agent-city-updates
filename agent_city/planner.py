@@ -97,6 +97,9 @@ DURABLE SOCIAL HISTORY FROM YOUR OWN RECORDED ENCOUNTERS:
 RETAINED KNOWLEDGE ABOUT YOUR CURRENT LOCATION:
 {local_knowledge}
 
+SELECTED MEANINGFUL MAINTENANCE EXPERIENCES YOU PARTICIPATED IN:
+{maintenance_history}
+
 INFORMATION BOUNDARY:
 - You know the other five citizens exist.
 - You can directly observe citizens at your own location.
