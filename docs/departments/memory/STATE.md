@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-28_
 _Current release: v0.7.0_
-_Current development branch: `memory/v0.7-maintenance-history`_
+_Current development branch: `memory/v0.8-spatial-knowledge-stage1`_
 
 ## Mission
 
@@ -656,5 +656,86 @@ Different citizens may initially know different names for the same place until C
 ### Branch status
 
 Do not create `memory/v0.8-spatial-knowledge-stage1` until Simulation's Stage 1 stable coordinate/deposit/observation contract lands.
+
+No release metadata or `update.json` was changed.
+
+
+## v0.8 Stage 1 Spatial Memory — Runtime Foundation Complete
+
+Branch: `memory/v0.8-spatial-knowledge-stage1`  
+Base: `release-v0.7.0` / `d81a85bf03b69b969532016f59bbbed2233949ee`  
+Final head: `086e4c2e192b7a22a36d26be8288e01abfd1d197`
+
+Consumed Simulation Stage 1 contract from:
+`simulation/v0.8-seeded-world-stage1` @ `0a22813d75b4f4c5cb47a5d06e8a561c95492566`.
+
+### Implemented
+
+New module: `agent_city/spatial_memory.py`
+
+Memory now supports source-linked per-citizen spatial continuity from Simulation's safe `spatial_observations` ledger.
+
+Canonical semantics:
+- evidence source: `spatial_observations.id`
+- stable physical subject: `deposit_id` / generated deposit stable ID
+- observation frame: `frame_id`
+- observed coordinate: `x_m / y_m`
+- observation uncertainty: `radius_m`
+- observer/time/method/source job retained
+
+Memory **does not read**:
+- `planet_seed`
+- `generated_deposits`
+- hidden center/axis/angle geometry
+- richness
+- unexplored chunk truth
+
+### Salience behavior
+
+Durable spatial Memory keeps:
+- first meaningful encounter with a stable deposit/body
+- a new observation method for that stable subject
+- materially improved localization precision
+- explicit non-routine spatial milestones
+
+It suppresses:
+- every meter walked
+- position ticks
+- passive scans with no stable subject
+- repeat same-body observations with no method/precision improvement
+
+Repeated encounters retain the same stable `subject_id`; they do not create fictional duplicate deposits.
+
+### Precision behavior
+
+Coordinates stored in Memory are rounded no finer than the observation uncertainty:
+- >=100 m uncertainty -> 100 m coordinate step
+- >=10 m -> 10 m
+- >=1 m -> 1 m
+- sub-meter -> 0.1 m
+
+Memory stores the observed location, not hidden exact body geometry.
+
+### Isolation / retrieval
+
+- observations remain per-citizen
+- another citizen does not inherit them automatically
+- `spatial_snapshot_for(...)` supports stable-subject filtering and bounded nearby retrieval
+- `spatial_context_for(...)` provides compact subject continuity
+- spatial events are excluded from generic v0.6 knowledge-fact retrieval
+- sync safely no-ops before Simulation's spatial table exists
+
+No planner/UI prompt expansion was added in Stage 1. The retrieval layer is ready for Stage 2 consumers when physical exploration actions begin producing observations.
+
+### Validation
+
+CI `36450511959` passed:
+- compile / JS syntax
+- full shipped v0.4-v0.7 regression matrix
+- new `tests/smoke_v080_memory.py`
+
+Smoke coverage verifies stable-subject continuity, salience suppression, precision bounding, per-citizen isolation, nearby/subject retrieval, idempotency, and absence of hidden seed/geometry fields.
+
+The temporary CI workflow was removed after validation.
 
 No release metadata or `update.json` was changed.
