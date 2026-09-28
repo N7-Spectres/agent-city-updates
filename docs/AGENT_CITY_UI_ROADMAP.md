@@ -616,6 +616,25 @@ A simple visual representation of a real event is always better than a beautiful
 When the citizens surprise us, treat the surprise as test data. Strengthen the systems underneath it rather than scripting the outcome.
 
 
+### v0.8 Stage 2 — Exploration Lifecycle
+
+Stage 1 established the hidden seeded world and safe spatial contracts. Stage 2 makes that substrate physically usable.
+
+Direction:
+- real local meter-space movement for citizens
+- visitor-linked shared walk/inspection activities through explicit acceptance, never chat auto-execution
+- authoritative movement start/target/progress fields for visual interpolation
+- validated local observations at real coordinates
+- same seeded deposit retains stable identity across nearby encounters
+- bounded spatial memory enters planning/dialogue only for citizens who legitimately know it
+- continuous local map uses only safe positions/observations
+- proposed vs active shared activity is visually explicit
+- preserve named landmarks/routes as anchors during transition
+- no scanner is granted merely because concept art depicts one
+
+Stage 2 uses the integrated Stage 1 base:
+`release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`.
+
 ### v0.8 Asset Pipeline Foundations
 
 Begin laying the local visual-generation substrate for the later 3D world without making asset generation authoritative over simulation.
