@@ -259,3 +259,34 @@ Future long-distance communication requires actual need, discovery, materials, f
 The Communication v0.6 provenance/availability slice is implementation-complete and ready for coordinator integration/review.
 
 Claim verification by later evidence is intentionally minimal in this slice: the ledger can represent `verified` / `contradicted`, but richer reconciliation/reliability behavior remains future depth.
+
+## Session Close — 2026-09-28
+
+Communication v0.6 work is closed for this session.
+
+Final implementation:
+- branch: `communication/v0.6-knowledge-provenance`
+- head: `6a483fcc4d143606f3e401218002e06ae43076d1`
+- final green CI: `36421263078`
+
+Completed this session:
+- implemented recipient-local information receipts
+- implemented verified observation/result vs unverified speaker-claim semantics
+- required persisted claim text to be verbatim from the durable speaker transcript
+- preserved canonical conversation/source-job integrity
+- added Simulation knowledge/result synchronization without reading hidden truth directly
+- separated Simulation `agent_city/knowledge.py` from Communication `agent_city/provenance.py`
+- fixed visitor availability/talk-counterpart status
+- preserved anti-omniscience in planner and visitor dialogue context
+- handed stable contracts to Simulation, Memory, and Assets
+- updated shared coordination to REVIEW
+
+No department-owned implementation remains for the current Communication v0.6 slice.
+
+Resume only if:
+1. coordinator reports an integration conflict,
+2. Assets reports a Visit/provenance contract mismatch,
+3. Memory needs a provenance-mapping adjustment, or
+4. a later milestone activates contradiction/reliability, overhearing, physical records, or long-distance communication.
+
+Before resuming, read `COORDINATION.md`, this department's `INBOX.md`, then this `STATE.md`.
