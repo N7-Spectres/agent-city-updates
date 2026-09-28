@@ -96,3 +96,6 @@ jobs:
 
       - name: Run v0.8.1 Assets/UI hotfix smoke
         run: python tests/smoke_v081_assets.py
+
+      - name: Run v0.8.2 synchronized vital-meter smoke
+        run: python tests/smoke_v082_vitals.py
