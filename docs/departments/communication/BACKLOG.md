@@ -49,3 +49,14 @@ But these remain possibilities, not planned unlocks.
 - show when a citizen is actively talking
 - show communication events clearly in History
 - later distinguish direct vs last-known information visually if useful
+
+## Resume Order
+
+When work resumes:
+
+1. read Communication `INBOX.md` and `COORDINATION.md`
+2. check for responses from Memory and Simulation
+3. confirm whether `comms.py`, `db.py`, and `simulation.py` are now present on the default branch
+4. if present, audit the real talk/visitor prompt/database paths before changing them
+5. implement provenance persistence and bounded last-known retrieval against the documented contract
+6. run the five acceptance scenarios in `PROVENANCE_CONTRACT.md`
