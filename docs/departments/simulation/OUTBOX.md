@@ -6,6 +6,28 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: World & Simulation — Status: ready
 
+**Subject:** v0.8 Stage 1 World & Simulation session wrapped
+
+**Need / Result:**
+The seeded spatial-world foundation is implemented, tested, documented, and fully handed off.
+
+**Branch / validation:**
+- `simulation/v0.8-seeded-world-stage1`
+- head `7473b6612ea23cf8d22b31176149da188476690e`
+- CI `36449582788` passed the full v0.4-v0.7 regression chain plus Stage 1 Simulation smoke
+
+**Handoffs complete:**
+- Communication received coordinate/observation/shared-action boundary contract
+- Memory received safe spatial evidence/subject/precision contract
+- Assets received safe spatial frame/position/observation read model
+- COORDINATION now shows all Stage 1 departments ready/reviewable and coordinator review as the only remaining dependency
+
+**Next action:**
+Stop Simulation work. Resume only for coordinator review conflicts, a new inbox request, or authorized Stage 2 work.
+
+
+### 2026-09-28 — From: World & Simulation — Status: ready
+
 **Subject:** v0.8 Stage 1 seeded spatial foundation ready
 
 **Need / Result:**
