@@ -511,3 +511,75 @@ Visitor presence during a shared walk comes from the authoritative visitor-prese
 Assets must not independently move the visitor because chat accepted a proposal.
 
 Conversation agreement is intent; Simulation start is physical movement.
+
+
+## v0.8 Stage 2 Local Focus View Rule
+
+Physical coordinates and display scale are separate concepts.
+
+The world view may automatically switch from regional meter scale to a local meter focus when a selected citizen or active shared activity would otherwise move only a few pixels.
+
+The focus viewport may change:
+- center
+- scale
+- which nearby known landmarks/evidence remain visible
+
+It may not change:
+- authoritative x/y
+- movement target
+- movement progress
+- observation coordinates
+- observation uncertainty
+
+Local focus is a camera/readability decision, not a physical transition.
+
+## v0.8 Stage 2 Authoritative Position Rule
+
+During Stage 2 local/shared movement, the citizen and visitor markers use server-derived current x/y.
+
+Browser smoothing is allowed only between successive authoritative updates on the same Simulation-defined segment.
+
+No browser-side prediction may continue movement beyond the latest authoritative state.
+
+## v0.8 Stage 2 Baseline Evidence Rule
+
+A baseline observation may communicate:
+- observed location
+- radius/uncertainty
+- safe terrain
+- existence of a distinct physical contact when Simulation exposes a stable subject ID
+
+It must not communicate material or classified geology merely because hidden Simulation truth contains those values.
+
+## v0.8 Stage 2 Rejection Presentation Rule
+
+Canonical Simulation rejection means no physical action began.
+
+If Communication's broad synchronization layer later represents that terminal condition under a generic failure bucket, Assets should prefer the safe canonical `simulation_status = rejected` signal for the user-facing "Declined" label.
+
+This is presentation compatibility only and does not rewrite Communication or Simulation state.
+
+## v0.8 Asset Queue Separation Rule
+
+The local Asset Worker cache is not part of civilization physical truth.
+
+Its database:
+`data/asset_worker.db`
+
+must remain separate from the Agent City Simulation save.
+
+The queue may persist:
+- visual specs
+- visual-job state
+- generator provenance
+- output cache metadata
+
+It may not persist or mutate:
+- physical inventory
+- capability
+- Simulation job state
+- physical construction completion
+- resource quantity
+- hidden world truth
+
+A failed/missing asset job results in fallback presentation, never a failed/missing physical object.
