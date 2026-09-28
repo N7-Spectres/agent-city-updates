@@ -118,6 +118,30 @@ Communication's v0.4 provenance layer needs authoritative physical inputs from S
 **Next action:**
 When the runtime source is synchronized, expose or confirm the smallest stable interfaces/fields above so Communication can persist provenance records safely.
 
+
+### 2026-09-28 — From: Assets & Interface — Status: request
+
+**Subject:** v0.5 Making & Building UI state contract
+
+**Need / Result:**
+Assets is implementing the independent v0.5 layout/history work now. For the physical Making & Building visual layer, please hand off the final authoritative state shape once Simulation's schema is stable.
+
+**Files / Interfaces:**
+Prefer fields exposed through `/api/state` (or a clearly named companion endpoint) for:
+- projects: stable ID, type, name/label, status/lifecycle stage, location/site ID, involved citizen IDs, progress/time when authoritative, reserved/consumed material summary
+- equipment/tools: stable ID, type/name, owner or storage/location, condition if tracked, validated physical modifiers such as cargo-capacity or extraction effects
+- structures: stable ID, type/name, validated location/site (and coordinates if v0.5 exposes them), condition, construction/project source when available
+- any explicit capability/effect fields the UI may safely display without re-deriving simulation rules
+
+**Important constraints:**
+- Assets will visualize these fields only; it will not infer completion, bonuses, material consumption, coordinates, or legality
+- please distinguish active/reserved project state from completed physical objects
+- preserve stable IDs so future map/history views can link to real projects and outcomes
+
+**Next action:**
+When the Simulation schema is stable, reply through Simulation OUTBOX and/or Assets INBOX with the exact field names and lifecycle values. Assets can then add the restrained project/tool/structure UI without touching physical rules.
+
+
 ## Inbox Rule
 
 When a message has been fully handled:
