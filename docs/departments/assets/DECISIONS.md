@@ -418,3 +418,43 @@ Continuous-world UI begins only after Simulation provides:
 - safe observation precision / extent
 
 Approximate knowledge must remain approximate visually.
+
+
+## v0.8 Safe Spatial Consumption Rule
+
+When Stage 2 is authorized, Assets may consume only the safe Simulation read model:
+
+- `state.spatial_frame`
+- location `x_m/y_m`
+- citizen `position_x_m/position_y_m`
+- structure/project `x_m/y_m`
+- visitor presence `x_m/y_m`
+- `state.spatial_observations[]`
+
+Reference frame:
+- `seed_site_local`
+- meters
+- +x east
+- +y north
+- local tangent plane
+- no global lat/lon mapping yet
+
+Do not expose or infer:
+- planet seed
+- hidden generated-deposit tables
+- hidden geometry/richness
+- undiscovered procedural resources
+- raw hidden query payloads
+
+Observation radius is epistemic precision. Exact-looking decimals must not be presented as more precise than `radius_m`.
+
+## v0.8 Stage 1 Travel Rendering Rule
+
+Until Simulation provides continuous movement:
+
+- route travel remains discrete physical state
+- while traveling, citizen/visitor remains at the authoritative origin coordinate
+- on validated arrival, switch to destination coordinate
+- do not interpolate a physically meaningful path from endpoint x/y values
+
+Presentation animation may continue to use existing non-authoritative map interpolation only where it is clearly presentation, but it must not be relabeled as continuous-world physical position.
