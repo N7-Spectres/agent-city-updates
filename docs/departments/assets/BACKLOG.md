@@ -1,61 +1,57 @@
 # Assets & Interface — Backlog
 
-## Ready for Next Session — v0.7 Maintenance Contract
+## Review / Integration — v0.7
 
-Simulation contract is ready on `simulation/v0.7-maintenance` @ `54f5d838f674d0b278a51382f3a880cc0738b417`.
+Assets implementation is complete.
 
-Next implementation:
-- Citizens: battery health/state, usable capacity, replacement/service due, joint wear, chassis service state
-- Equipment: condition/state/operational/service due + **effective** cargo/extraction capability
-- Structures: condition/state/operational/service due/efficiency/charging
-- Records: bounded `maintenance_events[]` history
-- Home: meaningful service/degradation alerts only
-- Recent Activity: omit tiny wear churn and Communication `diagnostic` rows from normal citizen activity
-- preserve Memory's rule that physical maintenance state is not automatically remembered social knowledge
+Coordinator/runtime validation:
 
-## Review / Validation — v0.7 Branch
-
-- run `tests/smoke_v070_assets.py` on integrated/runtime-capable branch
-
-- runtime-test draft PR #7 / `assets/v0.7-home-avatars`
-- verify three desktop Home columns stay approximately aligned in height
-- verify citizen rail scrolls independently
-- verify citizen search/filter with empty and matching results
-- verify long chat scrolls internally and input/actions stay anchored
-- verify Recent Activity shows at most five meaningful items
-- verify real stored conversations use stored summaries
+- integrate PR #7 with Simulation / Communication / Memory v0.7 branches
+- run `tests/smoke_v070_assets.py`
+- run the full v0.4-v0.7 regression suite
+- verify desktop citizen/world/Visit height alignment
+- verify citizen internal scrolling and search/filter
+- verify long chat keeps input/actions anchored
+- verify Recent Activity stays capped and meaningful
+- verify diagnostics are absent from normal Recent Activity
 - verify failed talk attempts remain events only
-- verify View all history opens Records → History
-- verify avatar fallback is consistent across Home/directory/map/Citizens
-- verify travel/charge/talk/work/idle animation follows active job state
-- verify reduced-motion disables avatar animation
+- verify avatar fallback consistency across Home/directory/map/Citizens
+- verify reduced-motion behavior
+- verify citizen battery/chassis maintenance state against real v0.7 runtime
+- verify equipment current capability uses effective modifiers
+- verify non-operational/service-due equipment remains visible
+- verify structure condition/efficiency/operational state
+- verify maintenance-event Records history
+- verify Home maintenance alerts use only authoritative state and remain bounded
 - verify responsive behavior below desktop
 
-## Completed in v0.7 Independent Slice
+## Completed in v0.7 Assets
 
-- full-height desktop citizen rail
-- internal citizen scrolling
+- full-height desktop Home rails
+- internal citizen/chat scrolling
 - citizen search/filter
-- full-height desktop Visit rail
 - compact Recent Activity
-- View all history action
-- stored-conversation-only summary logic
+- real stored-conversation summary path
+- diagnostic filtering
 - lightweight 2D avatar framework
-- full-body fallback identity slot
-- matching Home/directory/map tokens
-- state-driven CSS animation
+- fallback full-body/token identity
+- validated-state animations
 - reduced-motion support
+- citizen battery/chassis maintenance presentation
+- equipment condition/effective-capability presentation
+- structure condition/efficiency presentation
+- bounded maintenance event history
+- bounded Home maintenance alerts
+- v0.7 Assets smoke test
 
 ## Later
 
 - unique citizen full-body/token art
 - authoritative equipment overlays on avatars
-- richer map/work-site visuals
+- richer work-site/map visuals
 - richer location scene assets
 - planet/globe representation
 
-## Current Blocker
+## Current Blockers
 
-_None._ The Simulation maintenance contract is ready.
-
-The remaining v0.7 Assets work is implementation on PR #7 in the next session.
+_None within Assets._ PR #7 is ready for coordinator integration.
