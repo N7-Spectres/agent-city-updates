@@ -161,11 +161,22 @@ async def planning_loop() -> None:
             if decision:
                 ok, _ = start_action(citizen["id"], decision)
                 if ok and decision.get("action") == "talk":
+                    with connect() as conn:
+                        talker = conn.execute(
+                            "SELECT active_job_id FROM citizens WHERE id = ?",
+                            (citizen["id"],),
+                        ).fetchone()
+                        source_job_id = int(talker["active_job_id"]) if talker and talker["active_job_id"] else 0
+
+                    if source_job_id <= 0:
+                        raise RuntimeError("Talk started without a stable physical job id.")
+
                     await generate_dialogue(
                         citizen["id"],
                         str(decision.get("target") or ""),
                         str(decision.get("reason") or ""),
                         state["ollama_model"],
+                        source_job_id,
                     )
                 elif not ok:
                     with connect() as conn:
