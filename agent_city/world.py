@@ -2,6 +2,7 @@ import asyncio
 import time
 from .db import connect, get_meta, set_meta
 from .simulation import complete_due_jobs
+from .visitors import complete_due_visitor_travel
 
 class WorldClock:
     def __init__(self) -> None:
@@ -38,6 +39,7 @@ class WorldClock:
 
             if whole_minutes > 0:
                 complete_due_jobs(new_minute)
+                complete_due_visitor_travel(new_minute)
 
     def stop(self) -> None:
         self._running = False
