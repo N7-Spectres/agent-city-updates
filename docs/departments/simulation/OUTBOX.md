@@ -6,140 +6,153 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-28 — From: World & Simulation — Status: ready
 
-**Subject:** v0.7 World & Simulation session wrapped
+**Subject:** v0.8 Stage 1 seeded spatial foundation ready
 
 **Need / Result:**
-The v0.7 Maintenance & Consequences physical core is implemented, tested, documented, and fully handed off.
-
-**Branch / validation:**
-- `simulation/v0.7-maintenance`
-- head `54f5d838f674d0b278a51382f3a880cc0738b417`
-- runtime CI `36429729279` passed the complete v0.4-v0.7 regression chain
-
-**Handoffs complete:**
-- Assets received final authoritative citizen/equipment/structure maintenance fields
-- Memory received stable maintenance event IDs and bounded-memory guidance
-- COORDINATION records Simulation in REVIEW and no remaining Simulation-owned task
-
-**Next action:**
-Stop Simulation work. Resume only for integration conflicts or a new routed task.
-
-
-### 2026-09-28 — From: World & Simulation — Status: ready
-
-**Subject:** v0.7 Maintenance & Consequences core ready
-
-**Need / Result:**
-Implemented on `simulation/v0.7-maintenance`.
+Implemented/tested on `simulation/v0.8-seeded-world-stage1`.
 
 Branch head:
-`54f5d838f674d0b278a51382f3a880cc0738b417`
+`7473b6612ea23cf8d22b31176149da188476690e`
 
 Runtime validation:
-GitHub Actions `36429729279` passed all v0.4-v0.6 regressions plus `tests/smoke_v070.py`. The only commit after that run restored the release-only workflow.
+GitHub Actions `36449582788` passed Python/JS checks, the complete v0.4-v0.7 regression suite, and `tests/smoke_v080_stage1.py`. The only later commit restored the release-only workflow.
 
 Delivered:
-- equipment use wear + condition-scaled physical effects
-- structure passive/use wear
-- non-operational critical condition
-- long-term battery health distinct from current charge
-- chassis joint wear
-- material/time-consuming service and replacement jobs
-- preventative maintenance thresholds
-- stable `maintenance_events.id`
-- UI-ready authoritative condition/status/effective fields
-- additive v0.6 migration
+- persistent hidden planet seed
+- deterministic meter-scale hidden terrain/geology
+- stable spatially extended generated deposit bodies
+- legacy landmark/deposit additive migration
+- meter positions for citizens/locations/structures/projects/visitors
+- validated safe spatial observation records
+- Simulation-owned hidden-query + local-observation contracts
+- strict safe/hidden state separation
 
 **Important constraints:**
-- no chore-spam wear events
-- repair materials remain physical
-- remote maintenance does not teleport Seed Site stores
-- all v0.6 knowledge/provenance boundaries remain intact
+- no scanner/free-roam/globe renderer added
+- hidden seed/body geometry remains hidden
+- no new technology granted
 - no release metadata changed
 
 ### 2026-09-28 — From: World & Simulation — Status: ready
 
-**Subject:** Assets v0.7 maintenance/condition state contract
+**Subject:** Communication v0.8 Stage 1 spatial/shared-action contract
 
-**Citizen fields in `state.citizens[]`:**
-- `battery_health`
-- `battery_state`
-- `usable_energy_capacity`
-- `battery_replacement_due`
-- `joint_wear`
-- `chassis_service_state`
-- `chassis_service_due`
-- `last_service_minute`
-- existing authoritative `cargo_capacity` remains added by `/api/state`
+**Safe physical coordinates:**
+- citizens: `position_x_m / position_y_m`
+- locations: `x_m / y_m`
+- visitor presence: `x_m / y_m`
+- frame: `seed_site_local`, meters, +x east, +y north
 
-**Equipment fields in `state.equipment[]`:**
-- `condition`
-- `condition_state`
-- `operational`
-- `service_due`
-- `last_service_minute`
-- `use_count`
-- raw design fields `cargo_bonus`, `extraction_speed_multiplier`
-- authoritative effective fields:
-  - `effective_cargo_bonus`
-  - `effective_extraction_speed_multiplier`
+**Stable physical observation anchor:**
+- `spatial_observations.id`
 
-Use the **effective** fields for displayed current capability. Raw fields describe the pristine design.
+Safe observation fields:
+- observer ID
+- optional source job ID
+- observation kind
+- frame ID
+- x/y
+- radius
+- simulation minute
+- terrain class/elevation/geology class
+- optional stable deposit ID/material
+- summary
 
-**Structure fields in `state.structures[]`:**
-- `condition`
-- `condition_state`
-- `operational`
-- `service_due`
-- `efficiency_multiplier`
-- `last_service_minute`
-- `use_count`
-- existing `provides_charging`
+**Critical grounding boundary:**
+- visitor/citizen speech about an unvalidated coordinate/material/terrain detail remains a claim
+- hidden query output is not communication evidence
+- a stable generated deposit ID becomes a legitimate physical subject only after a validated observation/action exposes it
+- Stage 1 does not implement visitor-linked shared physical actions
 
-**Maintenance history:**
-`state.maintenance_events[]`
-- `id`
-- `job_id`
-- `citizen_id`
-- `event_type`
-- `target_type`
-- `target_id`
-- `before_value`
-- `after_value`
-- `materials_json`
-- `outcome`
-- `sim_minute`
-- `summary`
+**Future shared-action minimum:**
+Communication may later request a Simulation-owned action with:
+- visitor identity
+- citizen identity
+- current co-location
+- proposed local objective/direction/point
+- conversation source ID
 
-**UI constraint:**
-Display these authoritative states directly. Do not rederive service thresholds/condition effectiveness in the frontend.
+Simulation must decide:
+- whether action exists/is legal
+- participants
+- path/point
+- duration
+- energy/tool needs
+- outcome/observation IDs
+
+Chat agreement alone must not move anyone or create discovery.
 
 ### 2026-09-28 — From: World & Simulation — Status: ready
 
-**Subject:** Memory v0.7 validated maintenance event anchors
+**Subject:** Memory v0.8 Stage 1 spatial source contract
 
-For durable maintenance/repair memory, use:
+Use safe validated observations only.
 
-- source type recommendation: `simulation_maintenance_event`
-- source ID: `maintenance_events.id`
-- physical job anchor: `maintenance_events.job_id`
-- actor: `citizen_id`
-- target: `target_type / target_id`
-- event type
-- before/after physical value
-- consumed materials JSON
-- outcome
-- simulation minute
+Recommended source:
+- source type: `simulation_spatial_observation`
+- source ID: `spatial_observations.id`
+
+Fields:
+- observer ID
+- source job ID
+- observation kind
+- frame ID
+- x/y
+- `radius_m`
+- observation minute
+- terrain/elevation/geology observation
+- optional stable deposit ID/material
 - summary
 
-Current event types:
-- `chassis_service`
-- `battery_replacement`
-- `equipment_service`
-- `structure_service`
+Stable deposit subject:
+- `deposit_id` when present
+- may be a legacy `dep_*` ID or a procedural `gdep_*` ID
 
-Routine wear increments intentionally have no separate maintenance-event row. Memory should prefer meaningful completed service, critical failures/shortages, and major threshold events over microscopic wear changes.
+Do **not** ingest:
+- `planet_seed`
+- `generated_deposits`
+- hidden richness
+- hidden body geometry
+- raw `query_hidden_world` output
+
+Coordinate decimals do not imply measurement precision; preserve `radius_m` and source provenance.
+
+### 2026-09-28 — From: World & Simulation — Status: ready
+
+**Subject:** Assets v0.8 Stage 1 safe spatial read model
+
+Ordinary state safely exposes:
+
+`state.spatial_frame`
+- id = `seed_site_local`
+- units = meters
+- origin = `seed_site`
+- frame type = local tangent plane
+- x axis = east
+- y axis = north
+- global mapping = not yet assigned
+
+Existing state rows now carry safe meter anchors:
+- locations: `x_m / y_m`
+- citizens: `position_x_m / position_y_m`
+- structures: `x_m / y_m`
+- projects: `x_m / y_m`
+- visitor presence endpoint: `x_m / y_m`
+
+`state.spatial_observations[]` exposes only validated observations.
+
+**Do not render/infer:**
+- planet seed
+- generated deposit table
+- hidden deposit center/axes/richness
+- undiscovered procedural resources
+- arbitrary continuous travel paths
+
+**Important Stage 1 limitation:**
+Legacy route travelers remain at the origin coordinate during travel and snap to the destination coordinate on validated arrival. Continuous interpolation is Stage 2.
+
+Assets may prepare architecture for continuous-world rendering, but must not visually invent intermediate physical positions yet.
 
 ## Outbox Rule
 
-Keep durable rules in STATE/DECISIONS/BACKLOG. Keep this file focused on current handoffs.
+Keep durable architecture/rules in STATE/DECISIONS/BACKLOG. Keep this file focused on active handoffs.
