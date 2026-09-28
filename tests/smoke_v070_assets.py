@@ -48,7 +48,40 @@ def main() -> None:
     assert "interface accent, not physical paint" in js
     assert "neutral mechanical fallback" not in html.lower() or "identity slot" in html.lower()
 
-    print("Agent City v0.7 Assets Home/avatar smoke test passed.")
+    # v0.7 maintenance presentation consumes Simulation-owned semantics directly.
+    for required_id in ("maintenance-alerts", "maintenance-events"):
+        assert required_id in html, required_id
+    for field in (
+        "battery_health",
+        "battery_state",
+        "usable_energy_capacity",
+        "battery_replacement_due",
+        "joint_wear",
+        "chassis_service_state",
+        "chassis_service_due",
+        "condition_state",
+        "operational",
+        "service_due",
+        "effective_cargo_bonus",
+        "effective_extraction_speed_multiplier",
+        "efficiency_multiplier",
+        "maintenance_events",
+    ):
+        assert field in js, field
+    assert "renderMaintenanceAlerts" in js
+    assert "renderMaintenanceHistory" in js
+    assert 'row.category === "diagnostic"' in js
+
+    # Current equipment capability must use effective fields, not pristine design values.
+    assert "Number(item.cargo_bonus" not in js
+    assert "Number(item.extraction_speed_multiplier" not in js
+
+    # Maintenance styling keeps system condition separate from citizen speech.
+    assert "maintenance-event-card" in css
+    assert "maintenance-alert" in css
+    assert "history-entry.diagnostic" in css
+
+    print("Agent City v0.7 Assets Home/avatar/maintenance smoke test passed.")
 
 
 if __name__ == "__main__":
