@@ -41,9 +41,46 @@ Not:
 
 unless the speaker has a real current information path.
 
+Age is derived from simulation time and the receive/observe timestamp. A last-known record never silently upgrades itself to live truth.
+
+## Claims Are Not Physical Truth
+
+Information communicated by another citizen is stored as a speaker claim unless independently verified through an authoritative physical event or direct observation.
+
+Repeated retelling does not convert a claim into truth.
+
 ## Direct Observation
 
 Physical co-location allows ordinary observation, but observation should not automatically expose hidden internal state.
+
+Direct observation may expose externally visible presence and locally observable physical facts. It does not automatically reveal private plans, internal motives, energy, inventory contents, or remote destinations.
+
+## Planner Boundary
+
+A citizen planner may receive:
+
+- that citizen's own validated state
+- current local observations that the citizen could physically perceive
+- bounded remembered information that reached that citizen through a valid mechanism
+- legal actions from Simulation
+
+It must not receive another citizen's live remote location/activity or globally discovered resources merely because the simulation knows them.
+
+Simulation may use hidden truth to decide action legality, but human-readable labels/reasons supplied to the planner must not leak that hidden truth.
+
+## Provenance Record
+
+The minimum v0.4 provenance record is defined in `PROVENANCE_CONTRACT.md`.
+
+Important distinctions are:
+
+- `personal_experience`
+- `direct_observation`
+- `face_to_face_claim`
+- `validated_observation` versus `speaker_claim`
+- `unverified`, `verified`, and `contradicted`
+
+Legacy conversation summaries remain historical participant-accessible text with unknown provenance. Do not fabricate precise fact transfers retroactively.
 
 ## Ownership Boundary
 
@@ -51,4 +88,4 @@ Communication determines what information can move.
 
 Simulation determines what physically happened.
 
-Memory determines how communicated/observed information persists.
+Memory determines how communicated/observed information persists and how bounded retrieval is presented later.
