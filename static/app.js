@@ -597,6 +597,13 @@ function renderCitizenSheet() {
   const recentHistory = (state.history || [])
     .filter(row => String(row.message || "").startsWith(citizen.name))
     .slice(0, 5);
+  const experimentResults = (state.experiment_results || [])
+    .filter(row => String(row.citizen_id) === String(citizen.id))
+    .slice(0, 6);
+  const learnedProcesses = (state.learned_processes || [])
+    .filter(row => String(row.citizen_id) === String(citizen.id))
+    .slice(0, 6);
+  const cargoCapacity = Number(citizen.cargo_capacity);
 
   els.citizenPortraitInitials.textContent = initialsFor(citizen.name);
   els.citizenSheetName.textContent = citizen.name;
@@ -644,6 +651,26 @@ function renderCitizenSheet() {
     <div class="sheet-note"><time>${escapeHtml(formatMinute(row.sim_minute))}</time><span>${escapeHtml(row.message)}</span></div>
   `).join("") : '<div class="sheet-empty muted">No recent personal chronology entries.</div>';
 
+  const experimentMarkup = experimentResults.length ? experimentResults.map(row => `
+    <div class="sheet-list-row">
+      <span>
+        <strong>${escapeHtml(String(row.method || "Experiment").replaceAll("_", " "))}</strong>
+        <small>${escapeHtml(row.material || "unknown material")} • ${escapeHtml(formatMinute(row.completed_minute))}</small>
+      </span>
+      <em>${escapeHtml(row.outcome || "recorded")}</em>
+    </div>
+  `).join("") : '<div class="sheet-empty muted">No recorded experiments yet.</div>';
+
+  const processMarkup = learnedProcesses.length ? learnedProcesses.map(row => `
+    <div class="sheet-list-row">
+      <span>
+        <strong>${escapeHtml(row.name || row.process_key || "Learned process")}</strong>
+        <small>Learned ${escapeHtml(formatMinute(row.learned_minute))}</small>
+      </span>
+      <em>${escapeHtml(row.process_kind || "process")}</em>
+    </div>
+  `).join("") : '<div class="sheet-empty muted">No reproducible learned processes yet.</div>';
+
   els.citizenSheetBody.innerHTML = `
     <div class="sheet-card">
       <span class="sheet-label">Physical state</span>
@@ -658,7 +685,7 @@ function renderCitizenSheet() {
     ${activeJobMarkup}
     <div class="sheet-card">
       <span class="sheet-label">Cargo</span>
-      <strong>${escapeHtml(trimNumber(cargoTotal))} units carried</strong>
+      <strong>${Number.isFinite(cargoCapacity) ? `${escapeHtml(trimNumber(cargoTotal))} / ${escapeHtml(trimNumber(cargoCapacity))} units` : `${escapeHtml(trimNumber(cargoTotal))} units carried`}</strong>
       <div class="sheet-list">${cargoMarkup}</div>
     </div>
     <div class="sheet-card sheet-card-wide">
@@ -672,6 +699,14 @@ function renderCitizenSheet() {
     <div class="sheet-card sheet-card-wide">
       <span class="sheet-label">Known discoveries & research</span>
       <div class="knowledge-facts">${citizenKnowledgeMarkup(citizen.id)}</div>
+    </div>
+    <div class="sheet-card sheet-card-wide">
+      <span class="sheet-label">Experiments</span>
+      <div class="sheet-list">${experimentMarkup}</div>
+    </div>
+    <div class="sheet-card sheet-card-wide">
+      <span class="sheet-label">Learned processes</span>
+      <div class="sheet-list">${processMarkup}</div>
     </div>
     <div class="sheet-card sheet-card-wide">
       <span class="sheet-label">Recent chronology</span>
@@ -720,6 +755,8 @@ function renderLocationSheet() {
   const projects = (state.projects || []).filter(p => String(p.location_id || "") === String(loc.id));
   const routes = (state.routes || []).filter(route => String(route.a) === String(loc.id));
   const present = citizensAtLocation(loc.id);
+  const knownFacts = Array.isArray(loc.known_facts) ? loc.known_facts : [];
+  const fieldFacts = knownFacts.filter(fact => fact.kind !== "deposit");
 
   els.locationSceneName.textContent = loc.name;
   els.locationSheetName.textContent = loc.name;
@@ -758,6 +795,14 @@ function renderLocationSheet() {
     <div class="sheet-list-row"><span><strong>${escapeHtml(c.name)}</strong><small>${escapeHtml(c.current_activity)}</small></span></div>
   `).join("") : '<div class="sheet-empty muted">No citizens currently present.</div>';
 
+  const fieldFactsMarkup = fieldFacts.length ? fieldFacts.map(fact => {
+    if (fact.kind === "property") {
+      const unit = fact.unit ? ` ${fact.unit}` : "";
+      return `<div class="sheet-list-row"><span><strong>${escapeHtml(String(fact.property_key || "property").replaceAll("_", " "))}</strong><small>Validated field property</small></span><strong>${escapeHtml(String(fact.value ?? ""))}${escapeHtml(unit)}</strong></div>`;
+    }
+    return `<div class="sheet-list-row"><span><strong>${escapeHtml(fact.label || "Validated field observation")}</strong></span></div>`;
+  }).join("") : '<div class="sheet-empty muted">No additional validated field observations yet.</div>';
+
   els.locationSheetBody.innerHTML = `
     <div class="sheet-card">
       <span class="sheet-label">Survey state</span>
@@ -767,6 +812,10 @@ function renderLocationSheet() {
     <div class="sheet-card">
       <span class="sheet-label">Present now</span>
       <div class="sheet-list">${presentMarkup}</div>
+    </div>
+    <div class="sheet-card sheet-card-wide">
+      <span class="sheet-label">Known field facts</span>
+      <div class="sheet-list">${fieldFactsMarkup}</div>
     </div>
     <div class="sheet-card sheet-card-wide">
       <span class="sheet-label">Known resources</span>
@@ -1412,12 +1461,22 @@ function renderVisitConversation(data) {
   els.visitHistoryPanel.innerHTML = "";
 
   if (data.accessible === false) {
-    els.selectedLabel.textContent = data.reason || "Face-to-face visit unavailable";
+    const accessStatus = data.status || data.availability?.status || "unavailable";
+    const counterpart = data.availability?.other_citizen_name;
+    const statusLabels = {
+      remote: "Not at the same location",
+      visitor_traveling: "You are traveling",
+      citizen_traveling: `${data.citizen.name} is traveling`,
+      citizen_talking: counterpart ? `Busy talking with ${counterpart}` : "Currently talking",
+      citizen_busy: `${data.citizen.name} is busy`,
+      missing: "Unavailable",
+    };
+    els.selectedLabel.textContent = statusLabels[accessStatus] || data.reason || "Face-to-face visit unavailable";
     els.chatInput.disabled = true;
     els.sendButton.disabled = true;
     els.leaveVisit.hidden = true;
 
-    const route = visitorPresence && !visitorPresence.traveling
+    const route = accessStatus === "remote" && visitorPresence && !visitorPresence.traveling
       ? routeBetween(visitorPresence.location_id, data.citizen.location_id)
       : null;
     const travelButton = route
