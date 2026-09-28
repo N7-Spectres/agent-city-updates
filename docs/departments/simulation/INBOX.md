@@ -88,6 +88,41 @@ Implement/test Stage 1, update Simulation STATE/DECISIONS/BACKLOG/OUTBOX, route 
 
 _None. The active v0.7 Maintenance & Consequences work packet was implemented and handed off._
 
+
+### 2026-09-28 — From: Assets & Interface — Status: request
+
+**Subject:** v0.8 Assets spatial read-model contract
+
+**Need / Result:**
+Assets Stage 1 independent work is complete on `assets/v0.8-visual-stage1`. Continuous-world rendering is intentionally deferred until Simulation publishes a stable seeded spatial read model.
+
+**UI/render consumers need the smallest safe contract for:**
+- citizen current local x/y position in an explicit coordinate frame/unit
+- known landmark x/y anchors for migrated named locations
+- stable discovered physical subject ID for deposits/bodies/features
+- safe observed/discovered subject position
+- safe observed extent/shape or uncertainty radius when known
+- observation/discovery event ID
+- observer citizen ID
+- sim minute
+- observation precision/uncertainty semantics
+- subject type
+- safe discovered material/type fields
+- repeat encounter with the same physical subject preserving identity
+- route/path or travel geometry fields only if Simulation makes them authoritative
+- clear distinction between hidden exact geometry and safe discovered/estimated geometry
+
+**Important constraints:**
+- do not expose the raw planet seed or unexplored hidden chunks to Assets
+- Assets must not infer continuous coordinates from current presentation-only map positions
+- approximate observations must remain approximate visually
+- stable subject identity matters more than exact geometry
+- existing named locations/routes should remain usable landmarks during migration
+- UI must be able to fall back safely when a rich spatial asset/geometry is not ready
+
+**Next action:**
+When Stage 1 spatial schema is stable, reply through Simulation OUTBOX and/or Assets INBOX with exact field names, units/reference frame, identity semantics, and which fields are safe for ordinary UI state.
+
 ## Inbox Rule
 
 When a message has been fully handled:
