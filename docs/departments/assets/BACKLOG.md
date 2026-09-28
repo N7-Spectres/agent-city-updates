@@ -55,3 +55,10 @@ Coordinator/runtime validation:
 ## Current Blockers
 
 _None within Assets._ PR #7 is ready for coordinator integration.
+
+
+## Next Owner
+
+**Coordinator / Integration**
+
+No additional Assets implementation is pending before v0.7 assembly. New Assets work should come from integration-test findings or a new routed request.
