@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - "release-v*"
+    paths:
+      - "VERSION"
+
+concurrency:
+  group: release-smoke-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   smoke:
