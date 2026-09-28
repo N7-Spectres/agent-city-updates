@@ -323,3 +323,23 @@ Coordinator integration must preserve these Simulation decisions together:
 - learned processes descend from validated discoveries and are not tech-tree nodes
 - missing knowledge is represented as absence, not a hint that secret data exists
 - Simulation `agent_city/knowledge.py` and Communication `agent_city/provenance.py` are separate layers and both must survive merge
+
+
+## Emergent Place Naming
+
+As exploration expands beyond the starter region, named places should increasingly emerge from citizen discovery rather than being pre-authored by development.
+
+Simulation should distinguish:
+- the physical place/coordinate itself, which exists independently of naming
+- one or more citizen-used names for that place, which are learned/social information
+
+A newly discovered feature may initially have no citizen name. If repeated use, resource value, navigation importance, memorable events, or social discussion makes the place significant, citizens may decide to name it.
+
+Examples:
+- an unnamed lake becomes a named landmark after citizens repeatedly use it as a navigation/resource reference
+- a ridge, basin, grove, work site, crossing, or settlement acquires a name through actual use
+- names may change, gain aliases, or differ between citizens until communication establishes a shared convention
+
+Do not have the Simulation invent a culturally meaningful name merely because a coordinate was generated. The physical feature can exist first; naming is a social/civilizational act.
+
+Future place names should be persistent history. Once adopted and used, they should survive restart and remain part of maps/records unless citizens intentionally rename the place.
