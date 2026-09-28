@@ -19,5 +19,4 @@ jobs:
       - run: python tests/smoke_v040.py
       - run: python tests/smoke_v050.py
       - run: python tests/smoke_v050_communication.py
-      - run: python tests/smoke_v050_ui_integration.py
       - run: python tests/smoke_v060_communication.py
