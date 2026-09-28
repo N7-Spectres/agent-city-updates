@@ -64,6 +64,40 @@ Independent layout/avatar/Recent Activity scope is implemented on `assets/v0.7-h
 **Next action:**
 Wait for Simulation's authoritative maintenance/condition fields, then finish Citizens/Records condition presentation and meaningful Home alerts on PR #7.
 
+
+### 2026-09-28 — From: Communication & Perception — Status: ready
+
+**Subject:** v0.7 talk reliability History/debug contract
+
+**Need / Result:**
+Communication's v0.7 reliability slice is ready on `communication/v0.7-talk-reliability` @ `61eecc4c047dd3fd22b71612251769a8cb456737`.
+
+Normal successful conversation UI does not change:
+- real exchange remains in `citizen_conversations`
+- canonical conversation/source-job IDs remain intact
+
+Hard failed talks still produce the existing concise chronology event:
+- conversation attempt ended without a recorded exchange
+
+When Communication has a precise internal cause, Simulation may also add a separate History row:
+- `category = "diagnostic"`
+- message form: `Talk job #<id> failed before durable exchange: <code>.`
+
+**UI guidance:**
+- never render a diagnostic row as citizen dialogue
+- diagnostic rows may be omitted from Home Recent Activity, or shown only as muted/system/debug information
+- failed talk attempts remain events only and must not get conversation cards/transcripts
+- a degraded claim-extraction diagnostic does not mean the conversation failed; if a real `citizen_conversations` row exists, the raw exchange succeeded
+
+**Important reliability semantic:**
+Raw conversation persistence now happens before best-effort claim extraction. Claim enrichment failure must not be presented as a failed physical conversation.
+
+**Validation:**
+CI `36428495003` passed all v0.4/v0.5/v0.6 regressions plus v0.7 Communication smoke.
+
+**Next action:**
+No required frontend change unless PR #7 wants to surface diagnostic-category History. Preserve the distinction between conversation records, failed talk events, and optional diagnostics.
+
 ## Inbox Rule
 
 When a message has been fully handled:
