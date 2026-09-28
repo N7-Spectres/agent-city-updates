@@ -82,3 +82,18 @@ When Communication work resumes:
 7. keep unknown remote state unknown rather than falling back to raw Simulation state
 
 Current v0.6 feature work is complete; remaining items above are integration/future-depth work only.
+
+
+## Live v0.6 Talk Reliability Follow-up
+
+Live v0.6 observation shows repeated citizen talk jobs reaching:
+- "conversation attempt ... ended without a recorded exchange"
+
+This is physically correct behavior for a failed generation/persistence path, but repeated occurrences may indicate the structured dialogue/claim generation path is too brittle.
+
+Follow-up:
+- inspect why multiple autonomous talks are failing to persist real exchanges
+- distinguish Ollama generation failure, JSON/schema failure, transcript-claim validation failure, and post-generation physical invalidation
+- keep the invariant: never fabricate a conversation merely to make chronology look successful
+- improve reliability so successful same-location talks normally yield a durable exchange
+- expose enough diagnostic reason internally for debugging without leaking implementation noise into citizen-facing UI
