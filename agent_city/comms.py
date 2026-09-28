@@ -222,6 +222,7 @@ Return JSON only:
                         {"role": "user", "content": prompt},
                     ],
                     "stream": False,
+                    "think": False,
                     "format": "json",
                     "options": {
                         "temperature": 0.6,
