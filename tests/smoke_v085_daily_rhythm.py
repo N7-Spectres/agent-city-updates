@@ -31,7 +31,7 @@ def main() -> None:
 
         from agent_city.db import connect, init_db
         from agent_city.memory import ensure_memory_schema
-        from agent_city.simulation import complete_due_jobs, possible_actions, start_action
+        from agent_city.simulation import autonomous_actions, complete_due_jobs, possible_actions, start_action
         from agent_city.visits import ensure_visit_schema
 
         init_db()
@@ -54,7 +54,7 @@ def main() -> None:
             )
             set_time(conn, 10 * 60)
 
-        active_low = possible_actions("aris")
+        active_low = autonomous_actions("aris")
         assert active_low
         assert {a["action"] for a in active_low} == {"charge"}
 
@@ -74,7 +74,7 @@ def main() -> None:
             set_time(conn, 23 * 60)
 
         for expected in (55.0, 80.0, 100.0):
-            choices = possible_actions("cato")
+            choices = autonomous_actions("cato")
             assert {a["action"] for a in choices} == {"charge"}
             charge = choices[0]
             ok, message = start_action(
@@ -102,7 +102,7 @@ def main() -> None:
                 row = conn.execute("SELECT energy FROM citizens WHERE id = 'cato'").fetchone()
                 assert float(row["energy"]) == expected
 
-        full_night = possible_actions("cato")
+        full_night = autonomous_actions("cato")
         assert not any(a["action"] == "charge" for a in full_night)
         assert not any(
             a["action"] in {
@@ -136,7 +136,7 @@ def main() -> None:
             )
             set_time(conn, 23 * 60 + 15)
 
-        capped = possible_actions("bex")
+        capped = autonomous_actions("bex")
         assert not any(a["action"] == "charge" for a in capped)
 
         # Wind-down allows closure/social/maintenance actions but blocks starting
@@ -154,7 +154,7 @@ def main() -> None:
             )
             set_time(conn, 20 * 60 + 30)
 
-        wind_down = possible_actions("vale")
+        wind_down = autonomous_actions("vale")
         assert wind_down
         assert not any(a["action"] == "local_move" and "Return locally" not in a["label"] for a in wind_down)
         assert not any(a["action"] == "travel" and a.get("target") != "seed_site" for a in wind_down)
