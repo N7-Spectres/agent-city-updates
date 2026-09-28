@@ -462,7 +462,10 @@ Scope:
 
 This restores a useful v0.3-v0.5 at-a-glance affordance that was lost during the v0.6 Home simplification.
 
-### v0.8.0 — Living World
+### Shipped milestone — v0.8.0 Living World
+
+Shipped release commit: `a870982ba947fcc5af08ca190de396ae4308b645`  
+Final CI: `36462126434` — PASS
 
 Expand the planet beyond the starter region.
 
