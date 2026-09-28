@@ -946,7 +946,7 @@ def apply_daily_rhythm_to_actions(
     return actions
 
 
-def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
+def possible_actions(citizen_id: str, *, apply_daily_rhythm: bool = True) -> list[dict[str, Any]]:
     with connect() as conn:
         c = conn.execute("SELECT * FROM citizens WHERE id = ?", (citizen_id,)).fetchone()
         if not c or c["active_job_id"] is not None:
@@ -1264,6 +1264,8 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
                 })
 
         actions.append({"action": "wait", "target": location_id, "label": "Remain where you are and observe for a while."})
+        if not apply_daily_rhythm:
+            return actions
         return apply_daily_rhythm_to_actions(
             actions,
             sim_minute=now,
@@ -1273,7 +1275,10 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
 
 
 def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
-    legal = possible_actions(citizen_id)
+    # Daily rhythm is an autonomy/planning constraint, not a new law of physics.
+    # Direct Simulation calls remain valid when the requested action is otherwise
+    # physically legal; critical-energy survival is still enforced below.
+    legal = possible_actions(citizen_id, apply_daily_rhythm=False)
     chosen = None
 
     for action in legal:
@@ -1293,6 +1298,10 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
         now = int(get_meta(conn, "sim_minute") or "360")
         action = chosen["action"]
         target = chosen.get("target")
+
+        if float(c["energy"]) < CRITICAL_RECHARGE_ENERGY:
+            if action not in {"charge", "wait"} and not _is_homeward_action(chosen):
+                return False, "Energy is critically low; recharge or a safe return to charging has priority."
         material = chosen.get("material")
         amount = chosen.get("amount")
         intent_reason = str(request.get("reason") or "").strip()[:500] or None
