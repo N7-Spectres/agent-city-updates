@@ -505,3 +505,36 @@ Names are labels/knowledge, not physical identity.
 A citizen-created place name should point to a stable subject/region ID where possible.
 
 Multiple aliases may coexist. Communication determines how names spread; Memory retains which label reached which citizen.
+
+
+## v0.8 Stage 1 Runtime Source Decision
+
+Memory consumes only Simulation's safe `spatial_observations` ledger.
+
+It must not query `generated_deposits` to enrich a memory, even when a stable deposit ID is known. The generated-deposit table contains hidden authoritative geometry/richness beyond what an observation may reveal.
+
+Use:
+- `source_type='simulation_spatial_observation'`
+- `source_id=spatial_observations.id`
+- metadata `subject_id=spatial_observations.deposit_id` when present
+
+The event ID answers **which observation/evidence**.
+The stable deposit ID answers **which physical thing**.
+
+## v0.8 Repeat-Encounter Decision
+
+Repeat contact with the same stable physical subject is not automatically a new durable memory.
+
+Retain a later observation when it adds meaningful information, including:
+- new observation method
+- materially better precision
+- later Stage 2 sample/property evidence
+- explicit milestone semantics
+
+Stage 1 uses a conservative improved-precision threshold of at least 25%.
+
+## v0.8 Stage 1 Consumer Decision
+
+Do not inject spatial memory into every planner/dialogue prompt yet.
+
+Stage 1 establishes persistence, identity, precision, salience, and bounded retrieval. Stage 2 should add context only where exploration/navigation intent makes it relevant.
