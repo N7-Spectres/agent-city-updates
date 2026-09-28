@@ -661,7 +661,7 @@ def snapshot() -> dict[str, Any]:
         ]
 
         inventory = [dict(r) for r in conn.execute("SELECT * FROM citizen_inventory WHERE amount > 0 ORDER BY citizen_id, material")]
-        equipment = [dict(r) for r in conn.execute("SELECT * FROM equipment WHERE condition > 0 ORDER BY id")]
+        equipment = [dict(r) for r in conn.execute("SELECT * FROM equipment ORDER BY id")]
         for item in equipment:
             condition = float(item.get("condition") or 0)
             factor = max(0.0, min(1.0, condition / 100.0)) if condition > 20 else 0.0
