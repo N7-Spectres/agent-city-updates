@@ -1,46 +1,37 @@
 # World & Simulation — Backlog
 
-## v0.6 Follow-On / Integration
+## v0.7 Follow-On / Integration
 
-The core hidden-truth, experiment, discovery, citizen-knowledge, safe snapshot, and learned-process substrate is implemented on `simulation/v0.6-research-discovery`.
+The v0.7 maintenance substrate is implemented on `simulation/v0.7-maintenance`.
 
-Remaining cross-department/integration work:
+Remaining integration work:
 
-- Communication maps real transferred facts to `discoveries.id` where safe
-- Communication keeps unmatched conversation claims unverified rather than granting Simulation knowledge
-- Memory ingests stable discovery/result IDs into bounded per-citizen recall without duplicating hidden truth
-- Assets consumes only safe known-state collections and renders missing facts as absence
-- coordinator assembles all v0.6 branches and runs the full smoke suite
+- Assets consumes authoritative condition/effective-capability fields
+- Memory may ingest meaningful `maintenance_events.id` records without storing every wear tick
+- coordinator integrates Simulation with Communication talk-reliability, Memory policy/hooks, and Assets UI
+- full assembled v0.7 smoke run before publication
+
+## Later Maintenance Depth
+
+- explicit tool/structure failure modes beyond simple non-operational condition
+- repair interruption/recovery rules
+- component-specific wear only if future systems need that detail
+- remote maintenance after physical project-material logistics exist
+- preventative maintenance planning across multiple remote sites
+- replacement/salvage lifecycle for irreparable equipment
+- battery-cell chemistry differences only if future research discovers meaningful properties
+- structure-specific degradation from future atmosphere/weather/terrain systems
 
 ## Near-Term Simulation Depth
 
-- cooperative job foundation: reserve multiple citizens without race conditions
+- cooperative jobs / multi-citizen reservation
 - visitor turn-around / cancel travel
-- richer route/distance representation as geography grows
+- richer route/distance representation
 - explicit project-material transport before remote construction
-- equipment transfer/storage assignment beyond maker-owned gear
-- experiment tooling/workspace requirements if research depth later needs them
-- explicit measurement of deposit quantity only if citizens develop a valid method
-- intentional independent-verification semantics for parallel survey/experiment work
-
-## v0.7.0 — Maintenance & Consequences
-
-- wear
-- lubrication
-- battery health
-- component failure
-- tool damage
-- structure degradation
-- repair
-- replacement parts
-- preventive maintenance
-- job interruption/recovery rules for damage or failure
+- equipment transfer/storage assignment beyond maker-owned/shared-at-location gear
+- explicit deposit-quantity measurement only if citizens develop a valid method
 
 ## v0.8.0 — Living World
-
-- citizen-generated place names for discovered geographic features / work sites / settlements
-- keep physical coordinates separate from social names; places can exist unnamed before citizens decide they matter
-- support persistent renaming/aliases/shared naming conventions as communication and history justify them
 
 - additional regions
 - environmental variation
@@ -48,14 +39,12 @@ Remaining cross-department/integration work:
 - more materials
 - native vegetation behavior
 - distant work sites
-- possible cultivation if citizens discover a reason
-- global spherical coordinates (latitude/longitude)
+- cultivation if citizens discover a reason
+- global spherical coordinates
 - local tangent-plane working frames
-- continuous citizen positions between landmarks
-- exploration intents converted into validated reachable positions
+- continuous positions between landmarks
 - terrain-aware movement
-- citizen-created places and buildings between original landmarks
-- routes/roads emerging from use or construction
+- citizen-created locations/infrastructure between starter landmarks
 
 ## v0.9.0 — Continuity
 
@@ -66,37 +55,11 @@ Remaining cross-department/integration work:
 - teaching
 - routines
 - longer-term resource strategies
-- evaluate population growth only after research/fabrication/energy/maintenance/identity continuity are mature
+- population growth only after physical/identity prerequisites mature
 
 ## Open Questions
 
-- how should cooperative jobs reserve multiple citizens?
-- how should tool wear/weight/energy tradeoffs interact with job efficiency?
-- when should communicated verified discoveries become reproducible skill/process knowledge rather than merely known facts?
-- how should damage interrupt active experiment/construction jobs?
-- how should reserved construction materials be transported to remote sites?
-
-
-## v0.6 Integration Gate
-
-Before starting new Simulation feature work:
-
-1. Assets finishes the remaining data-driven v0.6 UI.
-2. Coordinator integrates Simulation, Communication, Memory, and Assets.
-3. Preserve both `agent_city/knowledge.py` and `agent_city/provenance.py`.
-4. Run the full v0.4/v0.5 regression suite plus all v0.6 Simulation/Communication/Memory/Assets smoke tests.
-5. Any merge conflict that changes physical truth, discovery semantics, or known-state filtering returns to World & Simulation for review.
-
-Until that gate is complete, the v0.6 Simulation core is considered handed off and feature-complete for this session.
-
-
-## Long-Term Procedural Universe
-
-- persistent hierarchical deterministic universe seed
-- deterministic star systems / planets / moons / regions generated from seed
-- lazy generation allowed only when results remain seed-stable
-- no rerolling hidden reality because citizens chose to observe it
-- spaceflight can reveal additional seeded bodies/systems if citizens actually invent/build it
-- keep hidden astronomical/planetary truth separate from citizen knowledge
-- future orbital industry / stellar-scale energy collection may emerge if civilization capability supports it
-- do not hard-code a Dyson structure as an unlock; if it emerges, prefer physical orbital construction and energy accounting
+- how should cooperative maintenance jobs reserve citizens/tools?
+- when should an asset become irreparable instead of fully serviceable?
+- how should future weather/environment change degradation rates?
+- how should remote repair materials be staged and accounted for?
