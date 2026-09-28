@@ -27,7 +27,7 @@ def main() -> None:
 
     # v0.5 Making view must consume authoritative Simulation collections.
     assert "Making" in html
-    for token in ("state.projects", "state.project_materials", "state.equipment", "state.structures"):
+    for token in ("state?.projects", "state?.project_materials", "state?.equipment", "state?.structures"):
         assert token in js, token
 
     # Conversation History must use real stored conversation identity/source anchors.
