@@ -17,7 +17,6 @@ This file is the shared project task board.
 ### ACTIVE
 
 - [World & Simulation] v0.7.0 lead: equipment/structure wear, lubrication/service, battery health, repair/replacement, preventative maintenance
-- [Communication & Perception] v0.7.0: autonomous talk reliability diagnostics/fixes
 
 ### WAITING
 
@@ -26,12 +25,16 @@ This file is the shared project task board.
 
 ### READY
 
+- [Communication & Perception] v0.7 talk reliability ready on `communication/v0.7-talk-reliability` @ `61eecc4c047dd3fd22b71612251769a8cb456737`; CI `36428495003` passed all v0.4-v0.7 regression suites
+
 - [World & Simulation] v0.6 Research/Discovery core ready on `simulation/v0.6-research-discovery` @ `d1ae3faf0095d22e7a730cf50b3ad6fdbcdc4b94`; CI `36419824468` passed
 - [Communication & Perception] v0.6 provenance/availability ready on `communication/v0.6-knowledge-provenance` @ `6a483fcc4d143606f3e401218002e06ae43076d1`; CI `36421263078` passed
 - [Memory & Social] v0.6 per-citizen bounded knowledge core ready on `memory/v0.6-location-knowledge` @ `89c0a3e2d49c4c9236342c10559f92b93b1b7601`; CI `36419352645` passed
 - [Assets & Interface] all upstream data/status contracts needed for the remaining UI pass are now available
 
 ### REVIEW
+
+- [Communication & Perception] v0.7 raw-exchange-first persistence, bounded retry, non-fatal claim enrichment, talk diagnostics, and failure classification complete
 
 - [Memory & Social] v0.7 maintenance-memory policy/audit ready; no runtime branch until Simulation event anchors exist
 
@@ -217,3 +220,18 @@ Primary goals:
 Coordinator integration must preserve all v0.6 knowledge/provenance boundaries and all v0.5 physical production/energy invariants.
 
 No department publishes `update.json`.
+
+## Communication v0.7 Contract Locks
+
+Coordinator integration must preserve:
+
+1. raw exchange generation/persistence happens before claim/provenance enrichment
+2. claim extraction failure does not invalidate an existing durable conversation
+3. there is still no fabricated fallback dialogue
+4. raw dialogue may retry once, but success still requires real model-generated content
+5. `talk_diagnostics` is debug metadata, not citizen knowledge or physical truth
+6. a talk physically succeeds only when its `source_job_id` has a durable `citizen_conversations` row
+7. failed talk chronology remains distinct from conversation transcript/history
+8. diagnostic History rows use `category = "diagnostic"` and should not be rendered as citizen speech
+
+Required regression coverage includes `tests/smoke_v070_communication.py` in addition to the existing v0.4-v0.6 suite.
