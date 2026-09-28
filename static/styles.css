@@ -3017,3 +3017,54 @@ input:focus, textarea:focus { border-color: var(--accent); }
     text-align: left;
   }
 }
+
+
+/* v0.8 Stage 1 — fallback silhouette exercise.
+   These are presentation proportions only, not Simulation-authoritative heights. */
+.avatar-full.silhouette-heavy .avatar-fallback-figure {
+  width: 100px;
+}
+.avatar-full.silhouette-heavy .avatar-head {
+  left: 27px;
+  width: 46px;
+}
+.avatar-full.silhouette-heavy .avatar-body {
+  left: 12px;
+  width: 76px;
+  border-radius: 22px 22px 14px 14px;
+}
+
+.avatar-full.silhouette-slim .avatar-fallback-figure {
+  width: 72px;
+  height: 158px;
+}
+.avatar-full.silhouette-slim .avatar-head {
+  left: 20px;
+  width: 32px;
+  height: 32px;
+}
+.avatar-full.silhouette-slim .avatar-body {
+  left: 13px;
+  top: 43px;
+  width: 46px;
+  height: 94px;
+  border-radius: 18px 18px 12px 12px;
+}
+
+.avatar-full.silhouette-lean .avatar-body {
+  left: 17px;
+  width: 52px;
+  height: 86px;
+}
+
+.avatar-full.silhouette-compact .avatar-fallback-figure {
+  height: 140px;
+}
+.avatar-full.silhouette-compact .avatar-body {
+  top: 45px;
+  height: 73px;
+}
+
+.avatar-full.silhouette-soft .avatar-body {
+  border-radius: 27px 27px 16px 16px;
+}
