@@ -763,3 +763,20 @@ Named location membership no longer implies face-to-face proximity.
 Talk/Visit requires actual meter-scale proximity.
 
 This is a durable Stage 2 spatial law for future continuous-world systems.
+
+
+## Shared Proposal Rejection
+
+A visitor may reject a Simulation shared activity only before physical start.
+
+Allowed states:
+- proposed
+- accepted
+
+Rejection:
+- creates no movement job
+- changes no coordinates
+- creates no observation
+- records `status = rejected` and `outcome = rejected`
+
+An active or completed shared activity cannot be retroactively "rejected." Any future active cancellation must be a separate physical interruption/cancellation design.
