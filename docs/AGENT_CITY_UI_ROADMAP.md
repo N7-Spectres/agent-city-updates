@@ -618,6 +618,8 @@ When the citizens surprise us, treat the surprise as test data. Strengthen the s
 
 ### v0.8 Stage 2 — Exploration Lifecycle
 
+Stage 2 integration result: **PASS** on `release-v0.8.0@022f7655e9e958e3c35866d90679166a5b1c21e6` (Actions `36461596122`). The physical exploration, shared-action, bounded-memory, and continuous-map layers now coexist in one tested runtime.
+
 Stage 1 established the hidden seeded world and safe spatial contracts. Stage 2 makes that substrate physically usable.
 
 Direction:
