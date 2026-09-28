@@ -68,6 +68,13 @@
             <svg id="route-layer" class="route-layer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
             <div id="map-layer" class="map-layer"></div>
 
+            <div class="map-controls" aria-label="Map zoom controls">
+              <button id="map-zoom-out" type="button" aria-label="Zoom out" title="Zoom out">−</button>
+              <span id="map-zoom-label" aria-live="polite">1×</span>
+              <button id="map-zoom-in" type="button" aria-label="Zoom in" title="Zoom in">+</button>
+              <button id="map-zoom-reset" type="button" aria-label="Reset region view" title="Reset region view">Region</button>
+            </div>
+
             <button id="visitor-status" class="visitor-map-status" type="button" title="Visitor physical location">Visitor: loading…</button>
 
             <div class="map-legend">
@@ -165,7 +172,7 @@
                   </span>
                   <span id="citizen-portrait-initials" class="avatar-initials">?</span>
                 </div>
-                <small>2D identity slot • interface fallback until unique art is supplied</small>
+                <small>Approved base-body identity • optional gear remains state-driven</small>
               </div>
               <div class="citizen-sheet-title">
                 <div class="eyebrow">CITIZEN RECORD</div>
