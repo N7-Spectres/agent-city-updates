@@ -22,7 +22,8 @@ const els = {
   regionStrip: document.getElementById("region-strip"),
   worldFocus: document.getElementById("world-focus"),
   locations: document.getElementById("locations"),
-  resources: document.getElementById("resources"),
+  resourceBalance: document.getElementById("resource-balance"),
+  citizenCargo: document.getElementById("citizen-cargo"),
   structures: document.getElementById("structures"),
   history: document.getElementById("history"),
   citizenConversations: document.getElementById("citizen-conversations"),
@@ -403,9 +404,49 @@ function renderDrawerLists() {
     `;
   }).join("");
 
-  els.resources.innerHTML = state.resources.map(r => `
-    <div class="list-row"><span>${escapeHtml(r.name)}</span><strong>${trimNumber(r.amount)}</strong></div>
-  `).join("");
+  const stored = new Map(state.resources.map(r => [r.name, Number(r.amount) || 0]));
+  const carried = new Map();
+  for (const item of state.inventory) {
+    if (Number(item.amount) <= 0) continue;
+    carried.set(item.material, (carried.get(item.material) || 0) + Number(item.amount));
+  }
+
+  const materials = Array.from(new Set([...stored.keys(), ...carried.keys()]))
+    .sort((a, b) => a.localeCompare(b));
+
+  els.resourceBalance.innerHTML = `
+    <div class="material-balance-head">
+      <span>Material</span><span>Stored</span><span>Field</span>
+    </div>
+    ${materials.map(name => `
+      <div class="material-balance-row">
+        <span>${escapeHtml(name)}</span>
+        <strong>${trimNumber(stored.get(name) || 0)}</strong>
+        <strong class="${(carried.get(name) || 0) > 0 ? "field-positive" : ""}">${trimNumber(carried.get(name) || 0)}</strong>
+      </div>
+    `).join("")}
+  `;
+
+  const carriers = state.citizens.map(c => {
+    const items = state.inventory.filter(i => i.citizen_id === c.id && Number(i.amount) > 0);
+    if (!items.length) return "";
+    const total = items.reduce((sum, i) => sum + Number(i.amount), 0);
+    return `
+      <div class="cargo-card">
+        <div class="cargo-card-head">
+          <strong>${escapeHtml(c.name)}</strong>
+          <span>${trimNumber(total)} units carried</span>
+        </div>
+        <div class="cargo-items">${items.map(i => `
+          <span>${escapeHtml(i.material)} <strong>${trimNumber(i.amount)}</strong></span>
+        `).join("")}</div>
+      </div>
+    `;
+  }).filter(Boolean);
+
+  els.citizenCargo.innerHTML = carriers.length
+    ? carriers.join("")
+    : '<div class="muted cargo-empty">No materials are currently being carried in the field.</div>';
 
   els.structures.innerHTML = state.structures.map(s => `
     <div class="list-row"><span>${escapeHtml(s.name)}</span><strong>${Math.round(s.condition)}%</strong></div>
