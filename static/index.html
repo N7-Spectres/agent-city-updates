@@ -92,10 +92,12 @@
           <input id="visitor-name" value="N7" maxlength="40" />
         </label>
 
-        <div id="visit-history-panel" class="visit-history-panel hidden"></div>
+        <div class="visit-scroll-stack">
+          <div id="visit-history-panel" class="visit-history-panel hidden"></div>
 
-        <div id="chat-log" class="chat-log">
-          <div class="muted">Choose a citizen on the left or on the map, then start a conversation.</div>
+          <div id="chat-log" class="chat-log">
+            <div class="muted">Choose a citizen on the left or on the map, then start a conversation.</div>
+          </div>
         </div>
 
         <form id="chat-form">
@@ -114,22 +116,22 @@
         </div>
 
         <nav class="control-tabs" aria-label="Control Room views">
-          <button id="toggle-region" class="control-tab active">Region</button>
+          <button id="toggle-history" class="control-tab active">History</button>
           <button id="toggle-resources" class="control-tab">Stores</button>
-          <button id="toggle-structures" class="control-tab">Structures</button>
-          <button id="toggle-history" class="control-tab">History</button>
+          <button id="toggle-structures" class="control-tab">Making</button>
+          <button id="toggle-region" class="control-tab">Region</button>
           <button id="toggle-updates" class="control-tab">Updates</button>
         </nav>
 
         <div class="control-view-head">
           <div>
-            <div class="eyebrow" id="detail-eyebrow">REGION</div>
-            <h3 id="detail-title">Known region</h3>
+            <div class="eyebrow" id="detail-eyebrow">HISTORY</div>
+            <h3 id="detail-title">Conversation history</h3>
           </div>
         </div>
 
         <div class="control-content">
-          <div id="detail-region" class="detail-view">
+          <div id="detail-region" class="detail-view hidden">
             <div id="locations" class="drawer-grid"></div>
           </div>
 
@@ -141,10 +143,17 @@
           </div>
 
           <div id="detail-structures" class="detail-view hidden">
-            <div id="structures" class="list"></div>
+            <div class="history-section-label">PROJECTS</div>
+            <div id="projects" class="making-projects"></div>
+
+            <div class="history-section-label making-section-label">EQUIPMENT</div>
+            <div id="equipment" class="equipment-list"></div>
+
+            <div class="history-section-label making-section-label">STRUCTURES</div>
+            <div id="structures" class="structure-list"></div>
           </div>
 
-          <div id="detail-history" class="detail-view hidden">
+          <div id="detail-history" class="detail-view">
             <div class="history-section-label">RECENT CITIZEN CONVERSATIONS</div>
             <div id="citizen-conversations" class="conversation-feed"></div>
             <div class="history-section-label">SETTLEMENT CHRONOLOGY</div>
