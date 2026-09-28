@@ -39,7 +39,8 @@ Cross-department integration remaining:
 - visitor local independent movement if explicitly designed without becoming admin control
 
 ### Shared activities
-- cancellation/expiration
+- active cancellation / interruption
+- proposal expiration cleanup
 - explicit failed/cancelled completion records
 - additional Simulation-owned activity kinds only when physically justified
 - multi-citizen cooperative exploration later
