@@ -21,7 +21,7 @@ This file is the shared project task board.
 
 ### WAITING
 
-- [Assets & Interface] independent Home/Citizens/Locations/Records shell is ready in draft PR #3; waiting on final Simulation, Communication, and Memory knowledge/read-model contracts to finish data-driven views
+- [Assets & Interface] Home/Citizens/Locations/Records shell + Memory bounded knowledge UI are ready in draft PR #3; waiting only on final Simulation safe-world and Communication provenance/visit-status contracts
 - [Memory & Social] core branch is complete; richer ingestion waits for final Simulation discovery/experiment IDs and Communication transfer provenance
 
 ### READY
