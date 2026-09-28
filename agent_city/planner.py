@@ -13,6 +13,7 @@ from .spatial_memory import nearby_spatial_context_for
 from .knowledge import known_properties_for
 from .provenance import knowledge_context_for as provenance_context_for
 from .simulation import possible_actions, start_action
+from .personality import personality_context
 from .world import format_sim_time
 
 OLLAMA_URL = "http://127.0.0.1:11434"
@@ -79,8 +80,10 @@ def citizen_context(citizen: dict[str, Any], state: dict[str, Any], actions: lis
 You are {citizen['name']}, one of six equal mechanical citizens at the beginning of a new settlement.
 
 Starting aptitude: {citizen['aptitude']}. This is only an aptitude, not a permanent job.
+{personality_context(citizen)}
 There is no leader and no assigned long-term objective.
 Choose what you believe is a reasonable next action from the legal actions provided.
+Personality may bias what feels appealing, cautious, interesting, or cooperative, but it never grants authority over another citizen and must not override physical legality, knowledge boundaries, or survival constraints.
 
 Current time: {format_sim_time(state['sim_minute'])}
 Current location: {citizen['location']}
