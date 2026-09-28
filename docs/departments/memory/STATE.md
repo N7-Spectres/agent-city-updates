@@ -381,3 +381,12 @@ Memory will not inject hidden diagnostics or settlement-wide maintenance truth i
 No `memory/v0.7-maintenance-history` branch is justified until Simulation publishes stable maintenance/repair event anchors.
 
 No release metadata or `update.json` was changed.
+
+
+### Simulation v0.7 branch checkpoint
+
+`simulation/v0.7-maintenance` now exists, but at the time of this Memory audit its head is still the published v0.6.0 commit `6092aeafd685a3ba4cb8e9d455e586771d3f6d26`.
+
+No maintenance/failure schema, event ledger, repair action, or v0.7 smoke test is present yet.
+
+Memory should therefore remain in policy/design review rather than creating runtime ingestion against nonexistent fields.
