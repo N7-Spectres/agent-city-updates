@@ -179,24 +179,37 @@ Before v0.4 can be considered release-ready:
 - [x] safe location notebook API partitioned by citizen
 - [x] focused v0.6 Memory smoke test
 
-### Waiting on Simulation v0.6
+### Simulation v0.6 contract received
 
-- [ ] final stable discovery / experiment record IDs
-- [ ] final subject metadata for material property/process discoveries
-- [ ] explicit validated discovery outcome fields suitable for Memory source links
-- [ ] confirm whether experiment/discovery IDs are integer event IDs or provide a durable integer event anchor compatible with current `memory_events.source_id`
+- [x] stable `discoveries.id`
+- [x] stable `experiment_results.id`
+- [x] subject/location/material/property metadata
+- [x] validated discovery and experiment outcome semantics
+- [x] citizen-scoped validated knowledge through `citizen_knowledge`
 
-### Waiting on Communication v0.6
+### Communication v0.6 contract received
 
-- [ ] final claim/discovery transfer provenance shape
-- [ ] source conversation / transfer ID mapping
-- [ ] recipient, source actor, received time, assertion kind, verification state
-- [ ] hook transferred location/material/process claims into `record_knowledge_event` as unverified
+- [x] `information_receipts` provenance shape
+- [x] canonical conversation/transfer source mapping
+- [x] recipient/source actor/received time/assertion kind/verification
+- [x] unverified face-to-face claim semantics
+- [x] verified Simulation-knowledge synchronization rules
 
-### Integration follow-up
+### Coordinator integration follow-up
 
-- [ ] consume final Simulation discovery/experiment records without importing hidden truth
-- [ ] consume Communication claim transfers without automatic verification
-- [ ] extend structured metadata only as needed; avoid schema churn
-- [ ] add material/process read-model examples after Simulation finalizes fields
-- [ ] run combined v0.6 smoke suite after coordinator integration
+- [ ] merge Simulation + Communication + Memory while preserving separate layer ownership
+- [ ] map Simulation discovery/experiment anchors beneath Memory retrieval without importing hidden truth
+- [ ] map Communication receipts/claims beneath Memory retrieval without automatic verification
+- [ ] keep Memory Citizen/Location APIs bounded and per-citizen
+- [ ] run combined v0.6 smoke suite including Memory `tests/smoke_v060_memory.py`
+
+
+### v0.6 session close
+
+- [x] Memory runtime branch complete
+- [x] Memory CI green
+- [x] Assets read-model handoff delivered
+- [x] Simulation final contract received
+- [x] Communication final contract received
+- [x] no remaining department-owned v0.6 implementation blocker
+- [ ] coordinator integration and combined release smoke
