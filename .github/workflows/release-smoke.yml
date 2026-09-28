@@ -102,3 +102,6 @@ jobs:
 
       - name: Run v0.8.3 personality/dialogue smoke
         run: python tests/smoke_v083_personality.py
+
+      - name: Run v0.8.4 claim-safe summary smoke
+        run: python tests/smoke_v084_summary_truth.py
