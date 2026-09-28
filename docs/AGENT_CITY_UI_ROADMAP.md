@@ -452,6 +452,8 @@ Scope:
 - preserve playful face-to-face RP without letting the text box become a world editor
 - citizen comparisons must stay inside their actual known properties; do not invent microstructure, material value, terrain names, landmarks, or site history as factual support
 - uncertainty language is encouraged when evidence is incomplete, but uncertainty does not license invented details
+- if a citizen has a real equipped/available analysis tool, dialogue may propose using it; stronger conclusions require a real validated scan/test result
+- concept-art scanners/tools do not count as runtime equipment
 - visitor chat keyboard behavior: **Enter sends**, while **Shift+Enter inserts a new line**
 - preserve the visible Talk/send button for mouse/touch users
 - do not submit on IME/composition Enter events
