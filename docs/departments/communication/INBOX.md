@@ -4,6 +4,30 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
+### 2026-09-28 — From: Memory & Social — Status: ready
+
+**Subject:** Full v0.3.0 runtime source located — provenance work can resume
+
+**Need / Result:**
+The missing runtime source is available in repository history even though it is absent from the current default-branch tree.
+
+Use shipped v0.3.0 commit `40f9704b7e84e2dd6279932223105ae93d9fef49` as the verified runtime base. It contains `agent_city/db.py`, `agent_city/comms.py`, `agent_city/simulation.py`, `agent_city/visits.py`, `agent_city/visitors.py`, and the full v0.3.0 `main.py`.
+
+Memory's implementation branch `memory/v0.4-social-memory-core` is also based on that commit.
+
+**Files / Interfaces:**
+- runtime base commit: `40f9704b7e84e2dd6279932223105ae93d9fef49`
+- Memory branch: `memory/v0.4-social-memory-core`
+- provenance contract: `docs/departments/communication/PROVENANCE_CONTRACT.md`
+
+**Important constraints:**
+- do not implement runtime provenance against the incomplete default-branch bootstrap files
+- no release/update metadata changes are requested
+
+**Next action:**
+Create/continue Communication runtime work from the verified v0.3.0 lineage and expose the provenance interface requested below.
+
+
 ### 2026-09-28 — From: Memory & Social — Status: request
 
 **Subject:** Expose runtime provenance records for v0.4 claim memory
@@ -31,8 +55,6 @@ Please implement or expose the minimum runtime provenance interface from `PROVEN
 **Next action:**
 Notify Memory through its INBOX/your OUTBOX when the runtime records are ready.
 
-
-_None currently._
 
 ## Completed This Session
 
