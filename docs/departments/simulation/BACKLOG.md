@@ -1,44 +1,27 @@
 # World & Simulation — Backlog
 
-## Near-Term After v0.5 Integration
+## v0.6 Follow-On / Integration
 
-- refine duplicate/parallel survey behavior intentionally
+The core hidden-truth, experiment, discovery, citizen-knowledge, safe snapshot, and learned-process substrate is implemented on `simulation/v0.6-research-discovery`.
+
+Remaining cross-department/integration work:
+
+- Communication maps real transferred facts to `discoveries.id` where safe
+- Communication keeps unmatched conversation claims unverified rather than granting Simulation knowledge
+- Memory ingests stable discovery/result IDs into bounded per-citizen recall without duplicating hidden truth
+- Assets consumes only safe known-state collections and renders missing facts as absence
+- coordinator assembles all v0.6 branches and runs the full smoke suite
+
+## Near-Term Simulation Depth
+
 - cooperative job foundation: reserve multiple citizens without race conditions
-- expose richer action progress metadata cleanly to UI where current job timing is insufficient
-- support visitor turn-around / cancel travel behavior
-- improve route/distance representation as geography grows
-- continue testing citizen talk job edge cases after branch integration
-- define explicit project-material transport before allowing remote construction
-- decide how equipment transfer/storage assignment should work beyond maker-owned personal gear
-
-## v0.5 Follow-On Depth
-
-Core fabrication, construction, equipment modifiers, project lifecycle, energy reserve, charger representation, and coordinate groundwork are implemented on the department branch.
-
-Remaining depth:
-- broader physically learned fabrication processes after research exists
-- tool requirements for particular future processes
-- explicit remote construction logistics
-- cooperative fabrication/construction jobs
-- project cancellation/recovery rules
-- equipment wear/weight/energy tradeoffs when maintenance systems arrive
-
-## v0.6.0 — Research, Discovery & Knowledge State
-
-- hidden material properties
-- experiment actions
-- simulation-determined outcomes
-- persistent discovered knowledge
-- reproducible learned processes
-- failed experiment history
-- new capabilities derived from discovered properties
-- keep newly learned processes separate from a visible fixed technology tree
-- create/confirm a strict split between authoritative world truth and citizen/visitor-facing known truth
-- expose knowledge-filtered location/resource/environment data instead of leaking hidden world state to ordinary UI
-- locations should begin sparse and accumulate known facts through validated survey/measurement/experiment events
-- unknown resources and properties remain absent from citizen-facing data
-- store enough source/time metadata to explain when/how a location fact became known
-- ensure research results remain unknown to LLM context until physically discovered/communicated
+- visitor turn-around / cancel travel
+- richer route/distance representation as geography grows
+- explicit project-material transport before remote construction
+- equipment transfer/storage assignment beyond maker-owned gear
+- experiment tooling/workspace requirements if research depth later needs them
+- explicit measurement of deposit quantity only if citizens develop a valid method
+- intentional independent-verification semantics for parallel survey/experiment work
 
 ## v0.7.0 — Maintenance & Consequences
 
@@ -62,18 +45,15 @@ Remaining depth:
 - native vegetation behavior
 - distant work sites
 - possible cultivation if citizens discover a reason
-- global spherical coordinates (latitude/longitude) for persistent geography
-- local (x, y) working frames around settlements/regions
-- continuous citizen positions between named landmarks
-- exploration intents that Simulation converts into validated reachable positions
-- terrain-aware movement without overcomplicated physics
+- global spherical coordinates (latitude/longitude)
+- local tangent-plane working frames
+- continuous citizen positions between landmarks
+- exploration intents converted into validated reachable positions
+- terrain-aware movement
 - citizen-created places and buildings between original landmarks
-- routes/roads that can emerge from repeated use or construction
+- routes/roads emerging from use or construction
 
 ## v0.9.0 — Continuity
-
-- evaluate citizen creation / population growth only once research, fabrication, energy, maintenance, and identity continuity are mature enough to support it physically
-- if enabled, distinguish autonomous new citizens from non-citizen automation/equipment and preserve individual identity
 
 - multi-step plans
 - revised/abandoned plans
@@ -82,22 +62,12 @@ Remaining depth:
 - teaching
 - routines
 - longer-term resource strategies
+- evaluate population growth only after research/fabrication/energy/maintenance/identity continuity are mature
 
 ## Open Questions
 
 - how should cooperative jobs reserve multiple citizens?
 - how should tool wear/weight/energy tradeoffs interact with job efficiency?
-- how should research results remain unknown to the LLM until discovered?
-- how should injuries/damage interrupt active jobs?
-- how should reserved construction materials be physically transported to remote project sites?
-
-
-## Integration Gate
-
-Before this department resumes new physical-feature work:
-
-1. Assets finishes the Making & Building visual layer from the documented Simulation state contract.
-2. Coordinator assembles Simulation + Assets and runs the three smoke suites.
-3. Any merge conflict that changes physical rules returns to World & Simulation for review.
-
-Until then, the v0.5 physical core is considered complete for department handoff.
+- when should communicated verified discoveries become reproducible skill/process knowledge rather than merely known facts?
+- how should damage interrupt active experiment/construction jobs?
+- how should reserved construction materials be transported to remote sites?
