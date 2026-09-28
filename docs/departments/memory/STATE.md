@@ -739,3 +739,31 @@ Smoke coverage verifies stable-subject continuity, salience suppression, precisi
 The temporary CI workflow was removed after validation.
 
 No release metadata or `update.json` was changed.
+
+
+## v0.8 Stage 1 Session Close — Integration Ready
+
+Memory & Social Stage 1 work is complete.
+
+**Memory branch:** `memory/v0.8-spatial-knowledge-stage1`  
+**Final head:** `086e4c2e192b7a22a36d26be8288e01abfd1d197`  
+**Validation:** CI `36450511959` passed the full shipped v0.4-v0.7 regression matrix plus `tests/smoke_v080_memory.py`.
+
+**Final Simulation contract consumed:**  
+`simulation/v0.8-seeded-world-stage1` @ `7473b6612ea23cf8d22b31176149da188476690e`
+
+No unresolved Memory-owned Stage 1 dependency remains.
+
+Coordinator integration must preserve:
+- `spatial_observations.id` as observation/evidence identity
+- stable `deposit_id` as physical-subject identity
+- `radius_m` as epistemic precision
+- per-citizen observation ownership
+- same-body repeat continuity
+- salience filtering against meter-by-meter memory spam
+- strict exclusion of `planet_seed`, hidden generated geometry, richness, and unexplored world truth
+- separation of spatial observation memory from generic research/location knowledge
+
+Stage 2 may selectively wire this retrieval into exploration/navigation context only after coordinator authorization and real Simulation-owned exploration/shared-action lifecycles exist.
+
+No release was published and `update.json` was not changed.
