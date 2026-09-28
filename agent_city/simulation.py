@@ -1261,7 +1261,152 @@ def complete_due_jobs(now: int) -> None:
             job_status = "complete"
             outcome = "success"
 
-            if action == "travel":
+            if action == "service_chassis":
+                payload = json.loads(job["detail"] or "{}")
+                before = float(payload.get("before", c["joint_wear"] or 0))
+                materials = dict(payload.get("materials") or {})
+                conn.execute(
+                    """
+                    UPDATE citizens
+                    SET joint_wear = 0, last_service_minute = ?,
+                        current_activity = 'Available', active_job_id = NULL
+                    WHERE id = ?
+                    """,
+                    (now, c["id"]),
+                )
+                message = f"{c['name']} completed chassis lubrication and joint service."
+                _record_maintenance_event(
+                    conn,
+                    job_id=int(job["id"]),
+                    citizen_id=str(c["id"]),
+                    event_type="chassis_service",
+                    target_type="citizen",
+                    target_id=str(c["id"]),
+                    before_value=before,
+                    after_value=0.0,
+                    materials=materials,
+                    outcome="success",
+                    now=now,
+                    summary=message,
+                )
+
+            elif action == "replace_battery":
+                payload = json.loads(job["detail"] or "{}")
+                before = float(payload.get("before", c["battery_health"] or 0))
+                materials = dict(payload.get("materials") or {})
+                conn.execute(
+                    """
+                    UPDATE citizens
+                    SET battery_health = 100,
+                        energy = MIN(energy, 100),
+                        last_service_minute = ?,
+                        current_activity = 'Available',
+                        active_job_id = NULL
+                    WHERE id = ?
+                    """,
+                    (now, c["id"]),
+                )
+                message = f"{c['name']} completed a battery-pack replacement."
+                _record_maintenance_event(
+                    conn,
+                    job_id=int(job["id"]),
+                    citizen_id=str(c["id"]),
+                    event_type="battery_replacement",
+                    target_type="citizen",
+                    target_id=str(c["id"]),
+                    before_value=before,
+                    after_value=100.0,
+                    materials=materials,
+                    outcome="success",
+                    now=now,
+                    summary=message,
+                )
+
+            elif action == "service_equipment":
+                payload = json.loads(job["detail"] or "{}")
+                equipment_id = int(payload.get("equipment_id") or job["target"] or 0)
+                before = float(payload.get("before", 0))
+                materials = dict(payload.get("materials") or {})
+                item = conn.execute(
+                    "SELECT * FROM equipment WHERE id = ?",
+                    (equipment_id,),
+                ).fetchone()
+                if item:
+                    conn.execute(
+                        """
+                        UPDATE equipment
+                        SET condition = 100, last_service_minute = ?
+                        WHERE id = ?
+                        """,
+                        (now, equipment_id),
+                    )
+                    message = f"{c['name']} restored {item['name']} to full service condition."
+                    _record_maintenance_event(
+                        conn,
+                        job_id=int(job["id"]),
+                        citizen_id=str(c["id"]),
+                        event_type="equipment_service",
+                        target_type="equipment",
+                        target_id=str(equipment_id),
+                        before_value=before,
+                        after_value=100.0,
+                        materials=materials,
+                        outcome="success",
+                        now=now,
+                        summary=message,
+                    )
+                else:
+                    job_status = "failed"
+                    outcome = "failed"
+                    message = f"{c['name']}'s equipment service ended because the target equipment no longer existed."
+                conn.execute(
+                    "UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?",
+                    (c["id"],),
+                )
+
+            elif action == "service_structure":
+                payload = json.loads(job["detail"] or "{}")
+                structure_id = int(payload.get("structure_id") or job["target"] or 0)
+                before = float(payload.get("before", 0))
+                materials = dict(payload.get("materials") or {})
+                structure = conn.execute(
+                    "SELECT * FROM structures WHERE id = ?",
+                    (structure_id,),
+                ).fetchone()
+                if structure:
+                    conn.execute(
+                        """
+                        UPDATE structures
+                        SET condition = 100, last_service_minute = ?
+                        WHERE id = ?
+                        """,
+                        (now, structure_id),
+                    )
+                    message = f"{c['name']} restored {structure['name']} to full service condition."
+                    _record_maintenance_event(
+                        conn,
+                        job_id=int(job["id"]),
+                        citizen_id=str(c["id"]),
+                        event_type="structure_service",
+                        target_type="structure",
+                        target_id=str(structure_id),
+                        before_value=before,
+                        after_value=100.0,
+                        materials=materials,
+                        outcome="success",
+                        now=now,
+                        summary=message,
+                    )
+                else:
+                    job_status = "failed"
+                    outcome = "failed"
+                    message = f"{c['name']}'s structure service ended because the target structure no longer existed."
+                conn.execute(
+                    "UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?",
+                    (c["id"],),
+                )
+
+            elif action == "travel":
                 target = job["target"]
                 name = location_name(conn, target)
                 conn.execute(
