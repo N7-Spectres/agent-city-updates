@@ -20,7 +20,7 @@ Departments should read this file at the beginning of a work session in addition
 
 ### ACTIVE
 
-- [Memory & Social] Lead v0.4.0 relationship-memory architecture and implementation
+- [Memory & Social] Continue v0.4.0 relationship-memory integration; social-memory core implemented on `memory/v0.4-social-memory-core`
 
 ### STANDBY
 
