@@ -323,6 +323,7 @@ function initialsFor(name) {
     .toUpperCase();
 }
 
+// UI-only interface accent, not physical paint or authoritative citizen appearance.
 function avatarHueFor(citizenId) {
   const text = String(citizenId || "");
   let hash = 0;
