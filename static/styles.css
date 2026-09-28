@@ -317,6 +317,7 @@ button:disabled {
   border-color: transparent;
   background: transparent;
   outline: none;
+  transform: translate(-50%, -50%);
 }
 
 .map-node:hover .node-dot,
