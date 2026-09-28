@@ -238,13 +238,13 @@ Before v0.4 can be considered release-ready:
 
 ### Next Memory session
 
-- [ ] create `memory/v0.7-maintenance-history` from `release-v0.6.0`
-- [ ] add idempotent maintenance-event ingestion using existing `memory_events`
-- [ ] record memories only for citizens with a valid experience/information path
-- [ ] add bounded maintenance history retrieval by citizen/subject
-- [ ] expose minimal read model for Assets Citizen/History surfaces if useful
-- [ ] add smoke tests ensuring passive wear does not flood Memory
-- [ ] preserve all v0.4-v0.6 social/knowledge/provenance regressions
+- [x] create `memory/v0.7-maintenance-history` from `release-v0.6.0`
+- [x] add idempotent maintenance-event ingestion using existing `memory_events`
+- [x] record memories only for citizens with a valid experience/information path
+- [x] add bounded maintenance history retrieval by citizen/subject
+- [x] expose minimal read model for Assets Citizen/History surfaces if useful
+- [x] add smoke tests ensuring passive wear does not flood Memory
+- [x] preserve all v0.4-v0.6 social/knowledge/provenance regressions
 
 
 ### v0.7 session close
@@ -254,7 +254,7 @@ Before v0.4 can be considered release-ready:
 - [x] Simulation stable event contract received
 - [x] Assets presentation guidance handed off
 - [x] no stale dependency remains
-- [ ] runtime ingestion/read-model implementation begins next Memory session
+- [x] runtime ingestion/read-model implementation completed
 
 
 ### Immediate resume order
@@ -267,3 +267,14 @@ Before v0.4 can be considered release-ready:
 6. add `tests/smoke_v070_memory.py`
 7. run all Memory/regression smoke tests
 8. only then mark the coordinator request handled and move Memory to REVIEW
+
+
+### v0.7 runtime completion
+
+- [x] maintenance ingestion complete on `memory/v0.7-maintenance-history`
+- [x] actor / serviced-citizen experience boundaries enforced
+- [x] maintenance and knowledge retrieval streams separated
+- [x] citizen-scoped maintenance API added
+- [x] full v0.4-v0.7 Memory regression matrix green in CI `36434785293`
+- [x] temporary CI workflow removed
+- [ ] coordinator merges Simulation + Communication + Memory + Assets and runs assembled v0.7 suite
