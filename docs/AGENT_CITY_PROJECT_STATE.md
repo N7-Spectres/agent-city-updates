@@ -20,9 +20,13 @@ Human users such as N7 are **visitors**, not gods, rulers, or omniscient operato
 
 ## Current Milestone
 
-v0.5.0 is assembled, tested, and published from immutable runtime commit `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`.
+**v0.6.0 — Research, Discovery & Knowledge UI is now the active development milestone.**
 
-Major shipped changes:
+v0.5.0 remains the current shipped release, assembled and published from immutable runtime commit `d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`.
+
+v0.6.0 is a major combined simulation + information-architecture milestone. It adds experimental research, persistent discovered knowledge, knowledge-filtered world data, a dedicated Citizens view, a dedicated Locations field-notebook view, and a simpler Home surface centered on live observation.
+
+Major shipped v0.5 changes:
 
 - real fabrication jobs that consume validated resources and create persisted equipment only on successful completion
 - real construction projects with `planned -> reserved -> underway -> complete` lifecycle
@@ -174,3 +178,67 @@ Around v1.0, the intended philosophical transition is:
 Post-v1.0 updates may still add new physical domains or richer simulation, but should avoid answering a problem the citizens are currently facing for them.
 
 If citizens struggle with a logistical, environmental, or technical problem, prefer allowing them to adapt through existing systems rather than shipping a handcrafted solution.
+
+
+## v0.6 Active Scope
+
+### Research / Discovery
+
+- hidden world-specific material properties
+- experiment actions with simulation-determined outcomes
+- successful and failed experiments persist as knowledge
+- learned processes may become reproducible only after discovery
+- no visible predetermined technology tree
+- communication technology remains something citizens may eventually invent, not a granted unlock
+
+### Known Truth vs World Truth
+
+Ordinary citizen/visitor-facing views must not expose raw hidden Simulation state.
+
+A location may begin with almost no information beyond what has actually been mapped or observed.
+
+Knowledge sheets fill in only through valid:
+- direct observation
+- survey
+- measurement
+- experiment
+- physical record
+- conversation / information transfer
+
+Unknown resources or properties remain absent rather than appearing as greyed-out secrets.
+
+### UI / Navigation
+
+Home should answer:
+> **What is happening right now?**
+
+Home prioritizes:
+- map
+- citizen quick list
+- selected-citizen chat
+- compact visitor-location badge
+- meaningful live alerts only
+
+Citizens view should answer:
+> **What do we know about this citizen?**
+
+Locations view should answer:
+> **What do we know about this place?**
+
+Locations should feel like a field notebook that gradually fills in as the civilization learns.
+
+### Character / Location Visuals
+
+Citizen detail pages should reserve a full-body visual identity area and show current physical equipment/configuration when supported by validated state.
+
+Location detail pages should include a simple scene/visual representation now, with room for richer graphics later.
+
+### Known v0.5 bug carried into v0.6
+
+Visitor availability messaging must correctly resolve the other participant in a talk job and distinguish:
+- remote location
+- visitor traveling
+- citizen traveling
+- citizen currently busy/talking
+
+Do not display a self-reference such as "Vale is currently speaking with Vale."
