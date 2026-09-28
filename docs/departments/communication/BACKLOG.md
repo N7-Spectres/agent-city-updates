@@ -63,3 +63,24 @@ Tune only measured problems.
 - no LLM-invented coordinates
 - proposal != accepted != started != completed
 - preserve v0.7 raw-exchange-first conversation reliability
+
+
+## Natural dialogue surface
+
+Live v0.8 feedback: grounded replies can expose too much planner/system vocabulary and sound stilted.
+
+Examples to avoid in ordinary citizen speech unless personality/context specifically calls for them:
+- "my current intent is..."
+- "there's no active job queued..."
+- "cross-reference with my records..."
+- "propose a short local walk..."
+
+Desired rule:
+- keep authoritative status/action semantics in structured context, not in the citizen's phrasing
+- translate those facts into natural character speech
+- citizens may state exact energy/condition when it is plausible for a mechanical self-monitoring body, but should not narrate internal planner/job machinery
+- shared-action availability should sound conversational ("we could take a quick look together") while the actual proposal/accept/start lifecycle remains structured and Simulation-owned
+- retain each citizen's voice/personality instead of converging on operational-assistant diction
+
+Noma target tone:
+curious, thoughtful, observational, concise; research-minded without sounding like a diagnostic terminal.
