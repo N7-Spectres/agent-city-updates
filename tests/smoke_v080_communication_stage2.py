@@ -19,11 +19,7 @@ class FakeResponse:
         return None
 
     def json(self):
-        return {
-            "message": {
-                "content": json.dumps(self._payload),
-            }
-        }
+        return {"message": {"content": json.dumps(self._payload)}}
 
 
 class FakeAsyncClient:
@@ -74,6 +70,7 @@ def main() -> None:
             ensure_shared_action_schema,
             expire_pending_proposals_for_visitor,
             maybe_create_proposal_from_exchange,
+            parse_explicit_relative_target,
             proposal_payload,
             proposals_for_visit,
             reject_proposal,
@@ -129,68 +126,98 @@ def main() -> None:
             visit_id = int(visit["id"])
             conn.commit()
 
-        visitor_text = "Let's walk five meters east together and inspect the ground there."
-        citizen_text = "Yes, we could walk over together and inspect that point."
-        exchange_id = make_exchange(
-            visitor,
-            citizen_id,
-            visit_id,
-            visitor_text,
-            citizen_text,
-        )
+        # Communication parses only explicit cardinal + meter intent.
+        assert parse_explicit_relative_target("walk five meters east") == (5.0, 0.0)
+        assert parse_explicit_relative_target("move 2 m north and 3 meters west") == (-3.0, 2.0)
+        assert parse_explicit_relative_target("let's go over there") is None
+        assert parse_explicit_relative_target("*points north* let's go") is None
 
-        original_options = shared.simulation_shared_action_options
-        original_start = shared.simulation_start_shared_action
-        original_status = shared.simulation_shared_action_status
+        original_contract = shared._simulation_contract_available
+        original_propose = shared.simulation_propose_shared_activity
+        original_accept = shared.simulation_accept_shared_activity
+        original_status = shared.simulation_shared_activity_status
+        original_cancel = shared.simulation_cancel_shared_activity
         original_client = shared.httpx.AsyncClient
 
-        safe_option = {
-            "option_key": "walk_east_5m",
-            "action_kind": "shared_walk_inspect",
-            "label": "Walk 5 m east together and inspect the arrival point",
-            "objective": "Move together to the supplied nearby point, then inspect it.",
-            "frame_id": "seed_site_local",
-            "target_x_m": 5.0,
-            "target_y_m": 0.0,
-            "target_subject_type": "coordinate",
-            "target_subject_id": None,
-            "requested_tool_id": None,
-        }
+        next_activity_id = 40
+
+        def fake_propose(**kwargs):
+            nonlocal next_activity_id
+            next_activity_id += 1
+            return {
+                "available": True,
+                "ok": True,
+                "reason": "Simulation validated and persisted a shared proposal.",
+                "payload": {
+                    "activity_id": next_activity_id,
+                    "status": "proposed",
+                    "action_id": None,
+                    "progress": None,
+                    "start_minute": None,
+                    "end_minute": None,
+                    "observation_ids": [],
+                    "outcome": None,
+                    "frame_id": "seed_site_local",
+                    "target_x_m": kwargs["target_x_m"],
+                    "target_y_m": kwargs["target_y_m"],
+                    "activity_type": "walk_inspect",
+                    "objective": kwargs["objective"],
+                    "tool_equipment_id": None,
+                },
+            }
 
         try:
-            # No Simulation legal option means dialogue cannot mint a proposal.
-            shared.simulation_shared_action_options = lambda v, c: []
-            no_options_context = shared_action_option_context(visitor, citizen_id)
-            assert "none currently exposed" in no_options_context
-            none = asyncio.run(
+            # No Simulation lifecycle means no structured proposal can exist.
+            shared._simulation_contract_available = lambda: False
+            no_options = shared_action_option_context(visitor, citizen_id)
+            assert "not available" in no_options
+
+            shared.simulation_propose_shared_activity = lambda **kwargs: {
+                "available": False,
+                "ok": False,
+                "reason": "unavailable",
+            }
+            exchange0 = make_exchange(
+                visitor,
+                citizen_id,
+                visit_id,
+                "Let's walk five meters east together.",
+                "I'd be willing to do that.",
+            )
+            FakeAsyncClient.queue = [{"propose": True}]
+            shared.httpx.AsyncClient = FakeAsyncClient
+            proposal0 = asyncio.run(
                 maybe_create_proposal_from_exchange(
                     visitor=visitor,
                     citizen_id=citizen_id,
                     visit_id=visit_id,
-                    source_exchange_id=exchange_id,
-                    visitor_text=visitor_text,
-                    citizen_text=citizen_text,
+                    source_exchange_id=exchange0,
+                    visitor_text="Let's walk five meters east together.",
+                    citizen_text="I'd be willing to do that.",
                     model="test-model",
                 )
             )
-            assert none is None
+            assert proposal0 is None
 
-            # With one safe Simulation option, the classifier can only select its
-            # key. Target coordinates/capability are copied from Simulation.
-            shared.simulation_shared_action_options = lambda v, c: [dict(safe_option)]
-            option_context = shared_action_option_context(visitor, citizen_id)
-            assert "walk_east_5m" in option_context
-            assert "seed_site_local (5.00, 0.00) m" in option_context
-            assert "not physically started" in option_context
-            FakeAsyncClient.queue = [{"proposal_key": "walk_east_5m"}]
-            shared.httpx.AsyncClient = FakeAsyncClient
+            # With Simulation available, Communication supplies only the explicit
+            # relative request; Simulation validates/persists canonical proposal.
+            shared._simulation_contract_available = lambda: True
+            shared.simulation_propose_shared_activity = fake_propose
+            options = shared_action_option_context(visitor, citizen_id)
+            assert "short local walk + baseline inspection" in options
+            assert "explicitly gives a meter distance" in options
+
+            visitor_text = "Let's walk five meters east together and inspect the ground there."
+            citizen_text = "Yes, we could walk over together and inspect that point."
+            exchange1 = make_exchange(visitor, citizen_id, visit_id, visitor_text, citizen_text)
+            FakeAsyncClient.queue = [{"propose": True}]
 
             proposal = asyncio.run(
                 maybe_create_proposal_from_exchange(
                     visitor=visitor,
                     citizen_id=citizen_id,
                     visit_id=visit_id,
-                    source_exchange_id=exchange_id,
+                    source_exchange_id=exchange1,
                     visitor_text=visitor_text,
                     citizen_text=citizen_text,
                     model="test-model",
@@ -199,43 +226,53 @@ def main() -> None:
             assert proposal is not None
             assert proposal["status"] == "proposed"
             assert proposal["acceptance_available"] is True
-            assert proposal["action_kind"] == "shared_walk_inspect"
+            assert proposal["simulation_activity_id"] == 41
+            assert proposal["simulation_action_id"] is None
             assert proposal["target"]["frame_id"] == "seed_site_local"
             assert proposal["target"]["x_m"] == 5.0
             assert proposal["target"]["y_m"] == 0.0
-            assert proposal["simulation_action_id"] is None
 
             context = shared_action_context(visitor, citizen_id, visit_id=visit_id)
             assert "pending visitor acceptance" in context
-            assert "has NOT physically started" in context
+            assert "NOT physically started" in context
 
-            # Same durable exchange is idempotent and does not need another model call.
+            # Idempotent by durable visitor exchange.
             FakeAsyncClient.queue = []
             same = asyncio.run(
                 maybe_create_proposal_from_exchange(
                     visitor=visitor,
                     citizen_id=citizen_id,
                     visit_id=visit_id,
-                    source_exchange_id=exchange_id,
+                    source_exchange_id=exchange1,
                     visitor_text=visitor_text,
                     citizen_text=citizen_text,
                     model="test-model",
                 )
             )
-            assert same is not None
-            assert same["id"] == proposal["id"]
+            assert same is not None and same["id"] == proposal["id"]
 
-            # Explicit visitor acceptance revalidates the option and only becomes
-            # physically started when Simulation returns a real action ID.
-            shared.simulation_start_shared_action = lambda p: {
-                "ok": True,
+            # Explicit acceptance only becomes physical after Simulation returns
+            # an active shared activity + real citizen job ID.
+            shared.simulation_accept_shared_activity = lambda activity_id, who: {
                 "available": True,
-                "action_id": "shared_42",
-                "status": "active",
-                "progress": 0.0,
-                "start_minute": 1001,
-                "end_minute": 1006,
-                "observation_ids": [],
+                "ok": True,
+                "reason": "Shared activity accepted and physically started.",
+                "payload": {
+                    "activity_id": activity_id,
+                    "status": "active",
+                    "action_id": "900",
+                    "progress": 0.0,
+                    "start_minute": 1001,
+                    "end_minute": None,
+                    "observation_ids": [],
+                    "outcome": None,
+                    "frame_id": "seed_site_local",
+                    "target_x_m": 5.0,
+                    "target_y_m": 0.0,
+                    "activity_type": "walk_inspect",
+                    "objective": "Walk together and inspect.",
+                    "tool_equipment_id": None,
+                },
             }
 
             ok, message, started = accept_proposal(proposal["id"], visitor)
@@ -243,77 +280,98 @@ def main() -> None:
             assert "Simulation started" in message
             assert started is not None
             assert started["status"] == "started"
-            assert started["simulation_action_id"] == "shared_42"
-            assert started["progress"] == 0.0
+            assert started["simulation_activity_id"] == 41
+            assert started["simulation_action_id"] == "900"
 
-            context = shared_action_context(visitor, citizen_id, visit_id=visit_id)
-            assert "ACTIVE" in context
-            assert "shared_42" in context
-
-            # Completion/result evidence enters only through Simulation status.
-            shared.simulation_shared_action_status = lambda action_id: {
-                "action_id": action_id,
-                "status": "completed",
+            # Completion evidence can only arrive from canonical Simulation status.
+            shared.simulation_shared_activity_status = lambda activity_id: {
+                "activity_id": activity_id,
+                "status": "complete",
+                "action_id": "900",
                 "progress": 1.0,
                 "start_minute": 1001,
                 "end_minute": 1006,
                 "observation_ids": [77],
-                "outcome": "Participants arrived and completed a baseline field inspection.",
+                "outcome": "success",
+                "failure_reason": None,
+                "frame_id": "seed_site_local",
+                "target_x_m": 5.0,
+                "target_y_m": 0.0,
+                "activity_type": "walk_inspect",
+                "objective": "Walk together and inspect.",
+                "tool_equipment_id": None,
             }
             completed = proposal_payload(proposal["id"], sync=True)
             assert completed is not None
             assert completed["status"] == "completed"
             assert completed["observation_ids"] == [77]
-            assert "baseline field inspection" in completed["outcome"]
+            assert completed["outcome"] == "success"
 
-            # A separate proposal can be explicitly rejected and never starts.
+            # Rejection fails closed until Simulation also cancels the canonical
+            # proposed activity.
             exchange2 = make_exchange(
                 visitor,
                 citizen_id,
                 visit_id,
-                "We could walk east again if you want.",
-                "I could, if you decide to.",
+                "Let's walk three meters north together.",
+                "I could do that.",
             )
-            FakeAsyncClient.queue = [{"proposal_key": "walk_east_5m"}]
+            FakeAsyncClient.queue = [{"propose": True}]
             proposal2 = asyncio.run(
                 maybe_create_proposal_from_exchange(
                     visitor=visitor,
                     citizen_id=citizen_id,
                     visit_id=visit_id,
                     source_exchange_id=exchange2,
-                    visitor_text="We could walk east again if you want.",
-                    citizen_text="I could, if you decide to.",
+                    visitor_text="Let's walk three meters north together.",
+                    citizen_text="I could do that.",
                     model="test-model",
                 )
             )
             assert proposal2 is not None
+
+            shared.simulation_cancel_shared_activity = lambda *args, **kwargs: {
+                "available": False,
+                "ok": False,
+                "reason": "Simulation cancellation unavailable.",
+            }
+            ok, _, still_proposed = reject_proposal(proposal2["id"], visitor)
+            assert ok is False
+            assert still_proposed is not None
+            assert still_proposed["status"] == "proposed"
+
+            shared.simulation_cancel_shared_activity = lambda *args, **kwargs: {
+                "available": True,
+                "ok": True,
+                "reason": "Simulation cancelled proposal.",
+            }
             ok, message, rejected = reject_proposal(proposal2["id"], visitor)
             assert ok is True
             assert "No physical action was started" in message
             assert rejected is not None and rejected["status"] == "rejected"
 
-            # Physical separation invalidates a still-pending proposal even when
-            # a stale option list would otherwise contain the same key.
+            # If participants separate before acceptance, Communication only marks
+            # expired after Simulation cancellation also succeeds.
             exchange3 = make_exchange(
                 visitor,
                 citizen_id,
                 visit_id,
-                "Let's inspect that point together.",
-                "We could do that.",
+                "Let's walk two meters south together.",
+                "That is possible.",
             )
-            FakeAsyncClient.queue = [{"proposal_key": "walk_east_5m"}]
+            FakeAsyncClient.queue = [{"propose": True}]
             proposal3 = asyncio.run(
                 maybe_create_proposal_from_exchange(
                     visitor=visitor,
                     citizen_id=citizen_id,
                     visit_id=visit_id,
                     source_exchange_id=exchange3,
-                    visitor_text="Let's inspect that point together.",
-                    citizen_text="We could do that.",
+                    visitor_text="Let's walk two meters south together.",
+                    citizen_text="That is possible.",
                     model="test-model",
                 )
             )
-            assert proposal3 is not None and proposal3["status"] == "proposed"
+            assert proposal3 is not None
 
             with connect() as conn:
                 conn.execute(
@@ -322,11 +380,16 @@ def main() -> None:
                 )
                 conn.commit()
 
+            shared.simulation_cancel_shared_activity = lambda *args, **kwargs: {
+                "available": True,
+                "ok": True,
+                "reason": "Simulation cancelled stale proposal.",
+            }
             ok, _, expired = accept_proposal(proposal3["id"], visitor)
             assert ok is False
             assert expired is not None and expired["status"] == "expired"
 
-            # Pending proposals can also be mass-expired when a visitor leaves/travels.
+            # Mass expiration uses the same canonical-cancellation requirement.
             with connect() as conn:
                 conn.execute(
                     "UPDATE visitor_presence SET location_id = 'seed_site', x_m = 0, y_m = 0 WHERE visitor = ?",
@@ -338,18 +401,18 @@ def main() -> None:
                 visitor,
                 citizen_id,
                 visit_id,
-                "One more nearby walk?",
-                "That is possible.",
+                "Let's walk one meter west together.",
+                "We could.",
             )
-            FakeAsyncClient.queue = [{"proposal_key": "walk_east_5m"}]
+            FakeAsyncClient.queue = [{"propose": True}]
             proposal4 = asyncio.run(
                 maybe_create_proposal_from_exchange(
                     visitor=visitor,
                     citizen_id=citizen_id,
                     visit_id=visit_id,
                     source_exchange_id=exchange4,
-                    visitor_text="One more nearby walk?",
-                    citizen_text="That is possible.",
+                    visitor_text="Let's walk one meter west together.",
+                    citizen_text="We could.",
                     model="test-model",
                 )
             )
@@ -365,9 +428,11 @@ def main() -> None:
             print("Agent City v0.8 Stage 2 Communication shared-action smoke test passed.")
 
         finally:
-            shared.simulation_shared_action_options = original_options
-            shared.simulation_start_shared_action = original_start
-            shared.simulation_shared_action_status = original_status
+            shared._simulation_contract_available = original_contract
+            shared.simulation_propose_shared_activity = original_propose
+            shared.simulation_accept_shared_activity = original_accept
+            shared.simulation_shared_activity_status = original_status
+            shared.simulation_cancel_shared_activity = original_cancel
             shared.httpx.AsyncClient = original_client
 
 
