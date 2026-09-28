@@ -231,6 +231,8 @@ Goal: begin giving each citizen a visible presence in the world.
 
 ### Phase 3 — Planet View
 
+As exploration grows, the map should support citizen-named landmarks. A physical feature may first appear as an unnamed known feature or coordinate; once citizens adopt a name through real use/discussion, that name becomes part of the persistent map history. Aliases/renames may exist when socially justified.
+
 Evolve the flat region diagram into a visual representation of the planet.
 
 Desired feel:
