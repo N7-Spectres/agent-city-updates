@@ -19,7 +19,7 @@ This file is the shared project task board.
 
 ### WAITING
 
-- [Coordinator / Integration] final v0.7 assembly waits for the two final passes above, then integrates Simulation + Communication + Memory + Assets and runs the full regression suite
+- [Coordinator / Integration] final v0.7 assembly now waits only for Memory's remaining runtime pass, then integrates Simulation + Communication + Memory + Assets and runs the full regression suite
 
 ### READY
 
