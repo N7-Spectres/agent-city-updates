@@ -1,7 +1,7 @@
 # Communication & Perception — State
 
 _Last updated: 2026-09-28_
-_Current release: v0.4.1_
+_Current release: v0.5.0_
 
 ## Mission
 
@@ -186,3 +186,11 @@ The v0.5 milestone packet still requires coordinator-level integration work:
 2. expose the merged Simulation state to Assets
 3. finish the Making & Building UI against authoritative merged state
 4. run combined smoke tests including both `smoke_v050.py` and `smoke_v050_communication.py`
+
+
+## Shipped v0.5.0 Integration
+
+The source-linked talk integrity slice is included in the published v0.5.0 runtime at:
+`d5bb929ef8def630afcbfbc07d90a51dd6c80cc8`.
+
+The assembled Communication integrity smoke passed alongside Simulation and UI integration tests.
