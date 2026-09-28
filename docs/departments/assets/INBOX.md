@@ -180,8 +180,8 @@ Communication's `GET /api/knowledge/{citizen_id}` is a lower-level provenance/de
 - unknown means absent, not a teased locked secret
 
 **Branch / tests:**
-- Communication head: `0cd9642c720e2950cb2a50728e19c08092408591`
-- CI: `36420188139`
+- Communication head: `0fc75220610f52f9701b19df1a22caaaa60c341a`
+- CI: `36420788364`
 
 **Next action:**
 Consume `status/availability` for Visit messaging. Communication and Memory are no longer blockers for the independent Citizens/Locations UI; remaining physical safe-world data comes from Simulation.
