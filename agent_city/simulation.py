@@ -578,6 +578,22 @@ def location_anchor_distance(conn, citizen: Any) -> float:
     )
 
 
+def has_intentional_local_offset(conn, citizen_id: str) -> bool:
+    row = conn.execute(
+        """
+        SELECT action
+        FROM jobs
+        WHERE citizen_id = ?
+          AND action IN ('travel', 'local_move', 'shared_local_activity')
+          AND status = 'complete'
+        ORDER BY end_minute DESC, id DESC
+        LIMIT 1
+        """,
+        (citizen_id,),
+    ).fetchone()
+    return bool(row and row["action"] in ("local_move", "shared_local_activity"))
+
+
 def nearby_operational_charger(conn, x_m: float, y_m: float, radius_m: float = 5.0):
     rows = conn.execute(
         """
@@ -824,6 +840,7 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
         y_m = float(c["position_y_m"] or 0.0)
         anchor_distance = location_anchor_distance(conn, c)
         at_landmark = anchor_distance <= 5.0
+        route_departure_ready = at_landmark or not has_intentional_local_offset(conn, citizen_id)
 
         charger_here = nearby_operational_charger(conn, x_m, y_m)
         if charger_here and energy < 95:
@@ -1044,7 +1061,7 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
                         "target": str(project["id"]),
                         "label": f"Construct reserved {project['name']} project #{project['id']}.",
                     })
-        elif at_landmark:
+        else:
             distance = route_distance(conn, location_id, "seed_site")
             if distance is not None:
                 travel_cost = max(2.0, distance * 3.0)
@@ -1061,7 +1078,7 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
             (location_id,),
         ).fetchall()
 
-        if cargo <= 0 and at_landmark:
+        if cargo <= 0 and route_departure_ready:
             for row in rows:
                 travel_cost = max(2.0, float(row["distance_km"]) * 3.0)
                 target_reserve = return_energy_required(conn, row["target"])
@@ -1182,8 +1199,8 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             return ok, message
 
         elif action == "travel":
-            if location_anchor_distance(conn, c) > 5.0:
-                return False, "Reach the local landmark before using the legacy route network."
+            if location_anchor_distance(conn, c) > 5.0 and has_intentional_local_offset(conn, citizen_id):
+                return False, "Return locally to the landmark before using the legacy route network."
             distance = route_distance(conn, c["location_id"], target)
             if distance is None:
                 return False, "No known route exists."
