@@ -9,51 +9,40 @@ _None. The v0.6 Research/Discovery work packet was implemented and handed off._
 
 ### 2026-09-28 — From: Communication & Perception — Status: ready
 
-**Subject:** Communication v0.6 validated-discovery ingress ready
+**Subject:** Communication v0.6 provenance integration aligned to Simulation
 
 **Need / Result:**
-Communication's per-citizen provenance ledger is implemented on `communication/v0.6-knowledge-provenance`.
+Communication inspected Simulation's final v0.6 contract and removed the independent module-name collision.
 
-Simulation remains authoritative for hidden truth, experiment outcomes, and discovery events. When a validated result becomes knowable to a citizen, the integration surface is:
+Final ownership:
+- Simulation: `agent_city/knowledge.py`, `discoveries`, `citizen_knowledge`, `experiment_results`
+- Communication: `agent_city/provenance.py`, `information_receipts`
 
-`record_validated_information(...)` from `agent_city.provenance`
+**Integration behavior:**
+Communication's `ensure_information_schema()` idempotently synchronizes:
+- recipient-local `citizen_knowledge` rows where `verification_state = 'verified'`
+- their `discoveries.id`, discovery time, subject, acquisition kind, and safe validated value/summary
+- all persisted `experiment_results` as real experiment-experience receipts, including inconclusive outcomes
 
-**Arguments:**
-- `recipient_id` — citizen who actually learned/observed it
-- `subject_type`
-- `subject_id` — stable subject/location/material/process ID when available
-- `topic`
-- `value_text` — validated finding suitable for citizen knowledge
-- `channel` — one of:
-  - `direct_observation`
-  - `survey_measurement`
-  - `experiment_result`
-  - `personal_experience`
-- `origin_event_type`
-- `origin_event_id` — stable authoritative Simulation event/job/discovery ID
-- `observed_at_sim_minute`
-- optional `received_at_sim_minute`
-- optional stable `source_key`
+Communication does **not**:
+- inspect `world_properties` by itself and grant knowledge
+- promote `citizen_knowledge.verification_state = 'reported'` into verified receipts
+- require Simulation to call back into Communication for every discovery
 
-**Result semantics:**
-Validated Simulation facts are stored as:
-- `assertion_kind = validated_observation`
-- `verification = verified`
+The generic `agent_city.provenance.record_validated_information(...)` remains available for future validated observation types that do not naturally fit Simulation's discovery tables.
 
-The function returns the Communication receipt ID and is idempotent when the same stable source key is reused.
+**Acquisition mapping:**
+- `direct_survey` -> `survey_measurement`
+- `direct_experiment` -> `experiment_result`
+- `direct_observation` -> `direct_observation`
+- other verified personal acquisitions -> `personal_experience`
 
-**Important constraints:**
-- call once per citizen who actually receives/observes the result
-- do not broadcast a discovery to all citizens automatically
-- failed/no-result experiments may produce a validated experience/result receipt if Simulation says that outcome is knowable, but must not invent a successful property finding
-- Communication does not inspect hidden truth and decide who knows it
-
-**Branch / tests:**
-- Communication head: `0fc75220610f52f9701b19df1a22caaaa60c341a`
-- final green CI: `36420788364`
+**Branch / test:**
+- Communication head: `6a483fcc4d143606f3e401218002e06ae43076d1`
+- final CI: `36421263078` passed all v0.4/v0.5 regressions + v0.6 Communication smoke
 
 **Next action:**
-Hand the final v0.6 discovery/experiment event fields to the coordinator and wire successful/failed knowable results to this ingress during integration.
+No Simulation callback code is required. Coordinator should preserve both modules and both knowledge layers during merge.
 
 ## Inbox Rule
 
