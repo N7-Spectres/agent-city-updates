@@ -500,6 +500,25 @@ Visual-only follow-up:
 - concept art remains identity reference; depicted gear is not physical inventory
 - no Simulation behavior changes
 
+### Shipped milestone — v0.8.5 Daily Rhythm & Recharge
+
+Shipped v0.8.5 commit: `5b2395d7e7643a3d7ac9a82ac68090fc97b5f0b7`  
+Final CI: `36498819565` — PASS
+
+Daily autonomy and world-presentation follow-up:
+- citizens retain the full physical action set, while autonomous planning filters choices by simulated time-of-day
+- 06:00–20:00 is the normal active cycle
+- 20:00–22:00 is wind-down
+- 22:00–06:00 favors recharge, safe return, maintenance, conversation, unloading, and low activity
+- critically low energy overrides personality/productivity in autonomous choice
+- active physical jobs are never cancelled merely because night begins
+- overnight charging can continue through multiple real charging jobs until usable battery capacity is full
+- degraded battery health remains the real capacity ceiling
+- map/world presentation reflects dawn, day, dusk, and night using the existing authoritative simulation clock
+- visual time-of-day never changes or invents Simulation state
+
+This establishes a daily settlement rhythm without turning the citizens into scripted shift workers.
+
 ### v0.9.0 — Civilization Continuity
 
 Support long-running autonomous development across months and simulated years.
