@@ -58,7 +58,10 @@ def main() -> None:
     assert ".map-node {" in css
     assert "width: 132px" in css
     assert "min-height: 56px" in css
-    focus_block = css[css.index(".map-node:hover,"):css.index(".node-dot,")]
+    focus_block = css[
+        css.index(".map-node:hover,"):
+        css.index(".node-dot,\n.legend-dot.node-dot")
+    ]
     assert "border-color: transparent" in focus_block
     assert "background: transparent" in focus_block
     assert ".map-node:focus-visible .node-dot" in focus_block
