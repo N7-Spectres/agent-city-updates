@@ -1140,7 +1140,33 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
         project_id = None
         experiment_method = None
 
-        if action == "travel":
+        if action == "local_move":
+            ok, _, message = start_local_move_job(
+                conn,
+                citizen_id,
+                float(chosen["target_x_m"]),
+                float(chosen["target_y_m"]),
+                now=now,
+                reason=intent_reason,
+                max_distance_m=LOCAL_MOVE_MAX_M,
+            )
+            if ok:
+                conn.commit()
+            return ok, message
+
+        elif action == "local_inspect":
+            ok, _, message = start_local_inspection(
+                conn,
+                citizen_id,
+                now=now,
+            )
+            if ok:
+                conn.commit()
+            return ok, message
+
+        elif action == "travel":
+            if location_anchor_distance(conn, c) > 5.0:
+                return False, "Reach the local landmark before using the legacy route network."
             distance = route_distance(conn, c["location_id"], target)
             if distance is None:
                 return False, "No known route exists."
@@ -1376,8 +1402,9 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
                 not target_citizen
                 or target_citizen["location_id"] != c["location_id"]
                 or target_citizen["active_job_id"] is not None
+                or not citizens_physically_close(c, target_citizen)
             ):
-                return False, "That citizen is no longer available for a face-to-face conversation here."
+                return False, "That citizen is no longer physically available for a face-to-face conversation here."
             duration = 20
             conn.execute("UPDATE citizens SET energy = MAX(0, energy - 1) WHERE id IN (?, ?)", (citizen_id, target))
             detail = f"talk:{target}"
@@ -1389,9 +1416,13 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             activity = "Unloading material into Seed Site storage"
 
         elif action == "charge":
-            charger = charging_structure_at(conn, c["location_id"])
+            charger = nearby_operational_charger(
+                conn,
+                float(c["position_x_m"] or 0.0),
+                float(c["position_y_m"] or 0.0),
+            )
             if not charger:
-                return False, "No operational charging structure is available here."
+                return False, "No operational charging structure is physically within reach here."
             charger_efficiency = condition_factor(float(charger["condition"]))
             duration = max(60, int(round(60 / charger_efficiency)))
             detail = json.dumps(
