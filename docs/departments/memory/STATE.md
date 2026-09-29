@@ -746,7 +746,7 @@ No release metadata or `update.json` was changed.
 Memory & Social Stage 1 work is complete.
 
 **Memory branch:** `memory/v0.8-spatial-knowledge-stage1`  
-**Final head:** `086e4c2e192b7a22a36d26be8288e01abfd1d197`  
+**Final head:** `29a5b896b9bdcb7cb833f5bfaf25aabfac9f26d5`  
 **Validation:** CI `36450511959` passed the full shipped v0.4-v0.7 regression matrix plus `tests/smoke_v080_memory.py`.
 
 **Final Simulation contract consumed:**  
@@ -773,7 +773,7 @@ No release was published and `update.json` was not changed.
 
 **Base:** `release-v0.8.0` / `017b417386f4f4e0f957dfb66285431223283739`  
 **Branch:** `memory/v0.8-exploration-stage2`  
-**Final head:** `306a9ef4329ab81afa5912846333a1d9782ee9be`  
+**Final head:** `29a5b896b9bdcb7cb833f5bfaf25aabfac9f26d5`  
 **Validation:** CI `36455394456` passed the full unified Stage 1 regression matrix plus `tests/smoke_v080_memory_stage2.py`.
 
 Stage 2 contracts consumed from:
@@ -868,7 +868,7 @@ No release metadata or `update.json` was changed.
 Memory & Social Stage 2 work is fully complete and integration-ready.
 
 **Memory branch:** `memory/v0.8-exploration-stage2`  
-**Final head:** `306a9ef4329ab81afa5912846333a1d9782ee9be`  
+**Final head:** `29a5b896b9bdcb7cb833f5bfaf25aabfac9f26d5`  
 **Green validation:** `36455394456`
 
 Final upstream contracts confirmed after Memory implementation:
@@ -897,8 +897,8 @@ No release was published and `update.json` was not changed.
 **Contract:** `docs/departments/memory/V090_CAUSAL_MEMORY_CONTRACT.md`  
 **Base:** `release-v0.8.7` / `be617e6e870ec3f1914d76cdb85107a6efc294d7`  
 **Branch:** `memory/v0.9-causal-memory-stage1`  
-**Final head:** `1394261f72d4fc5df7d41e065cd157350fee2785`  
-**Validation:** CI `36598971733` passed the complete v0.4-v0.8.7 regression matrix plus `tests/smoke_v090_memory_stage1.py`.
+**Final head:** `29a5b896b9bdcb7cb833f5bfaf25aabfac9f26d5`  
+**Validation:** CI `36607115487` passed the complete v0.4-v0.8.7 regression matrix plus `tests/smoke_v090_memory_stage1.py`.
 
 ### Durable archive remains authoritative
 
@@ -1020,8 +1020,8 @@ Memory consumed the final Simulation Stage 1 contract:
 Memory branch is now:
 
 - `memory/v0.9-causal-memory-stage1`
-- final head `35e277f9ca5c6d8d9b77d89492b118ac04a1fc69`
-- validation `36606247505`
+- final head `29a5b896b9bdcb7cb833f5bfaf25aabfac9f26d5`
+- validation `36607115487`
 
 ### Canonical practice retention
 
@@ -1091,3 +1091,27 @@ The expanded smoke verifies:
 - repeated synchronization is idempotent
 
 No release metadata or `update.json` was changed.
+
+
+### Recall-bound practice interpretation surface
+
+Memory now exposes a model-facing practice bridge that preserves active recall rather than exposing the full durable physical ledger:
+
+- `practice_recall_snapshot_for(citizen_id, activity=None, now_minute=None, limit=8)`
+- `practice_recall_context_for(...)`
+
+These surfaces:
+- require `practice_event` facets
+- remain owner-scoped
+- preserve aging/salience
+- optionally filter by activity
+- hide internal `recall_score`
+- hide internal `reinforcement_count`
+- preserve source/time/verification/summary
+
+This is the safe source for present self-assessment and teaching/explanation language.
+
+The full `practice_events` ledger remains appropriate for objective diagnostics/history, not direct autobiographical prompt injection.
+
+Final Memory branch head: `29a5b896b9bdcb7cb833f5bfaf25aabfac9f26d5`  
+Final Memory validation: `36607115487`
