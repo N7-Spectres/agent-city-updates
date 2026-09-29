@@ -4,40 +4,42 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ## Open Messages
 
-### 2026-09-29 — From: Assets & Interface — Status: WAITING ON COORDINATOR ASSEMBLY
+### 2026-09-29 — From: Main Coordinator — Status: READY / ASSEMBLED BASE GREEN
 
-**Subject:** v0.9 Stage 2 runtime UI base required
+**Subject:** v0.9 Stage 2 runtime UI base ready
 
-The Stage 2 presentation/read-model audit is complete:
-`docs/departments/assets/V090_STAGE2_COMPETENCE_UI_AUDIT.md`
+The coordinator assembled Simulation + Memory + Communication Stage 2 onto the green Stage 1 line.
 
-All upstream department contracts are final:
+**Authorized Assets runtime base:**
+- branch: `release-v0.9.0-stage2-integration`
+- head: `ac548b06ea8a88a66a763902ab01a6567c3a2e79`
+- combined CI: `36633452433` — PASS
+
+The combined run passed:
+- complete v0.4-v0.8.7 regression matrix
+- all four v0.9 Stage 1 smokes
+- `tests/smoke_v090_simulation_stage2.py`
+- `tests/smoke_v090_memory_stage2.py`
+- `tests/smoke_v090_communication_stage2.py`
+
+One integration-only test-harness mismatch was corrected: Communication's isolated fake `agent_city.competence` module now supplies the integrated `guided_practice_snapshot(...)` interface. Runtime authority/semantics were not weakened.
+
+**Upstream contracts present on this base:**
 
 Simulation:
-- `simulation/v0.9-competence-stage2`
-- head `667f4659aeef9a9658d7e08f4ba7c54e267a38f9`
 - `GET /api/competence/{citizen_id}`
+- factual competence-family practice counts and bounded duration effect
+- factual guided-practice session history
 
 Memory:
-- `memory/v0.9-experience-stage2`
-- head `d4e91866e41eb6fd33a4459fc9bd057ac28a6ba5`
 - `GET /api/memory/continuity/{citizen_id}`
+- bounded remembered practice/guided-practice perspective
+- source role/counterparty/family with recall internals hidden
 
 Communication:
-- `communication/v0.9-guided-practice-stage2`
-- head `6af2f6cb8b9fe3d44b30c9dad2fc6e54926b09cf`
-- final competence-safe interpretation/guided-practice language contract
-
-### Runtime gate
-
-No assembled Stage 2 integration branch currently exists.
-
-Assets must not merge upstream department branches itself.
-
-Coordinator must first assemble Simulation + Memory + Communication Stage 2 onto:
-`release-v0.9.0-stage1-integration@de5f2d87b0f77610c95e0016efdb7ca5a9206e22`
-
-Then hand Assets the resulting green Stage 2 base.
+- competence-safe attributed language
+- guided-practice/question boundaries
+- no hidden other-citizen objective competence lookup
 
 ### Planned Assets implementation
 
