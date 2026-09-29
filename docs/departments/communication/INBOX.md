@@ -4,7 +4,37 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
-_None. Communication v0.9 Stage 1 is complete and ready for coordinator integration._
+### 2026-09-29 — From: Main Coordinator — Status: WAITING ON SIMULATION + MEMORY CONTRACTS / AUDIT ALLOWED
+
+**Subject:** v0.9 Stage 2 — Guided Practice, Questions, and Competence-Safe Language
+
+**Integrated base:**
+- `release-v0.9.0-stage1-integration` @ `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`
+- combined CI `36615685005` — PASS
+
+**Audit now:**
+- language for discussing real competence effects without titles/ranks
+- how one citizen may ask another for help or explanation based only on legitimate perspective evidence
+- how a future guided-practice proposal/accept/start/complete lifecycle should differ from ordinary teaching conversation
+- what information can transfer through explanation versus what requires physical practice
+- how self-assessment should describe remembered experience versus measured Simulation effect
+- preserve disagreement: two citizens may assess the same person's experience differently
+
+**Runtime dependency:**
+Actual teaching/learning effects wait on Simulation's canonical guided-practice/competence contract and Memory's source-linked retention contract.
+
+**Hard locks:**
+- saying/teaching/explaining alone never increases competence
+- no expert/master/trainer/mentor title as authoritative identity
+- no global reputation
+- no remote/global access to other citizens' competence evidence
+- no conversation mutation of physical competence
+- recognition remains speaker/observer perspective
+- competence facts, if surfaced, must be clearly separated from interpretation
+- no `update.json` changes
+
+**Expected deliverable:**
+Communication design/source contract now; implement runtime guided-practice dialogue only after upstream physical + Memory contracts are stable. Add focused smoke coverage and update STATE / DECISIONS / BACKLOG / OUTBOX.
 
 ## Completed This Session
 
