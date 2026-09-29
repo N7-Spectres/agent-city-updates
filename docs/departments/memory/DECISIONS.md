@@ -632,3 +632,105 @@ Canonical sequence remains:
 Simulation `rejected` is a pre-start terminal state with no movement/job/observation and must never be classified as completed exploration.
 
 Memory's current implementation is therefore contract-complete for Stage 2.
+
+
+## v0.9 Durable Archive vs Active Recall
+
+`memory_events` is the durable archive.
+
+Active recall is a computed bounded view.
+
+Forgetting/aging may reduce active retrieval priority but must not mutate or delete the underlying source-backed event.
+
+## v0.9 Facet Index Decision
+
+Use `memory_event_facets` as a lightweight relational index over durable events.
+
+Facets exist to answer "which past experiences are related to this current decision?"
+
+They are not:
+- identity
+- class
+- skill
+- reputation
+- habit
+- physical truth
+
+Future plan/place facets are allowed only when they point back to real retained events.
+
+## v0.9 Reinforcement Decision
+
+Repeated related experience may raise recall priority.
+
+Reinforcement is based on multiple distinct source-backed memory events sharing meaningful facets.
+
+It does not:
+- merge events
+- increase verification
+- prove competence
+- create titles
+- convert claims into facts
+
+Repeated unverified claims remain unverified.
+
+## v0.9 Aging Decision
+
+Stage 1 recall scoring combines:
+- stored event importance
+- recency decay
+- bounded reinforcement
+
+Aging reduces access probability/priority, not historical truth.
+
+No summary/history rewriting occurs.
+
+## v0.9 Persistent Plan Pinning Decision
+
+A persistent plan should store stable `memory_event_id` references for the evidence/reasons that created or revised it.
+
+Pinned memory IDs are guaranteed candidate inclusion in active recall.
+
+This solves long-horizon plan continuity without:
+- hard scripting the plan
+- keeping every life event in prompt context
+- inventing a hidden plan-priority explanation
+
+Pinning preserves access, not obligation.
+
+## v0.9 Source-first Plan Rule
+
+A plan reason string is descriptive context, not causal evidence by itself.
+
+The causal explanation must be reconstructable from stable Memory source IDs and their underlying real/communicated sources.
+
+Preferred chain:
+
+`source event → memory_event_id → plan source link → bounded recall → current interpretation → new intent`
+
+## v0.9 Perspective Rule
+
+Causal recall remains citizen-scoped.
+
+Another citizen needs their own observation/communication/shared experience to form a related memory.
+
+No global continuity packet, reputation, or settlement-wide personal memory exists.
+
+## v0.9 UI Boundary
+
+Do not expose internal recall score, reinforcement boost, or facet count as a canonical citizen identity metric.
+
+Assets may later present source-backed plans/history/experience summaries through safe read models, but internal retrieval ranking is not citizen-visible truth.
+
+## v0.9 Stage 1 Scope Boundary
+
+Stage 1 does not yet implement:
+- competence physics
+- self-assessment beliefs
+- teaching transfer
+- habits/customs
+- place attachment
+- universal practice XP
+- public reputation
+- planner-wide persistent plans
+
+It establishes the source/retrieval spine those features must use.
