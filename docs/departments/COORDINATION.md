@@ -1,6 +1,6 @@
 # Agent City — Department Coordination Board
 
-_Last updated: 2026-09-28_
+_Last updated: 2026-09-29_
 
 This file is the shared project task board.
 
@@ -20,11 +20,13 @@ _None._
 
 ### WAITING
 
-_None._
+- [World & Simulation] v0.9 Stage 1 persistent-plan / practice-event runtime implementation waits on Memory's causal retrieval/source contract; architecture audit may proceed now.
+- [Communication & Perception] v0.9 recognition / self-assessment / teaching runtime work waits on Memory + Simulation contracts; language/source audit may proceed now.
+- [Assets & Interface] v0.9 continuity UI runtime work waits on safe read models from Memory + Simulation + Communication; UI/read-model audit may proceed now.
 
 ### READY
 
-_None._
+- [Memory & Social] v0.9 Stage 1 Causal Memory Spine — first implementation dependency. Read `docs/V090_CIVILIZATION_CONTINUITY_DOCTRINE.md` and the Memory INBOX packet.
 
 ### REVIEW
 
@@ -32,6 +34,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] v0.9 Civilization Continuity doctrine locked in `docs/V090_CIVILIZATION_CONTINUITY_DOCTRINE.md`
+- [Coordinator] v0.9 stage order locked: Causal Memory + Persistent Plans → Practice/Competence/Teaching/Recognition → Habits/Place Meaning/Social Customs
+- [Coordinator] v0.9 department packets placed in Memory, Simulation, Communication, and Assets INBOX files
 - [Coordinator] v0.8.7 Route Travel Visualization published from `be617e6e870ec3f1914d76cdb85107a6efc294d7`; final CI `36595479188` passed the complete matrix including `tests/smoke_v087_route_tokens.py`
 - [Assets & Interface] known-route citizen tokens now interpolate along route lines from authoritative job progress; no Simulation position writes
 - [Coordinator] v0.8.6 Stranded Citizen Recovery published from `a72f96b763671f01c5a8aa0ba41d87f7eb6b9a09`; final CI `36591711494` passed the complete matrix including `tests/smoke_v086_stranded_recovery.py`
@@ -548,3 +553,31 @@ Shipped:
 - compact travel percentage badge added
 - remaining route distance included in token detail
 - no Simulation, Communication, or Memory authority changed
+
+
+## v0.9 Civilization Continuity Coordination Lock
+
+Doctrine:
+- `docs/V090_CIVILIZATION_CONTINUITY_DOCTRINE.md`
+
+Primary law:
+> **Persistent behavior must have a traceable history.**
+
+Dependency order:
+1. Memory defines causal retained-history / bounded-retrieval / archive-vs-recall contract.
+2. Simulation consumes that contract for persistent plan/event substrate and later bounded competence effects.
+3. Communication consumes Memory + Simulation sources for perspective-safe self-assessment, recognition, and future teaching.
+4. Assets consumes safe read models only and must not invent identity labels, expertise badges, relationships, habits, or customs.
+
+Global anti-patterns:
+- no RPG-style permanent classes
+- no behavior-causing specialization labels
+- no universal reputation score
+- no skill from conversation alone
+- no authored habits/customs without repeated evidence
+- no fabricated memory used to justify present behavior
+- no visitor favoritism from account/admin status
+- no department publishes `update.json` during Stage 1 work
+
+Stage 1 completion target:
+a citizen can resume, revise, pause, abandon, or complete a meaningful persistent plan after unrelated actions/time have passed, with the current reason traceable to real retained history and without leaking that continuity to citizens who never acquired it.
