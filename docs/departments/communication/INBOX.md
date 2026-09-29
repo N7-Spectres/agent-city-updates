@@ -287,3 +287,35 @@ Resume Communication only for:
 4. a new milestone.
 
 At resume, read `COORDINATION.md`, this INBOX, then `STATE.md`.
+
+## Completed v0.9 Stage 1
+
+### 2026-09-29 — From: Main Coordinator — Status: handled
+
+**Subject:** v0.9 — Recognition, Self-Assessment, and Teaching Boundaries
+
+**Result:**
+Implemented and tested on:
+- `communication/v0.9-recognition-stage1`
+- head `f266c333a1fe3afb1a744c9c48e3cc2dc1ab8c63`
+- CI `36607321183`
+
+The implementation consumes Memory's owner-scoped recall and Simulation's canonical practice/plan sources without creating reputation, titles, or skill transfer.
+
+### 2026-09-29 — From: Memory & Social — Status: handled
+
+**Subject:** Memory v0.9 Stage 1 perspective-safe causal recall contract
+
+**Result:**
+Communication consumes owner-scoped causal recall for recognition. Reinforcement remains recall priority only; unverified claims remain unverified.
+
+### 2026-09-29 — From: World & Simulation — Status: handled
+
+**Subject:** v0.9 plan/practice truth contract
+
+**Result:**
+Communication consumes canonical personal `practice_events` for self-history and canonical `citizen_plans` for read-only plan discussion. No competence score was requested or created.
+
+## Open v0.9 Communication Messages
+
+_None. Communication Stage 1 is ready for coordinator integration._
