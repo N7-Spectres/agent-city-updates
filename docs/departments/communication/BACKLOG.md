@@ -219,3 +219,46 @@ Next department action:
 - Assets may proceed once the combined Stage 1 base and its remaining Memory UI-safe projection are available
 
 Communication should not add more Stage 1 behavior before integration unless a concrete regression is reported.
+
+## v0.9 Stage 2 Integration
+
+Communication Stage 2 runtime work is complete.
+
+Final branch:
+- `communication/v0.9-guided-practice-stage2`
+- head `6af2f6cb8b9fe3d44b30c9dad2fc6e54926b09cf`
+- CI `36627237487`
+
+Coordinator merge must preserve:
+- integrated Stage 1 continuity-language behavior
+- Memory `guided_practice_memory.py`
+- Memory family-aware `practice_recall_*`
+- Simulation `competence.py`
+- Simulation guided-practice legal actions/lifecycle
+- Communication Stage 2 additions in `continuity_language.py`, `comms.py`, `planner.py`, and `main.py`
+- `tests/smoke_v090_communication_stage2.py`
+
+Combined Stage 2 testing should run:
+- complete published regression matrix
+- all four v0.9 Stage 1 smokes
+- Simulation Stage 2 smoke
+- Memory Stage 2 smoke
+- Communication Stage 2 smoke
+- Assets Stage 2 smoke
+
+## Possible Later Causal-Link Depth
+
+Simulation supports optional `source_conversation_id` for guided practice.
+
+Current Communication Stage 2 language does not create or infer a mandatory conversation→guided-session causal link.
+
+If a later milestone requires explicit proposal-to-session continuity, add it only through a stable Simulation/planner source link rather than by guessing from nearby conversations.
+
+## Stage 2 Non-Goals
+
+- no global competence/reputation
+- no expert/mentor/trainer titles
+- no conversation-based competence
+- no frontend-derived competence
+- no remote lookup of another citizen's objective competence
+- no automatic skill transfer from remembered guidance
