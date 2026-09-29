@@ -505,3 +505,36 @@ Need exact authoritative fields for:
 - [ ] Communication patches self-assessment/teaching to use Memory active recall
 - [ ] Communication removes numeric reinforcement count from model-facing recognition
 - [ ] coordinator combines Memory + Simulation + corrected Communication and runs all v0.9 Stage 1 smokes
+
+
+## v0.9.0 Stage 2 — Experience / Teaching Memory
+
+Implemented on `memory/v0.9-experience-stage2`.
+
+Completed:
+- [x] branch from integrated Stage 1 base `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`
+- [x] consume canonical guided-practice sessions
+- [x] retain teacher and learner perspectives separately
+- [x] suppress active/incomplete sessions
+- [x] keep guided session distinct from learner practice evidence
+- [x] preserve optional source conversation
+- [x] link later real practice to Simulation competence family
+- [x] link later real practice to the guidance session when used
+- [x] record applied-job relation after guidance consumption
+- [x] add bounded guided-practice recall
+- [x] add family-filtered practice recall
+- [x] hide recall/reinforcement internals from model-facing teaching context
+- [x] preserve citizen isolation
+- [x] add `tests/smoke_v090_memory_stage2.py`
+- [x] full integrated regression matrix green in CI `36621525829`
+- [x] remove temporary CI workflow
+
+Downstream:
+- [ ] Communication consumes Stage 2 practice/guided recall
+- [ ] Assets keeps objective competence separate from remembered perspective
+- [ ] coordinator integrates all Stage 2 department branches and runs focused smokes
+
+Deferred:
+- [ ] repeated teaching relationships/customs belong to later evidence-driven stages
+- [ ] habits/place meaning remain Stage 3
+- [ ] no global experience/reputation aggregation
