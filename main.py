@@ -74,6 +74,7 @@ from agent_city.exploration_memory import shared_exploration_context_for
 from agent_city.personality import personality_context, dialogue_style_rules
 from agent_city.world import WorldClock, format_sim_time
 from agent_city.continuity import plan_snapshot_for, practice_snapshot_for
+from agent_city.competence import competence_snapshot, guided_practice_snapshot
 from agent_city.causal_memory import display_recall_snapshot
 from agent_city.visits import (
     close_visit, ensure_visit_schema, get_or_create_active_visit,
@@ -378,6 +379,44 @@ def get_continuity_memory(
             "internal_recall_scores_hidden": True,
             "reinforcement_counts_hidden": True,
             "remembered_perspective_not_objective_competence": True,
+        },
+    }
+
+
+@app.get("/api/competence/{citizen_id}")
+def get_citizen_competence(citizen_id: str):
+    with connect() as conn:
+        citizen = conn.execute(
+            "SELECT id, name FROM citizens WHERE id = ?",
+            (citizen_id,),
+        ).fetchone()
+        if not citizen:
+            raise HTTPException(404, "Citizen not found")
+
+        families = []
+        for row in competence_snapshot(conn, citizen_id):
+            multiplier = float(row["duration_multiplier"])
+            families.append({
+                "family": row["family"],
+                "practice_count": int(row["practice_count"]),
+                "completed_count": int(row["completed_count"]),
+                "failed_count": int(row["failed_count"]),
+                "duration_multiplier": multiplier,
+                "duration_reduction_percent": round((1.0 - multiplier) * 100.0, 2),
+                "source_practice_event_ids": list(row["source_practice_event_ids"]),
+            })
+
+        guidance = guided_practice_snapshot(conn, citizen_id, limit=30)
+
+    return {
+        "citizen": {"id": citizen["id"], "name": citizen["name"]},
+        "families": families,
+        "guided_practice_sessions": guidance,
+        "semantics": {
+            "derived_from_practice_events": True,
+            "no_xp_or_levels": True,
+            "no_class_or_expertise_label": True,
+            "effect_is_bounded_physical_duration_only": True,
         },
     }
 
