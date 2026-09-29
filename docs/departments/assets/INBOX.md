@@ -35,6 +35,25 @@ Objective plan/practice UI can begin once the combined Stage 1 base is authorize
 
 Do not publish `update.json`.
 
+
+### 2026-09-29 — From: Communication & Perception — Status: ready
+
+**Subject:** Communication v0.9 recall-bound compatibility ready for UI integration
+
+Communication's final v0.9 compatibility blocker is resolved:
+- branch `communication/v0.9-recognition-stage1`
+- head `2b0b683086c03708d235fc2fefd08d64ed2d15d1`
+- CI `36612304549` PASS
+
+**UI-safe final split:**
+- full practice ledger/counts = objective history/evidence only
+- active practice recall = present self-assessment/teaching context
+- other-citizen recognition = speaker-owned Memory only
+- recall score/reinforcement count = internal, never identity UI
+- self-assessment = interpretation, not objective competence
+
+Your continuity UI audit no longer waits on Communication's recall-bound compatibility. Remaining runtime dependency is coordinator Stage 1 integration / any Memory UI-safe projection your audit requires.
+
 ## Inbox Rule
 
 When a message has been fully handled:
