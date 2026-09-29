@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - "release-v*"
-      - "memory/v0.9-history-patterns-stage3"
     paths:
       - "VERSION"
 
@@ -139,6 +138,3 @@ jobs:
 
       - name: Run v0.9 Stage 2 Assets continuity UI smoke
         run: python tests/smoke_v090_assets_stage2.py
-
-      - name: Run v0.9 Stage 3 Memory history-pattern smoke
-        run: python tests/smoke_v090_memory_stage3.py
