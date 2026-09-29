@@ -172,6 +172,11 @@ def best_guided_practice_option(conn, teacher_id: str, learner_id: str) -> dict[
         return None
     if teacher["active_job_id"] is not None or learner["active_job_id"] is not None:
         return None
+    if (
+        float(teacher["energy"]) < GUIDED_PRACTICE_ENERGY_COST
+        or float(learner["energy"]) < GUIDED_PRACTICE_ENERGY_COST
+    ):
+        return None
     if not _physically_close(teacher, learner):
         return None
 
