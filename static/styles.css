@@ -3614,3 +3614,101 @@ input:focus, textarea:focus { border-color: var(--accent); }
   object-fit: cover;
   object-position: center;
 }
+
+/* v0.9 continuity: keep evidence, remembered perspective, and interpretation distinct. */
+.continuity-intro {
+  margin: 4px 0 12px;
+  color: var(--muted);
+}
+
+.continuity-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.continuity-layer {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255,255,255,.025);
+}
+
+.continuity-layer.remembered {
+  border-style: dashed;
+}
+
+.continuity-layer.interpretation {
+  background: rgba(255,255,255,.015);
+}
+
+.continuity-layer-head,
+.continuity-plan-head,
+.continuity-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.continuity-layer-head > span {
+  font-weight: 800;
+}
+
+.continuity-layer-head small,
+.continuity-plan small,
+.continuity-row-head time {
+  color: var(--muted);
+}
+
+.continuity-layer h4 {
+  margin: 12px 0 8px;
+  font-size: 12px;
+}
+
+.continuity-plan-list,
+.continuity-memory-list {
+  display: grid;
+  gap: 9px;
+}
+
+.continuity-plan,
+.continuity-memory-row {
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px;
+  background: rgba(0,0,0,.08);
+}
+
+.continuity-plan p,
+.continuity-memory-row p {
+  margin: 6px 0;
+}
+
+.continuity-plan details,
+.continuity-layer details {
+  margin-top: 8px;
+}
+
+.continuity-plan summary,
+.continuity-layer summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.continuity-memory-row .knowledge-source {
+  margin-top: 7px;
+}
+
+@media (min-width: 980px) {
+  .continuity-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .continuity-layer.interpretation {
+    grid-column: 1 / -1;
+  }
+}
+
