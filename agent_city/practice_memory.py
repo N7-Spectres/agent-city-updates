@@ -242,6 +242,7 @@ def practice_recall_snapshot_for(
         citizen_id,
         now_minute=now_minute,
         facet_filters=filters,
+        required_facet_kind="practice_event",
         limit=max(1, min(int(limit) * 3, 24)),
     )
 
