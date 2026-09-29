@@ -1343,3 +1343,31 @@ No Communication-owned upstream dependency remains.
 - No new Communication-owned work, dependency, merge conflict, or downstream clarification request was present.
 - v0.9 Stage 2 remains implementation-complete on `communication/v0.9-guided-practice-stage2` at `6af2f6cb8b9fe3d44b30c9dad2fc6e54926b09cf`, CI `36627237487` PASS.
 - Department status is unchanged: ready for coordinator integration; resume only under the existing Resume Rule.
+
+
+## v0.9 Stage 3 — Pattern Language + Grounded Social Transmission
+
+Communication Stage 3 is complete.
+
+**Branch:** `communication/v0.9-patterns-stage3`  
+**Final clean head:** `3fc8872b7a35ee8169329d6a6edf523a2fa0b0c9`  
+**Validation:** GitHub Actions `36643141322` — PASS
+
+Delivered:
+- bounded `pattern_continuity_context(...)`
+- source-backed recurring-choice language with current/mixed/fading semantics
+- citizen-specific place-continuity language
+- owner-perspective social-pattern language
+- `transmittable_pattern_catalog(...)` constraining claim extraction to the speaker's existing evidence
+- transcript-grounded face-to-face pattern claim projection
+- recipient-owned unverified Memory events sourced by `information_receipts.id`
+- Memory `record_social_pattern_evidence(..., transmission_mode="heard")` bridge
+- visitor dialogue receives read-only pattern continuity but does not create citizen custom transmission
+- `tests/smoke_v090_communication_stage3.py`
+
+The reliable order is:
+raw exchange → claim receipt → recipient Memory → social-pattern evidence.
+
+Any downstream projection failure leaves the raw stored conversation authoritative.
+
+No release metadata or `update.json` was changed.
