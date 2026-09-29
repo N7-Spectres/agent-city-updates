@@ -1250,6 +1250,196 @@ async function loadLocationKnowledge(locationId, { force = false } = {}) {
   }
 }
 
+function continuityCacheFresh(entry) {
+  return entry && (Date.now() - entry.loadedAt) < CONTINUITY_REFRESH_MS;
+}
+
+async function loadCitizenContinuity(citizenId, { force = false } = {}) {
+  const cached = citizenContinuityCache.get(citizenId);
+  if (!force && continuityCacheFresh(cached)) return cached.data;
+  if (continuityLoading.has(citizenId)) return cached?.data || null;
+
+  continuityLoading.add(citizenId);
+  try {
+    const objectiveResponse = await fetch(`/api/continuity/${encodeURIComponent(citizenId)}`);
+    if (!objectiveResponse.ok) throw new Error("continuity endpoint unavailable");
+    const objective = await objectiveResponse.json();
+
+    const memoryResponse = await fetch(`/api/memory/continuity/${encodeURIComponent(citizenId)}?limit=8`);
+    if (!memoryResponse.ok) throw new Error("continuity memory endpoint unavailable");
+    const memory = await memoryResponse.json();
+
+    const openPlans = (objective.plans || [])
+      .filter(plan => ["active", "paused"].includes(String(plan.status)))
+      .slice(0, 4);
+    const planMemories = {};
+    await Promise.all(openPlans.map(async plan => {
+      try {
+        const response = await fetch(
+          `/api/memory/continuity/${encodeURIComponent(citizenId)}?plan_id=${encodeURIComponent(plan.id)}&limit=6`
+        );
+        if (!response.ok) return;
+        const payload = await response.json();
+        planMemories[String(plan.id)] = payload.events || [];
+      } catch {
+        // Plan-specific remembered perspective is optional presentation data.
+      }
+    }));
+
+    const data = { objective, memory, planMemories };
+    citizenContinuityCache.set(citizenId, { data, loadedAt: Date.now(), unavailable: false });
+    if (sheetCitizenId === citizenId) renderCitizenSheet();
+    return data;
+  } catch {
+    citizenContinuityCache.set(citizenId, {
+      data: null,
+      loadedAt: Date.now(),
+      unavailable: true,
+    });
+    if (sheetCitizenId === citizenId) renderCitizenSheet();
+    return null;
+  } finally {
+    continuityLoading.delete(citizenId);
+  }
+}
+
+function continuityMemoryRow(event) {
+  const verification = String(event?.verification || event?.status || "remembered");
+  const source = event?.source_type && event?.source_id != null
+    ? `${event.source_type} #${event.source_id}`
+    : "source unavailable";
+  const planLinked = event?.pinned_by_plan ? "<em>Plan-linked</em>" : "";
+  return `
+    <div class="continuity-memory-row">
+      <div class="continuity-row-head">
+        <span class="knowledge-status">${escapeHtml(verification)}</span>
+        <time>${escapeHtml(event?.sim_label || formatMinute(event?.sim_minute || 0))}</time>
+      </div>
+      <p>${escapeHtml(event?.summary || "Remembered event")}</p>
+      <div class="knowledge-source">
+        <span>${escapeHtml(source)}</span>
+        ${planLinked}
+      </div>
+    </div>
+  `;
+}
+
+function citizenContinuityMarkup(citizenId) {
+  const entry = citizenContinuityCache.get(citizenId);
+  if (!entry) {
+    loadCitizenContinuity(citizenId);
+    return '<div class="sheet-empty muted">Loading continuity…</div>';
+  }
+  if (!continuityCacheFresh(entry)) loadCitizenContinuity(citizenId);
+  if (!entry.data) {
+    return '<div class="sheet-empty muted">Continuity read models are not available in this runtime.</div>';
+  }
+
+  const objective = entry.data.objective || {};
+  const generalMemory = entry.data.memory?.events || [];
+  const planMemories = entry.data.planMemories || {};
+  const plans = objective.plans || [];
+  const openPlans = plans.filter(plan => ["active", "paused"].includes(String(plan.status)));
+  const practice = objective.practice_events || [];
+
+  const planMarkup = openPlans.length ? openPlans.map(plan => {
+    const memories = planMemories[String(plan.id)] || [];
+    const transitions = (plan.transitions || []).slice(0, 5);
+    const whyMarkup = memories.length
+      ? memories.map(continuityMemoryRow).join("")
+      : '<div class="sheet-empty muted">No currently recalled source details are available for this plan.</div>';
+    const transitionMarkup = transitions.length
+      ? transitions.map(row => `
+          <div class="sheet-note">
+            <time>${escapeHtml(formatMinute(row.sim_minute))}</time>
+            <span>${escapeHtml(row.summary || row.transition_type || "Plan changed")}</span>
+          </div>
+        `).join("")
+      : '<div class="sheet-empty muted">No recorded plan transitions.</div>';
+
+    return `
+      <div class="continuity-plan">
+        <div class="continuity-plan-head">
+          <strong>${escapeHtml(plan.current_intent || `Plan #${plan.id}`)}</strong>
+          <em class="status-chip status-${escapeHtml(plan.status)}">${escapeHtml(statusLabel(plan.status))}</em>
+        </div>
+        <p><b>Next known step:</b> ${escapeHtml(plan.next_step || "Not specified")}</p>
+        ${plan.unresolved_question ? `<p><b>Open question:</b> ${escapeHtml(plan.unresolved_question)}</p>` : ""}
+        <small>Plan #${escapeHtml(String(plan.id))} • created ${escapeHtml(formatMinute(plan.created_minute))} • last changed ${escapeHtml(formatMinute(plan.updated_minute))}</small>
+        <details>
+          <summary>Why this exists</summary>
+          <div class="continuity-memory-list">${whyMarkup}</div>
+        </details>
+        <details>
+          <summary>Plan history</summary>
+          <div class="sheet-notes">${transitionMarkup}</div>
+        </details>
+      </div>
+    `;
+  }).join("") : '<div class="sheet-empty muted">No active or paused persistent plans.</div>';
+
+  const counts = new Map();
+  for (const event of practice) {
+    const activity = String(event.activity_type || "other").replaceAll("_", " ");
+    counts.set(activity, (counts.get(activity) || 0) + 1);
+  }
+  const countMarkup = [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 8)
+    .map(([activity, count]) => `
+      <div class="sheet-list-row">
+        <span>${escapeHtml(activity)}</span>
+        <strong>${count} recorded event${count === 1 ? "" : "s"}</strong>
+      </div>
+    `).join("") || '<div class="sheet-empty muted">No recorded physical practice yet.</div>';
+
+  const practiceRows = practice.slice(0, 6).map(event => `
+    <div class="sheet-list-row">
+      <span>
+        <strong>${escapeHtml(String(event.activity_type || "work").replaceAll("_", " "))}</strong>
+        <small>${event.location_id ? `${escapeHtml(locationNameById(event.location_id))} • ` : ""}${escapeHtml(formatMinute(event.completed_minute))}</small>
+      </span>
+      <em>${escapeHtml(event.outcome || event.job_status || "recorded")}</em>
+    </div>
+  `).join("") || '<div class="sheet-empty muted">No recent practice events.</div>';
+
+  const memoryMarkup = generalMemory.length
+    ? generalMemory.map(continuityMemoryRow).join("")
+    : '<div class="sheet-empty muted">No relevant active memories are available right now.</div>';
+
+  return `
+    <div class="continuity-layer">
+      <div class="continuity-layer-head">
+        <span>Evidence / Record</span>
+        <small>Simulation-owned</small>
+      </div>
+      <h4>Ongoing plans</h4>
+      <div class="continuity-plan-list">${planMarkup}</div>
+      <h4>Recorded practice</h4>
+      <div class="sheet-list">${countMarkup}</div>
+      <details>
+        <summary>Recent practice events</summary>
+        <div class="sheet-list">${practiceRows}</div>
+      </details>
+    </div>
+    <div class="continuity-layer remembered">
+      <div class="continuity-layer-head">
+        <span>Remembered Perspective</span>
+        <small>Citizen-scoped active recall</small>
+      </div>
+      <h4>Relevant memories</h4>
+      <div class="continuity-memory-list">${memoryMarkup}</div>
+    </div>
+    <div class="continuity-layer interpretation">
+      <div class="continuity-layer-head">
+        <span>Citizen Interpretation</span>
+        <small>Not an objective stat</small>
+      </div>
+      <p class="muted">Self-reflection appears only when a source-backed attributed interpretation is available. Agent City does not infer expertise, rank, friendship, or preference from event counts.</p>
+    </div>
+  `;
+}
+
 function knowledgeFactMarkup(fact) {
   const metadata = fact?.metadata || {};
   const verification = String(fact?.verification || fact?.status || "unverified");
