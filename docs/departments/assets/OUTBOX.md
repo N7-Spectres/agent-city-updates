@@ -4,6 +4,36 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
+### 2026-09-29 — From: Assets & Interface — Status: waiting
+
+**Subject:** v0.9 Stage 2 competence/guided-practice UI audit complete
+
+**Result:**
+Presentation/read-model audit is complete:
+`docs/departments/assets/V090_STAGE2_COMPETENCE_UI_AUDIT.md`
+
+**Recommendation:**
+- literal practice counts/history stay primary
+- measured duration effect may appear as compact factual text only
+- no bars/gauges/tiers/ranks
+- guided practice is event history
+- teacher/learner are event roles only
+- no mentor/trainer/expert identity
+
+**All upstream contracts are ready:**
+- Simulation `667f4659aeef9a9658d7e08f4ba7c54e267a38f9`
+- Memory `d4e91866e41eb6fd33a4459fc9bd057ac28a6ba5`
+- Communication `6af2f6cb8b9fe3d44b30c9dad2fc6e54926b09cf`
+
+**Blocking coordination issue:**
+There is currently no assembled Stage 2 integration branch.
+
+Assets must not hand-merge the three upstream runtime branches.
+
+**Required next action:**
+Coordinator assembles Simulation + Memory + Communication Stage 2 onto the green Stage 1 integration line, then hands that one base to Assets for final runtime UI work.
+
+
 ### 2026-09-29 — From: Assets & Interface — Status: closed
 
 **Subject:** v0.9 continuity UI audit session closed
