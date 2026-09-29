@@ -28,6 +28,7 @@ REINFORCING_FACET_KINDS = {
     "competence_family",
     "plan",
     "place",
+    "pattern_key",
 }
 
 
@@ -562,6 +563,11 @@ def display_recall_snapshot(
     try:
         from .guided_practice_memory import sync_guided_practice_memory
         sync_guided_practice_memory()
+    except Exception:
+        pass
+    try:
+        from .pattern_memory import sync_pattern_transmission_memory
+        sync_pattern_transmission_memory()
     except Exception:
         pass
 
