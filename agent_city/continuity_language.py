@@ -11,6 +11,7 @@ MAX_RECOGNITION_CONTEXT_CHARS = 1600
 MAX_PLAN_CONTEXT_CHARS = 1500
 MAX_COMPETENCE_CONTEXT_CHARS = 900
 MAX_GUIDANCE_CONTEXT_CHARS = 1250
+MAX_PATTERN_CONTEXT_CHARS = 2200
 
 _FAIL_OUTCOMES = {
     "failed",
@@ -595,6 +596,151 @@ def teaching_boundary_context(citizen_id: str) -> str:
     return "\n".join(lines)[:1600]
 
 
+def _pattern_snapshot(
+    citizen_id: str,
+    *,
+    location_id: str | None = None,
+) -> dict[str, Any]:
+    try:
+        from .pattern_memory import continuity_pattern_snapshot
+    except ImportError:
+        return {"citizen_id": citizen_id, "habits": [], "places": [], "customs": []}
+
+    try:
+        payload = continuity_pattern_snapshot(citizen_id, location_id=location_id)
+    except Exception:
+        return {"citizen_id": citizen_id, "habits": [], "places": [], "customs": []}
+    return dict(payload) if isinstance(payload, dict) else {
+        "citizen_id": citizen_id,
+        "habits": [],
+        "places": [],
+        "customs": [],
+    }
+
+
+def transmittable_pattern_catalog(citizen_id: str) -> list[dict[str, str]]:
+    """
+    Patterns this citizen may legitimately describe as their own remembered
+    recurring/social history.
+
+    The catalog constrains claim extraction. The model may select one of these
+    keys, but it may not invent a new pattern key through conversation.
+    """
+    payload = _pattern_snapshot(citizen_id)
+    rows: list[dict[str, str]] = []
+
+    for item in payload.get("habits") or []:
+        action = str(item.get("action_key") or "").strip()
+        context = str(item.get("context_key") or "").strip()
+        state = str(item.get("state") or "").strip()
+        if not action or not context or state not in {"current", "mixed", "fading"}:
+            continue
+        rows.append({
+            "pattern_key": f"habit:{action}|{context}",
+            "kind": "recurring_choice",
+            "context_key": context,
+            "description": (
+                f"source-backed recurring choice of {action} in {context}; "
+                f"evidence state {state}"
+            ),
+        })
+
+    for item in payload.get("customs") or []:
+        key = str(item.get("pattern_key") or "").strip()
+        if not key:
+            continue
+        rows.append({
+            "pattern_key": key,
+            "kind": "social_pattern",
+            "context_key": "",
+            "description": (
+                f"owner-perspective social pattern supported by "
+                f"{int(item.get('evidence_count') or 0)} source events"
+            ),
+        })
+
+    # Deduplicate while preserving the stronger first description.
+    seen: set[str] = set()
+    result: list[dict[str, str]] = []
+    for row in rows:
+        if row["pattern_key"] in seen:
+            continue
+        seen.add(row["pattern_key"])
+        result.append(row)
+    return result[:12]
+
+
+def pattern_continuity_context(
+    citizen_id: str,
+    *,
+    location_id: str | None = None,
+) -> str:
+    payload = _pattern_snapshot(citizen_id, location_id=location_id)
+    habits = list(payload.get("habits") or [])
+    places = list(payload.get("places") or [])
+    customs = list(payload.get("customs") or [])
+
+    lines = ["RECURRING HISTORY / PLACE CONTINUITY / SOCIAL PATTERN EVIDENCE:"]
+
+    if habits:
+        lines.append("- Personal recurring-choice evidence:")
+        for item in habits[:6]:
+            state = str(item.get("state") or "mixed")
+            action = str(item.get("action_key") or "unknown")
+            context = str(item.get("context_key") or "unknown context")
+            support = int(item.get("support_count") or 0)
+            days = int(item.get("distinct_days") or 0)
+            lines.append(
+                f"  - {action} in {context}: evidence state {state}; "
+                f"{support} source-backed voluntary choices across {days} simulation day(s)."
+            )
+    else:
+        lines.append("- no qualifying source-backed recurring voluntary-choice pattern")
+
+    if places:
+        lines.append("- Personal place continuity:")
+        for place in places[:3]:
+            location = str(place.get("location_id") or "unknown")
+            count = int(place.get("evidence_count") or 0)
+            evidence = list(place.get("evidence") or [])
+            recent = "; ".join(
+                " ".join(str(row.get("summary") or "").split())[:180]
+                for row in evidence[-2:]
+            )
+            lines.append(
+                f"  - {location}: {count} retained source-backed experience(s)"
+                + (f"; recent evidence: {recent}" if recent else "")
+            )
+    else:
+        lines.append("- no qualifying personal place-continuity evidence in this scope")
+
+    if customs:
+        lines.append("- Owner-perspective social pattern candidates:")
+        for item in customs[:4]:
+            key = str(item.get("pattern_key") or "unknown")
+            actors = ", ".join(str(v) for v in item.get("distinct_actors") or [])
+            modes = ", ".join(str(v) for v in item.get("transmission_modes") or [])
+            verification = ", ".join(str(v) for v in item.get("verification_states") or [])
+            lines.append(
+                f"  - {key}: source-backed social pattern evidence involving "
+                f"{actors or 'unknown actors'} via {modes or 'recorded transmission'}; "
+                f"verification states: {verification or 'unknown'}."
+            )
+    else:
+        lines.append("- no qualifying owner-perspective social custom candidate")
+
+    lines.extend([
+        "- These are evidence trails, not personality traits, preferences, roles, obligations, or commands.",
+        "- For a current recurring pattern, natural wording such as 'I seem to keep choosing this here' is allowed. Mixed/fading evidence should be described as changing or historical rather than a standing preference.",
+        "- Place continuity means this location matters in retained personal history only because of the cited experiences. Do not call it a favorite, home, safe place, sacred place, or emotionally important unless source evidence separately supports that claim.",
+        "- Social pattern evidence is perspective-specific. Do not automatically call it a tradition, custom, rule, or something everyone does.",
+        "- Repeated unverified reports remain unverified. Repetition improves continuity, not truth.",
+        "- Talking about a pattern can transmit a claim, but conversation alone cannot create the underlying behavior pattern.",
+    ])
+
+    return "\n".join(lines)[:MAX_PATTERN_CONTEXT_CHARS]
+
+
 def visitor_continuity_context(citizen_id: str, visitor: str, *, limit: int = 5) -> str:
     memories = _causal_recall(
         citizen_id,
@@ -629,11 +775,15 @@ def continuity_language_snapshot(citizen_id: str) -> dict[str, Any]:
         "sim_minute": now,
         "practice": own_practice_summary(citizen_id),
         "plans": _plan_snapshot(citizen_id, include_closed=False, limit=6),
+        "patterns": _pattern_snapshot(citizen_id),
         "rules": {
             "global_reputation": False,
             "authoritative_titles": False,
             "conversation_grants_skill": False,
             "self_assessment_is_interpretation": True,
             "other_recognition_requires_owner_scoped_memory": True,
+            "pattern_evidence_is_not_identity": True,
+            "place_evidence_is_not_favorite": True,
+            "custom_evidence_is_owner_perspective": True,
         },
     }
