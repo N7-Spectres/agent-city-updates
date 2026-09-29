@@ -547,21 +547,47 @@ Presentation-only movement readability:
 
 ### v0.9.0 — Civilization Continuity
 
-Support long-running autonomous development across months and simulated years.
+Architecture lock:
+- `docs/V090_CIVILIZATION_CONTINUITY_DOCTRINE.md`
 
-Planned direction:
+Continuity law:
 
-- multi-step citizen projects and plans
-- abandoned or revised plans
-- skill growth through repeated practice
-- emergent specialization without permanent classes
-- teaching and knowledge transfer
-- routines and personal work preferences
-- longer resource strategies
-- places that accumulate meaning through history
-- social customs or traditions only when repeated events actually create them
+> **Persistent behavior must have a traceable history.**
 
-Goal: the civilization's present should increasingly be explainable by its own accumulated history.
+Support long-running autonomous development across months and simulated years without converting citizens into authored classes or scripted character arcs.
+
+### Stage 1 — Causal Memory + Persistent Plans
+
+- Memory becomes the bounded continuity spine used by planning.
+- retain provenance-linked personal, social, place, success/failure, and unfinished-plan experiences.
+- distinguish durable archive from active recall.
+- retrieve only relevant, citizen-scoped continuity under context limits.
+- add persistent citizen-owned plans with reasons, source history, current state, next step/unresolved question, revision, abandonment, and completion.
+- plans remain intentions, not command queues; every physical step is still Simulation-validated.
+- unrelated actions/time must not erase a meaningful unfinished plan.
+
+### Stage 2 — Practice, Competence, Teaching, Recognition
+
+- real completed practice may accumulate experience.
+- competence differences may affect physical outcomes only through bounded Simulation-owned effects.
+- no permanent job/class labels.
+- citizens may form evidence-backed self-assessments such as "I've gotten better at this."
+- other citizens may notice experience differences only through information that actually reached them.
+- social recognition remains perspective, not a universal reputation score.
+- teaching requires an explicit real transfer mechanism; conversation alone cannot create skill.
+
+### Stage 3 — Habits, Place Meaning, Social Customs
+
+- repeated choices may become routines/preferences only after an explicit evidence threshold.
+- places may accumulate citizen-specific remembered meaning.
+- recurring cooperation may become an expected pattern when its real history supports it.
+- customs/traditions require repeated behavior, multiple participants/observers, retained social memory, communication about the pattern, and continued voluntary repetition.
+- no authored culture templates.
+
+Goal:
+the civilization's present should increasingly be explainable by its own accumulated history.
+
+Success means questions such as "Why does Iri avoid running her battery so low now?" or "Why does Bex keep choosing this work?" can be answered from real source-linked history rather than hidden identity labels.
 
 ### v1.0 — Bonsai Civilization
 
