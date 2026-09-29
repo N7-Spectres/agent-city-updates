@@ -324,3 +324,94 @@ Next owner sequence:
 4. Coordinator reactivates Assets for runtime continuity UI implementation.
 
 Do not infer v0.9 runtime UI work from this chat after closure. Resume from repository handoffs only.
+
+
+## v0.9 Stage 2 Competence + Guided-Practice UI Audit
+
+Presentation/read-model audit complete:
+`docs/departments/assets/V090_STAGE2_COMPETENCE_UI_AUDIT.md`
+
+No Stage 2 runtime UI code has been implemented yet.
+
+### Recommendation
+
+Keep **Recorded Practice** as the primary competence-facing surface.
+
+Literal event counts/history remain the safest explanation of accumulated experience.
+
+If Simulation reports a non-zero bounded duration effect, show it only as compact factual text inside the existing Evidence / Record layer, for example:
+
+> Comparable extraction tasks are currently 4.25% shorter from prior practice.
+
+Do not visualize this as:
+- proficiency bar
+- mastery gauge
+- ring
+- stars
+- tier
+- rank
+
+The 8% Simulation cap is an engineering safety bound, not a "100% mastery" endpoint.
+
+### Guided practice
+
+Show guided-practice sessions as factual event history.
+
+Teacher / learner are event-local roles only.
+
+Do not create:
+- mentor
+- trainer
+- apprentice
+- expert
+- specialist
+- permanent teacher/learner identity
+
+A guided session itself does not create competence.
+
+### Final safe contract split
+
+Simulation:
+- `GET /api/competence/{citizen_id}`
+- objective practice counts
+- completed/failed counts
+- bounded duration reduction
+- source practice event IDs
+- guided-practice session history
+
+Memory:
+- `GET /api/memory/continuity/{citizen_id}`
+- bounded remembered practice/guided-practice perspective
+- source role / counterparty / verification / safe competence family
+- no recall score
+- no reinforcement count
+
+Communication:
+- attributed self-assessment / interpretation language
+- asking for help without hidden expertise lookup
+- no permanent mentor/expert labels
+
+### Runtime gate
+
+Assets checked repository branches on 2026-09-29.
+
+Available:
+- `release-v0.9.0-stage1-integration`
+- Simulation Stage 2 branch
+- Memory Stage 2 branch
+- Communication Stage 2 branch
+
+Not available:
+- a coordinator-assembled v0.9 Stage 2 integration base
+
+Assets must not merge Simulation/Memory/Communication branches itself.
+
+Required order:
+
+1. Coordinator assembles Simulation + Memory + Communication Stage 2 onto the green Stage 1 integration line.
+2. Coordinator hands Assets that assembled Stage 2 base.
+3. Assets implements the final continuity/competence/guided-practice UI.
+4. Coordinator performs the final full integration/regression pass.
+
+Current status:
+**REVIEW / WAITING FOR COORDINATOR-ASSEMBLED STAGE 2 BASE**
