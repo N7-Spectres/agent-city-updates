@@ -1301,3 +1301,26 @@ Contract:
 `docs/departments/memory/V090_STAGE2_EXPERIENCE_TEACHING_MEMORY_CONTRACT.md`
 
 No release metadata or `update.json` was changed.
+
+
+## v0.9 Stage 2 Final Session Close
+
+Memory & Social Stage 2 is complete and handed off.
+
+**Branch:** `memory/v0.9-experience-stage2`  
+**Final head:** `d4e91866e41eb6fd33a4459fc9bd057ac28a6ba5`  
+**Final validation:** `36621525829`
+
+No Memory-owned Stage 2 implementation task remains.
+
+Downstream state:
+- Communication has the validated teaching/experience recall contract and may proceed.
+- Assets has the UI-safe remembered-perspective contract and existing Memory continuity endpoint.
+- Coordinator integration waits on Communication + Assets completion.
+
+Resume Memory only for:
+- Communication/Assets source-contract clarification,
+- coordinator integration regressions,
+- or a newly authorized milestone.
+
+No release was published and `update.json` was not changed.
