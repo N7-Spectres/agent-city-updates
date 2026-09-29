@@ -520,3 +520,75 @@ def causal_recall_context_for(
             break
 
     return "\n".join(parts)[:MAX_RECALL_CONTEXT_CHARS]
+
+UI_SAFE_FACET_KINDS = {
+    "event_kind",
+    "source_type",
+    "counterparty",
+    "visitor",
+    "subject",
+    "target",
+    "location",
+    "material",
+    "process",
+    "activity",
+    "plan",
+    "place",
+}
+
+
+def display_recall_snapshot(
+    owner_id: str,
+    *,
+    plan_id: int | str | None = None,
+    now_minute: int | None = None,
+    limit: int = 8,
+) -> list[dict[str, Any]]:
+    """
+    Return a bounded citizen-facing continuity projection.
+
+    This is intentionally narrower than causal_recall_snapshot(). It exposes
+    source-backed remembered perspective while withholding internal ranking,
+    reinforcement, salience, and global aggregation machinery.
+    """
+    safe_limit = max(1, min(int(limit), 16))
+    filters = {"plan": str(plan_id)} if plan_id is not None else None
+    recalled = causal_recall_snapshot(
+        owner_id,
+        now_minute=now_minute,
+        facet_filters=filters,
+        limit=safe_limit,
+    )
+
+    result: list[dict[str, Any]] = []
+    for item in recalled:
+        safe_facets = [
+            {"kind": str(facet["kind"]), "value": str(facet["value"])}
+            for facet in (item.get("facets") or [])
+            if str(facet.get("kind")) in UI_SAFE_FACET_KINDS
+        ]
+        linked_plan_ids = sorted({
+            str(facet["value"])
+            for facet in safe_facets
+            if facet["kind"] == "plan"
+        })
+
+        result.append({
+            "owner_id": str(item["owner_id"]),
+            "memory_event_id": int(item["memory_event_id"]),
+            "source_type": str(item["source_type"]),
+            "source_id": int(item["source_id"]),
+            "source_role": str(item["source_role"]),
+            "event_kind": str(item["event_kind"]),
+            "sim_minute": int(item["sim_minute"]),
+            "sim_label": str(item["sim_label"]),
+            "summary": str(item["summary"]),
+            "verification": str(item["verification"]),
+            "status": str(item["status"]),
+            "pinned_by_plan": bool(linked_plan_ids),
+            "plan_ids": linked_plan_ids,
+            "facets": safe_facets,
+        })
+
+    return result
+
