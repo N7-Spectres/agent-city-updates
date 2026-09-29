@@ -86,3 +86,18 @@ Integration remaining:
 - should failed practice reduce confidence/self-assessment without reducing objective capability?
 - what explicit teaching event should exist before any teaching effect is allowed?
 - how should plan continuity interact with competing unfinished plans without an opaque hidden priority score?
+
+
+## v0.9 Stage 1 Integration Gate
+
+Before new Simulation feature work:
+
+1. Coordinator merges `memory/v0.9-causal-memory-stage1` and `simulation/v0.9-continuity-stage1`.
+2. Preserve both `agent_city/causal_memory.py` and `agent_city/continuity.py`.
+3. Verify autonomous new-plan creation receives bounded causal Memory candidates after merge.
+4. Run the complete v0.4-v0.8.7 regression matrix plus:
+   - `tests/smoke_v090_memory_stage1.py`
+   - `tests/smoke_v090_simulation_stage1.py`
+5. Any merge conflict that changes source ownership, plan lifecycle semantics, practice eligibility, or hidden score behavior returns to World & Simulation / Memory for review.
+
+Until that gate is complete, World & Simulation Stage 1 is feature-complete and stopped in REVIEW.
