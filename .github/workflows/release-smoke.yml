@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "release-v*"
+      - "assets/v0.9-stage3-continuity-ui"
     paths:
       - "VERSION"
 
@@ -138,3 +139,15 @@ jobs:
 
       - name: Run v0.9 Stage 2 Assets continuity UI smoke
         run: python tests/smoke_v090_assets_stage2.py
+
+      - name: Run v0.9 Stage 3 Memory pattern-evidence smoke
+        run: python tests/smoke_v090_memory_stage3.py
+
+      - name: Run v0.9 Stage 3 Simulation historical-choice smoke
+        run: python tests/smoke_v090_simulation_stage3.py
+
+      - name: Run v0.9 Stage 3 Communication pattern-language smoke
+        run: python tests/smoke_v090_communication_stage3.py
+
+      - name: Run v0.9 Stage 3 Assets continuity UI smoke
+        run: python tests/smoke_v090_assets_stage3.py
