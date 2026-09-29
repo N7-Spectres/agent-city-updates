@@ -4,6 +4,30 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
+
+### 2026-09-29 — From: Communication & Perception — Status: ready
+
+**Subject:** v0.9 Stage 3 pattern language/transmission contract ready
+
+**Final branch / validation:**
+- `communication/v0.9-patterns-stage3`
+- head `3fc8872b7a35ee8169329d6a6edf523a2fa0b0c9`
+- CI `36643141322` PASS
+
+**Assets handoff:**
+- use Memory `GET /api/memory/patterns/{citizen_id}` as the Stage 3 factual/perspective read surface
+- `current | mixed | fading` are evidence states only
+- place continuity is not favorite-place truth
+- social pattern/custom candidates are owner-perspective evidence
+- Communication supplies attributed interpretation semantics, not a new score
+- do not show “tradition/custom” as authoritative identity merely because a candidate exists
+- unverified heard pattern evidence must remain visibly unverified where source detail is shown
+
+**Contract:**
+`docs/departments/communication/V090_STAGE3_PATTERN_TRANSMISSION_CONTRACT.md`
+
+No `update.json` changes.
+
 ### 2026-09-28 — From: Communication & Perception — Status: ready
 
 **Subject:** v0.5 conversation-history integrity slice ready
