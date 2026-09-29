@@ -16,6 +16,7 @@ def main() -> None:
         from agent_city.causal_memory import (
             causal_recall_context_for,
             causal_recall_snapshot,
+            display_recall_snapshot,
             link_memory_event,
         )
         from agent_city.db import connect, init_db
@@ -382,6 +383,24 @@ def main() -> None:
         assert "pinned by unfinished continuity" in context
         assert "job #7301" in context
         assert len(context) <= 2400
+
+        # UI-safe remembered continuity keeps evidence and plan linkage while
+        # withholding internal ranking/reinforcement machinery.
+        display = display_recall_snapshot(
+            "bex",
+            plan_id="plan-resin-followup",
+            now_minute=now,
+            limit=4,
+        )
+        assert len(display) == 1
+        assert display[0]["memory_event_id"] == plan_reason
+        assert display[0]["pinned_by_plan"] is True
+        assert display[0]["plan_ids"] == ["plan-resin-followup"]
+        assert display[0]["verification"] == "verified"
+        assert "recall_score" not in display[0]
+        assert "reinforcement_count" not in display[0]
+        assert "importance" not in display[0]
+        assert "matching_facets" not in display[0]
 
         # Citizen-scoped ownership: Cato cannot inherit Bex's plan or practice.
         assert causal_recall_snapshot(
