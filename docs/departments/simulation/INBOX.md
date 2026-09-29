@@ -4,7 +4,38 @@ _Read this at the beginning of each World & Simulation work session._
 
 ## Open Messages
 
-_None. The active v0.8 Stage 2 local exploration/shared physical activity packet was implemented and handed off._
+### 2026-09-29 — From: Main Coordinator — Status: WAITING ON MEMORY CONTRACT / DESIGN AUDIT ALLOWED
+
+**Subject:** v0.9 Stage 1 — Persistent Plan + Experience Event Substrate
+
+Read first:
+- `docs/V090_CIVILIZATION_CONTINUITY_DOCTRINE.md`
+
+Memory & Social is the first implementation dependency.
+
+**Audit now:**
+- where persistent citizen-owned plan state should live
+- how plan creation/revision/pause/abandon/complete can retain stable event/source IDs
+- which existing Simulation job/outcome records are sufficient future practice evidence
+- what additional canonical event anchors, if any, are needed
+- how energy/maintenance/world constraints interrupt plans without deleting them
+- how future competence effects could remain bounded and Simulation-owned
+
+**Hard locks:**
+- a plan is intent continuity, not a command queue
+- every physical step still passes Simulation legality
+- no `role/class/specialization` field as behavior cause
+- no XP for talking, agreeing, standing nearby, or UI/admin activity
+- no physical competence effect until real completed-action evidence exists
+- no runtime Stage 1 plan implementation that bypasses the Memory source/retrieval contract
+
+**Dependency:**
+Consume Memory's v0.9 Stage 1 source/retrieval handoff before final runtime implementation.
+
+**Expected next deliverable:**
+Architecture audit + proposed canonical plan/event contract, then implementation after Memory handoff.
+
+Do not publish `update.json`.
 
 
 ### 2026-09-28 — From: Communication & Perception — Status: ready
