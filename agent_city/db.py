@@ -836,6 +836,9 @@ def init_db() -> None:
                 ),
             )
 
+        from .continuity import sync_practice_events_in_conn
+        sync_practice_events_in_conn(conn)
+
         conn.commit()
 
 
