@@ -4,7 +4,81 @@ _Read this at the beginning of each Memory & Social work session._
 
 ## Open Messages
 
-_None currently._
+### 2026-09-29 — From: Main Coordinator — Status: READY / PRIMARY v0.9 STAGE 3 DEPENDENCY
+
+**Subject:** v0.9 Stage 3 — Habits, Place Meaning, and Social Customs Evidence Spine
+
+**Definitive Stage 2 base:**
+- branch: `release-v0.9.0-stage2-integration`
+- green head: `f680275a78b9da71a43f3c79217f292796b7843d`
+- combined CI: `36637062562` — PASS
+
+Read first:
+- `docs/V090_CIVILIZATION_CONTINUITY_DOCTRINE.md`
+- `docs/departments/COORDINATION.md`
+- current Memory STATE / DECISIONS / BACKLOG
+
+**Stage 3 goal:**
+Define the smallest source-backed Memory substrate that can explain recurring voluntary behavior, citizen-specific place meaning, and socially transmitted customs without manufacturing personality, preference, culture, or biography.
+
+**Audit before implementation:**
+- canonical source events that can support repeated voluntary patterns:
+  - completed/failed jobs
+  - plans/transitions
+  - practice events
+  - citizen/visitor conversations
+  - visits/shared activities
+  - spatial/location memories
+  - guided-practice sessions
+  - other existing validated event IDs
+- how to distinguish voluntary repetition from forced/survival repetition
+- what contextual similarity is necessary before multiple events count as one recurring pattern
+- explicit evidence threshold semantics for a habit candidate
+- how a habit can fade/change when later history diverges without rewriting old events
+- place-specific retained significance from real outcomes/encounters/work, without declaring a "favorite"
+- how place meaning differs from ordinary factual location knowledge
+- what evidence proves a pattern was socially observed/transmitted rather than privately repeated
+- minimum evidence needed before a custom candidate exists across multiple citizens
+- whether custom evidence should remain per-citizen perspective plus shared source links rather than a global culture score
+- bounded active recall vs durable pattern evidence
+- safe read models for downstream Simulation/Communication/Assets
+
+**Hard locks:**
+- no fabricated history
+- no global habit/culture/reputation score
+- no role/class/profession identity
+- no automatic personality trait from repeated events
+- no general "preference" system in Stage 3; that remains v1.0 territory
+- no "favorite place" field inferred from visit count
+- no authored routines or tradition templates
+- survival/recharge/maintenance-forced repetition does not automatically count as a voluntary habit
+- a custom requires repetition **and** legitimate social transmission/observation
+- one private habit is not culture
+- saying a custom exists does not make it true
+- another citizen does not inherit a habit/place meaning/custom unless information legitimately reached them
+- Memory may expose evidence/perspective; it does not make physical actions legal or mandatory
+- no `update.json` changes
+
+**Acceptance direction:**
+- a recurring pattern can be reconstructed from stable source IDs
+- removing/changing its source events removes/changes the pattern justification
+- a citizen without those experiences does not receive the same habit/place meaning
+- later contrary history can weaken a pattern without deleting the past
+- place meaning can differ between citizens at the same physical location
+- a custom candidate cannot arise from a single person's repeated private behavior
+- socially transmitted patterns preserve who observed/heard/participated and when
+- downstream consumers receive bounded, score-free evidence rather than opaque labels
+
+**Deliverables:**
+1. Stage 3 Memory contract/design.
+2. Minimal runtime/schema/read-model changes only if justified.
+3. Focused `tests/smoke_v090_memory_stage3.py` (or equivalently named v0.9 Stage 3 Memory smoke).
+4. Handoff to Simulation describing safe habit/place/custom evidence for planner use.
+5. Handoff to Communication describing perspective/transmission evidence.
+6. Handoff to Assets describing UI-safe projection.
+7. Update STATE / DECISIONS / BACKLOG / OUTBOX / COORDINATION and stop.
+
+Do not publish `update.json`.
 
 ## Completed This Session
 
