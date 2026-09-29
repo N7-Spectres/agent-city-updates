@@ -909,3 +909,76 @@ The validated split remains:
 - Assets = safe presentation
 
 Memory remains in REVIEW until combined Stage 2 integration.
+
+
+## v0.9 Stage 3 Evidence-Not-Identity Rule
+
+Stage 3 stores source-backed pattern evidence, not permanent habit/custom/place labels.
+
+`memory_pattern_evidence` is a projection over real source events.
+
+Removing a source removes its contribution to the derived pattern.
+
+## Voluntary Pattern Rule
+
+Repetition alone is insufficient.
+
+A habit candidate requires explicitly classified voluntary-choice evidence.
+
+Known forced/survival actions such as recharge, wait, travel, and required maintenance are excluded from habit evidence.
+
+Simulation owns the final voluntary-choice classification and deterministic context key.
+
+## Habit Threshold Rule
+
+A candidate requires at least 3 matching voluntary source events across at least 2 simulation days in the same context.
+
+The candidate is evidence state, not identity.
+
+Recent contrary voluntary choices in the same context may change the state from current to mixed or fading.
+
+The historical support remains intact.
+
+## Context Similarity Rule
+
+Pattern context keys must be deterministic runtime context, not LLM-authored prose or inferred personality.
+
+Never use labels such as "likes mining", "homebody", or "disciplined" as context keys.
+
+## Place Meaning Rule
+
+Place meaning is personal continuity evidence from source-backed experiences.
+
+It is separate from factual location knowledge and must not become a favorite/place-affinity score.
+
+The same physical place may have different retained significance for different citizens.
+
+## Social Custom Rule
+
+One person's private habit is not culture.
+
+A custom candidate requires repeated legitimate social transmission/observation involving multiple actors over time.
+
+Custom candidates remain observer-owned perspective.
+
+Saying a custom exists does not create evidence that it exists.
+
+## Transmission Verification Rule
+
+Social-pattern evidence inherits the verification state of the underlying Memory event.
+
+Repeated unverified reports remain unverified.
+
+## Stage 3 Consumer Rule
+
+Simulation may use candidates only as soft historical context among already-legal actions.
+
+Communication may discuss them only as source-backed perspective.
+
+Assets may show the evidence trail but no habit/preference/culture badges or meters.
+
+## Stage 3 Score Boundary
+
+No global habit score, culture score, preference score, place ranking, or custom ranking exists.
+
+Counts and source lists may be exposed as evidence, not identity strength.
