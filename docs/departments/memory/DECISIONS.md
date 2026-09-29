@@ -734,3 +734,52 @@ Stage 1 does not yet implement:
 - planner-wide persistent plans
 
 It establishes the source/retrieval spine those features must use.
+
+
+## v0.9 Canonical Practice Retention Decision
+
+Simulation `practice_events.id` is the canonical Stage 1 evidence that real physical practice occurred.
+
+Memory should retain this evidence, but must avoid duplicating a physical event already represented by another durable Memory source.
+
+Dedupe precedence:
+
+- if a Memory event already references the same `jobs.id`, reuse it and add practice facets
+- otherwise create one `simulation_practice_event` Memory event
+
+Job equivalence may be established through:
+- `source_type='job' / source_id=jobs.id`
+- Memory metadata `job_id`
+- `source_job_id`
+- `citizen_job_id`
+
+Practice facets improve retrieval only.
+
+They do not:
+- create XP
+- prove competence
+- create role/class/specialization
+- create a title
+- create global reputation
+
+## v0.9 Practice Outcome Decision
+
+Both successful and failed eligible physical work are legitimate personal experience.
+
+A failed or no-yield event may receive somewhat higher recall salience because it can affect future reasoning, but it remains one historical event rather than a permanent trait.
+
+## v0.9 Plan/Practice Authority Split
+
+Simulation owns:
+- plan lifecycle
+- job linkage
+- `practice_events.id`
+- later physical competence effects
+
+Memory owns:
+- durable retention
+- causal linking
+- practice dedupe
+- bounded recall / reinforcement / aging
+
+A practice event may carry a `plan` facet when `practice_events.plan_id` exists, connecting actual plan work to causal recall without making the plan itself a skill score.
