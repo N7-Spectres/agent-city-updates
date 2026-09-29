@@ -4,7 +4,7 @@ _Last updated: 2026-09-28_
 
 ## Current Release
 
-**v0.8.5 — Daily Rhythm & Recharge**
+**v0.8.6 — Stranded Citizen Recovery**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -40,6 +40,33 @@ Delivered:
 - Simulation/Communication/Memory semantics unchanged
 
 ## Current Milestone
+
+**v0.8.6 — Stranded Citizen Recovery**
+
+Published energy-safety hotfix:
+- branch: `release-v0.8.6`
+- immutable runtime commit: `a72f96b763671f01c5a8aa0ba41d87f7eb6b9a09`
+- final CI: `36591711494` — PASS
+
+Delivered:
+- charger-bound travel treats the operational charger itself as the safety destination
+- no extra 5% post-arrival return reserve is required when the destination has an operational charger
+- citizens must still possess enough current energy to pay the real travel cost
+- trips to non-charging destinations retain the normal return-energy safety margin
+- a critically low citizen who reaches charging remains governed by v0.8.5 autonomous recharge priority
+- no teleportation or position rewrite is needed for the observed Iri 6% Resin Grove case
+- dedicated regression reproduces Iri at Resin Grove with 6% energy and verifies successful return followed by charging priority
+
+### Emergency Admin Recovery Rule
+
+When a confirmed software bug creates an impossible/deadlocked civilization state, a minimal admin correction is allowed as a repair mechanism.
+
+Prefer, in order:
+1. fix the underlying rule so the existing save can recover naturally,
+2. if natural recovery is impossible, apply the smallest direct state correction necessary,
+3. record the intervention as diagnostic/admin recovery rather than pretending it was an in-world citizen action.
+
+Admin recovery must not become a routine visitor power, shortcut normal consequences, grant resources/technology, or rewrite legitimate citizen outcomes.
 
 **v0.8.5 — Daily Rhythm & Recharge**
 
