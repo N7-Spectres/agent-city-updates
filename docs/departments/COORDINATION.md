@@ -16,32 +16,33 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-_None._
+- [Memory & Social] v0.9 Stage 2 may now implement source-backed guided-practice/competence memory using Simulation's final physical contract.
 
 ### WAITING
 
-- [Memory & Social] v0.9 Stage 2 runtime work waits on Simulation's competence/guided-practice source contract; Memory architecture audit may proceed now.
-- [Communication & Perception] v0.9 Stage 2 runtime work waits on Simulation + Memory contracts; guided-practice/question/language audit may proceed now.
-- [Assets & Interface] v0.9 Stage 2 runtime UI waits on final safe Simulation + Memory + Communication read models; presentation audit may proceed now.
+- [Communication & Perception] Simulation contract is ready; runtime work now waits on Memory's Stage 2 retention/retrieval contract.
+- [Assets & Interface] Simulation read model is ready; final Stage 2 UI waits on Memory + Communication safe contracts.
+- [Coordinator / v0.9 Stage 2 Integration] waits for Memory + Communication + Assets completion before combined integration.
 
 ### READY
 
-- [World & Simulation] v0.9 Stage 2 — primary dependency: define bounded practice-derived competence effects and any real guided-practice/teaching mechanism from canonical `practice_events`; no XP/classes.
+- [World & Simulation] v0.9 Stage 2 bounded competence + real guided practice ready on `simulation/v0.9-competence-stage2` @ `667f4659aeef9a9658d7e08f4ba7c54e267a38f9`; final runtime CI `36618030044` passed the complete v0.4-v0.8.7 matrix, all v0.9 Stage 1 smokes, and `tests/smoke_v090_simulation_stage2.py`.
+- [Memory & Social] Simulation's exact competence/guided-practice source contract is now in Memory INBOX.
+- [Communication & Perception] Simulation's physical guided-practice/language contract is now in Communication INBOX.
+- [Assets & Interface] Simulation's score-free competence/guided-practice read model is now in Assets INBOX.
 
 ### REVIEW
 
-_None._
+- [World & Simulation] Stage 2 family-bounded competence, duration-only effects, failed-attempt experience, guided-practice sessions, one-use learner support, bottleneck dominance, safe read model, and regression coverage complete.
 
 ### DONE
 
-- [Coordinator] v0.9 Stage 1 integrated on `release-v0.9.0-stage1-integration` @ `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`; combined CI `36615685005` PASS across v0.4-v0.8.7 + all four v0.9 Stage 1 smokes.
-- [Memory & Social] causal archive, bounded active recall, practice retention, recall-bound practice interpretation, and UI-safe remembered-event projection integrated.
-- [World & Simulation] persistent plans, plan transitions/source links, jobs→plan linkage, and canonical practice events integrated.
-- [Communication & Perception] recall-bound self-assessment/teaching and perspective-safe recognition integrated; no global reputation or skill-from-talk.
-- [Assets & Interface] continuity citizen-sheet runtime integrated with Ongoing Plans, Why This Exists, Plan History, Recorded Practice, Relevant Memories, and explicit truth-layer separation.
-- [Coordinator] v0.9 Civilization Continuity doctrine locked in `docs/V090_CIVILIZATION_CONTINUITY_DOCTRINE.md`
-- [Coordinator] v0.9 stage order locked: Causal Memory + Persistent Plans → Practice/Competence/Teaching/Recognition → Habits/Place Meaning/Social Customs
-- [Coordinator] v0.8.7 Route Travel Visualization published from `be617e6e870ec3f1914d76cdb85107a6efc294d7`; final CI `36595479188` passed
+- [Coordinator] v0.9 Stage 1 integrated on `release-v0.9.0-stage1-integration` @ `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`; combined CI `36615685005` PASS.
+- [Memory & Social] v0.9 Stage 1 causal archive / bounded recall / practice retention integrated.
+- [World & Simulation] v0.9 Stage 1 persistent plans / transitions / practice events integrated.
+- [Communication & Perception] v0.9 Stage 1 self-assessment/recognition boundaries integrated.
+- [Assets & Interface] v0.9 Stage 1 continuity citizen-sheet runtime integrated.
+- [Coordinator] v0.9 Civilization Continuity doctrine locked.
 
 ## v0.9 Stage 2 Dependency Lock
 
@@ -67,6 +68,42 @@ Global Stage 2 locks:
 - unfamiliar work remains legally attemptable unless ordinary physical legality prevents it
 - all competence effects must be bounded, source-backed, and physically justified
 - no department publishes `update.json`
+
+## Simulation v0.9 Stage 2 Integration Locks
+
+Coordinator and downstream departments must preserve:
+
+1. Objective competence is derived from canonical `practice_events`, never stored as XP/levels/classes/ranks.
+2. Competence families are bounded: surveying, extraction, experimentation, fabrication, construction, maintenance.
+3. Practice never bleeds across unrelated families.
+4. Evidence weights are source-backed: success/discovery/verified 1.00; legacy completion 0.75; inconclusive/no-yield 0.50; failed physical attempt 0.25.
+5. Practice-only duration reduction is capped at 8%.
+6. Competence affects relevant job duration only; materials, energy, legality, knowledge, tools, and outcomes remain governed by existing physical rules.
+7. Unfamiliar work remains legally attemptable whenever ordinary Simulation legality allows it.
+8. Severe workbench degradation (<90% efficiency) suppresses fabrication/experiment competence and guidance benefits.
+9. `guided_practice_sessions.id` is the canonical guided-practice event identity.
+10. Guided practice requires physical co-presence, free/powered participants, and more relevant guide evidence than learner evidence.
+11. A guided-practice session itself creates no learner competence/practice event.
+12. Completed guidance may affect only the learner's next real matching task; guidance multiplier is 0.96 and one-use.
+13. Practice + guidance combined duration benefit is capped at 10%.
+14. The learner's real matching task creates the new canonical practice evidence.
+15. Guided-practice conversation/explanation alone grants zero competence.
+16. Teacher/learner are event roles, never permanent mentor/expert identities.
+17. Jobs persist `competence_family`, `competence_duration_multiplier`, and `guidance_session_id` for auditability.
+18. `GET /api/competence/{citizen_id}` is score-free and source-linked; frontend must not derive its own competence.
+19. Objective competence does not decay with Memory recall age; Memory aging affects recall/perspective only.
+20. No department publishes `update.json`.
+
+## Required v0.9 Stage 2 Integration Tests
+
+At minimum preserve/run after combined integration:
+
+- complete published regression matrix v0.4 through v0.8.7
+- all four v0.9 Stage 1 smoke suites
+- `tests/smoke_v090_simulation_stage2.py`
+- Memory v0.9 Stage 2 focused smoke
+- Communication v0.9 Stage 2 focused smoke
+- Assets v0.9 Stage 2 focused smoke
 
 ## v0.8 Stage 1 Coordination Goal
 
