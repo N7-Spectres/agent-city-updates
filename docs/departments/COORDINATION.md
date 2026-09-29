@@ -27,7 +27,6 @@ _None._
 
 ### READY
 
-- [Assets & Interface] Memory causal contract and Simulation safe continuity read model are both ready; continuity UI/read-model audit may proceed.
 
 ### REVIEW
 
