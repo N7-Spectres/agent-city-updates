@@ -1127,3 +1127,32 @@ Final branch:
 Memory's blocking archive-vs-recall review is resolved.
 
 Communication is ready for coordinator v0.9 Stage 1 integration.
+
+## v0.9 Recall-Bound Final Session Close — 2026-09-29
+
+Communication v0.9 Stage 1 is fully closed after Memory compatibility review.
+
+Final branch:
+- `communication/v0.9-recognition-stage1`
+- head `2b0b683086c03708d235fc2fefd08d64ed2d15d1`
+- final compatibility CI `36612304549`
+
+Final corrected semantics:
+- full `practice_events` ledger is objective archive/debug history only
+- model-facing self-assessment uses Memory bounded active practice recall
+- model-facing teaching uses Memory bounded active practice recall
+- "I've done this several times" requires at least 3 currently recalled source-backed practice experiences for that activity
+- recognition of another citizen remains speaker-owned Memory only
+- numeric `reinforcement_count` / `recall_score` never enter natural-language evidence
+- repeated unverified reports remain unverified
+- teaching conversation creates no learner competence
+- canonical plans remain read-only to Communication
+
+Cross-department handoffs are complete:
+- Memory compatibility review marked resolved
+- Assets notified that Communication recall-bound dependency is cleared
+- coordinator integration gate reopened in `COORDINATION.md`
+
+No Communication-owned v0.9 Stage 1 work remains.
+
+Resume only for coordinator integration conflicts or a newly routed milestone.
