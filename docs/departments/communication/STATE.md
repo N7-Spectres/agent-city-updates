@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-29_
 _Current release: v0.8.7_
-_Active milestone: v0.9 Stage 1 — Civilization Continuity_
+_Active milestone: v0.9 Stage 2 — Guided Practice & Competence-Safe Language_
 
 ## Mission
 
@@ -1156,3 +1156,181 @@ Cross-department handoffs are complete:
 No Communication-owned v0.9 Stage 1 work remains.
 
 Resume only for coordinator integration conflicts or a newly routed milestone.
+
+## v0.9 Stage 2 — Guided Practice, Questions & Competence-Safe Language
+
+_Last updated: 2026-09-29_
+
+**Branch:** `communication/v0.9-guided-practice-stage2`  
+**Integrated Stage 1 base:** `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`  
+**Final head:** `6af2f6cb8b9fe3d44b30c9dad2fc6e54926b09cf`  
+**Final CI:** `36627237487` PASS
+
+### Purpose
+
+Communication now interprets real Stage 2 practice/competence/guided-practice evidence without creating expertise titles, reputation, hidden competence comparisons, or skill transfer from conversation.
+
+Contract:
+`docs/departments/communication/V090_STAGE2_GUIDED_PRACTICE_LANGUAGE_CONTRACT.md`
+
+### Measured self-effect
+
+New model-facing section:
+
+`MEASURED PHYSICAL PRACTICE EFFECTS (SELF ONLY)`
+
+Communication dynamically consumes Simulation `competence_snapshot(...)` for the speaker's own current state.
+
+It exposes only bounded physical task-time effect, for example:
+- extraction tasks currently receive about a 6% shorter duration from source-backed practice
+
+It does not expose model-facing:
+- weighted evidence math
+- another citizen's competence snapshot
+- hidden competence comparison
+- expert/proficiency/rank labels
+
+The measured effect is Simulation-owned physical state, not Memory and not social identity.
+
+### Remembered experience remains separate
+
+Stage 1 active-recall rules remain intact.
+
+Present autobiographical self-assessment/teaching still use Memory:
+- `practice_recall_snapshot_for(...)`
+- `practice_recall_context_for(...)`
+
+A measured physical effect may exist even when old practice is not currently recalled.
+
+Communication must not reconstruct forgotten autobiographical history from the measured effect.
+
+### Guided-practice Memory
+
+Communication dynamically consumes Memory:
+- `guided_practice_recall_snapshot_for(...)`
+- `guided_practice_recall_context_for(...)`
+
+Past teacher/learner roles are event-local.
+
+Safe language:
+- "Bex guided me through extraction practice."
+- "I guided Cato through an extraction practice session."
+
+Unsafe identity upgrade:
+- mentor
+- trainer
+- expert
+- master
+- specialist
+- leader
+- senior/rank
+
+### Current guided-practice availability
+
+Communication may tell a citizen they can currently propose/start guided practice only when that citizen's own Simulation `possible_actions(citizen_id)` contains a legal `guided_practice` action.
+
+This is a self-owned current capability surface.
+
+Communication never queries another citizen's hidden/global competence ledger to tell the speaker who is "more experienced."
+
+A legal guided-practice option proves only current physical action availability.
+
+It does not prove a socially known competence comparison.
+
+### Asking for help
+
+New model-facing section:
+
+`ASKING FOR HELP / EXPLANATION`
+
+A citizen may ask another citizen about their experience even when they do not already know the answer.
+
+Questions do not require a pre-existing competence claim.
+
+Recognition claims still require speaker-owned Memory.
+
+Safe:
+- "Have you worked with this before?"
+- "Could you show me your approach?"
+
+Unsafe without source-backed recognition:
+- "You're the best at this, so teach me."
+
+### Ordinary explanation versus real guided practice
+
+Ordinary conversation may transfer:
+- claims
+- instructions
+- suggestions
+- remembered experience
+
+It creates no competence.
+
+A real guided-practice session remains Simulation-owned:
+- canonical `guided_practice_sessions.id`
+- physical co-presence
+- real timed job
+- teacher/learner event roles
+- one-use bounded guidance support on the learner's next matching real task
+
+The guided session itself creates no learner practice event.
+
+Only the learner's later real matching task creates new canonical practice evidence.
+
+### Citizen-to-citizen dialogue
+
+Private citizen dialogue context now includes:
+- measured self physical effect
+- active recalled guided-practice history
+- legal current guidance options for the speaker
+- help/question boundary
+- existing self-assessment/recognition/teaching/plan sections
+
+Strict rules preserve:
+- no title/rank/reputation
+- no ordinary-talk skill transfer
+- no hidden other-citizen competence lookup
+- guided-practice legality is not social recognition
+
+### Visitor dialogue
+
+Visitor chat receives:
+- the citizen's own measured physical effect
+- source-backed recalled guided-practice history
+- no current citizen-to-citizen legal guidance-option list
+
+Visitor explanation remains ordinary conversation and creates no visitor competence.
+
+### Planner
+
+Planner language now understands:
+- `guided_practice` is a real physical legal action when Simulation exposes it
+- the session itself creates no learner practice/competence
+- ordinary talk/explanation creates no competence
+- legal guidance does not create expert/mentor/trainer identity
+- hidden/global competence data is not a social reason
+
+Simulation remains authoritative for action start, duration, completion, guidance consumption, and later learner practice.
+
+### Merge-order safety
+
+If Stage 2 Memory/Simulation modules are absent:
+- no measured competence effect is invented
+- no guided-practice Memory is invented
+- no current guided-practice option is invented
+
+### Validation
+
+CI `36627237487` passed:
+- Python compile
+- complete published v0.4-v0.8.7 regression matrix
+- all four integrated v0.9 Stage 1 smokes
+- `tests/smoke_v090_communication_stage2.py`
+
+Temporary CI workflow was removed after the green run.
+
+## Current v0.9 Stage 2 Communication Status
+
+Implementation is complete and ready for coordinator Stage 2 integration.
+
+No Communication-owned upstream dependency remains.
