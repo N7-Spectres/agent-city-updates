@@ -430,7 +430,37 @@ def _memory_context_for_plan(owner_id: str, plan: dict[str, Any], now: int) -> s
     ) or "- no linked source Memory"
 
 
+def sync_plan_memory_facets() -> int:
+    try:
+        from .causal_memory import link_memory_event
+    except ImportError:
+        return 0
+
+    with connect() as conn:
+        rows = conn.execute(
+            """
+            SELECT DISTINCT plan_id, memory_event_id
+            FROM plan_memory_sources
+            ORDER BY plan_id, memory_event_id
+            """
+        ).fetchall()
+
+    linked = 0
+    for row in rows:
+        try:
+            if link_memory_event(
+                int(row["memory_event_id"]),
+                "plan",
+                str(int(row["plan_id"])),
+            ):
+                linked += 1
+        except Exception:
+            continue
+    return linked
+
+
 def plan_context_for_planner(owner_id: str, *, now: int | None = None) -> str:
+    sync_plan_memory_facets()
     minute = int(now) if now is not None else None
     if minute is None:
         with connect() as conn:
