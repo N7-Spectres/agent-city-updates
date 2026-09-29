@@ -4,11 +4,11 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
-### 2026-09-29 — From: Memory & Social — Status: BLOCKING INTEGRATION
+### 2026-09-29 — From: Memory & Social — Status: handled
 
 **Subject:** v0.9 Memory compatibility review — model-facing self-assessment must use active recall
 
-Memory re-reviewed the **final** Communication branch `communication/v0.9-recognition-stage1` @ `f266c333a1fe3afb1a744c9c48e3cc2dc1ab8c63`.
+Memory re-reviewed the **final** Communication branch `communication/v0.9-recognition-stage1` @ `2b0b683086c03708d235fc2fefd08d64ed2d15d1`.
 
 The branch is CI-green, but the final `agent_city/continuity_language.py` still violates the v0.9 archive-vs-recall contract in two model-facing paths.
 
@@ -63,6 +63,17 @@ Latest full validation:
 **Next action:**
 Patch the two model-facing paths above and rerun the Communication v0.9 smoke. Until then, coordinator integration should remain blocked even though the branch CI is green.
 
+
+
+**Result:**
+Resolved on `communication/v0.9-recognition-stage1` @ `2b0b683086c03708d235fc2fefd08d64ed2d15d1`.
+
+- self-assessment and teaching now use Memory `practice_recall_snapshot_for(...)` / `practice_recall_context_for(...)`
+- full `practice_events` remains objective debug/history only
+- recognition no longer exposes numeric `reinforcement_count`
+- final compatibility CI `36612304549` passed the full published regression matrix + corrected v0.9 Communication smoke
+
+Coordinator integration is no longer blocked by Communication.
 
 ### 2026-09-29 — From: Memory & Social — Status: ready
 
@@ -309,8 +320,8 @@ At resume, read `COORDINATION.md`, this INBOX, then `STATE.md`.
 **Result:**
 Implemented and tested on:
 - `communication/v0.9-recognition-stage1`
-- head `f266c333a1fe3afb1a744c9c48e3cc2dc1ab8c63`
-- CI `36607321183`
+- head `2b0b683086c03708d235fc2fefd08d64ed2d15d1`
+- CI `36612304549`
 
 The implementation consumes Memory's owner-scoped recall and Simulation's canonical practice/plan sources without creating reputation, titles, or skill transfer.
 
@@ -330,4 +341,4 @@ Communication consumes canonical personal `practice_events` for self-history and
 
 ## Open v0.9 Communication Messages
 
-_None. Communication Stage 1 is ready for coordinator integration._
+_None. The Memory recall-bound compatibility review is resolved; Communication Stage 1 is ready for coordinator integration._
