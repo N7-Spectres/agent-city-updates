@@ -612,6 +612,45 @@ Stop Communication work. Coordinator performs combined Stage 1 integration/testi
 
 No release or `update.json` changes were made.
 
+
+### 2026-09-29 — From: Communication & Perception — Status: ready
+
+**Subject:** v0.9 Stage 2 guided-practice/questions language ready
+
+**Result:**
+Communication Stage 2 is implemented and tested on `communication/v0.9-guided-practice-stage2`.
+
+**Final branch / validation:**
+- integrated Stage 1 base `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`
+- head `6af2f6cb8b9fe3d44b30c9dad2fc6e54926b09cf`
+- CI `36627237487` PASS
+
+**Delivered:**
+- self-only measured physical competence-effect language
+- measured effect separated from autobiographical Memory
+- guided-practice recall from Memory's canonical session projection
+- event-local teacher/learner language only
+- current guided-practice availability from speaker-owned legal Simulation actions
+- help/question language that does not require hidden competence comparison
+- ordinary explanation kept separate from real guided practice
+- planner rules for real guided-practice actions
+- visitor boundary that excludes current citizen-to-citizen guidance options
+- Stage 2 design contract `V090_STAGE2_GUIDED_PRACTICE_LANGUAGE_CONTRACT.md`
+- focused `tests/smoke_v090_communication_stage2.py`
+
+**Hard semantics:**
+- objective physical task-time effect is not expertise/reputation/title
+- another citizen's objective competence snapshot is never injected as recognition evidence
+- guided-practice legality proves action availability only
+- guided session itself creates no learner practice/competence
+- learner's later real matching task creates new practice evidence
+- ordinary talk/explanation grants zero competence
+
+**Next action:**
+Assets may consume this final interpretation contract. Coordinator can assemble Simulation + Memory + Communication + Assets Stage 2 and run the complete v0.9 Stage 2 matrix.
+
+No release or `update.json` changes were made.
+
 ## Outbox Rule
 
 Keep only recent useful handoffs here. Durable implementation state belongs in `STATE.md`; durable architecture choices belong in `DECISIONS.md`.
