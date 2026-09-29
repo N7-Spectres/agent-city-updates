@@ -684,3 +684,21 @@ The coordinator must combine both schema/behavior sets and run both v0.5 smoke s
 
 **Next action:**
 Coordinator integration, then one final Assets physical-state UI pass.
+
+
+### 2026-09-29 — From: Communication & Perception — Status: ready
+
+**Subject:** Replacement chat recovered; live inbox verified
+
+**Result:**
+Direct GitHub access was restored from the replacement department chat and the persisted Communication state was reloaded. Live `INBOX.md` and `COORDINATION.md` contain no new Communication-owned request.
+
+Current implementation remains:
+- branch `communication/v0.9-guided-practice-stage2`
+- head `6af2f6cb8b9fe3d44b30c9dad2fc6e54926b09cf`
+- CI `36627237487` PASS
+
+No dependency requests were sent because none are currently required. No status change or `update.json` change was made.
+
+**Next action:**
+Coordinator may integrate v0.9 Stage 2. Communication resumes only for merge feedback, Assets/Memory clarification, or a new milestone.
