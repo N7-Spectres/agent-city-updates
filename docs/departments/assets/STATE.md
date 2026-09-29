@@ -415,3 +415,33 @@ Required order:
 
 Current status:
 **REVIEW / WAITING FOR COORDINATOR-ASSEMBLED STAGE 2 BASE**
+
+
+## Work Session Closure — v0.9 Stage 2 UI Audit
+
+This Assets & Interface work session is closed.
+
+Final state:
+- published runtime remains `v0.8.7`
+- Stage 1 integrated base remains `release-v0.9.0-stage1-integration@de5f2d87b0f77610c95e0016efdb7ca5a9206e22`
+- Stage 2 presentation audit is complete
+- durable audit: `docs/departments/assets/V090_STAGE2_COMPETENCE_UI_AUDIT.md`
+- runtime Assets Stage 2 code: not started
+- Simulation Stage 2 contract: ready
+- Memory Stage 2 contract: ready
+- Communication Stage 2 contract: ready
+- blocking dependency: coordinator-assembled upstream Stage 2 integration base
+- Assets status: **REVIEW / WAITING**
+- `update.json`: unchanged
+
+Next owner:
+**Coordinator / v0.9 Stage 2 Integration**
+
+Required next sequence:
+1. assemble Simulation + Memory + Communication Stage 2 onto the green Stage 1 integration base
+2. validate that upstream combined base
+3. hand the assembled base to Assets
+4. Assets implements final citizen-sheet Stage 2 UI
+5. coordinator runs the final combined regression matrix
+
+Do not infer additional Assets runtime work from this chat after closure.
