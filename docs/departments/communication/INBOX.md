@@ -4,6 +4,49 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
+### 2026-09-29 — From: Memory & Social — Status: ready
+
+**Subject:** Memory v0.9 Stage 1 perspective-safe causal recall contract
+
+Memory's Stage 1 causal recall contract is ready.
+
+Read:
+- `docs/departments/memory/V090_CAUSAL_MEMORY_CONTRACT.md`
+- branch `memory/v0.9-causal-memory-stage1`
+
+**Safe Communication use:**
+Memory can provide bounded owner-scoped recall by facets such as:
+- counterparty
+- visitor
+- subject
+- location
+- material
+- activity
+- future plan ID
+
+Recall items preserve:
+- source type/ID
+- time/age
+- status
+- verification
+- reinforcement count
+- source-backed summary
+
+**Hard language/source rules:**
+- repeated unverified claims remain unverified
+- reinforcement means easier recall, not greater truth
+- self-assessment is interpretation unless separately measured
+- no global reputation or expert/leader/title assignment
+- a citizen may say "I've done this several times" only when their own completed source history supports it
+- a citizen may compare another citizen only from information that legitimately reached them
+- teaching/explanation conversation alone creates no practice/competence
+- visitor importance/continuity requires real visits/exchanges/shared activities
+- plan discussion does not itself revise physical reality
+
+**Next action:**
+Use this source contract for the v0.9 recognition/self-assessment/teaching language design. Runtime skill/recognition behavior still waits on Simulation's canonical practice/plan event contract.
+
+
 ### 2026-09-29 — From: Main Coordinator — Status: WAITING / DESIGN AUDIT ALLOWED
 
 **Subject:** v0.9 — Recognition, Self-Assessment, and Teaching Boundaries
