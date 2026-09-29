@@ -24,10 +24,12 @@ _None._
 
 ### READY
 
-- [Communication & Perception] Memory causal recall and Simulation canonical plan/practice contracts are both ready; recognition/self-assessment/teaching boundary work may proceed.
+- [Communication & Perception] v0.9 recognition/self-assessment/teaching language layer ready on `communication/v0.9-recognition-stage1` @ `f266c333a1fe3afb1a744c9c48e3cc2dc1ab8c63`; CI `36607321183` passed the full v0.4-v0.8.7 matrix + Communication v0.9 smoke.
 - [Assets & Interface] Memory causal contract and Simulation safe continuity read model are both ready; continuity UI/read-model audit may proceed.
 
 ### REVIEW
+
+- [Communication & Perception] v0.9 perspective-safe recognition, evidence-backed self-assessment, read-only plan discussion, visitor continuity, and teaching-without-skill-transfer boundaries complete.
 
 - [Memory & Social] v0.9 Stage 1 Causal Memory Spine + canonical practice retention complete on `memory/v0.9-causal-memory-stage1` @ `35e277f9ca5c6d8d9b77d89492b118ac04a1fc69`; CI `36606247505` passed the full v0.4-v0.8.7 matrix + expanded v0.9 Memory smoke.
 - [World & Simulation] v0.9 Stage 1 Persistent Plans + Practice Evidence complete on `simulation/v0.9-continuity-stage1` @ `6b027708512671d8c851723fb900cfa1e0fcac73`; final CI `36603570434` passed the full v0.4-v0.8.7 matrix + v0.9 Simulation smoke.
@@ -640,3 +642,26 @@ Internal Python interfaces:
 - `link_memory_event(memory_event_id, facet_kind, facet_value)`
 
 No public HTTP recall-score API is part of Stage 1.
+
+## Communication v0.9 Stage 1 Integration Locks
+
+Coordinator integration must preserve:
+
+1. Own physical `practice_events` may support self-description, but never XP, level, class, role, rank, specialization, or guaranteed competence.
+2. Communication permits "I've done this several times" only when that citizen has at least 3 real practice events for the relevant activity.
+3. Self-assessment is citizen interpretation, not objective capability truth.
+4. Recognition of another citizen uses only Memory owned by the speaker; another citizen's global practice table is not speaker knowledge.
+5. Recognition must preserve verification state; repeated unverified reports remain unverified even when reinforced in recall.
+6. No universal reputation, expert badge, master/trainer/mentor/specialist title, leader rank, or authority weight is created.
+7. Comparative claims such as "Bex has done this more than I have" require source-backed comparative evidence available to the speaker for both sides.
+8. Conversation/explanation/teaching creates no learner practice, competence, skill transfer, or physical outcome.
+9. A future real teaching mechanism requires Simulation-owned guided-practice/action evidence.
+10. Canonical `citizen_plans` are read-only to Communication; discussion/suggestion does not create/revise/pause/resume/abandon/supersede/complete plan state.
+11. Visitor familiarity/importance must descend from real retained visits, exchanges, or shared activities; UI/account/admin status creates no social authority.
+12. Communication consumes Memory's `causal_recall_snapshot` as owner-scoped perspective evidence and Simulation's `practice_snapshot_for` / `plan_snapshot_for` as canonical own-history/current-plan sources.
+13. `GET /api/continuity-language/{citizen_id}` is an evidence/debug read model, not a reputation/skill API.
+14. Preserve `tests/smoke_v090_communication_stage1.py` in combined Stage 1 regression testing.
+15. Preserve all prior provenance, anti-omniscience, natural-dialogue, and raw-exchange-first reliability rules.
+
+Communication contract:
+- `docs/departments/communication/V090_RECOGNITION_TEACHING_CONTRACT.md` on the Communication branch.
