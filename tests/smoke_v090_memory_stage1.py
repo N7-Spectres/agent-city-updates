@@ -20,7 +20,11 @@ def main() -> None:
         )
         from agent_city.db import connect, init_db
         from agent_city.memory import ensure_memory_schema, record_knowledge_event
-        from agent_city.practice_memory import sync_practice_memory
+        from agent_city.practice_memory import (
+            practice_recall_context_for,
+            practice_recall_snapshot_for,
+            sync_practice_memory,
+        )
 
         init_db()
         ensure_memory_schema()
@@ -279,6 +283,40 @@ def main() -> None:
             "practice_construct",
         }
         assert all(item["verification"] == "verified" for item in practice_recall)
+
+        # Model-facing practice recall is restricted to practice-linked Memory,
+        # preserves Memory aging/salience, and hides internal ranking math.
+        safe_practice = practice_recall_snapshot_for(
+            "bex",
+            now_minute=now,
+            limit=6,
+        )
+        assert len(safe_practice) >= 3
+        assert all(
+            any(f["kind"] == "practice_event" for f in item["facets"])
+            for item in safe_practice
+        )
+        assert all("recall_score" not in item for item in safe_practice)
+        assert all("reinforcement_count" not in item for item in safe_practice)
+
+        fabricate_only = practice_recall_snapshot_for(
+            "bex",
+            activity="fabricate",
+            now_minute=now,
+            limit=4,
+        )
+        assert len(fabricate_only) == 1
+        assert fabricate_only[0]["event_kind"] == "practice_fabricate"
+
+        safe_context = practice_recall_context_for(
+            "bex",
+            activity="construct",
+            now_minute=now,
+            limit=4,
+        )
+        assert "practice_construct" not in safe_context
+        assert "Ended construct job #7602 with outcome failed." in safe_context
+        assert "related experience x" not in safe_context
 
         # Repeated sync remains idempotent.
         sync_practice_memory()
