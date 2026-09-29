@@ -58,6 +58,36 @@ Stage 1 does **not** yet add:
 - customs/culture
 - authored roles/classes/reputation
 
+## v0.9 Stage 2 Upstream Integrated Baseline
+
+**Status: Simulation + Memory + Communication integrated and green; Assets runtime UI now authorized**
+
+- branch: `release-v0.9.0-stage2-integration`
+- green head: `ac548b06ea8a88a66a763902ab01a6567c3a2e79`
+- combined CI: `36633452433` — PASS
+- `update.json` remains on published v0.8.7
+
+Integrated Stage 2 upstream systems:
+- family-bounded practice-derived competence
+- duration-only bounded physical competence effects
+- failed-attempt experience weighting
+- degraded-workbench bottleneck dominance
+- real two-citizen guided-practice sessions
+- one-use learner guidance support on the next matching real task
+- Memory retention/recall for guided-practice experience
+- teacher/learner role memories remain event-local
+- self-only measured competence language
+- perspective-safe guided-practice/question/recognition language
+- no global reputation, XP, levels, classes, mentor/expert titles, or conversation-only skill transfer
+
+Combined integration correction:
+- Communication's isolated Stage 2 competence test double was expanded to supply the integrated `guided_practice_snapshot(...)` interface.
+- runtime semantics were unchanged.
+
+Next:
+- Assets implements the audited Stage 2 citizen-sheet UI on this exact base.
+- Coordinator then runs the final Stage 2 matrix including the Assets smoke before Stage 3 begins.
+
 ## Next Major Milestone — v0.9 Civilization Continuity
 
 The v0.9 architecture doctrine is now locked in:
