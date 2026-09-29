@@ -506,7 +506,10 @@ def init_db() -> None:
                 result_observation_id INTEGER,
                 shared_activity_id INTEGER,
                 plan_id INTEGER,
-                guided_practice_id INTEGER
+                guided_practice_id INTEGER,
+                competence_family TEXT,
+                competence_duration_multiplier REAL,
+                guidance_session_id INTEGER
             );
 
             CREATE TABLE IF NOT EXISTS citizen_conversations (
@@ -561,6 +564,9 @@ def init_db() -> None:
         add_column_if_missing(conn, "jobs", "shared_activity_id INTEGER", "shared_activity_id")
         add_column_if_missing(conn, "jobs", "plan_id INTEGER", "plan_id")
         add_column_if_missing(conn, "jobs", "guided_practice_id INTEGER", "guided_practice_id")
+        add_column_if_missing(conn, "jobs", "competence_family TEXT", "competence_family")
+        add_column_if_missing(conn, "jobs", "competence_duration_multiplier REAL", "competence_duration_multiplier")
+        add_column_if_missing(conn, "jobs", "guidance_session_id INTEGER", "guidance_session_id")
         add_column_if_missing(conn, "spatial_observations", "detail_level TEXT NOT NULL DEFAULT 'field'", "detail_level")
         add_column_if_missing(conn, "deposits", "discoverer_id TEXT", "discoverer_id")
         add_column_if_missing(conn, "deposits", "discovered_minute INTEGER", "discovered_minute")
