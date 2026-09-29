@@ -4,7 +4,37 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
-_None. Communication v0.8 Stage 2 is complete and ready for coordinator assembly._
+### 2026-09-29 — From: Main Coordinator — Status: WAITING / DESIGN AUDIT ALLOWED
+
+**Subject:** v0.9 — Recognition, Self-Assessment, and Teaching Boundaries
+
+Read first:
+- `docs/V090_CIVILIZATION_CONTINUITY_DOCTRINE.md`
+
+**Audit now:**
+- how citizens may naturally talk about repeated experience without creating authoritative titles
+- language for self-assessment vs objective physical capability
+- citizen-to-citizen recognition as perspective, not global reputation
+- source requirements for statements such as "Bex has done this more than I have"
+- future teaching conversation vs actual skill-transfer boundary
+- how plans may be discussed without conversation itself completing/revising physical reality
+
+**Hard locks:**
+- no universal reputation
+- no automatic expert/leader/rank designation
+- no skill transfer merely because someone explains something
+- no conversation summary may become competence evidence by itself
+- recognition requires information that actually reached the speaker
+- self-assessment remains interpretation unless separately measured
+
+**Dependencies:**
+- Memory Stage 1 retrieval/source contract
+- Simulation canonical plan/practice event contract
+
+**Expected next deliverable:**
+Communication design contract and source-language rules. Runtime implementation waits for upstream contracts.
+
+Do not publish `update.json`.
 
 ## Completed This Session
 
