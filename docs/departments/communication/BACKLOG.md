@@ -104,8 +104,8 @@ Communication runtime work is complete.
 
 Final branch:
 - `communication/v0.9-recognition-stage1`
-- head `f266c333a1fe3afb1a744c9c48e3cc2dc1ab8c63`
-- CI `36607321183`
+- head `2b0b683086c03708d235fc2fefd08d64ed2d15d1`
+- CI `36612304549`
 
 Coordinator merge must preserve:
 - Memory `agent_city/causal_memory.py`
@@ -182,3 +182,24 @@ When Communication resumes:
 8. only add actual competence/teaching effects after a future Simulation-owned mechanism exists
 
 Current Communication Stage 1 feature work is complete; remaining work is coordinator integration or later v0.9 stages.
+
+## v0.9 Stage 1 Final Integration Gate
+
+Communication's archive-vs-active-recall compatibility blocker is resolved.
+
+Coordinator integration should now preserve and test together:
+
+- Memory `causal_recall_snapshot(...)`
+- Memory `practice_recall_snapshot_for(...)`
+- Memory `practice_recall_context_for(...)`
+- Simulation `practice_snapshot_for(...)`
+- Simulation `plan_snapshot_for(...)`
+- Communication `continuity_language.py`
+
+Critical split:
+- full practice ledger = objective history/debug only
+- active practice recall = model-facing self-assessment/teaching
+- speaker-owned causal recall = other-citizen recognition
+- no numeric recall/reinforcement internals in dialogue
+
+No Communication-owned v0.9 Stage 1 implementation remains.
