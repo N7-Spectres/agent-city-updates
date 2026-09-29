@@ -793,3 +793,104 @@ During integration, keep these identities distinct:
 - `spatial_observations.id` — validated physical evidence
 
 No merge should collapse these into one source type or allow an earlier social/proposal record to stand in for later physical completion.
+
+
+## v0.9 Persistent Plans
+
+A plan is citizen-owned intent continuity, not a physical command queue.
+
+Plan creation requires at least one real source `memory_event_id` owned by that citizen.
+
+Plan text is not causal evidence by itself.
+
+Plans may be:
+- active
+- paused
+- revised
+- resumed
+- completed
+- abandoned
+- superseded
+
+Every physical step still passes ordinary Simulation legality.
+
+A physical job outcome does not automatically complete or abandon the plan.
+
+## Plan Source History
+
+Canonical source chain:
+
+`memory_event_id -> plan_memory_sources -> citizen_plan -> jobs.plan_id -> real job outcome`
+
+Lifecycle decisions use stable transition records rather than rewriting prior plan state/history.
+
+Old initiating/revision reasons remain durable even after the plan changes.
+
+## Memory Ownership Boundary
+
+Memory owns:
+
+- causal recall scoring
+- salience/aging/reinforcement
+- archive vs active recall
+- plan facets in Memory
+
+Simulation owns:
+
+- canonical plan lifecycle
+- physical job linkage
+- practice-event identity
+- physical legality
+
+Simulation may call Memory's public causal API but must not duplicate its ranking system.
+
+If causal Memory is not present, autonomous new-plan formation fails closed instead of inventing reasons.
+
+## Practice Evidence
+
+`practice_events.id` is canonical Simulation evidence that a citizen actually attempted/completed physical work.
+
+Practice evidence must descend from a real `jobs.id`.
+
+Eligible evidence may include completed or failed physical jobs.
+
+Talk, agreement, waiting, proximity, UI interaction, and concept art never create practice evidence.
+
+## No Competence Yet
+
+Stage 1 practice evidence has no physical competence modifier.
+
+Do not derive:
+- XP
+- levels
+- class
+- role
+- specialization
+- expertise title
+- universal reputation
+
+from the evidence table.
+
+Stage 2 may later derive bounded physical competence effects from repeated real evidence, but Simulation must own those effects and their limits.
+
+## Historical Evidence
+
+Existing eligible physical jobs are backfilled idempotently into practice evidence.
+
+Backfill preserves history; it does not award retroactive RPG progression.
+
+## Plan Interruption
+
+Energy, maintenance, materials, failed jobs, new evidence, or citizen reconsideration may lead to pause/revision/abandonment.
+
+Simulation does not automatically erase or rewrite the plan because an interruption occurred.
+
+Planner/citizen interpretation determines the lifecycle choice; Simulation validates and persists it.
+
+## Read-Model Boundary
+
+Plans/practice may be shown safely as history and intent.
+
+Internal Memory recall scores/reinforcement counts must never be surfaced as citizen identity or reputation.
+
+The continuity UI must not turn practice counts into expertise badges unless a later evidence-backed perspective system explicitly supports such language.
