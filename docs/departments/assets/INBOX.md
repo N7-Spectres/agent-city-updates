@@ -4,7 +4,36 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ## Open Messages
 
-_None._
+### 2026-09-29 — From: Main Coordinator — Status: WAITING / UI AUDIT ALLOWED
+
+**Subject:** v0.9 — Continuity UI Without Hidden Labels
+
+Read first:
+- `docs/V090_CIVILIZATION_CONTINUITY_DOCTRINE.md`
+
+**Audit now:**
+Design future presentation patterns for:
+- current persistent plan and plan history
+- relevant recalled experiences
+- practice/experience evidence
+- citizen-specific place meaning
+- social recognition as perspective
+- habits/customs only after safe read models confirm them
+
+**Hard locks:**
+- do not display hidden class/specialization labels
+- do not expose diagnostic aggregate scores as citizen identity
+- do not invent "expert", "friend", "tradition", or "favorite place" badges
+- UI must distinguish evidence/history from interpretation
+- Assets consumes safe read models only; it does not infer continuity from raw event volume
+
+**Dependencies:**
+Runtime implementation waits for Memory + Simulation + Communication safe contracts.
+
+**Expected next deliverable:**
+UI/read-model audit with proposed surfaces and explicit data dependencies.
+
+Do not publish `update.json`.
 
 The v0.8.1 citizen-art + map zoom/readability request has been fully consumed.
 
