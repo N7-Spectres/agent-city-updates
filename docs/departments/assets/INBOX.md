@@ -4,7 +4,40 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ## Open Messages
 
-_None._
+### 2026-09-29 — From: Main Coordinator — Status: WAITING / UI AUDIT ALLOWED
+
+**Subject:** v0.9 Stage 3 — Habits, Place Meaning, and Social Customs Presentation
+
+**Definitive Stage 2 base:**
+- `release-v0.9.0-stage2-integration` @ `f680275a78b9da71a43f3c79217f292796b7843d`
+- combined CI `36637062562` — PASS
+
+**Audit now:**
+- how to show recurring-history evidence without habit/trait badges
+- how to show citizen-specific place significance while keeping physical location truth separate
+- how to show socially transmitted recurring patterns without prematurely calling them traditions
+- how Evidence / Remembered Perspective / Citizen Interpretation layers from Stage 1 should extend into Stage 3
+- whether Records/Citizens/Locations are the safest homes for these surfaces
+- what safe upstream read models are required before runtime work
+
+**Hard locks:**
+- no "Habit: X" badge inferred from counts
+- no favorite-place badge
+- no friend/trust badge
+- no tradition/culture badge from one event or one citizen
+- no global culture meter
+- no personality adjectives inferred by frontend
+- no frontend pattern threshold/derivation
+- no ranking of places/citizens/customs
+- keep source trail inspectable
+- "show the trail, not the title"
+- no `update.json` changes
+
+**Runtime dependency:**
+Do not implement Stage 3 UI until Memory + Simulation + Communication provide final safe read models and the coordinator hands off an assembled green Stage 3 base.
+
+**Expected deliverable:**
+Presentation/read-model audit with explicit upstream dependencies. Runtime implementation waits for coordinator authorization.
 
 The v0.9 Stage 2 runtime UI request has been fully handled.
 
