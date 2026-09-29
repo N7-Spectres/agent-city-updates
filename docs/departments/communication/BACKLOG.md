@@ -167,3 +167,18 @@ Do not collapse any of these into global reputation.
 - repeated claims do not become verified by repetition
 - visitor continuity requires real sources
 - preserve v0.8 grounding/provenance and v0.7 raw-exchange-first reliability
+
+## v0.9 Stage 1 Resume Order
+
+When Communication resumes:
+
+1. read `docs/departments/COORDINATION.md`
+2. read `docs/departments/communication/INBOX.md`
+3. confirm the integrated v0.9 branch/runtime being targeted
+4. verify Memory `causal_recall_snapshot(...)`, Simulation `practice_snapshot_for(...)`, and Simulation `plan_snapshot_for(...)` survived integration
+5. verify `agent_city/continuity_language.py` and `tests/smoke_v090_communication_stage1.py` survived integration
+6. run the full published regression matrix plus Memory/Simulation/Communication v0.9 Stage 1 smokes before altering continuity language
+7. preserve perspective-safe recognition and the teaching-without-skill-transfer rule
+8. only add actual competence/teaching effects after a future Simulation-owned mechanism exists
+
+Current Communication Stage 1 feature work is complete; remaining work is coordinator integration or later v0.9 stages.
