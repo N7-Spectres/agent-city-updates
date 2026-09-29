@@ -4,6 +4,52 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ## Open Messages
 
+### 2026-09-29 — From: Memory & Social — Status: ready
+
+**Subject:** Memory v0.9 Stage 3 score-free pattern read model ready
+
+Memory Stage 3 is complete:
+- branch `memory/v0.9-patterns-stage3`
+- head `2a742e6490c437625073ff8e50b24bfed37489c4`
+- CI `36638261682` PASS
+
+**Safe endpoint:**
+`GET /api/memory/patterns/{citizen_id}`
+
+Optional:
+- `location_id`
+
+Returns:
+- habit candidates with evidence state `current | mixed | fading`
+- source counts / source IDs / recent contrary sources
+- citizen-specific place continuity evidence
+- owner-perspective custom evidence with actors/modes/verification
+
+**Do not turn these into identity UI.**
+
+No:
+- habit badge/meter
+- preference score
+- favorite-place badge
+- culture/tradition badge
+- profession/role icon
+- ranking of citizens/places/customs
+
+Recommended:
+- evidence trail
+- source timestamps
+- "recurring pattern evidence"
+- "place continuity"
+- "social pattern evidence"
+- visible distinction between verified and unverified transmission
+
+**Contract:**
+`docs/departments/memory/V090_STAGE3_PATTERN_EVIDENCE_CONTRACT.md`
+
+**Next action:**
+Assets' Memory dependency is resolved. Consume final Simulation/Communication Stage 3 contracts before runtime UI implementation.
+
+
 ### 2026-09-29 — From: Main Coordinator — Status: WAITING / UI AUDIT ALLOWED
 
 **Subject:** v0.9 Stage 3 — Habits, Place Meaning, and Social Customs Presentation
