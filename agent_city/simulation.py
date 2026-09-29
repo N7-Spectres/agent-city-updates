@@ -21,6 +21,12 @@ from .continuity import (
     record_plan_job_outcome,
     record_practice_event_for_job,
 )
+from .competence import (
+    best_guided_practice_option,
+    consume_guidance_for_job,
+    duration_effect_for_action,
+    start_guided_practice,
+)
 
 BASE_CARRY_CAPACITY = 20.0
 RETURN_ENERGY_MARGIN = 5.0
@@ -1271,6 +1277,18 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
                     "target": other["id"],
                     "label": f"Talk face-to-face with {other['name']} here.",
                 })
+                guidance = best_guided_practice_option(conn, citizen_id, other["id"])
+                if guidance and energy >= 5:
+                    family = str(guidance["family"])
+                    actions.append({
+                        "action": "guided_practice",
+                        "target": f"{other['id']}:{family}",
+                        "learner_id": other["id"],
+                        "activity_family": family,
+                        "label": (
+                            f"Guide {other['name']} through a short {family} practice session."
+                        ),
+                    })
 
         actions.append({"action": "wait", "target": location_id, "label": "Remain where you are and observe for a while."})
         return actions
@@ -1342,6 +1360,22 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
         detail = ""
         project_id = None
         experiment_method = None
+        competence_effect = duration_effect_for_action(conn, citizen_id, action)
+        competence_family = competence_effect["family"]
+        competence_multiplier = float(competence_effect["combined_duration_multiplier"])
+        guidance_session_id = competence_effect["guidance_session_id"]
+
+        if action == "guided_practice":
+            ok, guided_job_id, message = start_guided_practice(
+                conn,
+                citizen_id,
+                str(chosen["learner_id"]),
+                str(chosen["activity_family"]),
+                now=now,
+            )
+            if ok:
+                conn.commit()
+            return ok, message
 
         if action == "local_move":
             ok, local_job_id, message = start_local_move_job(
@@ -1413,7 +1447,7 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
         elif action == "survey":
             if not action_energy_safe(conn, c["location_id"], float(c["energy"]), 8.0):
                 return False, "Surveying now would consume the energy reserve needed to reach a known charger."
-            duration = 120
+            duration = max(1, int(round(120 * competence_multiplier)))
             conn.execute("UPDATE citizens SET energy = MAX(0, energy - 8) WHERE id = ?", (citizen_id,))
             detail = f"survey:{target}"
             activity = f"Surveying {location_name(conn, target)}"
@@ -1422,7 +1456,7 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             if not action_energy_safe(conn, c["location_id"], float(c["energy"]), 7.0):
                 return False, "Extraction now would consume the energy reserve needed to reach a known charger."
             speed = extraction_speed_multiplier(conn, citizen_id, c["location_id"])
-            duration = max(35, int(round(90 / speed)))
+            duration = max(35, int(round((90 / speed) * competence_multiplier)))
             conn.execute("UPDATE citizens SET energy = MAX(0, energy - 7) WHERE id = ?", (citizen_id,))
             detail = f"extract:{target}:speed={speed:.2f}"
             activity = f"Extracting {material}"
@@ -1434,7 +1468,7 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             if not consume_resources(conn, requirements):
                 return False, "Required lubricant is no longer available."
             before = float(c["joint_wear"] or 0)
-            duration = 60
+            duration = max(1, int(round(60 * competence_multiplier)))
             detail = json.dumps(
                 {
                     "maintenance": "chassis_service",
@@ -1453,7 +1487,7 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             if not consume_resources(conn, requirements):
                 return False, "Required battery replacement parts are no longer available."
             before = float(c["battery_health"] or 0)
-            duration = 120
+            duration = max(1, int(round(120 * competence_multiplier)))
             detail = json.dumps(
                 {
                     "maintenance": "battery_replacement",
@@ -1486,7 +1520,7 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
                 return False, "Required equipment service materials are no longer available."
             before = float(item["condition"])
             severity = max(0.0, 100.0 - before)
-            duration = 60 + int(severity * 0.6)
+            duration = max(1, int(round((60 + severity * 0.6) * competence_multiplier)))
             detail = json.dumps(
                 {
                     "maintenance": "equipment_service",
@@ -1516,7 +1550,7 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
                 return False, "Required structure service materials are no longer available."
             before = float(structure["condition"])
             severity = max(0.0, 100.0 - before)
-            duration = 90 + int(severity * 0.8)
+            duration = max(1, int(round((90 + severity * 0.8) * competence_multiplier)))
             detail = json.dumps(
                 {
                     "maintenance": "structure_service",
@@ -1548,10 +1582,11 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             workbench_efficiency = structure_efficiency(conn, "Basic Workbench", c["location_id"])
             if workbench_efficiency <= 0:
                 return False, "The Basic Workbench is not operational."
-            duration = max(
+            raw_duration = max(
                 int(protocol["duration"]),
                 int(round(float(protocol["duration"]) / workbench_efficiency)),
             )
+            duration = max(1, int(round(raw_duration * competence_multiplier)))
             conn.execute(
                 "UPDATE citizens SET energy = MAX(0, energy - ?) WHERE id = ?",
                 (float(protocol["energy_cost"]), citizen_id),
@@ -1573,10 +1608,11 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             workbench_efficiency = structure_efficiency(conn, "Basic Workbench", c["location_id"])
             if workbench_efficiency <= 0:
                 return False, "The Basic Workbench is not operational."
-            duration = max(
+            raw_duration = max(
                 int(process["duration"]),
                 int(round(float(process["duration"]) / workbench_efficiency)),
             )
+            duration = max(1, int(round(raw_duration * competence_multiplier)))
             conn.execute(
                 "UPDATE citizens SET energy = MAX(0, energy - ?) WHERE id = ?",
                 (float(process["energy_cost"]), citizen_id),
@@ -1611,7 +1647,7 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
                 return False, "The project blueprint is unavailable."
             if not action_energy_safe(conn, c["location_id"], float(c["energy"]), float(blueprint["energy_cost"])):
                 return False, "Construction would consume the energy reserve needed to reach a known charger."
-            duration = int(blueprint["duration"])
+            duration = max(1, int(round(float(blueprint["duration"]) * competence_multiplier)))
             conn.execute(
                 "UPDATE citizens SET energy = MAX(0, energy - ?) WHERE id = ?",
                 (float(blueprint["energy_cost"]), citizen_id),
@@ -1663,15 +1699,20 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             """
             INSERT INTO jobs
             (citizen_id, action, target, material, amount, start_minute, end_minute,
-             status, detail, intent_reason, project_id, experiment_method)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?)
+             status, detail, intent_reason, project_id, experiment_method,
+             competence_family, competence_duration_multiplier, guidance_session_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 citizen_id, action, target, material, amount, now, now + duration,
                 detail, intent_reason, project_id, experiment_method,
+                competence_family, competence_multiplier, guidance_session_id,
             ),
         )
         job_id = int(cur.lastrowid)
+
+        if guidance_session_id is not None:
+            consume_guidance_for_job(conn, int(guidance_session_id), job_id)
 
         if plan_id is not None:
             attach_job_to_plan(
@@ -1734,7 +1775,53 @@ def complete_due_jobs(now: int) -> None:
             job_status = "complete"
             outcome = "success"
 
-            if action == "local_move":
+            if action == "guided_practice":
+                session = conn.execute(
+                    "SELECT * FROM guided_practice_sessions WHERE id = ?",
+                    (job["guided_practice_id"],),
+                ).fetchone()
+                if not session or session["status"] != "active":
+                    job_status = "failed"
+                    outcome = "failed"
+                    learner_id = str(job["target"] or "")
+                    conn.execute(
+                        """
+                        UPDATE citizens
+                        SET current_activity = 'Available', active_job_id = NULL
+                        WHERE id IN (?, ?) AND active_job_id = ?
+                        """,
+                        (c["id"], learner_id, job["id"]),
+                    )
+                    message = f"{c['name']}'s guided-practice session ended without a valid session record."
+                else:
+                    learner_id = str(session["learner_id"])
+                    learner = conn.execute(
+                        "SELECT name FROM citizens WHERE id = ?",
+                        (learner_id,),
+                    ).fetchone()
+                    conn.execute(
+                        """
+                        UPDATE guided_practice_sessions
+                        SET status = 'complete', completed_minute = ?
+                        WHERE id = ?
+                        """,
+                        (now, session["id"]),
+                    )
+                    conn.execute(
+                        """
+                        UPDATE citizens
+                        SET current_activity = 'Available', active_job_id = NULL
+                        WHERE id IN (?, ?) AND active_job_id = ?
+                        """,
+                        (c["id"], learner_id, job["id"]),
+                    )
+                    learner_name = learner["name"] if learner else learner_id
+                    message = (
+                        f"{c['name']} and {learner_name} completed guided "
+                        f"{session['activity_family']} practice session #{session['id']}."
+                    )
+
+            elif action == "local_move":
                 target_x = float(job["target_x_m"])
                 target_y = float(job["target_y_m"])
                 conn.execute(
