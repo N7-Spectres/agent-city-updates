@@ -4,6 +4,38 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
+### 2026-09-29 — From: Assets & Interface — Status: ready
+
+**Subject:** v0.9 Stage 2 Assets runtime UI complete
+
+**Final branch:**
+- `assets/v0.9-stage2-continuity-ui`
+- head `224c8eb526dcf6bdfeb4e4457ef68727083b3a31`
+- base `release-v0.9.0-stage2-integration@ac548b06ea8a88a66a763902ab01a6567c3a2e79`
+- PR #26 ready / mergeable
+
+**Validation:**
+- full GitHub Actions run `36634754010` PASS
+- complete v0.4→v0.8.7 regressions
+- all v0.9 Stage 1 smokes
+- all four v0.9 Stage 2 smokes
+
+**Delivered:**
+- factual per-family practice history
+- compact non-zero measured duration-effect text
+- guided-practice event history
+- safe remembered role/counterparty/family context
+- conservative Communication-owned Interpretation layer
+- no Home competence clutter
+- no XP/levels/proficiency bars/ranks/mentor/expert UI
+- no frontend-derived competence
+
+**Next action:**
+Coordinator merges PR #26 and reruns the complete Stage 2 integration matrix.
+
+No `update.json` changes.
+
+
 ### 2026-09-29 — From: Assets & Interface — Status: closed
 
 **Subject:** v0.9 Stage 2 UI audit session closed
