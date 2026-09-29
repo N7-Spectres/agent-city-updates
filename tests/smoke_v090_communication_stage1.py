@@ -205,7 +205,30 @@ def main() -> None:
                 ]
             return []
 
+        def display_recall_snapshot(
+            owner_id: str,
+            *,
+            plan_id=None,
+            now_minute=None,
+            limit: int = 8,
+        ):
+            rows = causal_recall_snapshot(
+                owner_id,
+                facet_filters=None,
+                limit=limit,
+                now_minute=now_minute,
+            )
+            return [
+                {
+                    key: value
+                    for key, value in row.items()
+                    if key not in {"recall_score", "reinforcement_count", "importance", "matching_facets"}
+                }
+                for row in rows
+            ]
+
         fake_causal.causal_recall_snapshot = causal_recall_snapshot
+        fake_causal.display_recall_snapshot = display_recall_snapshot
         sys.modules["agent_city.causal_memory"] = fake_causal
 
         fake_practice_memory = types.ModuleType("agent_city.practice_memory")
