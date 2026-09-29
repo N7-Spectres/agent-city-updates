@@ -942,6 +942,7 @@ def apply_daily_rhythm_to_actions(
             "construct",
             "plan_project",
             "reserve_project",
+            "guided_practice",
         }
         for action in actions:
             kind = action.get("action")
