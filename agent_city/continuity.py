@@ -512,7 +512,15 @@ def apply_planner_plan_decision(
         unresolved_question=decision.get("plan_unresolved_question"),
         memory_event_ids=memory_ids,
     )
-    return ok, int(plan_id) if ok and operation not in {"abandon", "complete", "supersede"} else None, message
+    if not ok:
+        return False, None, message
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT status FROM citizen_plans WHERE id = ? AND owner_id = ?",
+            (int(plan_id), owner_id),
+        ).fetchone()
+    active_id = int(plan_id) if row and row["status"] == "active" else None
+    return True, active_id, message
 
 
 def attach_job_to_plan(
@@ -581,7 +589,7 @@ def record_plan_job_outcome(conn, job: Any, *, sim_minute: int) -> None:
 
 def record_practice_event_for_job(conn, job: Any, *, sim_minute: int) -> int | None:
     action = str(job["action"] or "")
-    if action not in PRACTICE_ACTIONS or str(job["status"]) != "complete":
+    if action not in PRACTICE_ACTIONS or str(job["status"]) not in {"complete", "failed"}:
         return None
 
     existing = conn.execute(
@@ -599,16 +607,17 @@ def record_practice_event_for_job(conn, job: Any, *, sim_minute: int) -> int | N
     cur = conn.execute(
         """
         INSERT INTO practice_events
-        (citizen_id, job_id, plan_id, activity_type, outcome, completed_minute,
+        (citizen_id, job_id, plan_id, activity_type, job_status, outcome, completed_minute,
          location_id, target, material, project_id, observation_id,
          shared_activity_id, summary)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             str(job["citizen_id"]),
             int(job["id"]),
             int(job["plan_id"]) if job["plan_id"] is not None else None,
             action,
+            str(job["status"]),
             str(job["outcome"] or "success"),
             int(sim_minute),
             str(citizen["location_id"]) if citizen else None,
