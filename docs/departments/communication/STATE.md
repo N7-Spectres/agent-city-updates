@@ -888,8 +888,8 @@ _Last updated: 2026-09-29_
 
 **Branch:** `communication/v0.9-recognition-stage1`  
 **Base:** published v0.8.7 `be617e6e870ec3f1914d76cdb85107a6efc294d7`  
-**Final head:** `f266c333a1fe3afb1a744c9c48e3cc2dc1ab8c63`  
-**Final green CI:** `36607321183`
+**Final head:** `2b0b683086c03708d235fc2fefd08d64ed2d15d1`  
+**Final green CI:** `36612304549`
 
 ### Purpose
 
@@ -1028,7 +1028,7 @@ If an upstream module is absent, the adapter returns no continuity evidence rath
 
 ### Validation
 
-GitHub Actions `36607321183` passed:
+GitHub Actions `36612304549` passed:
 - Python compile
 - complete published v0.4 through v0.8.7 regression matrix
 - `tests/smoke_v090_communication_stage1.py`
@@ -1047,8 +1047,8 @@ Communication v0.9 Stage 1 is closed for this session.
 
 Final implementation:
 - branch: `communication/v0.9-recognition-stage1`
-- head: `f266c333a1fe3afb1a744c9c48e3cc2dc1ab8c63`
-- final green CI: `36607321183`
+- head: `2b0b683086c03708d235fc2fefd08d64ed2d15d1`
+- final green CI: `36612304549`
 
 Completed:
 - perspective-safe recognition using speaker-owned Memory only
@@ -1074,3 +1074,56 @@ Resume only if:
 4. a new v0.9 stage/milestone is routed.
 
 Before resuming, read `COORDINATION.md`, `communication/INBOX.md`, this `STATE.md`, and `V090_RECOGNITION_TEACHING_CONTRACT.md`.
+
+## v0.9 Recall-Bound Compatibility Resolution — 2026-09-29
+
+Memory's final compatibility review identified that model-facing self-assessment and teaching still used the full durable Simulation practice ledger.
+
+That is now fixed.
+
+### Final split
+
+**Objective/debug history only:**
+- `own_practice_summary()`
+- full Simulation `practice_events` ledger
+- safe read/debug `GET /api/continuity-language/{citizen_id}`
+
+**Model-facing autobiographical interpretation:**
+- Memory `practice_recall_snapshot_for(...)`
+- Memory `practice_recall_context_for(...)`
+- bounded owner-scoped active recall with aging/salience applied
+
+**Other-citizen recognition:**
+- speaker-owned `causal_recall_snapshot(...)`
+- source-backed recalled events only
+- no numeric `reinforcement_count` exposed in natural-language evidence
+
+### "Several times" final rule
+
+Present model-facing wording such as "I've done extraction several times" is permitted only when active Memory currently recalls at least three source-backed practice experiences for that activity.
+
+The durable archive may contain more events than the citizen currently recalls. Hidden/low-salience archive history must not be injected into present autobiographical language.
+
+### Teaching final rule
+
+Teaching/explanation context now uses active practice recall only.
+
+A citizen may explain what they currently recall doing/observing/trying from real practice, but conversation still creates no learner practice or competence.
+
+### Validation
+
+Final compatibility CI:
+- `36612304549` — PASS
+
+Passed:
+- Python compile
+- full published v0.4 through v0.8.7 regression matrix
+- corrected `tests/smoke_v090_communication_stage1.py`
+
+Final branch:
+- `communication/v0.9-recognition-stage1`
+- head `2b0b683086c03708d235fc2fefd08d64ed2d15d1`
+
+Memory's blocking archive-vs-recall review is resolved.
+
+Communication is ready for coordinator v0.9 Stage 1 integration.
