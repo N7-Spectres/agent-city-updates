@@ -88,6 +88,44 @@ Next:
 - Assets implements the audited Stage 2 citizen-sheet UI on this exact base.
 - Coordinator then runs the final Stage 2 matrix including the Assets smoke before Stage 3 begins.
 
+## v0.9 Stage 2 Fully Integrated Baseline
+
+**Status: complete and green; not yet published as v0.9.0**
+
+- branch: `release-v0.9.0-stage2-integration`
+- immutable green head: `f680275a78b9da71a43f3c79217f292796b7843d`
+- definitive combined CI: `36637062562` — PASS
+- `update.json` remains on published v0.8.7
+
+Integrated:
+- family-bounded practice-derived competence
+- bounded duration-only competence effects
+- failed-attempt experience weighting
+- severe machinery degradation remains the dominant bottleneck
+- real two-citizen guided-practice sessions
+- one-use learner support on the next matching real task
+- guided-practice Memory with event-local teacher/learner roles
+- active-recall teaching/self-assessment boundaries
+- self-only measured competence language
+- perspective-safe recognition/questions
+- citizen-sheet factual competence history
+- compact measured-work effect text
+- guided-practice history
+- remembered guided-practice perspective
+- no XP, levels, classes, ranks, expert/mentor/trainer badges, global reputation, or conversation-only skill transfer
+
+Validation:
+- complete v0.4-v0.8.7 regression matrix
+- all four v0.9 Stage 1 smokes
+- Simulation Stage 2 smoke
+- Memory Stage 2 smoke
+- Communication Stage 2 smoke
+- Assets Stage 2 smoke
+
+Stage 2 integration corrections were test-harness compatibility only; runtime authority rules were not weakened.
+
+Stage 3 is now the only remaining v0.9 implementation stage.
+
 ## Next Major Milestone — v0.9 Civilization Continuity
 
 The v0.9 architecture doctrine is now locked in:
