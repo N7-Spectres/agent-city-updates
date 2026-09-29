@@ -1277,6 +1277,10 @@ async function loadCitizenContinuity(citizenId, { force = false } = {}) {
     if (!competenceResponse.ok) throw new Error("competence endpoint unavailable");
     const competence = await competenceResponse.json();
 
+    const patternsResponse = await fetch(`/api/memory/patterns/${encodeURIComponent(citizenId)}`);
+    if (!patternsResponse.ok) throw new Error("history-pattern endpoint unavailable");
+    const patterns = await patternsResponse.json();
+
     const openPlans = (objective.plans || [])
       .filter(plan => ["active", "paused"].includes(String(plan.status)))
       .slice(0, 4);
@@ -1294,7 +1298,7 @@ async function loadCitizenContinuity(citizenId, { force = false } = {}) {
       }
     }));
 
-    const data = { objective, memory, competence, planMemories };
+    const data = { objective, memory, competence, patterns, planMemories };
     citizenContinuityCache.set(citizenId, { data, loadedAt: Date.now(), unavailable: false });
     if (sheetCitizenId === citizenId) renderCitizenSheet();
     return data;
@@ -1359,6 +1363,10 @@ function citizenContinuityMarkup(citizenId) {
   const competence = entry.data.competence || {};
   const competenceFamilies = Array.isArray(competence.families) ? competence.families : [];
   const guidedSessions = Array.isArray(competence.guided_practice_sessions) ? competence.guided_practice_sessions : [];
+  const patterns = entry.data.patterns || {};
+  const recurringChoices = Array.isArray(patterns.habits) ? patterns.habits : [];
+  const placeContinuity = Array.isArray(patterns.places) ? patterns.places : [];
+  const socialPatterns = Array.isArray(patterns.customs) ? patterns.customs : [];
   const planMemories = entry.data.planMemories || {};
   const plans = objective.plans || [];
   const openPlans = plans.filter(plan => ["active", "paused"].includes(String(plan.status)));
@@ -1470,6 +1478,89 @@ function citizenContinuityMarkup(citizenId) {
     ? generalMemory.map(continuityMemoryRow).join("")
     : '<div class="sheet-empty muted">No relevant active memories are available right now.</div>';
 
+  const recurringChoiceMarkup = recurringChoices.slice(0, 8).map(item => {
+    const action = String(item.action_key || "choice").replaceAll("_", " ");
+    const evidenceState = String(item.state || "recorded").replaceAll("_", " ");
+    const supportSources = Array.isArray(item.support_sources) ? item.support_sources : [];
+    const contrarySources = Array.isArray(item.recent_contrary_sources) ? item.recent_contrary_sources : [];
+    const sourceMarkup = supportSources.map(source => `
+      <span class="continuity-source-chip">${escapeHtml(source.type || "source")} #${escapeHtml(String(source.id ?? "?"))}</span>
+    `).join("");
+    const contraryMarkup = contrarySources.map(source => `
+      <span class="continuity-source-chip contrary">${escapeHtml(String(source.action_key || "other choice").replaceAll("_", " "))} • ${escapeHtml(source.type || "source")} #${escapeHtml(String(source.id ?? "?"))}</span>
+    `).join("");
+    return `
+      <div class="continuity-pattern-row">
+        <div class="continuity-pattern-head">
+          <strong>${escapeHtml(action)}</strong>
+          <span class="continuity-evidence-state">${escapeHtml(evidenceState)} evidence</span>
+        </div>
+        <small>${Number(item.support_count || 0)} source-backed choice${Number(item.support_count || 0) === 1 ? "" : "s"} across ${Number(item.distinct_days || 0)} simulation day${Number(item.distinct_days || 0) === 1 ? "" : "s"} • latest ${escapeHtml(item.latest_support_label || formatMinute(item.latest_support_minute || 0))}</small>
+        <p><b>Context:</b> ${escapeHtml(String(item.context_key || "source context unavailable").replaceAll("_", " "))}</p>
+        <details>
+          <summary>Evidence trail</summary>
+          <div class="continuity-source-list">
+            ${sourceMarkup || '<span class="muted">No source rows exposed.</span>'}
+            ${contraryMarkup ? `<div class="continuity-contrary"><small>Recent contrary choices</small>${contraryMarkup}</div>` : ""}
+          </div>
+        </details>
+      </div>
+    `;
+  }).join("") || '<div class="sheet-empty muted">No recurring voluntary-choice evidence currently qualifies.</div>';
+
+  const placeContinuityMarkup = placeContinuity.slice(0, 8).map(item => {
+    const evidence = Array.isArray(item.evidence) ? item.evidence : [];
+    const evidenceMarkup = evidence.slice(-6).map(row => `
+      <div class="continuity-place-event">
+        <time>${escapeHtml(formatMinute(row.sim_minute || 0))}</time>
+        <span>${escapeHtml(row.summary || row.event_kind || "Remembered place event")}</span>
+        <small>${escapeHtml(row.source_type || "source")} #${escapeHtml(String(row.source_id ?? "?"))}</small>
+      </div>
+    `).join("");
+    return `
+      <div class="continuity-pattern-row">
+        <div class="continuity-pattern-head">
+          <strong>${escapeHtml(locationNameById(item.location_id || ""))}</strong>
+          <span>${Number(item.evidence_count || 0)} retained source${Number(item.evidence_count || 0) === 1 ? "" : "s"}</span>
+        </div>
+        <small>Latest retained evidence ${escapeHtml(item.latest_label || formatMinute(item.latest_minute || 0))}</small>
+        <p class="muted">Personal continuity evidence only. This does not mark a favorite, home, safe, or sacred place.</p>
+        <details>
+          <summary>Place evidence trail</summary>
+          <div class="continuity-place-events">${evidenceMarkup || '<div class="muted">No place source rows exposed.</div>'}</div>
+        </details>
+      </div>
+    `;
+  }).join("") || '<div class="sheet-empty muted">No place continuity evidence currently qualifies.</div>';
+
+  const socialPatternMarkup = socialPatterns.slice(0, 8).map(item => {
+    const actors = Array.isArray(item.distinct_actors) ? item.distinct_actors : [];
+    const modes = Array.isArray(item.transmission_modes) ? item.transmission_modes : [];
+    const verifications = Array.isArray(item.verification_states) ? item.verification_states : [];
+    const sources = Array.isArray(item.sources) ? item.sources : [];
+    const sourceMarkup = sources.map(source => `
+      <div class="continuity-social-source">
+        <span>${escapeHtml(citizenNameById(source.actor_id || ""))} • ${escapeHtml(String(source.mode || "observed").replaceAll("_", " "))}</span>
+        <small>${escapeHtml(source.verification || "unverified")} • ${escapeHtml(source.type || "source")} #${escapeHtml(String(source.id ?? "?"))}</small>
+      </div>
+    `).join("");
+    return `
+      <div class="continuity-pattern-row">
+        <div class="continuity-pattern-head">
+          <strong>${escapeHtml(String(item.pattern_key || "recurring social pattern").replaceAll("_", " "))}</strong>
+          <span>${Number(item.evidence_count || 0)} source event${Number(item.evidence_count || 0) === 1 ? "" : "s"}</span>
+        </div>
+        <small>${actors.length} actor${actors.length === 1 ? "" : "s"} • ${modes.map(mode => String(mode).replaceAll("_", " ")).join(", ") || "transmission recorded"} • latest ${escapeHtml(item.latest_label || formatMinute(item.latest_minute || 0))}</small>
+        <p class="muted">Owner-perspective social evidence only. It is not an authoritative tradition or culture fact.</p>
+        ${verifications.length ? `<div class="continuity-verification-line">Verification represented: ${verifications.map(value => escapeHtml(value)).join(", ")}</div>` : ""}
+        <details>
+          <summary>Social source trail</summary>
+          <div class="continuity-social-sources">${sourceMarkup || '<div class="muted">No social source rows exposed.</div>'}</div>
+        </details>
+      </div>
+    `;
+  }).join("") || '<div class="sheet-empty muted">No socially transmitted recurring pattern evidence currently qualifies.</div>';
+
   return `
     <div class="continuity-layer">
       <div class="continuity-layer-head">
@@ -1495,13 +1586,20 @@ function citizenContinuityMarkup(citizenId) {
       </div>
       <h4>Relevant memories</h4>
       <div class="continuity-memory-list">${memoryMarkup}</div>
+      <h4>Recurring choice evidence</h4>
+      <p class="continuity-layer-note">Repeated voluntary choices are shown as source-backed evidence states, not traits or preferences.</p>
+      <div class="continuity-pattern-list">${recurringChoiceMarkup}</div>
+      <h4>Place continuity</h4>
+      <div class="continuity-pattern-list">${placeContinuityMarkup}</div>
+      <h4>Social pattern evidence</h4>
+      <div class="continuity-pattern-list">${socialPatternMarkup}</div>
     </div>
     <div class="continuity-layer interpretation">
       <div class="continuity-layer-head">
         <span>Citizen Interpretation</span>
         <small>Not an objective stat</small>
       </div>
-      <p class="muted">Source-backed self-reflection remains Communication-owned and attributed. Measured work effects and event counts are evidence, not personality or expertise. Agent City does not infer expertise, rank, friendship, or preference from event counts. Guided-practice event roles do not create permanent guide identities.</p>
+      <p class="muted">Source-backed self-reflection remains Communication-owned and attributed. Measured work effects and event counts are evidence, not personality or expertise. Agent City does not infer expertise, rank, friendship, preference, favorite places, or traditions from event counts. Recurring-choice, place, and social-pattern evidence remain revisable history, not identity. Guided-practice event roles do not create permanent guide identities.</p>
     </div>
   `;
 }

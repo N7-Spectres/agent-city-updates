@@ -23,7 +23,14 @@ def main() -> None:
     assert "Remembered Perspective" in app
     assert "Citizen Interpretation" in app
     assert "Not an objective stat" in app
-    assert "does not infer expertise, rank, friendship, or preference" in app
+    assert "does not infer expertise, rank, friendship" in app
+    interpretation = app[
+        app.index("Citizen Interpretation"):
+        app.index("function knowledgeFactMarkup")
+    ]
+    assert "preference" in interpretation
+    assert "favorite places" in interpretation
+    assert "traditions" in interpretation
 
     # Objective continuity and active remembered perspective use separate sources.
     assert "/api/continuity/" in app
