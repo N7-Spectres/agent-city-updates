@@ -286,3 +286,29 @@ The final branch commit only restored the release-only workflow.
 World & Simulation v0.9 Stage 1 is ready for integration with Memory's causal-memory branch and for downstream Communication/Assets consumption.
 
 No `update.json` or release metadata was changed.
+
+
+## v0.9 Stage 1 Session Close
+
+World & Simulation work for this session is complete.
+
+Authoritative implementation:
+- branch: `simulation/v0.9-continuity-stage1`
+- head: `6b027708512671d8c851723fb900cfa1e0fcac73`
+- base: published v0.8.7 `be617e6e870ec3f1914d76cdb85107a6efc294d7`
+- final validation: GitHub Actions `36603570434`
+
+Handoffs delivered:
+- Memory: canonical plan/source/practice IDs + causal facet backfill contract
+- Communication: plan/practice truth contract for self-assessment/recognition work
+- Assets: score-free continuity read model
+- COORDINATION: Simulation is in REVIEW and downstream Simulation blockers are cleared
+
+No additional World & Simulation Stage 1 work is pending.
+
+Resume only for:
+- coordinator Memory+Simulation merge conflicts,
+- a new Simulation inbox request,
+- or authorized v0.9 Stage 2 competence/teaching work.
+
+No release metadata or `update.json` was changed.
