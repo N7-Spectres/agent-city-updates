@@ -135,3 +135,6 @@ jobs:
 
       - name: Run v0.9 Stage 2 Communication guided-practice smoke
         run: python tests/smoke_v090_communication_stage2.py
+
+      - name: Run v0.9 Stage 2 Assets continuity UI smoke
+        run: python tests/smoke_v090_assets_stage2.py
