@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-29_
 _Current release: v0.8.7_
-_Current development branch: `memory/v0.9-experience-stage2`_
+_Current development branch: `memory/v0.9-patterns-stage3`_
 
 ## Mission
 
@@ -1324,3 +1324,140 @@ Resume Memory only for:
 - or a newly authorized milestone.
 
 No release was published and `update.json` was not changed.
+
+
+## v0.9 Stage 3 Pattern Evidence Spine — Complete
+
+**Definitive Stage 2 base:** `release-v0.9.0-stage2-integration` @ `f680275a78b9da71a43f3c79217f292796b7843d`  
+**Memory branch:** `memory/v0.9-patterns-stage3`  
+**Final head:** `2a742e6490c437625073ff8e50b24bfed37489c4`  
+**Validation:** CI `36638261682` passed the complete v0.4-v0.8.7 matrix, all integrated v0.9 Stage 1 + Stage 2 smokes, and `tests/smoke_v090_memory_stage3.py`.
+
+### New evidence substrate
+
+New module:
+
+`agent_city/pattern_memory.py`
+
+New additive projection:
+
+`memory_pattern_evidence`
+
+This table stores source-linked evidence only.
+
+It does not store:
+- habit identity
+- preference
+- profession/role
+- favorite place
+- culture/tradition truth
+- global score
+
+Canonical source deletion is pruned from the projection.
+
+### Voluntary recurring-pattern evidence
+
+New API:
+
+`record_voluntary_choice_evidence(owner_id, job_id, action_key, context_key, location_id=None, summary=None)`
+
+Memory validates:
+- source job exists
+- owner matches
+- job is terminal
+- decision reason exists
+- action matches the source
+- known forced/survival actions are rejected
+
+Automatic exclusions include wait, recharge, travel, and maintenance-service actions.
+
+Simulation/planner remains responsible for deciding whether an otherwise eligible choice was genuinely voluntary and for constructing a deterministic context key.
+
+### Habit candidate threshold
+
+A candidate requires:
+- same citizen
+- same action
+- same deterministic context
+- at least 3 source events
+- at least 2 simulation days
+
+Recent contrary voluntary choices in the same context can move the evidence state:
+- current
+- mixed
+- fading
+
+Old events are never rewritten.
+
+Deleting/changing source jobs changes the justification.
+
+### Citizen-specific place continuity
+
+`place_continuity_for(...)` derives personal place significance from source-backed retained memories with location/place facets.
+
+The read model is evidence-only.
+
+It does not infer:
+- favorite
+- affinity
+- attachment score
+- preference
+
+Different citizens can therefore have different continuity evidence for the same physical location.
+
+### Social transmission/custom evidence
+
+New API:
+
+`record_social_pattern_evidence(memory_event_id, pattern_key, actor_id, transmission_mode, context_key="")`
+
+Supported modes:
+- observed
+- heard
+- participated
+
+The underlying Memory event must already exist through a valid information/experience path.
+
+A custom candidate requires:
+- at least 3 source-backed transmission events
+- at least 2 distinct actors
+- at least 2 simulation days
+- at least one actor other than the observer
+
+One person's private repetition can never create a custom candidate.
+
+Verification state is preserved; repetition never upgrades an unverified report.
+
+### Safe read model
+
+New endpoint:
+
+`GET /api/memory/patterns/{citizen_id}`
+
+Optional:
+- `location_id`
+
+Returns bounded:
+- recurring voluntary habit candidates
+- citizen-specific place continuity evidence
+- owner-perspective custom candidates
+
+No global scores or identity labels are returned.
+
+### Validation
+
+`tests/smoke_v090_memory_stage3.py` verifies:
+- recharge/service repetition cannot become voluntary habit evidence
+- thresholded repeated voluntary choices form a candidate
+- later contrary history makes the old candidate fade
+- deleting a canonical job removes its support
+- two citizens can differ on the same place
+- custom evidence requires multiple actors/transmission
+- one private repeater does not create a custom
+- source Memory deletion removes custom justification
+- endpoint exposes score-free citizen-scoped evidence
+
+Contract:
+`docs/departments/memory/V090_STAGE3_PATTERN_EVIDENCE_CONTRACT.md`
+
+No release metadata or `update.json` was changed.
