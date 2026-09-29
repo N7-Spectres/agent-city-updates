@@ -1,8 +1,8 @@
 # Communication & Perception — State
 
-_Last updated: 2026-09-28_
-_Current release: v0.7.0_
-_Active milestone: v0.8.0 Stage 2 — Shared Local Exploration_
+_Last updated: 2026-09-29_
+_Current release: v0.8.7_
+_Active milestone: v0.9 Stage 1 — Civilization Continuity_
 
 ## Mission
 
