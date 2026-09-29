@@ -36,8 +36,6 @@ This file is the shared project task board.
 
 - [Memory & Social] v0.9 Stage 3 pattern evidence spine complete on `memory/v0.9-patterns-stage3` @ `2a742e6490c437625073ff8e50b24bfed37489c4`; CI `36638261682` passed the definitive Stage 2 matrix + `tests/smoke_v090_memory_stage3.py`.
 
-_None._
-
 ### DONE
 
 - [Coordinator] v0.9 Stage 2 fully integrated on `release-v0.9.0-stage2-integration` @ `f680275a78b9da71a43f3c79217f292796b7843d`; definitive CI `36637062562` PASS across v0.4-v0.8.7, all four Stage 1 smokes, and all four Stage 2 smokes.
