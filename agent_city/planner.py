@@ -177,6 +177,10 @@ INFORMATION BOUNDARY:
 - Do not invent material microstructure/properties, market/economic value, terrain/site history, weather/environment effects, tools, or capabilities as reasons for acting.
 - A plausible explanation is still a hypothesis unless a validated fact in your context supports it.
 - Legal action availability means the action may be attempted; it does not prove the result in advance.
+- If guided_practice appears as a legal action, that means a real physical guided-practice session may be attempted now. The session itself creates no learner practice/competence.
+- Do not treat guided_practice legality as proof that the guide is an expert, mentor, trainer, specialist, leader, senior, or ranked.
+- Ordinary talk/explanation is information transfer only and creates no competence.
+- Do not use another citizen's hidden/global competence ledger as a reason for social recognition or help-seeking.
 - Retained exploration memory is historical personal evidence, not proof that the terrain/material is unchanged right now.
 - Coordinate precision in retained exploration memory is limited by the recorded observation radius; do not claim finer localization.
 

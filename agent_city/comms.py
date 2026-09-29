@@ -9,6 +9,9 @@ import httpx
 
 from .db import add_history, connect, get_meta
 from .continuity_language import (
+    guided_practice_context,
+    help_question_context,
+    measured_competence_context,
     plan_discussion_context,
     recognition_context,
     self_assessment_context,
@@ -141,6 +144,13 @@ def _citizen_private_context(citizen_id: str, counterpart_id: str | None = None)
     self_context = self_assessment_context(citizen_id)
     plan_context = plan_discussion_context(citizen_id)
     teaching_context = teaching_boundary_context(citizen_id)
+    measured_context = measured_competence_context(citizen_id)
+    guidance_context = guided_practice_context(
+        citizen_id,
+        counterpart_id=counterpart_id,
+        include_current_options=True,
+    )
+    help_context = help_question_context(citizen_id, counterpart_id)
     recognition = (
         recognition_context(citizen_id, counterpart_id)
         if counterpart_id
@@ -183,6 +193,12 @@ Durable relationship history derived from actual recorded encounters:
 {recognition}
 
 {teaching_context}
+
+{measured_context}
+
+{guidance_context}
+
+{help_context}
 """.strip()
 
 
@@ -800,6 +816,11 @@ INFORMATION RULES:
 - Do not compare another citizen's experience to your own unless information that legitimately reached the speaker supports that comparison.
 - Explaining or teaching through conversation does not create practice, competence, or skill for the listener.
 - Discussing a persistent plan does not create, revise, pause, resume, abandon, supersede, or complete the canonical plan.
+- A measured practice-derived task-time effect is an objective physical effect for the speaker only. It is not a title, rank, proficiency level, or social reputation.
+- Never expose another citizen's hidden/global competence snapshot as recognition evidence.
+- A real guided-practice session is a physical Simulation event. Ordinary explanation is not guided practice and grants zero competence.
+- A completed guided-practice session still creates no learner practice by itself; only the learner's later real matching task creates new practice evidence.
+- Teacher and learner describe one event, not permanent mentor/trainer/expert identities.
 
 SUMMARY TRUTH RULES:
 - The summary describes communication, not physical verification.

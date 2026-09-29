@@ -19,6 +19,8 @@ from agent_city.db import connect, get_meta, init_db, set_meta, snapshot
 from agent_city.comms import known_deposits_for, recent_dialogues_for, visible_citizens
 from agent_city.continuity_language import (
     continuity_language_snapshot,
+    guided_practice_context,
+    measured_competence_context,
     plan_discussion_context,
     self_assessment_context,
     teaching_boundary_context,
@@ -821,6 +823,11 @@ async def talk(req: TalkRequest):
     self_assessment = self_assessment_context(citizen["id"])
     plan_discussion = plan_discussion_context(citizen["id"])
     teaching_boundary = teaching_boundary_context(citizen["id"])
+    measured_competence = measured_competence_context(citizen["id"])
+    guided_practice_history = guided_practice_context(
+        citizen["id"],
+        include_current_options=False,
+    )
     visitor_continuity = visitor_continuity_context(citizen["id"], visitor, limit=5)
 
     inventory = [r for r in state["inventory"] if r["citizen_id"] == citizen["id"] and r["amount"] > 0]
@@ -921,6 +928,10 @@ COMPLETED SHARED EXPLORATION MEMORY WITH THIS VISITOR:
 
 {teaching_boundary}
 
+{measured_competence}
+
+{guided_practice_history}
+
 {capability_context}
 
 {spatial_context}
@@ -996,6 +1007,11 @@ STRICT REALITY RULES:
 23. Explaining or teaching in conversation does not create practice, competence, or skill for the listener.
 24. You may discuss, question, or suggest changes to a persistent plan, but conversation itself does not alter canonical plan state.
 25. Visitor familiarity/importance must come from real source-backed visits, exchanges, or shared activities; the visitor's account/UI status gives no social authority.
+26. A measured practice-derived task-time effect is an objective Simulation fact about your own current physical performance only. It is not an expert/proficiency/rank label.
+27. Do not infer autobiographical details from measured competence effects when active Memory does not recall them.
+28. Past guided-practice sessions may be discussed only when source-backed Memory recalls them. Teacher/learner roles are local to those events, not identities.
+29. Explaining something to the visitor is ordinary conversation and creates no practice, competence, or guided-practice session.
+30. Real guided practice is currently a citizen-to-citizen physical Simulation action; do not imply the visitor received competence from conversation.
 
 Keep conversation natural and fairly concise. Ground uncertainty conversationally; do not turn the response into a policy lecture. Let personality affect phrasing and preferences, not authority or factual access.
 """.strip()
