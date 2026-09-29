@@ -19,19 +19,19 @@ This file is the shared project task board.
 
 ### WAITING
 
-- [Assets & Interface] Simulation + Memory Stage 2 read contracts are ready; final UI runtime now waits only on Communication's Stage 2 interpretation/language contract.
-- [Coordinator / v0.9 Stage 2 Integration] Memory + Simulation are ready; waits for Communication + Assets completion before combined integration.
+- [Assets & Interface] Simulation + Memory + Communication Stage 2 contracts are ready; runtime UI may proceed on the coordinator's assembled Stage 2 base.
+- [Coordinator / v0.9 Stage 2 Integration] Simulation + Memory + Communication are ready; waits only on Assets runtime completion before combined integration.
 
 ### READY
 
-- [Communication & Perception] Memory's Stage 2 teaching/experience contract is ready from `memory/v0.9-experience-stage2`; Communication may implement guided-practice/questions/self-assessment language now.
 - [Assets & Interface] Memory's Stage 2 remembered-perspective contract is ready; existing `GET /api/memory/continuity/{citizen_id}` remains the safe Memory UI surface.
 
 - [World & Simulation] v0.9 Stage 2 bounded competence + real guided practice ready on `simulation/v0.9-competence-stage2` @ `667f4659aeef9a9658d7e08f4ba7c54e267a38f9`; final runtime CI `36618030044` passed the complete v0.4-v0.8.7 matrix, all v0.9 Stage 1 smokes, and `tests/smoke_v090_simulation_stage2.py`.
-- [Communication & Perception] Simulation's physical guided-practice/language contract is now in Communication INBOX.
 - [Assets & Interface] Simulation's score-free competence/guided-practice read model is now in Assets INBOX.
 
 ### REVIEW
+
+- [Communication & Perception] v0.9 Stage 2 guided-practice/questions/competence-safe language complete on `communication/v0.9-guided-practice-stage2` @ `6af2f6cb8b9fe3d44b30c9dad2fc6e54926b09cf`; CI `36627237487` passed the integrated Stage 1 regression matrix + Communication Stage 2 smoke.
 
 - [Memory & Social] v0.9 Stage 2 experience/teaching Memory complete on `memory/v0.9-experience-stage2` @ `d4e91866e41eb6fd33a4459fc9bd057ac28a6ba5`; CI `36621525829` passed the full integrated Stage 1 matrix + `tests/smoke_v090_memory_stage2.py`.
 
@@ -771,3 +771,27 @@ Coordinator and downstream departments must preserve:
 17. Recall score/reinforcement/hidden importance remain absent from ordinary UI/model-facing teaching surfaces.
 18. Preserve `tests/smoke_v090_memory_stage2.py` in combined Stage 2 regression testing.
 19. No department publishes `update.json` during Stage 2.
+
+## Communication v0.9 Stage 2 Integration Locks
+
+Coordinator integration must preserve:
+
+1. Simulation-owned measured competence effect and Memory-owned autobiographical recall remain separate layers.
+2. Model-facing measured competence is self-only; Communication must not inject another citizen's objective competence snapshot as recognition evidence.
+3. Measured effect may be described as bounded task-time change only, not expert/proficiency/rank/title/reputation.
+4. Present self-assessment/teaching continues to use Memory active practice recall, not the full durable practice ledger.
+5. Guided-practice continuity uses Memory `guided_practice_recall_*` and canonical `guided_practice_sessions.id`.
+6. Teacher/learner are event-local roles, never permanent mentor/trainer/expert identities.
+7. Current guided-practice availability may be shown only from the speaker's own legal Simulation `possible_actions(...)`.
+8. A legal guided-practice action proves current physical action availability only; it does not prove a socially known competence comparison.
+9. Citizens may ask another about their experience without already knowing whether the other is more practiced. Questions are not competence claims.
+10. Ordinary conversation/explanation transfers information only and creates no competence.
+11. A completed guided-practice session itself creates no learner practice/competence; only the learner's later real matching task creates new practice evidence.
+12. Visitor dialogue may discuss the citizen's own measured effect and recalled guided-practice history, but receives no current citizen-to-citizen guidance-option list.
+13. Internal weighted evidence, recall scores, and reinforcement counts remain hidden from natural-language identity/presentation.
+14. Preserve planner rule that guided_practice is a real physical action but never a title/reputation source.
+15. Preserve `tests/smoke_v090_communication_stage2.py` in combined Stage 2 regression testing.
+16. Preserve all Stage 1 recall-bound/provenance/anti-omniscience and v0.7 raw-exchange-first rules.
+
+Communication contract:
+- `docs/departments/communication/V090_STAGE2_GUIDED_PRACTICE_LANGUAGE_CONTRACT.md`
