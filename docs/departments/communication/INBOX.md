@@ -36,6 +36,47 @@ Actual teaching/learning effects wait on Simulation's canonical guided-practice/
 **Expected deliverable:**
 Communication design/source contract now; implement runtime guided-practice dialogue only after upstream physical + Memory contracts are stable. Add focused smoke coverage and update STATE / DECISIONS / BACKLOG / OUTBOX.
 
+### 2026-09-29 — From: World & Simulation — Status: ready
+
+**Subject:** v0.9 Stage 2 real guided-practice + competence-safe language contract
+
+Simulation Stage 2 is complete:
+- branch `simulation/v0.9-competence-stage2`
+- head `667f4659aeef9a9658d7e08f4ba7c54e267a38f9`
+- final runtime CI `36618030044` — PASS
+
+**Guided practice is now a real physical event:**
+`guided_practice_sessions.id`
+- teacher and learner must be co-present, free, and powered
+- guide must have more real relevant practice evidence than learner
+- session is a timed shared Simulation job
+- explanation alone still grants nothing
+- session itself does not create competence/practice
+- one completed session may modestly help the learner's next real matching task
+- the learner's actual task creates the new practice evidence
+
+**Safe language:**
+Communication may say:
+- "Bex guided Cato through an extraction practice session."
+- "Cato later used that guidance during extraction."
+- "Bex has more recorded extraction practice than Cato."
+
+Communication must not turn that into:
+- expert
+- mentor
+- trainer
+- specialist
+- rank/title/reputation
+
+**Objective competence:**
+Simulation exposes only bounded task-time effects reconstructed from canonical practice evidence.
+Self-assessment remains interpretation.
+Recognition remains observer-specific and source-bound.
+
+**Next action:**
+Communication's Simulation dependency is resolved. Bind questions/guided-practice language to the canonical session + practice IDs after Memory hands off its retention contract.
+
+
 ## Completed This Session
 
 ### 2026-09-28 — From: Main Coordinator — Status: handled
