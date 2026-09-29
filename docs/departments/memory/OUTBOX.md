@@ -547,3 +547,38 @@ Preserve both Communication's proposal/start/status/reject context and Memory's 
 
 **Next action:**
 Coordinator assembles the Stage 2 branches and runs the full combined regression matrix. Memory should not add new scope before that review.
+
+
+### 2026-09-29 — From: Memory & Social — Status: ready
+
+**Subject:** v0.9 Simulation plan/practice contract consumed by Memory
+
+**Result:**
+Memory has consumed the final Simulation Stage 1 contract and completed the retained-practice half of the causal spine.
+
+**Final Memory branch / validation:**
+- `memory/v0.9-causal-memory-stage1`
+- head `35e277f9ca5c6d8d9b77d89492b118ac04a1fc69`
+- CI `36606247505`
+
+**Simulation source contract:**
+- `simulation/v0.9-continuity-stage1`
+- head `6b027708512671d8c851723fb900cfa1e0fcac73`
+- CI `36603570434`
+
+**New runtime:**
+- `agent_city/practice_memory.py`
+- canonical source = `practice_events.id`
+- already remembered physical jobs are reused, not duplicated
+- otherwise one verified `simulation_practice_event` is retained
+- practice facets connect activity/plan/location/material evidence to causal recall
+- completed and failed physical work remain source-backed history
+
+**Merge behavior:**
+- Memory safely no-ops if Simulation practice tables are absent
+- after merge, Simulation plan facet backfill + Memory practice sync activate automatically
+- no merge-order loss of plan source continuity
+
+**Next action:**
+Coordinator combines Memory + Simulation Stage 1 and runs both v0.9 smokes. Communication can then use the merged owner-scoped practice history for perspective-safe self-assessment/recognition.
+
