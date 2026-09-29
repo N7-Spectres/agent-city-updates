@@ -1,0 +1,50 @@
+name: Communication v0.9 Stage 2 guided-practice check
+
+on:
+  push:
+    branches:
+      - "communication/v0.9-guided-practice-stage2"
+
+jobs:
+  communication-v090-stage2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -r requirements.txt
+      - run: python -m compileall -q main.py agent_city tests
+      - run: python tests/smoke_v040.py
+      - run: python tests/smoke_v050.py
+      - run: python tests/smoke_v050_communication.py
+      - run: python tests/smoke_v050_ui.py
+      - run: python tests/smoke_v060.py
+      - run: python tests/smoke_v060_communication.py
+      - run: python tests/smoke_v060_memory.py
+      - run: python tests/smoke_v060_ui.py
+      - run: python tests/smoke_v070.py
+      - run: python tests/smoke_v070_assets.py
+      - run: python tests/smoke_v070_communication.py
+      - run: python tests/smoke_v070_memory.py
+      - run: python tests/smoke_v080_stage1.py
+      - run: python tests/smoke_v080_stage2.py
+      - run: python tests/smoke_v080_communication.py
+      - run: python tests/smoke_v080_communication_stage2.py
+      - run: python tests/smoke_v080_memory.py
+      - run: python tests/smoke_v080_memory_stage2.py
+      - run: python tests/smoke_v080_assets.py
+      - run: python tests/smoke_v080_assets_stage2.py
+      - run: python tests/smoke_v081_assets.py
+      - run: python tests/smoke_v082_vitals.py
+      - run: python tests/smoke_v083_personality.py
+      - run: python tests/smoke_v084_summary_truth.py
+      - run: python tests/smoke_v085_daily_rhythm.py
+      - run: python tests/smoke_v086_stranded_recovery.py
+      - run: python tests/smoke_v087_route_tokens.py
+      - run: python tests/smoke_v090_memory_stage1.py
+      - run: python tests/smoke_v090_simulation_stage1.py
+      - run: python tests/smoke_v090_communication_stage1.py
+      - run: python tests/smoke_v090_assets_stage1.py
+      - run: python tests/smoke_v090_communication_stage2.py
