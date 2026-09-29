@@ -202,3 +202,64 @@ Resume only when:
 - Memory returns the UI-safe recalled-event projection,
 - Communication's final recall-bound compatibility is integrated,
 - or a new Assets work packet arrives.
+
+
+## v0.9 Stage 2 UI — Audit Complete
+
+Master audit:
+`docs/departments/assets/V090_STAGE2_COMPETENCE_UI_AUDIT.md`
+
+### Runtime implementation once assembled base exists
+
+Extend the existing Stage 1 Citizens → Continuity UI.
+
+Evidence / Record:
+- keep Ongoing Plans
+- keep Recorded Practice
+- add per-family completed/failed factual summary
+- add measured work-effect text only when `duration_reduction_percent > 0`
+- add Guided Practice History
+
+Remembered Perspective:
+- continue `GET /api/memory/continuity/{citizen_id}`
+- allow guided-practice memories to appear naturally
+- show source role/counterparty when useful
+- keep internal recall/reinforcement hidden
+
+Citizen Interpretation:
+- consume final Communication-safe attributed language only
+- do not derive self-assessment from counts/effects in JavaScript
+
+### Explicit Stage 2 non-goals
+
+- no Skills tab
+- no XP/proficiency bars
+- no 8%-cap-as-mastery-scale
+- no expertise tiers
+- no mentor/trainer badges
+- no competence leaderboard
+- no cross-citizen heatmap
+- no frontend-derived competence
+- no guidance "buff" icon
+
+### Current blocker
+
+There is no coordinator-assembled Stage 2 base branch yet.
+
+Assets must not merge:
+- `simulation/v0.9-competence-stage2`
+- `memory/v0.9-experience-stage2`
+- `communication/v0.9-guided-practice-stage2`
+
+inside the Assets department branch.
+
+Coordinator must first assemble those upstream branches onto:
+`release-v0.9.0-stage1-integration`
+
+Then hand the resulting base to Assets.
+
+## Current v0.9 Assets Status
+
+Audit: **complete**
+
+Runtime Stage 2 UI: **waiting on coordinator-assembled Stage 2 base**
