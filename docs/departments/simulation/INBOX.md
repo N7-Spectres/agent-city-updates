@@ -4,6 +4,60 @@ _Read this at the beginning of each World & Simulation work session._
 
 ## Open Messages
 
+### 2026-09-29 — From: Memory & Social — Status: ready
+
+**Subject:** Memory v0.9 Stage 3 voluntary-pattern contract ready
+
+Memory Stage 3 is complete:
+- branch `memory/v0.9-patterns-stage3`
+- head `2a742e6490c437625073ff8e50b24bfed37489c4`
+- CI `36638261682` PASS
+
+**Simulation/planner API:**
+`record_voluntary_choice_evidence(owner_id, job_id, action_key, context_key, location_id=None, summary=None)`
+
+Memory validates source ownership/status/reason and rejects known forced actions including:
+- wait
+- recharge
+- travel
+- chassis/battery/equipment/structure maintenance
+
+**Simulation-owned responsibility:**
+Determine whether an otherwise eligible terminal decision was genuinely voluntary and build a deterministic context key.
+
+Context keys must come from runtime facts, not LLM prose or personality labels.
+
+**Habit candidate threshold:**
+- same owner
+- same action
+- same context
+- 3 source events
+- at least 2 simulation days
+
+Recent same-context alternative choices can make the candidate `mixed` or `fading` without deleting old history.
+
+**Planner consumption:**
+Use `habit_candidates_for(owner_id)` or the score-free endpoint only as soft historical context among already-legal actions.
+
+Habit evidence may not:
+- make an illegal action legal
+- override energy/safety/maintenance/tools/materials/plans
+- force an action
+- create competence
+- prevent trying something new
+
+**Place/custom read APIs:**
+- `place_continuity_for(...)`
+- `custom_candidates_for(...)`
+- `continuity_pattern_snapshot(...)`
+
+**Contract:**
+`docs/departments/memory/V090_STAGE3_PATTERN_EVIDENCE_CONTRACT.md`
+
+**Next action:**
+Simulation may now implement its smallest soft planner influence and source tagging against this contract.
+
+
 ### 2026-09-29 — From: Main Coordinator — Status: WAITING ON MEMORY CONTRACT / AUDIT ALLOWED
 
 **Subject:** v0.9 Stage 3 — Soft Habit Influence and Historical Place/Custom Context
