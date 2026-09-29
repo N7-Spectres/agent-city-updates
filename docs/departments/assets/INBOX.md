@@ -4,7 +4,7 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ## Open Messages
 
-### 2026-09-29 — From: Main Coordinator — Status: WAITING / PRESENTATION AUDIT ALLOWED
+### 2026-09-29 — From: Main Coordinator — Status: WAITING ON MEMORY + COMMUNICATION / SIMULATION READY
 
 **Subject:** v0.9 Stage 2 — Competence + Guided-Practice Presentation Boundaries
 
@@ -22,8 +22,8 @@ The Stage 1 runtime gate is now cleared. The integrated citizen sheet already co
 - how to show teacher/learner source history without assigning mentor/expert identity
 - whether literal practice counts remain sufficient and safer than any competence visualization
 
-**Runtime dependency:**
-Do not add Stage 2 competence/teaching UI until Simulation, Memory, and Communication hand off final safe read models.
+**Runtime dependency update:**
+Simulation's Stage 2 read model is ready. Runtime UI still waits on final Memory + Communication safe Stage 2 contracts before implementation.
 
 **Hard locks:**
 - no XP bars
