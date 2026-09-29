@@ -723,3 +723,38 @@ Coordinator integration must preserve all of these together:
 - all v0.8 grounding/provenance boundaries and v0.7 raw-exchange-first reliability remain intact
 
 If integration turns practice counts into a universal social ranking or lets one citizen see another's hidden practice history, the v0.9 Communication contract has been violated.
+
+## v0.9 Archive vs Active Recall Decision
+
+The durable physical practice archive and present autobiographical recall are different layers.
+
+Simulation `practice_events` may support:
+- objective diagnostics
+- historical accounting
+- safe evidence read models
+
+Model-facing self-assessment and teaching must not inject that full ledger.
+
+They must use Memory:
+- `practice_recall_snapshot_for(...)`
+- `practice_recall_context_for(...)`
+
+This preserves aging, salience, relevance, and bounded context.
+
+A citizen may say "I've done this several times" in present dialogue only when active practice recall currently contains at least three source-backed practice experiences for that activity.
+
+Do not pull forgotten/low-salience archive events into model-facing autobiographical language merely because they exist durably.
+
+## v0.9 Retrieval Internals Are Not Citizen Facts
+
+Internal Memory fields such as:
+- `recall_score`
+- `reinforcement_count`
+
+are retrieval machinery.
+
+They must not appear in natural-language self-assessment, recognition, teaching, reputation, or identity statements.
+
+Recognition should cite the recalled source-backed events themselves and preserve their verification state.
+
+Repetition can make something easier to recall without making it more true or more authoritative.
