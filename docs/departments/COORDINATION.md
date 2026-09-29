@@ -20,15 +20,16 @@ _None._
 
 ### WAITING
 
-- [Assets & Interface] continuity runtime UI waits on coordinator Stage 1 integration, Memory UI-safe remembered-event projection, and final Communication recall-bound compatibility; design audit itself is complete
+- [Assets & Interface] continuity runtime UI waits on coordinator Stage 1 integration and any remaining Memory UI-safe remembered-event projection; Communication recall-bound compatibility is resolved.
 
-- [Communication & Perception] final v0.9 model-facing self-assessment/teaching must consume Memory active practice recall instead of the full durable `practice_events` ledger, and must stop exposing numeric `reinforcement_count` in natural-language evidence.
-- [Coordinator / v0.9 Stage 1 Integration] waits on the Communication recall-bound compatibility patch, then combines Memory + Simulation + Communication and runs all three v0.9 smokes with the full regression matrix.
+- [Coordinator / v0.9 Stage 1 Integration] Memory + Simulation + Communication Stage 1 branches are ready; combine them and run all three v0.9 smokes with the full regression matrix.
 
 ### READY
 
 
 ### REVIEW
+
+- [Communication & Perception] v0.9 recall-bound recognition/self-assessment/teaching layer complete on `communication/v0.9-recognition-stage1` @ `2b0b683086c03708d235fc2fefd08d64ed2d15d1`; CI `36612304549` passed the full published regression matrix + corrected v0.9 Communication smoke.
 
 - [Assets & Interface] v0.9 continuity UI/read-model audit complete; durable design at `docs/departments/assets/V090_CONTINUITY_UI_AUDIT.md`; no runtime UI started before safe integrated contracts
 
@@ -668,3 +669,17 @@ Coordinator integration must preserve:
 
 Communication contract:
 - `docs/departments/communication/V090_RECOGNITION_TEACHING_CONTRACT.md` on the Communication branch.
+
+### Recall-bound compatibility resolution
+
+Final Communication integration must additionally preserve:
+
+- full Simulation `practice_events` ledger is objective archive/history/debug only
+- model-facing self-assessment and teaching use Memory `practice_recall_snapshot_for(...)` / `practice_recall_context_for(...)`
+- active recall aging/salience may omit durable practice from present autobiographical context
+- "I've done this several times" requires at least 3 currently recalled source-backed practice experiences for that activity
+- `recognition_context()` may consume speaker-owned causal recall but must not expose numeric `reinforcement_count`
+- internal `recall_score` / `reinforcement_count` are retrieval machinery, never citizen-visible experience/reputation facts
+- final Communication head: `2b0b683086c03708d235fc2fefd08d64ed2d15d1`
+- final compatibility CI: `36612304549` PASS
+
