@@ -334,6 +334,7 @@ If citizens begin demonstrating later-stage behavior early, strengthen the syste
 See also:
 
 - `docs/AGENT_CITY_UI_ROADMAP.md`
+- `docs/V100_DEVELOPMENTAL_AUTONOMY_NOTES.md` — future v1.0 scaffolding/autonomy notes; not current v0.9 scope
 - `docs/departments/README.md`
 
 
