@@ -25,6 +25,7 @@ REINFORCING_FACET_KINDS = {
     "material",
     "process",
     "activity",
+    "competence_family",
     "plan",
     "place",
 }
@@ -532,6 +533,7 @@ UI_SAFE_FACET_KINDS = {
     "material",
     "process",
     "activity",
+    "competence_family",
     "plan",
     "place",
 }
@@ -551,6 +553,18 @@ def display_recall_snapshot(
     source-backed remembered perspective while withholding internal ranking,
     reinforcement, salience, and global aggregation machinery.
     """
+    # Keep the citizen-facing projection fresh without exposing the raw ledgers.
+    try:
+        from .practice_memory import sync_practice_memory
+        sync_practice_memory()
+    except Exception:
+        pass
+    try:
+        from .guided_practice_memory import sync_guided_practice_memory
+        sync_guided_practice_memory()
+    except Exception:
+        pass
+
     safe_limit = max(1, min(int(limit), 16))
     plan_value = str(plan_id) if plan_id is not None else None
     filters = {"plan": plan_value} if plan_value is not None else None

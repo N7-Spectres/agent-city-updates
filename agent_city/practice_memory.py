@@ -76,6 +76,39 @@ def _insert_facet(conn, owner_id: str, memory_event_id: int, kind: str, value: A
     )
 
 
+def _stage2_job_links(conn, job_id: int) -> tuple[str | None, int | None]:
+    columns = {
+        str(row["name"])
+        for row in conn.execute("PRAGMA table_info(jobs)").fetchall()
+    }
+    if "competence_family" not in columns and "guidance_session_id" not in columns:
+        return None, None
+
+    select = []
+    if "competence_family" in columns:
+        select.append("competence_family")
+    if "guidance_session_id" in columns:
+        select.append("guidance_session_id")
+    row = conn.execute(
+        f"SELECT {', '.join(select)} FROM jobs WHERE id = ?",
+        (int(job_id),),
+    ).fetchone()
+    if not row:
+        return None, None
+
+    family = (
+        str(row["competence_family"]).strip()
+        if "competence_family" in columns and row["competence_family"] is not None
+        else None
+    )
+    guidance_id = (
+        int(row["guidance_session_id"])
+        if "guidance_session_id" in columns and row["guidance_session_id"] is not None
+        else None
+    )
+    return family or None, guidance_id
+
+
 def _link_practice_facets(conn, memory_event_id: int, practice) -> None:
     owner_id = str(practice["citizen_id"])
     _insert_facet(conn, owner_id, memory_event_id, "practice_event", int(practice["id"]))
@@ -86,6 +119,18 @@ def _link_practice_facets(conn, memory_event_id: int, practice) -> None:
         _insert_facet(conn, owner_id, memory_event_id, "target", str(practice["target"]))
     if practice["plan_id"] is not None:
         _insert_facet(conn, owner_id, memory_event_id, "plan", str(int(practice["plan_id"])))
+
+    family, guidance_session_id = _stage2_job_links(conn, int(practice["job_id"]))
+    if family:
+        _insert_facet(conn, owner_id, memory_event_id, "competence_family", family)
+    if guidance_session_id is not None:
+        _insert_facet(
+            conn,
+            owner_id,
+            memory_event_id,
+            "guided_practice_session",
+            guidance_session_id,
+        )
 
 
 def _practice_importance(practice) -> float:
@@ -225,6 +270,7 @@ def practice_recall_snapshot_for(
     citizen_id: str,
     *,
     activity: str | None = None,
+    family: str | None = None,
     now_minute: int | None = None,
     limit: int = 8,
 ) -> list[dict[str, Any]]:
@@ -237,7 +283,11 @@ def practice_recall_snapshot_for(
     from .causal_memory import causal_recall_snapshot
 
     sync_practice_memory()
-    filters = {"activity": activity} if activity else None
+    filters = (
+        {"competence_family": family}
+        if family
+        else {"activity": activity} if activity else None
+    )
     recalled = causal_recall_snapshot(
         citizen_id,
         now_minute=now_minute,
@@ -262,6 +312,13 @@ def practice_recall_snapshot_for(
             continue
         seen_practice_ids.update(fresh_ids)
 
+        if activity is not None and not any(
+            str(facet.get("kind")) == "activity"
+            and str(facet.get("value")) == str(activity)
+            for facet in item.get("facets") or []
+        ):
+            continue
+
         clean = dict(item)
         clean["practice_event_ids"] = fresh_ids
         # Internal ranking machinery is intentionally omitted from this surface.
@@ -279,12 +336,14 @@ def practice_recall_context_for(
     citizen_id: str,
     *,
     activity: str | None = None,
+    family: str | None = None,
     now_minute: int | None = None,
     limit: int = 6,
 ) -> str:
     memories = practice_recall_snapshot_for(
         citizen_id,
         activity=activity,
+        family=family,
         now_minute=now_minute,
         limit=limit,
     )
