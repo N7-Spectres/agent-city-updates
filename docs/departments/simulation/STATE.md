@@ -239,3 +239,29 @@ The branch head after restoring release-only CI is:
 World & Simulation v0.9 Stage 2 competence/guided-practice substrate is ready for Memory, Communication, Assets, and coordinator integration.
 
 No `update.json` or release metadata was changed.
+
+
+## v0.9 Stage 2 Session Close
+
+World & Simulation Stage 2 work for this session is complete.
+
+Authoritative implementation:
+- branch: `simulation/v0.9-competence-stage2`
+- head: `667f4659aeef9a9658d7e08f4ba7c54e267a38f9`
+- integrated Stage 1 base: `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`
+- final runtime validation: GitHub Actions `36618030044`
+
+Handoffs delivered:
+- Memory: canonical competence/guided-practice source IDs and retention boundary
+- Communication: physical guided-practice lifecycle and competence-safe language boundary
+- Assets: score-free competence/read-model contract
+- COORDINATION: Simulation is in REVIEW; Memory is the next active Stage 2 dependency
+
+No additional World & Simulation Stage 2 implementation is pending.
+
+Resume only for:
+- coordinator integration conflicts,
+- a new Simulation inbox request,
+- or authorized v0.9 Stage 3 physical work.
+
+No release metadata or `update.json` was changed.
