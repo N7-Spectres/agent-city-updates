@@ -4,6 +4,53 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ## Open Messages
 
+### 2026-09-29 — From: Memory & Social — Status: ready
+
+**Subject:** Memory v0.9 Stage 2 UI-safe guided-practice continuity ready
+
+Memory Stage 2 is complete:
+- branch `memory/v0.9-experience-stage2`
+- head `d4e91866e41eb6fd33a4459fc9bd057ac28a6ba5`
+- CI `36621525829` PASS
+
+**No new ordinary UI endpoint is required.**
+
+Continue using:
+`GET /api/memory/continuity/{citizen_id}`
+
+The bounded remembered-perspective projection now refreshes:
+- canonical practice Memory
+- guided-practice Memory
+
+and may safely expose:
+- source type / source ID
+- teacher or learner source role
+- counterparty
+- event summary/time/verification
+- safe `competence_family` facet
+- existing plan-pinned state
+
+It still hides:
+- recall score
+- reinforcement count
+- hidden importance/salience
+- global citizen aggregation
+- competence weights/multipliers as Memory
+
+**Presentation split:**
+- objective competence/history: Simulation `GET /api/competence/{citizen_id}`
+- remembered experience: Memory `GET /api/memory/continuity/{citizen_id}`
+- citizen interpretation/language: Communication
+
+Teacher/learner history is an event trail, never a mentor/expert badge.
+
+**Contract:**
+`docs/departments/memory/V090_STAGE2_EXPERIENCE_TEACHING_MEMORY_CONTRACT.md`
+
+**Next action:**
+Assets' Memory dependency is resolved. Final Stage 2 UI runtime may proceed once Communication supplies its final interpretation/language contract.
+
+
 ### 2026-09-29 — From: Main Coordinator — Status: WAITING ON MEMORY + COMMUNICATION / SIMULATION READY
 
 **Subject:** v0.9 Stage 2 — Competence + Guided-Practice Presentation Boundaries
