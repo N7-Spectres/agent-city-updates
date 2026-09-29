@@ -220,14 +220,29 @@ def _candidate_rows(
     owner_id: str,
     filters: list[tuple[str, str]],
     pinned_ids: list[int],
+    required_facet_kind: str | None = None,
 ) -> list[dict[str, Any]]:
     rows_by_id: dict[int, dict[str, Any]] = {}
+
+    required_kind = _clean(required_facet_kind, 80) if required_facet_kind else None
 
     if filters:
         conditions = " OR ".join("(mf.facet_kind = ? AND mf.facet_value = ?)" for _ in filters)
         params: list[Any] = [owner_id]
         for kind, value in filters:
             params.extend([kind, value])
+        required_clause = ""
+        if required_kind:
+            required_clause = """
+              AND EXISTS (
+                  SELECT 1
+                  FROM memory_event_facets req
+                  WHERE req.owner_id = me.owner_id
+                    AND req.memory_event_id = me.id
+                    AND req.facet_kind = ?
+              )
+            """
+            params.append(required_kind)
         params.append(MAX_RECALL_CANDIDATES)
         rows = conn.execute(
             f"""
@@ -238,10 +253,26 @@ def _candidate_rows(
              AND mf.memory_event_id = me.id
             WHERE me.owner_id = ?
               AND ({conditions})
+              {required_clause}
             ORDER BY me.importance DESC, me.sim_minute DESC, me.id DESC
             LIMIT ?
             """,
             tuple(params),
+        ).fetchall()
+    elif required_kind:
+        rows = conn.execute(
+            """
+            SELECT DISTINCT me.*
+            FROM memory_events me
+            JOIN memory_event_facets req
+              ON req.owner_id = me.owner_id
+             AND req.memory_event_id = me.id
+             AND req.facet_kind = ?
+            WHERE me.owner_id = ?
+            ORDER BY me.importance DESC, me.sim_minute DESC, me.id DESC
+            LIMIT ?
+            """,
+            (required_kind, owner_id, MAX_RECALL_CANDIDATES),
         ).fetchall()
     else:
         rows = conn.execute(
@@ -355,6 +386,7 @@ def causal_recall_snapshot(
     now_minute: int | None = None,
     facet_filters: dict[str, str | Iterable[str]] | None = None,
     pinned_event_ids: Iterable[int] | None = None,
+    required_facet_kind: str | None = None,
     limit: int = MAX_RECALL_ITEMS,
 ) -> list[dict[str, Any]]:
     """
@@ -376,7 +408,13 @@ def causal_recall_snapshot(
             if now_minute is not None
             else int(get_meta(conn, "sim_minute") or "360")
         )
-        rows = _candidate_rows(conn, owner_id, filters, pinned_ids)
+        rows = _candidate_rows(
+            conn,
+            owner_id,
+            filters,
+            pinned_ids,
+            required_facet_kind=required_facet_kind,
+        )
         ids = [int(row["id"]) for row in rows]
         facets = _facets_for_events(conn, owner_id, ids)
         reinforcement = _reinforcement_counts(conn, owner_id, facets)
@@ -450,6 +488,7 @@ def causal_recall_context_for(
     now_minute: int | None = None,
     facet_filters: dict[str, str | Iterable[str]] | None = None,
     pinned_event_ids: Iterable[int] | None = None,
+    required_facet_kind: str | None = None,
     limit: int = MAX_RECALL_ITEMS,
 ) -> str:
     memories = causal_recall_snapshot(
@@ -457,6 +496,7 @@ def causal_recall_context_for(
         now_minute=now_minute,
         facet_filters=facet_filters,
         pinned_event_ids=pinned_event_ids,
+        required_facet_kind=required_facet_kind,
         limit=limit,
     )
     if not memories:
