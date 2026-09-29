@@ -2,9 +2,9 @@
 
 _Last updated: 2026-09-29_
 _Current published release: v0.8.7_
-_Integrated v0.9 Stage 1 base: `release-v0.9.0-stage1-integration` @ `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`_
-_Active branch: `simulation/v0.9-competence-stage2`_
-_Final branch head: `667f4659aeef9a9658d7e08f4ba7c54e267a38f9`_
+_Definitive v0.9 Stage 2 base: `release-v0.9.0-stage2-integration` @ `f680275a78b9da71a43f3c79217f292796b7843d`_
+_Active branch: `simulation/v0.9-habits-stage3`_
+_Final Stage 3 branch head: `fb17d3a2fb0776c490cdd4805feae8ab97c763ac`_
 
 ## Mission
 
@@ -263,5 +263,90 @@ Resume only for:
 - coordinator integration conflicts,
 - a new Simulation inbox request,
 - or authorized v0.9 Stage 3 physical work.
+
+No release metadata or `update.json` was changed.
+
+
+## v0.9 Stage 3 — Voluntary Pattern Provenance + Soft Historical Planner Context
+
+World & Simulation Stage 3 is implementation-complete.
+
+**Branch:** `simulation/v0.9-habits-stage3`  
+**Final clean head:** `fb17d3a2fb0776c490cdd4805feae8ab97c763ac`  
+**Validation:** GitHub Actions `36642152013` — PASS
+
+### Voluntary-choice source tagging
+
+Jobs now carry additive audit fields:
+
+- `voluntary_choice_eligible`
+- `voluntary_choice_context`
+- `voluntary_choice_location_id`
+
+A job is eligible only when it came from the autonomous planner, the citizen had at least two legal autonomous options, the choice occurred during the active cycle, the citizen supplied an intent reason, the action is in the conservative allowlist, and the job is not attached to a persistent plan.
+
+Current allowlist:
+
+- survey
+- extract
+- experiment
+- fabricate
+- plan_project
+- construct
+- talk
+
+Travel, local movement, recharge, maintenance, cargo handling, waiting, guided-practice mechanics, and plan-bound work are not treated as free recurring-choice evidence.
+
+The deterministic context key is:
+
+`location:<location_id>|phase:<daily_phase>|open_choice`
+
+It is built only from runtime facts.
+
+### Retention timing
+
+Simulation records no Stage 3 pattern evidence at action start.
+
+After a tagged job completes successfully and the physical transaction commits, Simulation calls Memory `record_voluntary_choice_evidence(...)` using the canonical `jobs.id`, action, deterministic context, and location.
+
+If Memory retention fails, the physical outcome remains authoritative and Simulation records a diagnostic rather than rolling reality back.
+
+### Planner consumption
+
+The planner consumes:
+
+- `habit_candidates_for(...)`
+- `place_continuity_for(...)`
+- `custom_candidates_for(...)`
+
+Recurring patterns enter the prompt only when their deterministic context matches the current runtime context and the associated action is already present in the legal autonomous action list.
+
+Pattern state is shown as `current | mixed | fading`.
+
+The planner is explicitly told that this is historical evidence, not personality, preference, role, obligation, or command.
+
+Place continuity is personal remembered history, not physical truth or a favorite-place claim.
+
+Social patterns remain owner-perspective evidence, not universal culture.
+
+### Non-effects
+
+Stage 3 history does not:
+
+- change `possible_actions`
+- sort or remove legal actions
+- add capability
+- change physical duration/material/energy effects
+- create competence
+- override safety/recharge/maintenance
+- create or override plans
+- prevent trying something new
+- create professions, traits, or preferences
+
+Contract:
+`docs/departments/simulation/V090_STAGE3_HABIT_PLANNER_CONTRACT.md`
+
+Focused smoke:
+`tests/smoke_v090_simulation_stage3.py`
 
 No release metadata or `update.json` was changed.
