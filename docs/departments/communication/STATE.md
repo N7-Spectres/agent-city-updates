@@ -881,3 +881,162 @@ Resume only for:
 4. a newly routed Communication milestone.
 
 Before resuming, read `COORDINATION.md`, `communication/INBOX.md`, then this file.
+
+## v0.9 Stage 1 — Recognition, Self-Assessment & Teaching Language
+
+_Last updated: 2026-09-29_
+
+**Branch:** `communication/v0.9-recognition-stage1`  
+**Base:** published v0.8.7 `be617e6e870ec3f1914d76cdb85107a6efc294d7`  
+**Final head:** `f266c333a1fe3afb1a744c9c48e3cc2dc1ab8c63`  
+**Final green CI:** `36607321183`
+
+### Purpose
+
+Communication now converts source-backed continuity into natural perspective-safe language without creating a reputation, class, rank, or competence system.
+
+New module:
+
+`agent_city/continuity_language.py`
+
+It consumes upstream v0.9 APIs when present and fails closed to no evidence when those modules are absent.
+
+### Self-assessment
+
+Own canonical Simulation `practice_events` may support statements about personal history.
+
+Communication derives per-activity summaries such as:
+- practice count
+- completed count
+- failed count
+- latest practice/source
+
+Language threshold:
+- "I've done this several times" is permitted only with at least 3 real practice events for that activity.
+
+This threshold is a language permission only.
+
+It is not:
+- XP
+- level
+- role
+- class
+- rank
+- specialization
+- expertise score
+- competence guarantee
+
+Self-assessment remains interpretation:
+- "I feel more practiced"
+- "I keep struggling with this"
+- "I'm more comfortable with this now"
+
+These are beliefs grounded in history, not objective Simulation capability truth.
+
+### Perspective-safe recognition
+
+Recognition of another citizen is derived only from Memory owned by the speaker.
+
+Communication uses Memory's owner-scoped `causal_recall_snapshot(...)`, typically filtered by:
+- counterparty
+- optional activity facet
+
+Communication does **not** read the other citizen's global `practice_events` and present those counts as speaker knowledge.
+
+Therefore:
+- Cato may recognize Bex only from information/experience that reached Cato.
+- Noma cannot inherit Bex's practice history merely because Simulation stores it.
+- repeated unverified reports remain unverified despite Memory reinforcement.
+
+No universal reputation or expert/leader/title record is created.
+
+### Teaching boundary
+
+A citizen with source-backed practice may explain what they personally did, observed, tried, or learned.
+
+Conversation/explanation alone creates:
+- no learner practice event
+- no competence gain
+- no skill transfer
+- no physical result
+- no teaching credential
+
+A future real teaching/guided-practice mechanism requires Simulation-owned action evidence.
+
+### Persistent plans in dialogue
+
+Communication may expose canonical Simulation plan state:
+- plan ID
+- status
+- current intent
+- next step
+- unresolved question
+
+Conversation may discuss/question/suggest changes.
+
+Conversation does not itself:
+- create
+- revise
+- pause
+- resume
+- abandon
+- supersede
+- complete
+
+a canonical plan.
+
+### Visitor continuity
+
+Visitor familiarity/importance is grounded only in owner-scoped retained sources such as:
+- visits
+- durable exchanges
+- completed shared activities
+
+UI/account/coordinator status creates no social authority.
+
+### Runtime integration
+
+Citizen-to-citizen private context now includes:
+- SELF-ASSESSMENT EVIDENCE
+- PERSPECTIVE-SAFE RECOGNITION of the actual counterpart
+- PERSISTENT PLAN DISCUSSION
+- TEACHING / EXPLANATION BOUNDARY
+
+Visitor dialogue includes:
+- VISITOR CONTINUITY
+- SELF-ASSESSMENT EVIDENCE
+- PERSISTENT PLAN DISCUSSION
+- TEACHING / EXPLANATION BOUNDARY
+
+Safe debug/read endpoint:
+- `GET /api/continuity-language/{citizen_id}`
+
+This endpoint exposes evidence summaries and rule flags only. It exposes no recall score, reputation, XP, level, role, or expert score.
+
+### Merge-order behavior
+
+Communication's adapter dynamically imports:
+- Memory `causal_recall_snapshot`
+- Simulation `practice_snapshot_for`
+- Simulation `plan_snapshot_for`
+
+If an upstream module is absent, the adapter returns no continuity evidence rather than inventing it.
+
+### Contract document
+
+`docs/departments/communication/V090_RECOGNITION_TEACHING_CONTRACT.md`
+
+### Validation
+
+GitHub Actions `36607321183` passed:
+- Python compile
+- complete published v0.4 through v0.8.7 regression matrix
+- `tests/smoke_v090_communication_stage1.py`
+
+Temporary CI workflow was removed after the green run.
+
+## Current v0.9 Communication Status
+
+The recognition/self-assessment/teaching language layer is implementation-complete and ready for coordinator Stage 1 integration with Memory + Simulation.
+
+No global reputation, competence score, skill-transfer mechanism, or authoritative title system was added.
