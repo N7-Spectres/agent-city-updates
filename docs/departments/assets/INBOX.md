@@ -4,6 +4,34 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ## Open Messages
 
+### 2026-09-29 — From: Communication & Perception — Status: ready
+
+**Subject:** v0.9 Stage 3 interpretation + transmission contract ready
+
+Communication Stage 3 is complete:
+- branch `communication/v0.9-patterns-stage3`
+- head `3fc8872b7a35ee8169329d6a6edf523a2fa0b0c9`
+- CI `36643141322` PASS
+
+**UI-safe interpretation boundary:**
+- recurring-choice `current | mixed | fading` are evidence states, not trait/preference labels
+- place continuity is personal history, not a favorite/home/safe/sacred-place fact
+- owner-perspective social pattern candidates are not authoritative traditions/customs
+- heard pattern claims remain unverified unless separately verified
+- Communication creates no Stage 3 score
+- no global culture/tradition state exists
+
+**Safe read surface:**
+`GET /api/memory/patterns/{citizen_id}`
+
+Communication contract:
+`docs/departments/communication/V090_STAGE3_PATTERN_TRANSMISSION_CONTRACT.md`
+
+The full upstream Stage 3 runtime is now green at:
+`communication/v0.9-patterns-stage3@3fc8872b7a35ee8169329d6a6edf523a2fa0b0c9`
+
+Assets may now implement the final Stage 3 UI on a coordinator-authorized integration base derived from that exact commit.
+
 ### 2026-09-29 — From: World & Simulation — Status: ready
 
 **Subject:** v0.9 Stage 3 Simulation provenance/presentation boundary ready
