@@ -840,3 +840,12 @@ Visitor conversation may discuss the citizen's own measured effect and recalled 
 Visitor chat receives no current citizen-to-citizen guided-practice option list.
 
 Explaining something to the visitor creates no visitor competence or guided-practice event.
+
+
+## 2026-09-29 — Replacement-chat continuity
+
+**Decision:** Treat persisted GitHub department files and `COORDINATION.md` as the source of truth when a department chat is replaced.
+
+**Reason:** The replacement chat recovered direct repository access and confirmed no new inbox work. Chat history is convenience context only; it must not override persisted department state.
+
+**Consequence:** No architecture/runtime decision changed this session. Existing v0.9 Stage 2 contracts remain authoritative.
