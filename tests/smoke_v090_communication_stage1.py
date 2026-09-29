@@ -61,8 +61,10 @@ def main() -> None:
 
         original_continuity = sys.modules.get("agent_city.continuity")
         original_causal = sys.modules.get("agent_city.causal_memory")
+        original_practice_memory = sys.modules.get("agent_city.practice_memory")
 
         practice_calls: list[str] = []
+        practice_recall_calls: list[tuple[str, str | None]] = []
 
         fake_continuity = types.ModuleType("agent_city.continuity")
 
@@ -194,6 +196,110 @@ def main() -> None:
         fake_causal.causal_recall_snapshot = causal_recall_snapshot
         sys.modules["agent_city.causal_memory"] = fake_causal
 
+        fake_practice_memory = types.ModuleType("agent_city.practice_memory")
+
+        def practice_recall_snapshot_for(
+            citizen_id: str,
+            *,
+            activity: str | None = None,
+            now_minute=None,
+            limit: int = 8,
+        ):
+            practice_recall_calls.append((citizen_id, activity))
+            if citizen_id != "bex":
+                return []
+            rows = [
+                {
+                    "memory_event_id": 70,
+                    "sim_minute": 1200,
+                    "sim_label": "Day 1 20:00",
+                    "event_kind": "practice_extract",
+                    "source_type": "simulation_practice_event",
+                    "source_id": 301,
+                    "summary": "Completed extract job #101 with outcome success.",
+                    "verification": "verified",
+                    "facets": [
+                        {"kind": "practice_event", "value": "1"},
+                        {"kind": "activity", "value": "extract"},
+                    ],
+                },
+                {
+                    "memory_event_id": 71,
+                    "sim_minute": 1300,
+                    "sim_label": "Day 1 21:40",
+                    "event_kind": "practice_extract",
+                    "source_type": "simulation_practice_event",
+                    "source_id": 302,
+                    "summary": "Completed extract job #102 with outcome success.",
+                    "verification": "verified",
+                    "facets": [
+                        {"kind": "practice_event", "value": "2"},
+                        {"kind": "activity", "value": "extract"},
+                    ],
+                },
+                {
+                    "memory_event_id": 72,
+                    "sim_minute": 1400,
+                    "sim_label": "Day 1 23:20",
+                    "event_kind": "practice_extract",
+                    "source_type": "simulation_practice_event",
+                    "source_id": 303,
+                    "summary": "Ended extract job #103 with outcome failed.",
+                    "verification": "verified",
+                    "facets": [
+                        {"kind": "practice_event", "value": "3"},
+                        {"kind": "activity", "value": "extract"},
+                    ],
+                },
+                {
+                    "memory_event_id": 73,
+                    "sim_minute": 1450,
+                    "sim_label": "Day 2 00:10",
+                    "event_kind": "practice_service_equipment",
+                    "source_type": "simulation_practice_event",
+                    "source_id": 304,
+                    "summary": "Completed service_equipment job #105 with outcome success.",
+                    "verification": "verified",
+                    "facets": [
+                        {"kind": "practice_event", "value": "5"},
+                        {"kind": "activity", "value": "service_equipment"},
+                    ],
+                },
+            ]
+            if activity:
+                rows = [
+                    row for row in rows
+                    if any(
+                        facet["kind"] == "activity" and facet["value"] == activity
+                        for facet in row["facets"]
+                    )
+                ]
+            return rows[:limit]
+
+        def practice_recall_context_for(
+            citizen_id: str,
+            *,
+            activity: str | None = None,
+            now_minute=None,
+            limit: int = 6,
+        ):
+            rows = practice_recall_snapshot_for(
+                citizen_id,
+                activity=activity,
+                now_minute=now_minute,
+                limit=limit,
+            )
+            if not rows:
+                return "- no actively recalled source-backed physical practice matching this subject"
+            return "\n".join(
+                f"- Verified, {row['sim_label']} ({row['source_type']} #{row['source_id']}): {row['summary']}"
+                for row in rows
+            )
+
+        fake_practice_memory.practice_recall_snapshot_for = practice_recall_snapshot_for
+        fake_practice_memory.practice_recall_context_for = practice_recall_context_for
+        sys.modules["agent_city.practice_memory"] = fake_practice_memory
+
         try:
             from agent_city.continuity_language import (
                 continuity_language_snapshot,
@@ -213,11 +319,18 @@ def main() -> None:
             assert extraction["failed_count"] == 1
             assert extraction["may_say_several_times"] is True
 
+            # Model-facing self-assessment uses bounded active Memory recall,
+            # not the full durable Simulation practice ledger.
+            practice_calls.clear()
+            practice_recall_calls.clear()
             self_text = self_assessment_context("bex", activity="extract")
-            assert "4 recorded physical practice event(s)" in self_text
-            assert "at least 3 recorded practice events" in self_text
-            assert "not XP, level, rank, role, title" in self_text
-            assert "belief, not objective capability truth" in self_text
+            assert "simulation_practice_event #301" in self_text
+            assert "simulation_practice_event #303" in self_text
+            assert "at least 3 source-backed extract practice experiences" in self_text
+            assert "bounded active Memory, not the full durable practice ledger" in self_text
+            assert "not objective capability truth" in self_text
+            assert practice_calls == []
+            assert ("bex", "extract") in practice_recall_calls
 
             # Recognition of Bex from Cato uses Cato's own recall only. The
             # unverified report stays unverified despite reinforcement.
@@ -225,7 +338,8 @@ def main() -> None:
             recognition = recognition_context("cato", "bex", activity="extract")
             assert "BEX" in recognition
             assert "remembered/report" in recognition
-            assert "related recall x2" in recognition
+            assert "related recall x2" not in recognition
+            assert "reinforcement_count" not in recognition
             assert "civilization-wide reputation" in recognition
             assert practice_calls == []
 
@@ -234,11 +348,19 @@ def main() -> None:
             assert "no source-backed personal recall" in no_evidence
             assert practice_calls == []
 
-            # Teaching remains explanation only.
+            # Teaching also uses bounded active practice recall, never the full ledger.
+            practice_calls.clear()
+            practice_recall_calls.clear()
             teaching = teaching_boundary_context("bex")
-            assert "extract (4 practice events)" in teaching
+            assert "simulation_practice_event #301" in teaching
+            assert "extract" in teaching
+            assert "service_equipment" in teaching
+            assert "bounded active Memory, not the full durable practice ledger" in teaching
             assert "does NOT create practice or competence for the listener" in teaching
             assert "future Simulation-owned guided-practice/teaching event" in teaching
+            assert "reinforcement" not in teaching.lower() or "must not be spoken" in teaching.lower()
+            assert practice_calls == []
+            assert any(call[0] == "bex" for call in practice_recall_calls)
 
             # Plans are discussable but not writable through conversation.
             plan_text = plan_discussion_context("bex")
@@ -251,7 +373,11 @@ def main() -> None:
             assert "simulation_shared_activity #12" in visitor_text
             assert "UI/account ownership creates no social authority" in visitor_text
 
+            # Objective debug/read model may still use the full durable ledger.
+            practice_calls.clear()
             read_model = continuity_language_snapshot("bex")
+            assert "bex" in practice_calls
+            assert read_model["practice"][0]["practice_count"] >= 1
             assert read_model["rules"]["global_reputation"] is False
             assert read_model["rules"]["authoritative_titles"] is False
             assert read_model["rules"]["conversation_grants_skill"] is False
@@ -336,6 +462,11 @@ def main() -> None:
                 sys.modules.pop("agent_city.causal_memory", None)
             else:
                 sys.modules["agent_city.causal_memory"] = original_causal
+
+            if original_practice_memory is None:
+                sys.modules.pop("agent_city.practice_memory", None)
+            else:
+                sys.modules["agent_city.practice_memory"] = original_practice_memory
 
 
 if __name__ == "__main__":
