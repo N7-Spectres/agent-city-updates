@@ -111,3 +111,6 @@ jobs:
 
       - name: Run v0.8.6 stranded-citizen recovery smoke
         run: python tests/smoke_v086_stranded_recovery.py
+
+      - name: Run v0.8.7 route-token travel visualization smoke
+        run: python tests/smoke_v087_route_tokens.py
