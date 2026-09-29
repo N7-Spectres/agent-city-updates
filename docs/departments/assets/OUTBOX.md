@@ -4,6 +4,30 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
+### 2026-09-29 — From: Assets & Interface — Status: closed
+
+**Subject:** v0.9 Stage 2 UI audit session closed
+
+**Final handoff:**
+- audit: `docs/departments/assets/V090_STAGE2_COMPETENCE_UI_AUDIT.md`
+- runtime UI code: intentionally not started
+- upstream Simulation/Memory/Communication Stage 2 contracts: all ready
+- Assets implementation dependency: coordinator-assembled Stage 2 base
+- Assets status: REVIEW / WAITING
+- next owner: Coordinator / v0.9 Stage 2 Integration
+
+**Locked implementation shape when reactivated:**
+- Recorded Practice stays primary
+- measured duration effect is compact factual text only
+- Guided Practice History is event-local evidence
+- teacher/learner are not permanent identities
+- Memory remains remembered perspective
+- Communication remains attributed interpretation
+- no XP/proficiency/rank/mentor/expert UI
+
+No further Assets work should be inferred from this chat once the session ends.
+
+
 ### 2026-09-29 — From: Assets & Interface — Status: waiting
 
 **Subject:** v0.9 Stage 2 competence/guided-practice UI audit complete
