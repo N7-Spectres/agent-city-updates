@@ -574,6 +574,10 @@ Stage 1 now includes the safe citizen-sheet Continuity surface while keeping evi
 
 ### Stage 2 — Practice, Competence, Teaching, Recognition
 
+**Upstream integration green:** `ac548b06ea8a88a66a763902ab01a6567c3a2e79`  
+**Combined CI:** `36633452433` — PASS  
+**Remaining Stage 2 task:** Assets runtime implementation + final coordinator regression.
+
 - real completed practice may accumulate experience.
 - competence differences may affect physical outcomes only through bounded Simulation-owned effects.
 - no permanent job/class labels.
