@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-29_
 _Current release: v0.8.7_
-_Current development branch: `memory/v0.9-causal-memory-stage1`_
+_Current development branch: `memory/v0.9-experience-stage2`_
 
 ## Mission
 
@@ -1147,3 +1147,157 @@ Resume Memory only for:
 - or a newly authorized v0.9 milestone.
 
 No release was published and `update.json` was not changed.
+
+
+## v0.9 Stage 2 Experience / Teaching Memory — Complete
+
+**Integrated base:** `release-v0.9.0-stage1-integration` @ `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`  
+**Memory branch:** `memory/v0.9-experience-stage2`  
+**Final head:** `d4e91866e41eb6fd33a4459fc9bd057ac28a6ba5`  
+**Validation:** CI `36621525829` passed the complete v0.4-v0.8.7 regression matrix, all four integrated v0.9 Stage 1 smokes, and `tests/smoke_v090_memory_stage2.py`.
+
+Consumed Simulation Stage 2:
+- branch `simulation/v0.9-competence-stage2`
+- head `667f4659aeef9a9658d7e08f4ba7c54e267a38f9`
+- CI `36618030044`
+
+### Guided-practice retention
+
+New module:
+
+`agent_city/guided_practice_memory.py`
+
+Canonical source:
+- `guided_practice_sessions.id`
+
+Terminal source-backed sessions create separate personal Memory events for both direct participants:
+
+- teacher owner with `source_role=teacher`
+- learner owner with `source_role=learner`
+
+Memory source:
+- `source_type = simulation_guided_practice_session`
+- `source_id = guided_practice_sessions.id`
+
+Active/in-progress sessions do not become completed teaching/learning memories.
+
+Current successful sessions require:
+- `status='complete'`
+- non-null `completed_minute`
+
+Future terminal failed/cancelled source rows are also supported when Simulation stores a terminal status plus completion minute.
+
+### Event-local roles
+
+Teacher/learner describe one verified event only.
+
+Memory does not create:
+- mentor identity
+- expert/trainer title
+- rank/class/specialization
+- authority weight
+- reputation
+
+The learner may remember "Bex guided me through extraction practice" without converting that event into "Bex is the permanent extraction expert."
+
+### Guided practice is not learner practice
+
+The guided session itself does not receive a `practice_event` facet and creates no learner competence.
+
+The learner's later real matching task creates canonical Simulation practice.
+
+When Simulation persists:
+- `jobs.competence_family`
+- `jobs.guidance_session_id`
+
+Memory's retained practice may add:
+- `competence_family=<Simulation family>`
+- `guided_practice_session=<session id>`
+
+When Simulation later sets:
+- `guided_practice_sessions.consumed_by_job_id`
+
+both role memories may add:
+- `applied_job=<jobs.id>`
+
+These are relational provenance links, not competence effects.
+
+### Model-facing retrieval
+
+New APIs:
+
+- `guided_practice_recall_snapshot_for(...)`
+- `guided_practice_recall_context_for(...)`
+
+They are:
+- owner-scoped
+- bounded
+- active-recall / aging aware
+- filterable by family, counterpart, and event role
+- source-labelled
+- stripped of recall score and reinforcement count
+
+Existing practice recall now also supports Simulation-owned family filtering:
+
+- `practice_recall_snapshot_for(..., family=<family>)`
+- `practice_recall_context_for(..., family=<family>)`
+
+### Competence boundary
+
+Memory does not copy or calculate:
+- weighted evidence
+- duration multiplier
+- practice benefit
+- guidance multiplier
+- combined benefit
+- XP/level/rank
+
+Objective competence remains Simulation-owned and does not decay with Memory age.
+
+Memory age affects only interpretation/access.
+
+### Safe UI continuity
+
+Existing:
+
+`GET /api/memory/continuity/{citizen_id}`
+
+remains the Memory citizen-facing remembered-perspective endpoint.
+
+The display projection now refreshes canonical practice + guided-practice Memory before returning bounded events.
+
+Safe `competence_family` facets may appear.
+
+Internal recall/reinforcement metrics remain hidden.
+
+Objective competence/work evidence remains a separate Simulation read model.
+
+### Comparative experience
+
+Memory adds no global experience comparison.
+
+Safe interpretation remains evidence available to the speaker:
+- own practice recall
+- own guided-session recall
+- legitimately received memories/claims
+
+Teacher/learner role is event-local and does not establish current or global superiority.
+
+### Validation
+
+`tests/smoke_v090_memory_stage2.py` verifies:
+- teacher and learner receive separate source-linked role memories
+- active sessions create no terminal memory
+- guided sessions create no learner practice evidence
+- raw practice-count/competence fields are not copied into Memory
+- another citizen does not inherit the event
+- role/family/counterpart retrieval is bounded
+- the learner's later real practice links to family + guidance session
+- applied-job facet appears only from Simulation's consumed-by-job link
+- citizen-facing continuity hides recall/reinforcement internals
+- repeated sync is idempotent
+
+Contract:
+`docs/departments/memory/V090_STAGE2_EXPERIENCE_TEACHING_MEMORY_CONTRACT.md`
+
+No release metadata or `update.json` was changed.
