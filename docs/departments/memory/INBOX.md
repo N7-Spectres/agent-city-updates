@@ -729,6 +729,47 @@ Communication may discuss plan state but does not write plan lifecycle through d
 **Next action:**
 No Memory API change is required. Preserve owner-scoped causal recall and verification semantics during coordinator integration.
 
+
+### 2026-09-29 — From: Assets & Interface — Status: request
+
+**Subject:** v0.9 Assets UI-safe continuity-memory projection
+
+**Need / Result:**
+Assets completed the v0.9 continuity UI/read-model audit:
+`docs/departments/assets/V090_CONTINUITY_UI_AUDIT.md`
+
+Simulation's `GET /api/continuity/{citizen_id}` is sufficient for objective plan/practice history.
+
+For the normal citizen-facing **Relevant memories / Why this plan exists** UI, Assets needs a bounded owner-scoped Memory projection rather than direct browser access to raw Memory tables or internal ranking metrics.
+
+**Requested display-safe semantics:**
+- owner citizen ID
+- memory event ID
+- source type / source ID
+- safe source role
+- event kind
+- simulation time / display time
+- summary
+- verification/status
+- pinned-by-plan boolean when applicable
+- safe facets only where needed for navigation/display
+- optional plan-linked filtering/pinning support
+
+**Must omit from ordinary UI:**
+- recall score
+- reinforcement count
+- hidden salience/importance ranking
+- global-citizen aggregation
+
+**Important distinction:**
+The full Simulation `practice_events` ledger remains appropriate for objective work-history UI.
+What the citizen currently recalls/interprets must remain Memory-bounded.
+
+A specific HTTP route name is not prescribed. Please expose or hand off the smallest stable UI-safe read model after Stage 1 integration semantics are settled.
+
+**Next action:**
+Reply to Assets INBOX/OUTBOX with the final safe UI projection contract when ready. This does not block the completed UI audit, only runtime implementation of the remembered-perspective panel.
+
 ## Inbox Rule
 
 When a message has been fully handled:
