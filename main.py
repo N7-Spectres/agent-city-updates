@@ -21,6 +21,7 @@ from agent_city.continuity_language import (
     continuity_language_snapshot,
     guided_practice_context,
     measured_competence_context,
+    pattern_continuity_context,
     plan_discussion_context,
     self_assessment_context,
     teaching_boundary_context,
@@ -862,6 +863,10 @@ async def talk(req: TalkRequest):
         include_current_options=False,
     )
     visitor_continuity = visitor_continuity_context(citizen["id"], visitor, limit=5)
+    pattern_continuity = pattern_continuity_context(
+        citizen["id"],
+        location_id=str(citizen["location_id"]),
+    )
 
     inventory = [r for r in state["inventory"] if r["citizen_id"] == citizen["id"] and r["amount"] > 0]
     inventory_summary = ", ".join(f"{r['amount']:g} {r['material']}" for r in inventory) or "nothing"
@@ -954,6 +959,8 @@ COMPLETED SHARED EXPLORATION MEMORY WITH THIS VISITOR:
 {shared_exploration_history}
 
 {visitor_continuity}
+
+{pattern_continuity}
 
 {self_assessment}
 
