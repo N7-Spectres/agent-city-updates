@@ -16,22 +16,24 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-- [Memory & Social] v0.9 Stage 2 may now implement source-backed guided-practice/competence memory using Simulation's final physical contract.
 
 ### WAITING
 
-- [Communication & Perception] Simulation contract is ready; runtime work now waits on Memory's Stage 2 retention/retrieval contract.
-- [Assets & Interface] Simulation read model is ready; final Stage 2 UI waits on Memory + Communication safe contracts.
-- [Coordinator / v0.9 Stage 2 Integration] waits for Memory + Communication + Assets completion before combined integration.
+- [Assets & Interface] Simulation + Memory Stage 2 read contracts are ready; final UI runtime now waits only on Communication's Stage 2 interpretation/language contract.
+- [Coordinator / v0.9 Stage 2 Integration] Memory + Simulation are ready; waits for Communication + Assets completion before combined integration.
 
 ### READY
 
+- [Communication & Perception] Memory's Stage 2 teaching/experience contract is ready from `memory/v0.9-experience-stage2`; Communication may implement guided-practice/questions/self-assessment language now.
+- [Assets & Interface] Memory's Stage 2 remembered-perspective contract is ready; existing `GET /api/memory/continuity/{citizen_id}` remains the safe Memory UI surface.
+
 - [World & Simulation] v0.9 Stage 2 bounded competence + real guided practice ready on `simulation/v0.9-competence-stage2` @ `667f4659aeef9a9658d7e08f4ba7c54e267a38f9`; final runtime CI `36618030044` passed the complete v0.4-v0.8.7 matrix, all v0.9 Stage 1 smokes, and `tests/smoke_v090_simulation_stage2.py`.
-- [Memory & Social] Simulation's exact competence/guided-practice source contract is now in Memory INBOX.
 - [Communication & Perception] Simulation's physical guided-practice/language contract is now in Communication INBOX.
 - [Assets & Interface] Simulation's score-free competence/guided-practice read model is now in Assets INBOX.
 
 ### REVIEW
+
+- [Memory & Social] v0.9 Stage 2 experience/teaching Memory complete on `memory/v0.9-experience-stage2` @ `d4e91866e41eb6fd33a4459fc9bd057ac28a6ba5`; CI `36621525829` passed the full integrated Stage 1 matrix + `tests/smoke_v090_memory_stage2.py`.
 
 - [World & Simulation] Stage 2 family-bounded competence, duration-only effects, failed-attempt experience, guided-practice sessions, one-use learner support, bottleneck dominance, safe read model, and regression coverage complete.
 
@@ -744,3 +746,28 @@ Final Communication integration must additionally preserve:
 - final Communication head: `2b0b683086c03708d235fc2fefd08d64ed2d15d1`
 - final compatibility CI: `36612304549` PASS
 
+
+
+## Memory v0.9 Stage 2 Integration Locks
+
+Coordinator and downstream departments must preserve:
+
+1. `guided_practice_sessions.id` is the canonical guided-practice event identity.
+2. Terminal guided sessions may create separate Memory events for teacher and learner only.
+3. Teacher/learner are event roles, not permanent mentor/expert/trainer identities.
+4. Active/in-progress guided sessions do not become completed teaching/learning memories.
+5. A guided-practice session itself is not learner `practice_event` evidence and creates no competence.
+6. Learner competence/practice changes only through the learner's later real eligible physical task.
+7. If Simulation persists `jobs.guidance_session_id`, retained learner practice may carry a `guided_practice_session` facet.
+8. If Simulation persists `guided_practice_sessions.consumed_by_job_id`, guided-session Memory may carry an `applied_job` relation.
+9. Memory may preserve Simulation's `competence_family` as a source facet but must not maintain its own competing family taxonomy.
+10. Memory must not copy/recompute weighted evidence, duration multipliers, practice benefit, guidance benefit, or combined competence effect.
+11. Objective competence does not decay with Memory age; only recall/access does.
+12. Guided-practice recall is owner-scoped and bounded by family/counterpart/role.
+13. Comparative experience must remain speaker-perspective/source-backed; there is no global Memory ranking.
+14. The event-local fact "X guided me" does not imply "X is my mentor/expert" or current/global superiority.
+15. Full Simulation competence/history and Memory remembered perspective remain separate read layers.
+16. Existing `GET /api/memory/continuity/{citizen_id}` remains the UI-safe remembered-perspective endpoint.
+17. Recall score/reinforcement/hidden importance remain absent from ordinary UI/model-facing teaching surfaces.
+18. Preserve `tests/smoke_v090_memory_stage2.py` in combined Stage 2 regression testing.
+19. No department publishes `update.json` during Stage 2.
