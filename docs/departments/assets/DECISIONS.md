@@ -655,3 +655,96 @@ The coordinator owns:
 - release metadata / updater publication
 
 Assets must not publish `update.json` or continue changing the hotfix after handoff unless review feedback identifies an interface-owned regression.
+
+
+## v0.9 Continuity Evidence/Interpretation Rule
+
+Continuity UI must distinguish three visible layers:
+
+1. **Evidence / Record** — source-backed physical/social history or plan lifecycle.
+2. **Remembered Perspective** — what this citizen currently recalls through bounded Memory.
+3. **Interpretation** — what this citizen currently thinks about that history.
+
+Do not flatten these into one canonical trait.
+
+## v0.9 Practice Presentation Rule
+
+Simulation practice events are objective history, not skill points.
+
+Allowed:
+- literal event counts such as "4 recorded extraction practice events"
+- factual completed/failed work rows
+- grouping/filtering by activity
+
+Forbidden:
+- XP bars
+- levels
+- stars/tiers
+- beginner/expert ladders
+- dynamic specialization titles
+- competence percentages unless Simulation later defines an explicit safe physical metric
+
+Counts describe records, not identity.
+
+## v0.9 Plan Presentation Rule
+
+Persistent plans are intentions with history, not command queues.
+
+UI may show:
+- intent
+- lifecycle status
+- next known step
+- unresolved question
+- source-linked reason/history
+
+A next step must never be presented as guaranteed future action.
+
+## v0.9 Recall Privacy Rule
+
+Ordinary continuity UI must not expose retrieval internals.
+
+Do not display:
+- recall score
+- reinforcement count
+- hidden salience
+- hidden importance ranking
+
+Show source/time/verification and safe remembered summaries instead.
+
+## v0.9 Recognition Rule
+
+Social recognition is observer-specific perspective.
+
+Do not create:
+- universal reputation
+- global trust/respect scores
+- expert/master/leader/rank badges
+- merged social consensus
+
+Recognition UI must remain explicitly perspective-scoped and source-backed.
+
+## v0.9 Place Meaning Rule
+
+Physical location truth and citizen-specific remembered meaning are separate layers.
+
+A location may later show individually attributed "Remembered here" cards only from a safe Memory projection.
+
+Do not infer favorite/disliked/special places from visit frequency.
+
+## v0.9 Habit / Custom Gate
+
+Assets must not infer habits or customs from raw chronology volume.
+
+Habits require an explicit safe citizen-pattern read model.
+
+Customs/traditions require repetition plus social transmission and an explicit safe social read model.
+
+Until those exist, omit the sections entirely rather than showing locked/zero states.
+
+## v0.9 Home Continuity Rule
+
+Home remains a "what is happening now?" surface.
+
+At most, Home may later show one compact unfinished-plan cue when it directly helps explain current activity.
+
+Deep continuity belongs on Citizens / Records.
