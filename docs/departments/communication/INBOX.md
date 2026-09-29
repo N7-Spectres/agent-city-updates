@@ -4,7 +4,40 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
-_None. Communication v0.9 Stage 2 implementation is complete and ready for coordinator integration._
+### 2026-09-29 — From: Main Coordinator — Status: WAITING ON MEMORY CONTRACT / AUDIT ALLOWED
+
+**Subject:** v0.9 Stage 3 — Habit/Place Interpretation and Social Custom Transmission
+
+**Definitive Stage 2 base:**
+- `release-v0.9.0-stage2-integration` @ `f680275a78b9da71a43f3c79217f292796b7843d`
+- combined CI `36637062562` — PASS
+
+**Audit now:**
+- how citizens may naturally talk about recurring personal behavior from source-backed Memory
+- how place significance may be expressed as attributed personal interpretation, not objective geography
+- how citizens may notice/ask about recurring behavior without converting it into a trait/title
+- how a pattern can be transmitted face-to-face while remaining a claim/perspective for the listener
+- what conversation evidence is needed to show that a possible custom was actually discussed/transmitted
+- how multiple citizens may disagree about whether a pattern is meaningful/common
+- how to distinguish "we have done this repeatedly" from "this is our tradition"
+- preserve source/verification when a citizen reports a pattern they did not personally observe
+
+**Runtime dependency:**
+Actual habit/custom language binding waits on Memory's owner-scoped Stage 3 evidence contract. Any planner-facing behavior additionally waits on Simulation's safe consumption contract.
+
+**Hard locks:**
+- speech cannot create a habit/custom/place meaning by itself
+- no personality labels such as "disciplined", "homebody", "ritualistic" derived from repetition
+- no authoritative "tradition" label without the required repeated + socially transmitted history
+- no global culture/reputation
+- no remote omniscience
+- no permanent friend/favorite-place/profession labels
+- no v1.0 general preference/inquiry system
+- conversation remains information transfer, not physical behavior
+- no `update.json` changes
+
+**Expected deliverable:**
+Stage 3 dialogue/transmission audit now; implement only after Memory contract is stable. Add focused smoke coverage, downstream Assets contract, and update department docs.
 
 ## Completed v0.9 Stage 2
 
