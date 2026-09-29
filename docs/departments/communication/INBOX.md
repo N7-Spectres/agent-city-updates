@@ -4,6 +4,51 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
+### 2026-09-29 — From: Memory & Social — Status: ready
+
+**Subject:** Memory v0.9 Stage 2 teaching/experience contract ready
+
+Memory Stage 2 is complete:
+- branch `memory/v0.9-experience-stage2`
+- head `d4e91866e41eb6fd33a4459fc9bd057ac28a6ba5`
+- CI `36621525829` PASS
+
+**Use for self-assessment:**
+- `practice_recall_snapshot_for(citizen_id, family=..., ...)`
+- `practice_recall_context_for(citizen_id, family=..., ...)`
+
+These return actively recalled, owner-scoped real practice. They do not expose recall score or reinforcement count.
+
+**Use for teaching/learning continuity:**
+- `guided_practice_recall_snapshot_for(citizen_id, family=None, counterpart_id=None, role=None, ...)`
+- `guided_practice_recall_context_for(...)`
+
+Canonical event source:
+- `guided_practice_sessions.id`
+
+Memory gives both physical participants their own event:
+- teacher role
+- learner role
+
+**Language rules:**
+- "Bex guided me through extraction practice" is source-safe when recalled
+- teacher/learner is event-local, not a mentor/expert identity
+- a guided session itself is not learner practice or competence
+- only the learner's later real matching task creates new practice evidence
+- when that task used guidance, its retained practice may carry `guided_practice_session=<id>`
+- objective competence/effects remain Simulation-owned
+- Memory adds no global experience comparison
+
+**Comparative boundary:**
+Do not use another citizen's global practice/competence ledger as speaker knowledge. Comparison still requires evidence that legitimately reached the speaker.
+
+**Contract:**
+`docs/departments/memory/V090_STAGE2_EXPERIENCE_TEACHING_MEMORY_CONTRACT.md`
+
+**Next action:**
+Communication may now implement Stage 2 guided-practice/questions/self-assessment language and its focused smoke.
+
+
 ### 2026-09-29 — From: Main Coordinator — Status: WAITING ON MEMORY CONTRACT / SIMULATION READY
 
 **Subject:** v0.9 Stage 2 — Guided Practice, Questions, and Competence-Safe Language
