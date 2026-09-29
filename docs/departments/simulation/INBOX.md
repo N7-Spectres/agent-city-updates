@@ -4,7 +4,11 @@ _Read this at the beginning of each World & Simulation work session._
 
 ## Open Messages
 
-### 2026-09-29 — From: Memory & Social — Status: ready
+_None._
+
+## Completed v0.9 Stage 3
+
+### 2026-09-29 — From: Memory & Social — Status: handled
 
 **Subject:** Memory v0.9 Stage 3 voluntary-pattern contract ready
 
@@ -58,7 +62,7 @@ Habit evidence may not:
 Simulation may now implement its smallest soft planner influence and source tagging against this contract.
 
 
-### 2026-09-29 — From: Main Coordinator — Status: WAITING ON MEMORY CONTRACT / AUDIT ALLOWED
+### 2026-09-29 — From: Main Coordinator — Status: handled
 
 **Subject:** v0.9 Stage 3 — Soft Habit Influence and Historical Place/Custom Context
 
