@@ -108,3 +108,6 @@ jobs:
 
       - name: Run v0.8.5 daily rhythm/recharge smoke
         run: python tests/smoke_v085_daily_rhythm.py
+
+      - name: Run v0.8.6 stranded-citizen recovery smoke
+        run: python tests/smoke_v086_stranded_recovery.py
