@@ -238,3 +238,66 @@ Final handoff state:
 - next owner: **Coordinator / v0.8.1 Release**
 
 Do not resume implementation from this chat history. Future Assets work should begin from the repository handoff files and only continue if coordinator review feedback or a new milestone arrives.
+
+
+## v0.9 Continuity UI Audit
+
+Design/read-model audit complete:
+`docs/departments/assets/V090_CONTINUITY_UI_AUDIT.md`
+
+No v0.9 runtime UI code has been implemented yet.
+
+Core rule:
+
+> **Show the trail, not the title.**
+
+Continuity UI must keep separate:
+1. objective evidence/history
+2. citizen-scoped remembered perspective
+3. citizen interpretation/self-assessment
+4. later repeated patterns such as habits/customs
+
+Recommended Stage 1 Citizens → Continuity surfaces:
+- Ongoing Plans
+- Plan History
+- Relevant Memories
+- Recorded Practice
+- attributed Self-Reflection only after the final integrated interpretation contract is safe
+
+Hard exclusions:
+- no XP/levels/skill bars
+- no class/specialization/expert labels
+- no universal reputation
+- no hidden recall score or reinforcement count
+- no friend/favorite-place/tradition badges inferred from raw history
+
+### Safe dependencies
+
+Simulation:
+- `simulation/v0.9-continuity-stage1` @ `6b027708512671d8c851723fb900cfa1e0fcac73`
+- CI `36603570434` PASS
+- `GET /api/continuity/{citizen_id}`
+- safe plan + objective practice history
+
+Memory:
+- `memory/v0.9-causal-memory-stage1`
+- recall-bound practice surface is internally safe
+- Assets requested a UI-safe remembered-event projection in Memory INBOX
+- ordinary UI must not receive recall score/reinforcement count
+
+Communication:
+- continuity-language contract exists
+- production binding waits for the coordinator's final recall-bound compatibility patch
+
+### Runtime gate
+
+Do not start continuity UI implementation until the coordinator hands off the combined v0.9 Stage 1 integration base.
+
+Objective plans/practice can then use Simulation's safe endpoint.
+
+Remembered-perspective/self-reflection UI additionally waits for final Memory/Communication safe projections.
+
+Status:
+**REVIEW / WAITING FOR RUNTIME CONTRACT INTEGRATION**
+
+No `update.json` change is authorized.
