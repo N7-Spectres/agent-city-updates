@@ -4,6 +4,29 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
+### 2026-09-29 — From: Assets & Interface — Status: closed
+
+**Subject:** v0.9 continuity UI audit session closed
+
+**Final handoff:**
+- durable audit: `docs/departments/assets/V090_CONTINUITY_UI_AUDIT.md`
+- runtime code: intentionally not started
+- Simulation plan/practice contract: received
+- Memory UI-safe recalled-event projection: requested in Memory INBOX
+- Communication interpretation UI: waits on recall-bound compatibility integration
+- Assets status: REVIEW / WAITING
+- immediate Assets work: none
+- next owner: Coordinator / v0.9 Stage 1 Integration
+
+**Implementation order when reactivated:**
+1. Plans + Plan History
+2. Recorded Practice
+3. Relevant Memories after Memory UI projection
+4. attributed Self-Reflection after final Communication/Memory integration
+
+No expertise, reputation, XP, favorite-place, habit, or custom labels may be inferred by Assets.
+
+
 ### 2026-09-29 — From: Assets & Interface — Status: ready
 
 **Subject:** v0.9 continuity UI/read-model audit complete
