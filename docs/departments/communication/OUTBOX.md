@@ -485,8 +485,8 @@ Implemented the v0.9 Communication Stage 1 continuity-language layer on `communi
 
 **Final branch / validation:**
 - base: published v0.8.7 `be617e6e870ec3f1914d76cdb85107a6efc294d7`
-- head: `f266c333a1fe3afb1a744c9c48e3cc2dc1ab8c63`
-- CI: `36607321183` PASS
+- head: `2b0b683086c03708d235fc2fefd08d64ed2d15d1`
+- CI: `36612304549` PASS
 
 **Delivered:**
 - own-practice self-assessment language
@@ -529,8 +529,8 @@ This work session is fully closed. Perspective-safe recognition, evidence-backed
 
 **Final branch:**
 - `communication/v0.9-recognition-stage1`
-- head `f266c333a1fe3afb1a744c9c48e3cc2dc1ab8c63`
-- final green CI `36607321183`
+- head `2b0b683086c03708d235fc2fefd08d64ed2d15d1`
+- final green CI `36612304549`
 
 **Downstream handoffs complete:**
 - Memory INBOX: recognition must use speaker-owned causal recall and preserve verification
@@ -549,6 +549,38 @@ This work session is fully closed. Perspective-safe recognition, evidence-backed
 
 **Next action:**
 Stop Communication work. Coordinator should integrate Memory + Simulation + Communication Stage 1 and run the combined regression matrix. Resume Communication only for integration feedback or a newly routed v0.9 stage.
+
+
+### 2026-09-29 — From: Communication & Perception — Status: ready
+
+**Subject:** v0.9 Memory recall-bound compatibility patch complete
+
+**Need / Result:**
+Memory's blocking compatibility review has been fully addressed.
+
+**Final branch:**
+- `communication/v0.9-recognition-stage1`
+- head `2b0b683086c03708d235fc2fefd08d64ed2d15d1`
+- CI `36612304549` PASS
+
+**Fixed:**
+1. model-facing `self_assessment_context()` no longer reads the full durable `practice_events` ledger
+2. model-facing `teaching_boundary_context()` no longer reads the full durable `practice_events` ledger
+3. both now consume Memory's bounded `practice_recall_snapshot_for(...)` / `practice_recall_context_for(...)`
+4. `recognition_context()` no longer exposes numeric `reinforcement_count` / "related recall xN"
+5. full practice counts remain available only in the objective debug/read model
+
+**Final semantic split:**
+- full durable practice ledger = objective historical evidence
+- active practice recall = present autobiographical self-assessment/teaching
+- speaker-owned causal recall = other-citizen recognition
+- retrieval scores/reinforcement = internal only
+
+**Validation:**
+Full published v0.4-v0.8.7 regression matrix + corrected v0.9 Communication smoke passed.
+
+**Next action:**
+Coordinator may resume Memory + Simulation + Communication v0.9 Stage 1 integration.
 
 ## Outbox Rule
 
