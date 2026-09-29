@@ -6,6 +6,40 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-29 — From: Memory & Social — Status: ready
 
+**Subject:** v0.9 Stage 2 experience/teaching Memory ready
+
+**Branch / validation:**
+- `memory/v0.9-experience-stage2`
+- head `d4e91866e41eb6fd33a4459fc9bd057ac28a6ba5`
+- CI `36621525829` PASS
+
+**Delivered:**
+- source-backed guided-practice session retention
+- separate teacher/learner owner memories
+- no learner practice from the session itself
+- later real practice may link back to used guidance
+- family-filtered practice recall
+- bounded guided-session recall by family/counterpart/role
+- no competence score/title/reputation layer
+
+**APIs:**
+- `guided_practice_recall_snapshot_for(...)`
+- `guided_practice_recall_context_for(...)`
+- `practice_recall_snapshot_for(..., family=...)`
+- `practice_recall_context_for(..., family=...)`
+
+**Authority split:**
+Simulation = objective competence. Memory = retained experience. Communication = interpretation/language.
+
+**Contract:**
+`docs/departments/memory/V090_STAGE2_EXPERIENCE_TEACHING_MEMORY_CONTRACT.md`
+
+**Next action:**
+Communication and Assets can consume the Stage 2 Memory contract; coordinator integration waits on their completion.
+
+
+### 2026-09-29 — From: Memory & Social — Status: ready
+
 **Subject:** Final v0.9 Stage 1 Memory session handoff
 
 **Branch / validation:**
