@@ -9,6 +9,8 @@ from .world import format_sim_time
 MAX_SELF_CONTEXT_CHARS = 1800
 MAX_RECOGNITION_CONTEXT_CHARS = 1600
 MAX_PLAN_CONTEXT_CHARS = 1500
+MAX_COMPETENCE_CONTEXT_CHARS = 1500
+MAX_GUIDANCE_CONTEXT_CHARS = 1800
 
 _FAIL_OUTCOMES = {
     "failed",
@@ -136,6 +138,115 @@ def _causal_recall(
         ]
     except Exception:
         return []
+
+
+def _guided_practice_recall(
+    citizen_id: str,
+    *,
+    family: str | None = None,
+    counterpart_id: str | None = None,
+    role: str | None = None,
+    limit: int = 8,
+) -> list[dict[str, Any]]:
+    try:
+        from .guided_practice_memory import guided_practice_recall_snapshot_for
+    except ImportError:
+        return []
+
+    try:
+        rows = guided_practice_recall_snapshot_for(
+            citizen_id,
+            family=family,
+            counterpart_id=counterpart_id,
+            role=role,
+            limit=max(1, min(int(limit), 16)),
+        )
+    except Exception:
+        return []
+    return [dict(row) for row in rows]
+
+
+def _guided_practice_recall_context(
+    citizen_id: str,
+    *,
+    family: str | None = None,
+    counterpart_id: str | None = None,
+    role: str | None = None,
+    limit: int = 6,
+) -> str:
+    try:
+        from .guided_practice_memory import guided_practice_recall_context_for
+    except ImportError:
+        return "- no actively recalled source-backed guided-practice experience matched"
+
+    try:
+        return str(
+            guided_practice_recall_context_for(
+                citizen_id,
+                family=family,
+                counterpart_id=counterpart_id,
+                role=role,
+                limit=max(1, min(int(limit), 12)),
+            )
+        )
+    except Exception:
+        return "- no actively recalled source-backed guided-practice experience matched"
+
+
+def _competence_snapshot(citizen_id: str) -> list[dict[str, Any]]:
+    """
+    Objective physical effect for this citizen only.
+
+    Communication never uses this helper to inspect another citizen for social
+    recognition or comparative dialogue.
+    """
+    try:
+        from .competence import competence_snapshot
+    except ImportError:
+        return []
+
+    try:
+        with connect() as conn:
+            rows = competence_snapshot(conn, citizen_id)
+    except Exception:
+        return []
+    return [dict(row) for row in rows]
+
+
+def _guided_practice_options(citizen_id: str, counterpart_id: str | None = None) -> list[dict[str, Any]]:
+    """
+    Current self-owned legal ability to guide someone.
+
+    We consume only possible_actions(citizen_id). We never query the counterpart's
+    hidden/global competence ledger to tell the speaker what the other citizen
+    can or cannot teach.
+    """
+    try:
+        from .simulation import possible_actions
+    except ImportError:
+        return []
+
+    try:
+        rows = possible_actions(citizen_id)
+    except Exception:
+        return []
+
+    options: list[dict[str, Any]] = []
+    for row in rows:
+        if str(row.get("action")) != "guided_practice":
+            continue
+        learner_id = str(row.get("learner_id") or "")
+        if counterpart_id is not None and learner_id != str(counterpart_id):
+            continue
+        family = str(row.get("activity_family") or "").strip()
+        if not learner_id or not family:
+            continue
+        options.append({
+            "learner_id": learner_id,
+            "activity_family": family,
+            "label": " ".join(str(row.get("label") or "").split())[:220],
+        })
+    return options
 
 
 def _citizen_name(citizen_id: str) -> str:
@@ -313,6 +424,120 @@ def recognition_context(
         "- Repeated unverified reports remain unverified even when easy to recall.",
     ])
     return "\n".join(lines)[:MAX_RECOGNITION_CONTEXT_CHARS]
+
+
+def measured_competence_context(citizen_id: str) -> str:
+    """
+    Describe only the citizen's own bounded physical task-time effects.
+
+    Practice counts/source IDs remain in Simulation read models; model-facing
+    language receives only the measured effect so archive history is not
+    re-injected around Memory recall.
+    """
+    rows = _competence_snapshot(citizen_id)
+    lines = ["MEASURED PHYSICAL PRACTICE EFFECTS (SELF ONLY):"]
+    useful = []
+    for row in rows:
+        multiplier = float(row.get("duration_multiplier") or 1.0)
+        reduction = max(0.0, (1.0 - multiplier) * 100.0)
+        if reduction <= 0.001:
+            continue
+        useful.append((str(row.get("family") or ""), reduction))
+
+    if not useful:
+        lines.append("- no measurable practice-derived task-time effect is currently present")
+    else:
+        for family, reduction in useful[:6]:
+            lines.append(
+                f"- {family}: matching physical tasks currently have about "
+                f"{reduction:.1f}% shorter duration from source-backed practice."
+            )
+
+    lines.extend([
+        "- This is current Simulation-owned physical effect, not memory, title, rank, or social reputation.",
+        "- Do not infer exact practice count or autobiographical details from this measured effect.",
+        "- A measured effect may exist even when old practice is not currently recalled; do not invent the forgotten history.",
+        "- Physical bottlenecks, legality, tools, materials, energy, and outcomes remain governed by Simulation.",
+    ])
+    return "\n".join(lines)[:MAX_COMPETENCE_CONTEXT_CHARS]
+
+
+def guided_practice_context(
+    citizen_id: str,
+    *,
+    counterpart_id: str | None = None,
+    family: str | None = None,
+) -> str:
+    counterpart_name = _citizen_name(counterpart_id) if counterpart_id else "the other citizen"
+    recalled = _guided_practice_recall(
+        citizen_id,
+        family=family,
+        counterpart_id=counterpart_id,
+        limit=6,
+    )
+    recalled_text = _guided_practice_recall_context(
+        citizen_id,
+        family=family,
+        counterpart_id=counterpart_id,
+        limit=5,
+    )
+    options = _guided_practice_options(citizen_id, counterpart_id)
+
+    lines = ["GUIDED PRACTICE / HELP CONTEXT:"]
+    lines.append(recalled_text)
+
+    if options:
+        lines.append("- Real guided-practice actions you can legally start right now:")
+        for option in options[:6]:
+            learner_name = _citizen_name(option["learner_id"])
+            lines.append(
+                f"  - guide {learner_name} in {option['activity_family']}"
+                + (f": {option['label']}" if option["label"] else "")
+            )
+    else:
+        lines.append("- no guided-practice action with this counterpart is currently exposed as legal for you")
+
+    if recalled and counterpart_id:
+        lines.append(
+            f"- You may refer to source-backed past guided-practice experiences with {counterpart_name} that are actually recalled above."
+        )
+
+    lines.extend([
+        "- Teacher/learner are roles in one real guided-practice event, not permanent mentor/trainer/expert identities.",
+        "- Asking a question or explaining something in ordinary conversation transfers information only; it creates no competence or practice.",
+        "- You may ask another citizen about their experience even when you do not know the answer. Frame unknown experience as a question, not an assertion.",
+        "- You may propose guided practice only when a legal guided-practice action appears above. The conversation proposal itself does not start the physical session.",
+        "- A completed guided-practice session itself is not learner practice/competence. Only the learner's later real matching task creates new practice evidence.",
+        "- If remembered guidance was later applied to a real task, describe the event/history only when the source-backed recall actually supports it.",
+        "- Do not call yourself or the counterpart expert, master, mentor, trainer, specialist, leader, senior, or ranked because of a guided-practice event.",
+        "- Do not expose weighted evidence, competence scores, recall scores, or reinforcement counts.",
+    ])
+    return "\n".join(lines)[:MAX_GUIDANCE_CONTEXT_CHARS]
+
+
+def help_question_context(
+    speaker_id: str,
+    counterpart_id: str | None,
+) -> str:
+    lines = ["ASKING FOR HELP / EXPLANATION:"]
+    if counterpart_id:
+        name = _citizen_name(counterpart_id)
+        evidence = recognition_context(speaker_id, counterpart_id, limit=4)
+        lines.append(evidence)
+        lines.append(
+            f"- You may ask {name} about their experience even if you do not already know whether they are more practiced."
+        )
+        lines.append(
+            f"- If the evidence above supports prior work or guidance by {name}, you may use that source-honest history when asking for help."
+        )
+    else:
+        lines.append("- no counterpart selected")
+    lines.extend([
+        "- Asking for help is a conversational request, not a competence comparison.",
+        "- Do not justify the request with hidden/global competence data.",
+        "- An answer/explanation may transfer information but not physical skill.",
+    ])
+    return "\n".join(lines)[:1400]
 
 
 def plan_discussion_context(citizen_id: str) -> str:
