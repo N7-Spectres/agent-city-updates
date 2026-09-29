@@ -458,6 +458,28 @@ def init_db() -> None:
             CREATE INDEX IF NOT EXISTS idx_practice_events_citizen
             ON practice_events(citizen_id, activity_type, completed_minute, id);
 
+            CREATE TABLE IF NOT EXISTS guided_practice_sessions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                job_id INTEGER UNIQUE,
+                teacher_id TEXT NOT NULL,
+                learner_id TEXT NOT NULL,
+                activity_family TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'active',
+                started_minute INTEGER NOT NULL,
+                completed_minute INTEGER,
+                source_conversation_id INTEGER,
+                teacher_practice_count INTEGER NOT NULL DEFAULT 0,
+                learner_practice_count INTEGER NOT NULL DEFAULT 0,
+                consumed_by_job_id INTEGER,
+                summary TEXT NOT NULL
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_guided_practice_learner
+            ON guided_practice_sessions(learner_id, activity_family, status, id);
+
+            CREATE INDEX IF NOT EXISTS idx_guided_practice_teacher
+            ON guided_practice_sessions(teacher_id, activity_family, status, id);
+
             CREATE TABLE IF NOT EXISTS jobs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 citizen_id TEXT NOT NULL,
@@ -483,7 +505,8 @@ def init_db() -> None:
                 terrain_multiplier REAL,
                 result_observation_id INTEGER,
                 shared_activity_id INTEGER,
-                plan_id INTEGER
+                plan_id INTEGER,
+                guided_practice_id INTEGER
             );
 
             CREATE TABLE IF NOT EXISTS citizen_conversations (
@@ -537,6 +560,7 @@ def init_db() -> None:
         add_column_if_missing(conn, "jobs", "result_observation_id INTEGER", "result_observation_id")
         add_column_if_missing(conn, "jobs", "shared_activity_id INTEGER", "shared_activity_id")
         add_column_if_missing(conn, "jobs", "plan_id INTEGER", "plan_id")
+        add_column_if_missing(conn, "jobs", "guided_practice_id INTEGER", "guided_practice_id")
         add_column_if_missing(conn, "spatial_observations", "detail_level TEXT NOT NULL DEFAULT 'field'", "detail_level")
         add_column_if_missing(conn, "deposits", "discoverer_id TEXT", "discoverer_id")
         add_column_if_missing(conn, "deposits", "discovered_minute INTEGER", "discovered_minute")
@@ -973,6 +997,15 @@ def snapshot() -> dict[str, Any]:
                 "SELECT * FROM practice_events ORDER BY id DESC LIMIT 160"
             )
         ]
+        guided_practice_sessions = [
+            dict(r) for r in conn.execute(
+                """
+                SELECT * FROM guided_practice_sessions
+                ORDER BY COALESCE(completed_minute, started_minute) DESC, id DESC
+                LIMIT 80
+                """
+            )
+        ]
 
         from .exploration import active_local_movement_payload, shared_activity_payload
         sim_now = int(get_meta(conn, "sim_minute") or "360")
@@ -1119,6 +1152,7 @@ def snapshot() -> dict[str, Any]:
             "plans": plans,
             "plan_transitions": plan_transitions,
             "practice_events": practice_events,
+            "guided_practice_sessions": guided_practice_sessions,
             "discoveries": discoveries,
             "citizen_knowledge": citizen_knowledge,
             "experiment_results": experiment_results,
