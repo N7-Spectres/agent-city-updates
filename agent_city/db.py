@@ -509,7 +509,10 @@ def init_db() -> None:
                 guided_practice_id INTEGER,
                 competence_family TEXT,
                 competence_duration_multiplier REAL,
-                guidance_session_id INTEGER
+                guidance_session_id INTEGER,
+                voluntary_choice_eligible INTEGER NOT NULL DEFAULT 0,
+                voluntary_choice_context TEXT,
+                voluntary_choice_location_id TEXT
             );
 
             CREATE TABLE IF NOT EXISTS citizen_conversations (
@@ -567,6 +570,9 @@ def init_db() -> None:
         add_column_if_missing(conn, "jobs", "competence_family TEXT", "competence_family")
         add_column_if_missing(conn, "jobs", "competence_duration_multiplier REAL", "competence_duration_multiplier")
         add_column_if_missing(conn, "jobs", "guidance_session_id INTEGER", "guidance_session_id")
+        add_column_if_missing(conn, "jobs", "voluntary_choice_eligible INTEGER NOT NULL DEFAULT 0", "voluntary_choice_eligible")
+        add_column_if_missing(conn, "jobs", "voluntary_choice_context TEXT", "voluntary_choice_context")
+        add_column_if_missing(conn, "jobs", "voluntary_choice_location_id TEXT", "voluntary_choice_location_id")
         add_column_if_missing(conn, "spatial_observations", "detail_level TEXT NOT NULL DEFAULT 'field'", "detail_level")
         add_column_if_missing(conn, "deposits", "discoverer_id TEXT", "discoverer_id")
         add_column_if_missing(conn, "deposits", "discovered_minute INTEGER", "discovered_minute")
