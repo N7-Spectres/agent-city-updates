@@ -826,3 +826,24 @@ For Stage 2:
 3. coordinator performs final release integration.
 
 This avoids interface code binding to mutually incompatible branch snapshots.
+
+
+## v0.9 Stage 2 Audit Handoff Rule
+
+Once the Stage 2 presentation/read-model audit is complete and all three upstream department contracts are ready, Assets stops at the integration boundary until the coordinator provides one assembled Stage 2 runtime base.
+
+Assets must not:
+- cherry-pick or merge Simulation/Memory/Communication Stage 2 branches itself,
+- bind browser code to three separate branch snapshots,
+- implement against a partially integrated upstream runtime.
+
+The coordinator owns the upstream Stage 2 assembly first.
+
+Assets resumes only from that combined base and then implements:
+- factual competence-family history,
+- compact measured duration-effect text,
+- guided-practice event history,
+- remembered guided-practice perspective,
+- attributed interpretation.
+
+This preserves cross-department contract coherence and avoids making the interface the de facto integration layer.
