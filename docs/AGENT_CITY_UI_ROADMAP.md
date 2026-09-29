@@ -519,6 +519,20 @@ Daily autonomy and world-presentation follow-up:
 
 This establishes a daily settlement rhythm without turning the citizens into scripted shift workers.
 
+### Shipped milestone — v0.8.6 Stranded Citizen Recovery
+
+Shipped v0.8.6 commit: `a72f96b763671f01c5a8aa0ba41d87f7eb6b9a09`  
+Final CI: `36591711494` — PASS
+
+Energy-safety correction:
+- reaching an operational charger is a valid safety endpoint
+- charger-bound travel does not require an additional reserve after arrival
+- actual travel energy cost still must be available
+- non-charger destinations retain the normal return reserve
+- fixes low-energy deadlocks without teleporting citizens or rewriting legitimate world history
+
+Confirmed bug recovery should prefer repairing the governing rule so the existing save can recover naturally. Direct admin state repair remains a last resort for impossible states created by software defects.
+
 ### v0.9.0 — Civilization Continuity
 
 Support long-running autonomous development across months and simulated years.
