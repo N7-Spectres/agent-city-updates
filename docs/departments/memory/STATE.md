@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-28_
 _Current release: v0.7.0_
-_Current development branch: `memory/v0.8-exploration-stage2`_
+_Current development branch: `memory/v0.9-causal-memory-stage1`_
 
 ## Mission
 
@@ -889,3 +889,121 @@ Simulation's final pre-start `rejected` state remains intention history only and
 No Memory-owned Stage 2 dependency remains. Resume Memory only for coordinator merge conflicts/regressions or a newly authorized milestone.
 
 No release was published and `update.json` was not changed.
+
+
+## v0.9 Stage 1 Causal Memory Spine — Complete
+
+**Doctrine:** `docs/V090_CIVILIZATION_CONTINUITY_DOCTRINE.md`  
+**Contract:** `docs/departments/memory/V090_CAUSAL_MEMORY_CONTRACT.md`  
+**Base:** `release-v0.8.7` / `be617e6e870ec3f1914d76cdb85107a6efc294d7`  
+**Branch:** `memory/v0.9-causal-memory-stage1`  
+**Final head:** `1394261f72d4fc5df7d41e065cd157350fee2785`  
+**Validation:** CI `36598971733` passed the complete v0.4-v0.8.7 regression matrix plus `tests/smoke_v090_memory_stage1.py`.
+
+### Durable archive remains authoritative
+
+Existing `memory_events` remains the durable per-citizen archive.
+
+v0.9 does not rewrite or replace:
+- source type / source ID
+- event time
+- event summary
+- status / verification
+- owner
+
+Aging affects retrieval priority only.
+
+### New causal facet index
+
+Stage 1 adds:
+
+`memory_event_facets(owner_id, memory_event_id, facet_kind, facet_value)`
+
+This is an additive index/projection over real Memory events.
+
+Initial facet families include:
+- event kind
+- source type
+- counterparty
+- visitor
+- stable subject
+- target
+- location
+- material
+- process
+- descriptive activity/action type
+
+Future explicit continuity facets may include plan/place identifiers.
+
+Facets are not facts, skills, classes, habits, or reputation.
+
+### Active recall
+
+New module: `agent_city/causal_memory.py`.
+
+Primary internal interfaces:
+
+- `causal_recall_snapshot(owner_id, now_minute=None, facet_filters=None, pinned_event_ids=None, limit=8)`
+- `causal_recall_context_for(...)`
+- `link_memory_event(memory_event_id, facet_kind, facet_value)`
+
+Active recall is bounded and source-labelled.
+
+Recall priority considers:
+- stored event importance
+- meaningful aging/recency
+- repeated related source-backed experience
+
+Repeated experience can become more retrievable without merging/copying an unbounded transcript.
+
+Reinforcement affects retrieval only. It never changes verification or physical capability.
+
+### Persistent-plan hook
+
+An unfinished plan can preserve its causal reason by retaining the stable `memory_event_id` references that caused/revised the plan.
+
+Those event IDs can be:
+- explicitly linked with facet `plan=<plan_id>`
+- passed as `pinned_event_ids` during recall
+
+Pinned old memories remain candidate-visible after unrelated work/time passes.
+
+Pinning does not make a plan mandatory. Planner may still continue, revise, pause, supersede, abandon, or complete it.
+
+### Active recall vs forgetting
+
+Low-value old events may fall out of the active packet.
+
+They remain in `memory_events`.
+
+This implements reduced access without rewriting the past.
+
+### Citizen isolation
+
+All recall is owner-scoped.
+
+Another citizen cannot receive plan reasons, practice history, visitor continuity, or social evidence merely because another citizen has it.
+
+### Validation coverage
+
+`tests/smoke_v090_memory_stage1.py` verifies:
+
+- repeated related source-backed events gain retrieval reinforcement
+- newer equal-family memories outrank older ones
+- repeated unverified claims remain unverified
+- old plan reasons survive through explicit pinning
+- plan facets remain traceable to real Memory events
+- another citizen does not inherit the history
+- low-value old events can leave active recall while remaining in durable archive
+- recall context remains bounded and source-labelled
+- existing v0.4-v0.8.7 behavior remains green
+
+### Downstream handoffs
+
+Simulation INBOX now contains the persistent-plan source interface.
+
+Communication INBOX now contains the perspective-safe recall/self-assessment/recognition contract.
+
+No public HTTP recall-score API was added in Stage 1. Recall score is internal retrieval machinery and must not become a visible identity/reputation/memory-strength label.
+
+No release metadata or `update.json` was changed.
