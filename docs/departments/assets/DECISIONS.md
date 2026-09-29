@@ -847,3 +847,35 @@ Assets resumes only from that combined base and then implements:
 - attributed interpretation.
 
 This preserves cross-department contract coherence and avoids making the interface the de facto integration layer.
+
+
+## v0.9 Stage 2 Runtime Consumption Rule
+
+Assets consumes Simulation's final `duration_reduction_percent` directly.
+
+It must not recompute competence from:
+- practice counts
+- weighted evidence
+- duration multipliers
+- guidance multipliers
+- evidence gaps
+- physical caps
+
+The frontend is a renderer, not a competence engine.
+
+## v0.9 Stage 2 Interpretation Non-Synthesis Rule
+
+If Communication does not expose a safe attributed interpretation string through the integrated UI read model, Assets leaves the Interpretation layer conservative.
+
+Do not generate "I feel more practiced" or similar citizen-language text from objective counts/effects in JavaScript.
+
+Absence of an interpretation is safer than fabricated perspective.
+
+## v0.9 Stage 2 Remembered-Context Rule
+
+Assets may decorate a remembered event only with fields already present in Memory's UI-safe projection, including:
+- source role
+- counterparty
+- safe competence-family facet
+
+Assets must not reconstruct hidden Memory relevance, ranking, or social meaning from raw ledgers.
