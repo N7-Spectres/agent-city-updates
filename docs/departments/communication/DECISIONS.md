@@ -773,3 +773,70 @@ Do not skip layer 2 for model-facing self-assessment or teaching.
 Do not expose retrieval internals such as `recall_score` or `reinforcement_count` as citizen facts.
 
 This hierarchy is now a release-integration invariant.
+
+## v0.9 Stage 2 Measured Effect vs Remembered Experience
+
+Objective physical competence effect and autobiographical Memory are separate layers.
+
+Simulation may provide the speaker's own bounded physical task-time effect.
+
+Memory determines which source-backed practice experiences are actively recalled.
+
+Communication may present both, clearly separated.
+
+Do not reconstruct forgotten autobiographical history from a measured physical effect.
+
+## v0.9 Stage 2 Other-Citizen Competence Boundary
+
+Communication must never use `competence_snapshot(other_citizen)` as recognition evidence for the speaker.
+
+Another citizen's experience remains speaker-perspective Memory only.
+
+The speaker may ask another citizen about their experience without already knowing the answer.
+
+A question is not a competence claim.
+
+## v0.9 Stage 2 Guided-Practice Role Rule
+
+Teacher and learner are roles in one canonical `guided_practice_sessions.id` event.
+
+They are not persistent social identities.
+
+Do not create authoritative:
+- mentor
+- trainer
+- expert
+- master
+- specialist
+- leader
+- senior/rank
+
+from guided-practice history.
+
+## v0.9 Stage 2 Guided Practice Is Physical
+
+Ordinary explanation is information transfer only.
+
+A real guided-practice session requires Simulation's physical action.
+
+Conversation may propose/discuss it but does not start it.
+
+The guided session itself creates no learner practice/competence.
+
+Only a later real matching learner task creates new practice evidence.
+
+## v0.9 Stage 2 Current Guidance Availability
+
+A citizen may know they can currently guide another citizen only from their own legal Simulation action surface.
+
+Legal `guided_practice` availability proves current action legality only.
+
+It does not justify a social statement that the speaker is "more experienced" unless source-backed perspective Memory separately supports that claim.
+
+## v0.9 Stage 2 Visitor Boundary
+
+Visitor conversation may discuss the citizen's own measured effect and recalled guided-practice history.
+
+Visitor chat receives no current citizen-to-citizen guided-practice option list.
+
+Explaining something to the visitor creates no visitor competence or guided-practice event.
