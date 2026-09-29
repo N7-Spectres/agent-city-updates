@@ -766,3 +766,63 @@ Until then:
 
 When reactivated, implementation should start with the smallest safe slice:
 Plans + Plan History + Recorded Practice, then add Relevant Memories / Self-Reflection only when their safe projections are final.
+
+
+## v0.9 Stage 2 Measured Effect Presentation Rule
+
+Practice-derived duration reduction is a bounded physical work effect, not a proficiency score.
+
+If displayed:
+- use compact factual text
+- show the Simulation-provided percentage
+- keep it inside Evidence / Record
+- omit zero-value effects
+
+Never use:
+- progress bars
+- radial gauges
+- mastery percentages
+- rank colors
+- level/tier language
+
+Do not map the 8% physical cap to a 100% visual scale.
+
+## v0.9 Stage 2 Guided-Practice Presentation Rule
+
+Guided-practice sessions are factual physical/social events.
+
+Teacher and learner are roles in one event, not persistent identities.
+
+UI may show:
+- activity family
+- guide / learner names
+- status
+- time
+- source-linked session history
+
+UI must not create:
+- mentor/trainer/expert labels
+- apprentice/student classes
+- teaching proficiency
+- competence gain from the session itself
+
+Only the learner's later real matching work creates new practice evidence.
+
+## v0.9 Stage 2 Competence Comparison Rule
+
+Do not build a citizen competence leaderboard, rank table, or citizens-by-family heatmap.
+
+Even objective per-citizen duration effects would become an implicit social ranking when aggregated this way.
+
+Normal UI remains citizen-centric and evidence-first.
+
+## v0.9 Stage 2 Integration Ownership Rule
+
+Assets does not assemble upstream Simulation, Memory, and Communication runtime branches.
+
+For Stage 2:
+1. coordinator assembles upstream contracts onto the integrated Stage 1 line,
+2. Assets implements UI against that one combined base,
+3. coordinator performs final release integration.
+
+This avoids interface code binding to mutually incompatible branch snapshots.
