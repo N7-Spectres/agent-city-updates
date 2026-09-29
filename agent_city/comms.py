@@ -8,6 +8,12 @@ from typing import Any
 import httpx
 
 from .db import add_history, connect, get_meta
+from .continuity_language import (
+    plan_discussion_context,
+    recognition_context,
+    self_assessment_context,
+    teaching_boundary_context,
+)
 from .grounding import (
     citizen_capability_context,
     grounding_policy_text,
@@ -116,7 +122,7 @@ def recent_dialogues_for(citizen_id: str, limit: int = 6) -> list[dict[str, Any]
         return list(reversed([dict(r) for r in rows]))
 
 
-def _citizen_private_context(citizen_id: str) -> str:
+def _citizen_private_context(citizen_id: str, counterpart_id: str | None = None) -> str:
     with connect() as conn:
         c = conn.execute("SELECT * FROM citizens WHERE id = ?", (citizen_id,)).fetchone()
         if not c:
@@ -132,6 +138,14 @@ def _citizen_private_context(citizen_id: str) -> str:
     social_history = social_context_for(citizen_id, limit=3)
     capability_context = citizen_capability_context(citizen_id)
     spatial_context = spatial_grounding_context(citizen_id)
+    self_context = self_assessment_context(citizen_id)
+    plan_context = plan_discussion_context(citizen_id)
+    teaching_context = teaching_boundary_context(citizen_id)
+    recognition = (
+        recognition_context(citizen_id, counterpart_id)
+        if counterpart_id
+        else "PERSPECTIVE-SAFE RECOGNITION:\n- no counterpart selected"
+    )
     cargo_text = ", ".join(f"{r['amount']:g} {r['material']}" for r in cargo) or "nothing"
     discovery_text = "; ".join(
         f"{d['material']} at {d['location_name']}" for d in discoveries
@@ -161,6 +175,14 @@ Durable relationship history derived from actual recorded encounters:
 {capability_context}
 
 {spatial_context}
+
+{self_context}
+
+{plan_context}
+
+{recognition}
+
+{teaching_context}
 """.strip()
 
 
@@ -740,8 +762,8 @@ async def generate_dialogue(
         code="physical_talk_valid",
     )
 
-    initiator_context = _citizen_private_context(initiator_id)
-    target_context = _citizen_private_context(target_id)
+    initiator_context = _citizen_private_context(initiator_id, target_id)
+    target_context = _citizen_private_context(target_id, initiator_id)
     purpose = (reason or "The initiator wants to speak briefly.").strip()
 
     prompt = f"""
@@ -772,6 +794,12 @@ INFORMATION RULES:
 - Let each citizen sound recognizably different. Do not flatten both voices into the same operational-assistant tone.
 - Personality may influence preference and wording, but never creates authority, rank, command rights, or extra knowledge.
 - An invented explanation, material property, terrain detail, weather effect, economic value, tool, or capability is not allowed just because it would make the conversation more colorful.
+- Repeated personal practice may support phrases like "I've done this several times" only when the citizen's own physical practice evidence supports it.
+- Self-assessment such as "I think I'm getting better" remains interpretation, not objective capability truth.
+- Recognition of the other citizen is perspective-based. Do not assign expert, master, leader, trainer, mentor, specialist, rank, or reputation as authoritative identity.
+- Do not compare another citizen's experience to your own unless information that legitimately reached the speaker supports that comparison.
+- Explaining or teaching through conversation does not create practice, competence, or skill for the listener.
+- Discussing a persistent plan does not create, revise, pause, resume, abandon, supersede, or complete the canonical plan.
 
 SUMMARY TRUTH RULES:
 - The summary describes communication, not physical verification.
