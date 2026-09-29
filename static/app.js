@@ -1501,7 +1501,7 @@ function citizenContinuityMarkup(citizenId) {
         <span>Citizen Interpretation</span>
         <small>Not an objective stat</small>
       </div>
-      <p class="muted">Source-backed self-reflection remains Communication-owned and attributed. Measured work effects and event counts are evidence, not personality or expertise. Agent City does not infer rank, permanent guide identity, friendship, or preference from them.</p>
+      <p class="muted">Source-backed self-reflection remains Communication-owned and attributed. Measured work effects and event counts are evidence, not personality or expertise. Agent City does not infer expertise, rank, friendship, or preference from event counts. Guided-practice event roles do not create permanent guide identities.</p>
     </div>
   `;
 }
