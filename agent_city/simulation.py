@@ -1358,6 +1358,10 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
                 return False, "No known route exists."
             energy_cost = max(2.0, distance * 3.0)
             target_reserve = return_energy_required(conn, target)
+            if target in charging_locations(conn):
+                # Reaching an operational charger is itself the safety destination.
+                # Do not require an additional post-arrival return reserve.
+                target_reserve = 0.0
             if target_reserve is None or float(c["energy"]) - energy_cost < target_reserve:
                 return False, "That journey would not leave enough energy to reach a known charger safely."
             duration = max(25, int(distance * 45))
