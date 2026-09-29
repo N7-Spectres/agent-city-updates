@@ -32,6 +32,8 @@ _None._
 
 ### DONE
 
+- [Coordinator] v0.8.6 Stranded Citizen Recovery published from `a72f96b763671f01c5a8aa0ba41d87f7eb6b9a09`; final CI `36591711494` passed the complete matrix including `tests/smoke_v086_stranded_recovery.py`
+- [World & Simulation] operational-charger destinations no longer demand an impossible post-arrival reserve; actual travel cost still applies
 - [Coordinator] v0.8.5 Daily Rhythm & Recharge published from `5b2395d7e7643a3d7ac9a82ac68090fc97b5f0b7`; final CI `36498819565` passed the complete matrix including `tests/smoke_v085_daily_rhythm.py`
 - [World & Simulation] autonomous daily rhythm now prioritizes recharge/safe return without redefining physical action legality or cancelling active jobs
 - [Assets & Interface] world presentation now reflects dawn/day/dusk/night from authoritative simulation time only
@@ -502,3 +504,29 @@ Shipped:
 - dawn/day/dusk/night presentation from simulated time
 
 No Memory or Communication authority changed.
+
+
+## v0.8.6 Release Result
+
+Published runtime:
+- branch: `release-v0.8.6`
+- immutable commit: `a72f96b763671f01c5a8aa0ba41d87f7eb6b9a09`
+- final GitHub Actions run: `36591711494`
+- result: **PASS**
+
+Observed trigger:
+- Iri at Resin Grove with 6% energy
+- Seed Site route cost: 3.6%
+- previous start validation also demanded 5% after arrival, creating a deadlock despite enough energy to physically reach the charger
+
+Shipped:
+- charger destination counts as the safety endpoint
+- charger-bound trip may arrive below the normal reserve
+- citizen must still afford real route cost
+- ordinary away-from-charger reserve behavior is unchanged
+- v0.8.5 critical-energy recharge priority takes over after arrival
+
+Emergency admin principle:
+- bug-created impossible states may receive minimal recovery intervention
+- prefer fixing the rule so the existing save self-recovers
+- direct state edits are last-resort repair, not visitor gameplay authority
