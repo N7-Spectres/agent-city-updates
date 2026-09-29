@@ -20,7 +20,7 @@ _None._
 
 ### WAITING
 
-- [Coordinator / v0.9 Stage 1 Integration] combine Memory causal spine + Simulation plan/practice substrate, preserve both ownership boundaries, and run both v0.9 smokes with the full regression matrix.
+- [Coordinator / v0.9 Stage 1 Integration] combine Memory causal spine + Simulation plan/practice substrate + Communication recognition/teaching layer, preserve all ownership boundaries, and run all three v0.9 smokes with the full regression matrix.
 
 ### READY
 
