@@ -849,3 +849,24 @@ Explaining something to the visitor creates no visitor competence or guided-prac
 **Reason:** The replacement chat recovered direct repository access and confirmed no new inbox work. Chat history is convenience context only; it must not override persisted department state.
 
 **Consequence:** No architecture/runtime decision changed this session. Existing v0.9 Stage 2 contracts remain authoritative.
+
+
+## v0.9 Stage 3 Pattern Language and Transmission
+
+Recurring behavior may be spoken about only from source-backed Memory pattern evidence.
+
+`current | mixed | fading` are evidence-state descriptions, not traits, preferences, roles, or obligations.
+
+Place continuity is personal remembered history. It does not create favorite/home/safe/sacred-place truth.
+
+A social pattern claim may enter another citizen's perspective only through a real face-to-face conversation and a transcript-grounded claim receipt.
+
+The claim extractor may choose a pattern key only from the speaker's `transmittable_pattern_catalog(...)`. It may not invent a new key.
+
+A heard pattern remains unverified. Repetition does not verify it.
+
+Communication never creates a custom directly. Memory's multi-event/multi-actor/multi-day threshold remains authoritative.
+
+Visitor conversation may discuss patterns but does not register citizen-to-citizen custom transmission.
+
+Stage 3 does not add a general preference system.
