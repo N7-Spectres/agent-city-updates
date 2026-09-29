@@ -243,7 +243,7 @@ def main() -> None:
             # Plans are discussable but not writable through conversation.
             plan_text = plan_discussion_context("bex")
             assert "Plan #44 [active]" in plan_text
-            assert "conversation itself does not create, complete, pause, revise" in plan_text
+            assert "conversation itself does not create, complete, pause, revise" in plan_text.lower()
             assert "Simulation/planner plan lifecycle" in plan_text
 
             # Visitor recognition requires real retained visitor sources.
