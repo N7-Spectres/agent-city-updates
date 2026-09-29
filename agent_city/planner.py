@@ -14,6 +14,11 @@ from .knowledge import known_properties_for
 from .provenance import knowledge_context_for as provenance_context_for
 from .simulation import autonomous_actions, daily_phase_label, start_action
 from .personality import personality_context
+from .continuity import (
+    apply_planner_plan_decision,
+    causal_candidates_for_new_plan,
+    plan_context_for_planner,
+)
 from .world import format_sim_time
 
 OLLAMA_URL = "http://127.0.0.1:11434"
@@ -71,6 +76,25 @@ def citizen_context(citizen: dict[str, Any], state: dict[str, Any], actions: lis
         for d in dialogues
     ) or "- none"
 
+    plan_context = plan_context_for_planner(
+        citizen["id"],
+        now=int(state["sim_minute"]),
+    )
+    causal_candidates = causal_candidates_for_new_plan(
+        citizen["id"],
+        now=int(state["sim_minute"]),
+        limit=6,
+    )
+    causal_candidate_text = "\n".join(
+        f"- Memory #{item['memory_event_id']} "
+        f"({item['source_type']} #{item['source_id']}, {item['verification']}): "
+        f"{item['summary']}"
+        for item in causal_candidates
+    ) or (
+        "- no Memory Stage 1 causal candidates are available on this runtime; "
+        "do not create a new persistent plan"
+    )
+
     action_text = "\n".join(
         f"{i}. {a['label']} | action={a['action']} target={a.get('target')} material={a.get('material')}"
         for i, a in enumerate(actions, start=1)
@@ -121,6 +145,19 @@ SELECTED MEANINGFUL MAINTENANCE EXPERIENCES YOU PARTICIPATED IN:
 RETAINED PERSONAL EXPLORATION MEMORY NEAR YOUR CURRENT POSITION:
 {nearby_exploration_memory}
 
+{plan_context}
+
+BOUNDED SOURCE-BACKED MEMORIES ELIGIBLE TO JUSTIFY A NEW OR REVISED PLAN:
+{causal_candidate_text}
+
+PLAN CONTINUITY RULES:
+- A persistent plan is your own intent continuity, not a command queue.
+- Every physical step still has to be selected from LEGAL ACTIONS and validated by Simulation.
+- You may continue, revise, pause, resume, abandon, complete, or create a plan only when source-backed history supports that choice.
+- Creating a plan requires at least one Memory ID from the eligible list above.
+- Energy, maintenance, unavailable material, new evidence, or reconsideration may interrupt a plan.
+- Do not invent a role, class, specialization, or hidden priority to justify a plan.
+
 DAILY RHYTHM:
 - 06:00–20:00 is the normal active cycle.
 - 20:00–22:00 is wind-down: prefer wrapping up, returning, unloading, maintenance, conversation, or recharging over starting major new work.
@@ -146,15 +183,21 @@ INFORMATION BOUNDARY:
 LEGAL ACTIONS:
 {action_text}
 
-Choose exactly one legal action. Return JSON only:
+Choose exactly one legal physical action. You may also make one plan-lifecycle choice. Return JSON only:
 {{
   "action": "one of the legal action names",
   "target": "the exact target from that legal action",
   "material": "exact material if the legal action supplies one (extract or experiment), otherwise null",
-  "reason": "one concise sentence explaining why you chose it"
+  "reason": "one concise sentence explaining why you chose the physical action",
+  "plan_operation": "none | create | continue | revise | pause | resume | abandon | complete",
+  "plan_id": "existing numeric plan ID when required, otherwise null",
+  "plan_intent": "for create/revise: concise current intent, otherwise null",
+  "plan_next_step": "for create/revise: concise next known step, otherwise null",
+  "plan_unresolved_question": "optional unresolved question, otherwise null",
+  "plan_memory_event_ids": ["source-backed Memory IDs from the eligible list when relevant"]
 }}
 
-Do not create new actions. Do not infer hidden properties from the list of possible experiments. An experiment method being available does not imply it will reveal anything. Do not invent remote knowledge. Do not claim the action succeeded yet; the simulation decides reality.
+Do not create new physical actions. Do not infer hidden properties from the list of possible experiments. An experiment method being available does not imply it will reveal anything. Do not invent remote knowledge. Do not claim the action succeeded yet; the simulation decides reality. A plan does not make an illegal action legal.
 """.strip()
 
 
@@ -221,6 +264,16 @@ async def planning_loop() -> None:
         try:
             decision = await choose_action(citizen, state)
             if decision:
+                plan_ok, active_plan_id, _ = apply_planner_plan_decision(
+                    citizen["id"],
+                    decision,
+                    now=now,
+                )
+                if plan_ok and active_plan_id is not None:
+                    decision["plan_id"] = int(active_plan_id)
+                else:
+                    decision.pop("plan_id", None)
+
                 ok, _ = start_action(citizen["id"], decision)
                 if ok and decision.get("action") == "talk":
                     with connect() as conn:
