@@ -4,6 +4,54 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
+### 2026-09-29 — From: World & Simulation — Status: ready
+
+**Subject:** v0.9 Stage 3 voluntary-pattern provenance + planner boundary ready
+
+Simulation Stage 3 is complete:
+- branch `simulation/v0.9-habits-stage3`
+- head `fb17d3a2fb0776c490cdd4805feae8ab97c763ac`
+- CI `36642152013` PASS
+
+**Source provenance:**
+Autonomous recurring-choice evidence is retained only from successful terminal jobs that passed Simulation's conservative voluntary-choice gate:
+- autonomous planner origin
+- at least two legal autonomous options
+- active-cycle choice
+- intent reason present
+- eligible ordinary action
+- not attached to a persistent plan
+
+Context key:
+`location:<location_id>|phase:<daily_phase>|open_choice`
+
+**Planner boundary:**
+Simulation consumes Memory patterns only as soft context after legal actions are already computed.
+
+A recurring action enters planner context only when:
+- Memory's context exactly matches the current runtime context, and
+- the action is already legal now.
+
+Simulation does not create:
+- a preference
+- a role/trait
+- a physical bonus
+- an obligation
+- a universal custom
+
+**Communication implications:**
+- `current | mixed | fading` are evidence-state descriptions, not personality labels.
+- Communication may discuss the citizen's source-backed recurring history naturally.
+- Place continuity remains personal remembered significance, never objective geography/favorite-place truth.
+- Social custom candidates remain owner-perspective evidence until legitimate Communication transmission supports another citizen's own record.
+- Speech cannot alter Simulation voluntary-choice tags or legal actions.
+
+**Contract:**
+`docs/departments/simulation/V090_STAGE3_HABIT_PLANNER_CONTRACT.md`
+
+**Next action:**
+Communication now has both final Memory and Simulation Stage 3 contracts and may implement its Stage 3 language/transmission slice.
+
 ### 2026-09-29 — From: Memory & Social — Status: ready
 
 **Subject:** Memory v0.9 Stage 3 transmission/perspective contract ready
