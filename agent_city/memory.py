@@ -79,8 +79,13 @@ def ensure_memory_schema() -> None:
         _sync_maintenance_events(conn)
         from .spatial_memory import sync_spatial_observations_in_conn
         from .exploration_memory import sync_shared_exploration_in_conn
+        from .causal_memory import ensure_causal_memory_schema_in_conn
+        from .practice_memory import sync_practice_memory_in_conn
         sync_spatial_observations_in_conn(conn)
         sync_shared_exploration_in_conn(conn)
+        ensure_causal_memory_schema_in_conn(conn)
+        sync_practice_memory_in_conn(conn)
+        ensure_causal_memory_schema_in_conn(conn)
         conn.commit()
 
 
