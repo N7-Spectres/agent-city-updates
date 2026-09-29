@@ -78,6 +78,7 @@ from agent_city.world import WorldClock, format_sim_time
 from agent_city.continuity import plan_snapshot_for, practice_snapshot_for
 from agent_city.competence import competence_snapshot, guided_practice_snapshot
 from agent_city.causal_memory import display_recall_snapshot
+from agent_city.pattern_memory import continuity_pattern_snapshot
 from agent_city.visits import (
     close_visit, ensure_visit_schema, get_or_create_active_visit,
     get_recent_exchanges, previous_visits, summarize_visit_if_needed, visit_payload,
@@ -421,6 +422,38 @@ def get_citizen_competence(citizen_id: str):
             "effect_is_bounded_physical_duration_only": True,
         },
     }
+
+
+@app.get("/api/memory/patterns/{citizen_id}")
+def get_continuity_patterns(
+    citizen_id: str,
+    location_id: str | None = None,
+):
+    with connect() as conn:
+        citizen = conn.execute(
+            "SELECT id, name FROM citizens WHERE id = ?",
+            (citizen_id,),
+        ).fetchone()
+        if location_id is not None:
+            location = conn.execute(
+                "SELECT id, name FROM locations WHERE id = ?",
+                (location_id,),
+            ).fetchone()
+        else:
+            location = None
+    if not citizen:
+        raise HTTPException(404, "Citizen not found")
+    if location_id is not None and not location:
+        raise HTTPException(404, "Location not found")
+
+    payload = continuity_pattern_snapshot(
+        citizen_id,
+        location_id=location_id,
+    )
+    payload["citizen"] = {"id": citizen["id"], "name": citizen["name"]}
+    if location_id is not None:
+        payload["location"] = {"id": location["id"], "name": location["name"]}
+    return payload
 
 
 @app.post("/api/pause")
