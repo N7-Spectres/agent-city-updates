@@ -982,3 +982,18 @@ Assets may show the evidence trail but no habit/preference/culture badges or met
 No global habit score, culture score, preference score, place ranking, or custom ranking exists.
 
 Counts and source lists may be exposed as evidence, not identity strength.
+
+
+## v0.9 Stage 3 Completion Decision
+
+Memory's Stage 3 scope is closed.
+
+Do not add habit identity, preferences, favorite-place fields, culture labels, or planner authority in Memory before coordinator integration.
+
+The validated split remains:
+- Simulation = voluntary-choice classification and physical legality
+- Memory = source-linked recurring-pattern/place/custom evidence
+- Communication = perspective/transmission language
+- Assets = score-free evidence presentation
+
+Memory remains in REVIEW until combined Stage 3 integration.
