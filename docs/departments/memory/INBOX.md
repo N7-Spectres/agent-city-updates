@@ -4,7 +4,62 @@ _Read this at the beginning of each Memory & Social work session._
 
 ## Open Messages
 
-_None currently._
+### 2026-09-29 — From: Main Coordinator — Status: READY / FIRST v0.9 DEPENDENCY
+
+**Subject:** v0.9 Stage 1 — Causal Memory Spine
+
+Read first:
+- `docs/V090_CIVILIZATION_CONTINUITY_DOCTRINE.md`
+- `docs/departments/COORDINATION.md`
+
+**Locked principle:**
+
+> Persistent behavior must have a traceable history.
+
+Memory is causal infrastructure for v0.9, not biography flavor.
+
+**Stage 1 goal:**
+Define the smallest durable + bounded memory contract that can support persistent plans, self-assessment, place meaning, later experience/specialization, and social continuity without global omniscience or context flooding.
+
+**Required audit/design:**
+- existing `memory_events` / social / spatial / maintenance memory sources and stable IDs
+- citizen-scoped ownership and provenance preservation
+- durable archive vs active recall
+- salience and retrieval priority
+- reinforcement/linking of related experiences without duplicating every event
+- meaningful aging / reduced recall priority without rewriting history
+- bounded retrieval packet for planner decisions
+- retained success/failure experience
+- retained visitor/shared-action continuity only from real source-linked encounters
+- hooks needed for unfinished persistent plans
+- hooks needed later for self-assessment and place-specific meaning
+
+**Hard locks:**
+- no global reputation score
+- no identity/class fields
+- no fabricated memories to justify present behavior
+- no skill gain from conversation alone
+- no arbitrary habit/custom inference in Stage 1
+- hidden Simulation truth never enters Memory merely because it exists
+- active recall may fade; durable source history must not be rewritten
+
+**Stage 1 acceptance direction:**
+- a citizen can retrieve why an unfinished plan still matters after unrelated work/time passes
+- the reason is traceable to real source-linked history
+- another citizen without that history does not receive it
+- repeated related experience can become more retrievable without copying an unbounded transcript
+- low-value old events can fall out of active context while remaining in durable archive
+- visitor continuity appears only when real visits/exchanges/shared actions support it
+
+**Deliverables:**
+1. Memory Stage 1 contract/design.
+2. Minimal schema/API changes only if justified by the audit.
+3. Focused smoke coverage for provenance, bounded recall, and continuity.
+4. Explicit handoff to Simulation describing the plan/history source interface.
+5. Explicit handoff to Communication describing safe perspective/social retrieval.
+6. Update STATE / DECISIONS / BACKLOG / OUTBOX.
+
+Do not publish `update.json`.
 
 ## Completed This Session
 
