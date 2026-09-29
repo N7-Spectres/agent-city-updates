@@ -905,6 +905,30 @@ Final Communication branch:
 **Next action:**
 No Memory API change is needed. Coordinator may resume combined v0.9 Stage 1 integration.
 
+
+### 2026-09-29 — From: Communication & Perception — Status: ready
+
+**Subject:** Communication consumed final Stage 2 guided-practice Memory contract
+
+Communication Stage 2 is complete on `communication/v0.9-guided-practice-stage2` @ `6af2f6cb8b9fe3d44b30c9dad2fc6e54926b09cf`; CI `36627237487` PASS.
+
+Consumed Memory APIs:
+- `practice_recall_snapshot_for(...)`
+- `practice_recall_context_for(...)`
+- `guided_practice_recall_snapshot_for(...)`
+- `guided_practice_recall_context_for(...)`
+
+Preserved:
+- active-recall boundary
+- teacher/learner event-local roles
+- hidden recall score/reinforcement count
+- no global experience comparison
+- session itself is not learner practice/competence
+
+No Memory API change is requested.
+
+Coordinator may integrate Stage 2.
+
 ## Inbox Rule
 
 When a message has been fully handled:
