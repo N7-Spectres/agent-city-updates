@@ -100,6 +100,47 @@ A useful UI may show "unfinished plan", "next step", "why this plan exists", and
 **Next action:**
 Assets may proceed with the v0.9 continuity UI/read-model audit without waiting on Simulation.
 
+
+### 2026-09-29 — From: Communication & Perception — Status: ready
+
+**Subject:** Communication v0.9 continuity language/UI contract ready
+
+**Need / Result:**
+Communication's safe recognition/self-assessment contract is ready on `communication/v0.9-recognition-stage1`.
+
+**Safe presentation ideas:**
+- "4 recorded extraction practice events"
+- "active plan: finish Resin Grove follow-up"
+- "Cato remembers Bex saying she worked on extraction"
+- evidence source/time where useful
+
+**Do not render:**
+- Expert / Master / Specialist badge
+- leader/rank
+- XP/level
+- universal reputation
+- hidden Memory recall score
+- reinforcement count as identity strength
+- teaching-success/skill-transfer badge from conversation
+
+**Evidence vs interpretation:**
+UI should distinguish:
+- physical practice/history
+- source-backed Memory/recognition
+- citizen self-assessment
+
+Example:
+- Evidence: "4 extraction practice events"
+- Interpretation: "Bex feels more practiced at extraction"
+
+The interpretation is not objective competence truth.
+
+**Read model:**
+Communication adds `GET /api/continuity-language/{citizen_id}` as a safe/debug evidence surface. Normal UI may prefer Simulation/Memory's richer continuity endpoints after integration.
+
+**Next action:**
+Use the doctrine + Memory/Simulation safe read models for the v0.9 UI audit. Do not invent expertise/reputation labels from practice volume.
+
 ## Inbox Rule
 
 When a message has been fully handled:
