@@ -1012,3 +1012,32 @@ Objective physical competence does not decay merely because practice is old.
 Memory recall may age in priority; that is a different perspective system.
 
 If future world complexity requires material/tool/environment-specific competence, add it only from explicit source-backed evidence, not from a hidden class tree.
+
+
+## v0.9 Stage 2 Handoff Lock
+
+Coordinator integration must preserve the full evidence-to-effect chain:
+
+`practice_events.id -> competence family -> bounded duration formula -> optional guided_practice_sessions.id -> real jobs.id`
+
+Keep these identities and meanings distinct:
+
+- `practice_events.id` — objective physical practice evidence
+- competence family — Simulation mapping, not a citizen identity/class
+- `guided_practice_sessions.id` — real two-citizen guided event
+- `jobs.id` — actual physical work receiving any bounded effect
+- Memory events — remembered perspective/history, not competence authority
+- Communication language — interpretation/description, not physical effect
+- Assets presentation — consumer only, never derivation authority
+
+Integration must not introduce:
+- XP
+- levels
+- classes
+- professions
+- ranks/titles
+- universal reputation
+- competence from conversation alone
+- frontend-derived competence
+
+The 8% practice-only cap, 10% combined cap, cross-family isolation, one-use guidance, and degraded-workbench bottleneck rule are all part of the same physical contract.
