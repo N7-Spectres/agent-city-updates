@@ -1461,3 +1461,27 @@ Contract:
 `docs/departments/memory/V090_STAGE3_PATTERN_EVIDENCE_CONTRACT.md`
 
 No release metadata or `update.json` was changed.
+
+
+## v0.9 Stage 3 Final Session Close
+
+Memory & Social Stage 3 is complete and handed off.
+
+**Branch:** `memory/v0.9-patterns-stage3`  
+**Final head:** `2a742e6490c437625073ff8e50b24bfed37489c4`  
+**Final validation:** `36638261682`
+
+No Memory-owned Stage 3 implementation task remains.
+
+Downstream state:
+- Simulation has the voluntary-choice/context-key contract and may implement soft planner influence.
+- Communication has the owner-scoped transmission/perspective contract and may implement habit/place/custom language.
+- Assets has the score-free pattern read model and remains gated only on final Simulation + Communication Stage 3 contracts.
+- Coordinator integration waits on Simulation + Communication + Assets completion.
+
+Resume Memory only for:
+- downstream source/API clarification,
+- coordinator integration regressions,
+- or a newly authorized milestone.
+
+No release was published and `update.json` was not changed.
