@@ -1587,6 +1587,11 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
                 int(protocol["duration"]),
                 int(round(float(protocol["duration"]) / workbench_efficiency)),
             )
+            if workbench_efficiency < 0.90:
+                # Severe machinery degradation is the physical bottleneck;
+                # familiarity cannot make a damaged workbench process faster.
+                competence_multiplier = 1.0
+                guidance_session_id = None
             duration = max(1, int(round(raw_duration * competence_multiplier)))
             conn.execute(
                 "UPDATE citizens SET energy = MAX(0, energy - ?) WHERE id = ?",
@@ -1613,6 +1618,9 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
                 int(process["duration"]),
                 int(round(float(process["duration"]) / workbench_efficiency)),
             )
+            if workbench_efficiency < 0.90:
+                competence_multiplier = 1.0
+                guidance_session_id = None
             duration = max(1, int(round(raw_duration * competence_multiplier)))
             conn.execute(
                 "UPDATE citizens SET energy = MAX(0, energy - ?) WHERE id = ?",
