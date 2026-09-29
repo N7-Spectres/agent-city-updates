@@ -12,7 +12,17 @@ from .memory import knowledge_context_for as memory_knowledge_context_for, maint
 from .spatial_memory import nearby_spatial_context_for
 from .knowledge import known_properties_for
 from .provenance import knowledge_context_for as provenance_context_for
-from .simulation import autonomous_actions, daily_phase_label, start_action
+from .simulation import (
+    autonomous_actions,
+    daily_phase_label,
+    start_action,
+    voluntary_choice_context_key,
+)
+from .pattern_memory import (
+    custom_candidates_for,
+    habit_candidates_for,
+    place_continuity_for,
+)
 from .personality import personality_context
 from .continuity import (
     apply_planner_plan_decision,
@@ -95,6 +105,61 @@ def citizen_context(citizen: dict[str, Any], state: dict[str, Any], actions: lis
         "do not create a new persistent plan"
     )
 
+    current_pattern_context = voluntary_choice_context_key(
+        citizen,
+        int(state["sim_minute"]),
+    )
+    legal_action_names = {str(item.get("action") or "") for item in actions}
+
+    recurring_rows = [
+        item
+        for item in habit_candidates_for(
+            citizen["id"],
+            now_minute=int(state["sim_minute"]),
+            limit=8,
+        )
+        if str(item.get("context_key") or "") == current_pattern_context
+        and str(item.get("action_key") or "") in legal_action_names
+    ]
+    recurring_pattern_text = "\n".join(
+        (
+            f"- action={item['action_key']} | evidence state={item['state']} | "
+            f"{item['support_count']} voluntary source jobs across "
+            f"{item['distinct_days']} simulation days | "
+            f"latest support {item['latest_support_label']}"
+        )
+        for item in recurring_rows
+    ) or "- no source-backed recurring voluntary pattern matches the current legal choices"
+
+    place_rows = place_continuity_for(
+        citizen["id"],
+        location_id=citizen["location_id"],
+        limit_places=1,
+    )
+    if place_rows:
+        place = place_rows[0]
+        recent_place_evidence = "; ".join(
+            f"Memory #{item['memory_event_id']}: {item['summary']}"
+            for item in place.get("evidence", [])[-3:]
+        )
+        place_continuity_text = (
+            f"- {place['location_id']}: {place['evidence_count']} retained source-backed "
+            f"experience(s). Recent evidence: {recent_place_evidence}"
+        )
+    else:
+        place_continuity_text = "- no qualifying personal place-continuity evidence here"
+
+    custom_rows = custom_candidates_for(citizen["id"], limit=4)
+    social_pattern_text = "\n".join(
+        (
+            f"- pattern={item['pattern_key']} | {item['evidence_count']} source-backed "
+            f"social transmission/observation events | actors="
+            f"{', '.join(item['distinct_actors'])} | verification states="
+            f"{', '.join(item['verification_states'])}"
+        )
+        for item in custom_rows
+    ) or "- no source-backed social custom candidate is currently available from your perspective"
+
     action_text = "\n".join(
         f"{i}. {a['label']} | action={a['action']} target={a.get('target')} material={a.get('material')}"
         for i, a in enumerate(actions, start=1)
@@ -144,6 +209,23 @@ SELECTED MEANINGFUL MAINTENANCE EXPERIENCES YOU PARTICIPATED IN:
 
 RETAINED PERSONAL EXPLORATION MEMORY NEAR YOUR CURRENT POSITION:
 {nearby_exploration_memory}
+
+SOURCE-BACKED RECURRING VOLUNTARY CHOICE EVIDENCE FOR THIS SAME RUNTIME CONTEXT:
+{recurring_pattern_text}
+
+PERSONAL PLACE-CONTINUITY EVIDENCE AT YOUR CURRENT LOCATION:
+{place_continuity_text}
+
+SOURCE-BACKED SOCIAL PATTERN EVIDENCE FROM YOUR OWN PERSPECTIVE:
+{social_pattern_text}
+
+PATTERN CONTINUITY RULES:
+- These are historical evidence trails, not personality traits, roles, preferences, commands, obligations, or physical bonuses.
+- A current recurring pattern may be one reason among many to repeat a legal action, but it never outweighs energy, safety, maintenance, tools, materials, knowledge, or a deliberate new choice.
+- Mixed or fading evidence means later history has weakened the old pattern; do not treat it as a standing preference.
+- Place continuity means events here matter in your retained history. It does not mean this is your favorite place or that the place has an objective emotional property.
+- A social pattern candidate is your source-backed perspective, not proof of a universal tradition or rule.
+- You remain free to choose a different legal action. Trying something new does not violate continuity.
 
 {plan_context}
 
@@ -278,7 +360,15 @@ async def planning_loop() -> None:
                 else:
                     decision.pop("plan_id", None)
 
-                ok, _ = start_action(citizen["id"], decision)
+                current_autonomous_action_count = len(
+                    autonomous_actions(citizen["id"])
+                )
+                ok, _ = start_action(
+                    citizen["id"],
+                    decision,
+                    autonomous_choice=True,
+                    autonomous_action_count=current_autonomous_action_count,
+                )
                 if ok and decision.get("action") == "talk":
                     with connect() as conn:
                         talker = conn.execute(
