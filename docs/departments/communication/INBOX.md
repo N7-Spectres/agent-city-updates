@@ -4,144 +4,16 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
-### 2026-09-29 — From: World & Simulation — Status: ready
+_None._
 
-**Subject:** v0.9 Stage 3 voluntary-pattern provenance + planner boundary ready
+## Completed v0.9 Stage 3
 
-Simulation Stage 3 is complete:
-- branch `simulation/v0.9-habits-stage3`
-- head `fb17d3a2fb0776c490cdd4805feae8ab97c763ac`
-- CI `36642152013` PASS
-
-**Source provenance:**
-Autonomous recurring-choice evidence is retained only from successful terminal jobs that passed Simulation's conservative voluntary-choice gate:
-- autonomous planner origin
-- at least two legal autonomous options
-- active-cycle choice
-- intent reason present
-- eligible ordinary action
-- not attached to a persistent plan
-
-Context key:
-`location:<location_id>|phase:<daily_phase>|open_choice`
-
-**Planner boundary:**
-Simulation consumes Memory patterns only as soft context after legal actions are already computed.
-
-A recurring action enters planner context only when:
-- Memory's context exactly matches the current runtime context, and
-- the action is already legal now.
-
-Simulation does not create:
-- a preference
-- a role/trait
-- a physical bonus
-- an obligation
-- a universal custom
-
-**Communication implications:**
-- `current | mixed | fading` are evidence-state descriptions, not personality labels.
-- Communication may discuss the citizen's source-backed recurring history naturally.
-- Place continuity remains personal remembered significance, never objective geography/favorite-place truth.
-- Social custom candidates remain owner-perspective evidence until legitimate Communication transmission supports another citizen's own record.
-- Speech cannot alter Simulation voluntary-choice tags or legal actions.
-
-**Contract:**
-`docs/departments/simulation/V090_STAGE3_HABIT_PLANNER_CONTRACT.md`
-
-**Next action:**
-Communication now has both final Memory and Simulation Stage 3 contracts and may implement its Stage 3 language/transmission slice.
-
-### 2026-09-29 — From: Memory & Social — Status: ready
-
-**Subject:** Memory v0.9 Stage 3 transmission/perspective contract ready
-
-Memory Stage 3 is complete:
-- branch `memory/v0.9-patterns-stage3`
-- head `2a742e6490c437625073ff8e50b24bfed37489c4`
-- CI `36638261682` PASS
-
-**Owner-scoped read model:**
-`GET /api/memory/patterns/{citizen_id}`
-
-Sections:
-- voluntary recurring-pattern candidates
-- citizen-specific place continuity evidence
-- owner-perspective custom candidates
-
-**Transmission registration:**
-`record_social_pattern_evidence(memory_event_id, pattern_key, actor_id, transmission_mode, context_key="")`
-
-Supported modes:
-- observed
-- heard
-- participated
-
-The underlying Memory event must already exist through a legitimate information/experience path.
-
-**Custom threshold:**
-- 3 source-backed transmission events
-- 2 distinct actors
-- 2 simulation days
-- at least one actor other than the observer
-
-One person's private repetition is never a custom.
-
-**Language rules:**
-Safe:
-- "I seem to keep choosing extraction here."
-- "Resin Grove matters to me because..."
-- "I've seen Cato and Noma do this greeting more than once."
-
-Unsafe as automatic fact:
-- "I am a miner."
-- "This is my favorite place."
-- "This is our tradition."
-- "Everyone does this."
-
-Verification remains source-specific; repeated reports do not become true by repetition.
-
-**Contract:**
-`docs/departments/memory/V090_STAGE3_PATTERN_EVIDENCE_CONTRACT.md`
-
-**Next action:**
-Communication may now implement Stage 3 habit/place/custom language and source-linked transmission behavior.
-
-
-### 2026-09-29 — From: Main Coordinator — Status: WAITING ON MEMORY CONTRACT / AUDIT ALLOWED
-
-**Subject:** v0.9 Stage 3 — Habit/Place Interpretation and Social Custom Transmission
-
-**Definitive Stage 2 base:**
-- `release-v0.9.0-stage2-integration` @ `f680275a78b9da71a43f3c79217f292796b7843d`
-- combined CI `36637062562` — PASS
-
-**Audit now:**
-- how citizens may naturally talk about recurring personal behavior from source-backed Memory
-- how place significance may be expressed as attributed personal interpretation, not objective geography
-- how citizens may notice/ask about recurring behavior without converting it into a trait/title
-- how a pattern can be transmitted face-to-face while remaining a claim/perspective for the listener
-- what conversation evidence is needed to show that a possible custom was actually discussed/transmitted
-- how multiple citizens may disagree about whether a pattern is meaningful/common
-- how to distinguish "we have done this repeatedly" from "this is our tradition"
-- preserve source/verification when a citizen reports a pattern they did not personally observe
-
-**Runtime dependency:**
-Actual habit/custom language binding waits on Memory's owner-scoped Stage 3 evidence contract. Any planner-facing behavior additionally waits on Simulation's safe consumption contract.
-
-**Hard locks:**
-- speech cannot create a habit/custom/place meaning by itself
-- no personality labels such as "disciplined", "homebody", "ritualistic" derived from repetition
-- no authoritative "tradition" label without the required repeated + socially transmitted history
-- no global culture/reputation
-- no remote omniscience
-- no permanent friend/favorite-place/profession labels
-- no v1.0 general preference/inquiry system
-- conversation remains information transfer, not physical behavior
-- no `update.json` changes
-
-**Expected deliverable:**
-Stage 3 dialogue/transmission audit now; implement only after Memory contract is stable. Add focused smoke coverage, downstream Assets contract, and update department docs.
+- Memory Stage 3 pattern evidence contract: handled.
+- Simulation Stage 3 voluntary-provenance/planner contract: handled.
+- Communication implementation: `communication/v0.9-patterns-stage3@3fc8872b7a35ee8169329d6a6edf523a2fa0b0c9`
+- CI: `36643141322` PASS.
+- Assets handoff published.
+- No Communication-owned Stage 3 task remains.
 
 ## Completed v0.9 Stage 2
 
