@@ -783,3 +783,21 @@ Memory owns:
 - bounded recall / reinforcement / aging
 
 A practice event may carry a `plan` facet when `practice_events.plan_id` exists, connecting actual plan work to causal recall without making the plan itself a skill score.
+
+
+## v0.9 Model-Facing Practice Recall Decision
+
+Objective physical practice history and present autobiographical recall are different layers.
+
+Simulation's full `practice_events` ledger may support diagnostics, read models, and historical accounting.
+
+Model-facing self-assessment/teaching must use Memory's bounded active recall:
+
+- `practice_recall_snapshot_for(...)`
+- `practice_recall_context_for(...)`
+
+This preserves aging, salience, and bounded context.
+
+Internal `recall_score` and `reinforcement_count` must not be surfaced as natural-language citizen facts or hidden reputation/experience metrics.
+
+Other-citizen recognition may use speaker-owned causal recall, but should present the source-backed events rather than internal retrieval weights.
