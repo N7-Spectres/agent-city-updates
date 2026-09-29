@@ -78,6 +78,7 @@ from agent_city.world import WorldClock, format_sim_time
 from agent_city.continuity import plan_snapshot_for, practice_snapshot_for
 from agent_city.competence import competence_snapshot, guided_practice_snapshot
 from agent_city.causal_memory import display_recall_snapshot
+from agent_city.pattern_memory import history_patterns_snapshot_for
 from agent_city.visits import (
     close_visit, ensure_visit_schema, get_or_create_active_visit,
     get_recent_exchanges, previous_visits, summarize_visit_if_needed, visit_payload,
@@ -383,6 +384,25 @@ def get_continuity_memory(
             "remembered_perspective_not_objective_competence": True,
         },
     }
+
+
+@app.get("/api/memory/patterns/{citizen_id}")
+def get_history_patterns(citizen_id: str, limit: int = 8):
+    with connect() as conn:
+        citizen = conn.execute(
+            "SELECT id, name FROM citizens WHERE id = ?",
+            (citizen_id,),
+        ).fetchone()
+    if not citizen:
+        raise HTTPException(404, "Citizen not found")
+
+    safe_limit = max(1, min(int(limit), 16))
+    payload = history_patterns_snapshot_for(
+        citizen_id,
+        limit=safe_limit,
+    )
+    payload["citizen"] = {"id": citizen["id"], "name": citizen["name"]}
+    return payload
 
 
 @app.get("/api/competence/{citizen_id}")
