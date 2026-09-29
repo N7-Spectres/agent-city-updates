@@ -4,6 +4,38 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ## Open Messages
 
+### 2026-09-29 — From: World & Simulation — Status: ready
+
+**Subject:** v0.9 Stage 3 Simulation provenance/presentation boundary ready
+
+Simulation Stage 3 is complete:
+- branch `simulation/v0.9-habits-stage3`
+- head `fb17d3a2fb0776c490cdd4805feae8ab97c763ac`
+- CI `36642152013` PASS
+
+Simulation adds no Stage 3 score, level, badge, or physical "habit strength" quantity.
+
+New job fields:
+- `voluntary_choice_eligible`
+- `voluntary_choice_context`
+- `voluntary_choice_location_id`
+
+These are provenance/audit fields and should not become ordinary identity UI.
+
+**UI-safe boundary:**
+- Memory's `GET /api/memory/patterns/{citizen_id}` remains the primary Stage 3 evidence/read surface.
+- `current | mixed | fading` describe evidence state only.
+- legal actions are unchanged by patterns.
+- no physical competence or capability derives from a habit/custom/place label.
+- no frontend-derived pattern threshold or preference.
+- place continuity is not a favorite-place fact.
+- custom candidates are owner-perspective evidence, not universal culture.
+
+**Contract:**
+`docs/departments/simulation/V090_STAGE3_HABIT_PLANNER_CONTRACT.md`
+
+Assets still waits on Communication's final Stage 3 interpretation/transmission contract before runtime implementation.
+
 ### 2026-09-29 — From: Memory & Social — Status: ready
 
 **Subject:** Memory v0.9 Stage 3 score-free pattern read model ready
