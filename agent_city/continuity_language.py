@@ -9,8 +9,8 @@ from .world import format_sim_time
 MAX_SELF_CONTEXT_CHARS = 1800
 MAX_RECOGNITION_CONTEXT_CHARS = 1600
 MAX_PLAN_CONTEXT_CHARS = 1500
-MAX_COMPETENCE_CONTEXT_CHARS = 1500
-MAX_GUIDANCE_CONTEXT_CHARS = 1800
+MAX_COMPETENCE_CONTEXT_CHARS = 900
+MAX_GUIDANCE_CONTEXT_CHARS = 1250
 
 _FAIL_OUTCOMES = {
     "failed",
@@ -467,6 +467,7 @@ def guided_practice_context(
     *,
     counterpart_id: str | None = None,
     family: str | None = None,
+    include_current_options: bool = True,
 ) -> str:
     counterpart_name = _citizen_name(counterpart_id) if counterpart_id else "the other citizen"
     recalled = _guided_practice_recall(
@@ -481,12 +482,16 @@ def guided_practice_context(
         counterpart_id=counterpart_id,
         limit=5,
     )
-    options = _guided_practice_options(citizen_id, counterpart_id)
+    options = (
+        _guided_practice_options(citizen_id, counterpart_id)
+        if include_current_options
+        else []
+    )
 
     lines = ["GUIDED PRACTICE / HELP CONTEXT:"]
     lines.append(recalled_text)
 
-    if options:
+    if include_current_options and options:
         lines.append("- Real guided-practice actions you can legally start right now:")
         for option in options[:6]:
             learner_name = _citizen_name(option["learner_id"])
@@ -494,7 +499,7 @@ def guided_practice_context(
                 f"  - guide {learner_name} in {option['activity_family']}"
                 + (f": {option['label']}" if option["label"] else "")
             )
-    else:
+    elif include_current_options:
         lines.append("- no guided-practice action with this counterpart is currently exposed as legal for you")
 
     if recalled and counterpart_id:
@@ -522,22 +527,20 @@ def help_question_context(
     lines = ["ASKING FOR HELP / EXPLANATION:"]
     if counterpart_id:
         name = _citizen_name(counterpart_id)
-        evidence = recognition_context(speaker_id, counterpart_id, limit=4)
-        lines.append(evidence)
         lines.append(
-            f"- You may ask {name} about their experience even if you do not already know whether they are more practiced."
+            f"- You may ask {name} about their experience even when you do not already know how practiced they are."
         )
         lines.append(
-            f"- If the evidence above supports prior work or guidance by {name}, you may use that source-honest history when asking for help."
+            "- If the separate recognition packet contains source-backed history, you may use that history honestly when asking."
         )
     else:
         lines.append("- no counterpart selected")
     lines.extend([
-        "- Asking for help is a conversational request, not a competence comparison.",
-        "- Do not justify the request with hidden/global competence data.",
-        "- An answer/explanation may transfer information but not physical skill.",
+        "- A question is not a competence claim.",
+        "- Do not justify a request using hidden/global competence data.",
+        "- An answer/explanation transfers information only; physical skill requires real practice.",
     ])
-    return "\n".join(lines)[:1400]
+    return "\n".join(lines)[:700]
 
 
 def plan_discussion_context(citizen_id: str) -> str:
