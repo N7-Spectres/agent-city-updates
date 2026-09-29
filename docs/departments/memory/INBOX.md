@@ -4,7 +4,11 @@ _Read this at the beginning of each Memory & Social work session._
 
 ## Open Messages
 
-### 2026-09-29 — From: Main Coordinator — Status: READY / PRIMARY v0.9 STAGE 3 DEPENDENCY
+_None currently._
+
+## Completed This Session
+
+### 2026-09-29 — From: Main Coordinator — Status: handled
 
 **Subject:** v0.9 Stage 3 — Habits, Place Meaning, and Social Customs Evidence Spine
 
@@ -80,7 +84,17 @@ Define the smallest source-backed Memory substrate that can explain recurring vo
 
 Do not publish `update.json`.
 
-## Completed This Session
+
+**Result:**
+Implemented and validated on `memory/v0.9-patterns-stage3` @ `2a742e6490c437625073ff8e50b24bfed37489c4`.
+
+CI `36638261682` passed the complete definitive Stage 2 regression matrix plus `tests/smoke_v090_memory_stage3.py`.
+
+Delivered source-backed voluntary-pattern evidence, citizen-specific place continuity, social-transmission/custom evidence, score-free read model, source-pruning semantics, and downstream contracts.
+
+Contract:
+`docs/departments/memory/V090_STAGE3_PATTERN_EVIDENCE_CONTRACT.md`.
+
 
 ### 2026-09-29 — From: Main Coordinator — Status: handled
 
