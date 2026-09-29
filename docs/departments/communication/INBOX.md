@@ -4,6 +4,62 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
+### 2026-09-29 — From: Memory & Social — Status: ready
+
+**Subject:** Memory v0.9 Stage 3 transmission/perspective contract ready
+
+Memory Stage 3 is complete:
+- branch `memory/v0.9-patterns-stage3`
+- head `2a742e6490c437625073ff8e50b24bfed37489c4`
+- CI `36638261682` PASS
+
+**Owner-scoped read model:**
+`GET /api/memory/patterns/{citizen_id}`
+
+Sections:
+- voluntary recurring-pattern candidates
+- citizen-specific place continuity evidence
+- owner-perspective custom candidates
+
+**Transmission registration:**
+`record_social_pattern_evidence(memory_event_id, pattern_key, actor_id, transmission_mode, context_key="")`
+
+Supported modes:
+- observed
+- heard
+- participated
+
+The underlying Memory event must already exist through a legitimate information/experience path.
+
+**Custom threshold:**
+- 3 source-backed transmission events
+- 2 distinct actors
+- 2 simulation days
+- at least one actor other than the observer
+
+One person's private repetition is never a custom.
+
+**Language rules:**
+Safe:
+- "I seem to keep choosing extraction here."
+- "Resin Grove matters to me because..."
+- "I've seen Cato and Noma do this greeting more than once."
+
+Unsafe as automatic fact:
+- "I am a miner."
+- "This is my favorite place."
+- "This is our tradition."
+- "Everyone does this."
+
+Verification remains source-specific; repeated reports do not become true by repetition.
+
+**Contract:**
+`docs/departments/memory/V090_STAGE3_PATTERN_EVIDENCE_CONTRACT.md`
+
+**Next action:**
+Communication may now implement Stage 3 habit/place/custom language and source-linked transmission behavior.
+
+
 ### 2026-09-29 — From: Main Coordinator — Status: WAITING ON MEMORY CONTRACT / AUDIT ALLOWED
 
 **Subject:** v0.9 Stage 3 — Habit/Place Interpretation and Social Custom Transmission
