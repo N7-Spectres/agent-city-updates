@@ -38,6 +38,20 @@ CRITICAL_RECHARGE_ENERGY = 35.0
 NIGHT_RETURN_ENERGY = 60.0
 CHARGE_FULL_EPSILON = 0.5
 
+# Stage 3 voluntary-pattern evidence is deliberately conservative. These are
+# ordinary autonomous choices that may reflect repeated history when the
+# citizen had multiple legal options. Survival, movement, maintenance, cargo
+# handling, guided-practice mechanics, and plan-bound work are excluded.
+VOLUNTARY_PATTERN_ACTIONS = {
+    "survey",
+    "extract",
+    "experiment",
+    "fabricate",
+    "plan_project",
+    "construct",
+    "talk",
+}
+
 MIN_OPERATIONAL_CONDITION = 20.0
 SERVICE_DUE_CONDITION = 90.0
 BATTERY_REPLACE_THRESHOLD = 85.0
@@ -154,6 +168,53 @@ def daily_phase_label(sim_minute: int) -> str:
         "wind_down": "Wind-down cycle (20:00–22:00)",
         "quiet": "Low-activity / recharge cycle (22:00–06:00)",
     }[daily_phase(sim_minute)]
+
+
+def voluntary_choice_context_key(citizen: Any, sim_minute: int) -> str:
+    """Deterministic runtime context for Stage 3 repeated-choice evidence."""
+    try:
+        location_id = str(citizen["location_id"])
+    except (KeyError, TypeError):
+        location_id = "unknown"
+    return f"location:{location_id}|phase:{daily_phase(sim_minute)}|open_choice"
+
+
+def _voluntary_choice_provenance(
+    citizen: Any,
+    *,
+    action: str,
+    sim_minute: int,
+    intent_reason: str | None,
+    plan_id: int | None,
+    autonomous_choice: bool,
+    autonomous_action_count: int,
+) -> tuple[int, str | None, str | None]:
+    """
+    Classify a planner-selected job for Stage 3 historical pattern evidence.
+
+    This is intentionally stricter than physical legality. A choice counts only
+    when the autonomous planner had multiple options during the active cycle,
+    supplied a reason, selected an eligible ordinary action, and did not attach
+    the job to a persistent plan.
+    """
+    if not autonomous_choice:
+        return 0, None, None
+    if int(autonomous_action_count or 0) < 2:
+        return 0, None, None
+    if daily_phase(sim_minute) != "active":
+        return 0, None, None
+    if action not in VOLUNTARY_PATTERN_ACTIONS:
+        return 0, None, None
+    if not str(intent_reason or "").strip():
+        return 0, None, None
+    if plan_id is not None:
+        return 0, None, None
+
+    try:
+        location_id = str(citizen["location_id"])
+    except (KeyError, TypeError):
+        return 0, None, None
+    return 1, voluntary_choice_context_key(citizen, sim_minute), location_id
 
 
 def usable_energy_capacity(citizen: Any) -> float:
@@ -1313,7 +1374,13 @@ def autonomous_actions(citizen_id: str) -> list[dict[str, Any]]:
         )
 
 
-def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
+def start_action(
+    citizen_id: str,
+    request: dict[str, Any],
+    *,
+    autonomous_choice: bool = False,
+    autonomous_action_count: int = 0,
+) -> tuple[bool, str]:
     # Daily rhythm is an autonomy/planning constraint, not a new law of physics.
     # Direct Simulation calls remain valid when the requested action is otherwise
     # physically legal; critical-energy survival is still enforced below.
@@ -1356,6 +1423,20 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             if not plan:
                 return False, "The referenced plan is not an active plan owned by this citizen."
             plan_id = int(plan_id)
+
+        (
+            voluntary_choice_eligible,
+            voluntary_choice_context,
+            voluntary_choice_location_id,
+        ) = _voluntary_choice_provenance(
+            c,
+            action=action,
+            sim_minute=now,
+            intent_reason=intent_reason,
+            plan_id=plan_id,
+            autonomous_choice=autonomous_choice,
+            autonomous_action_count=autonomous_action_count,
+        )
 
         duration = 30
         detail = ""
@@ -1709,13 +1790,17 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             INSERT INTO jobs
             (citizen_id, action, target, material, amount, start_minute, end_minute,
              status, detail, intent_reason, project_id, experiment_method,
-             competence_family, competence_duration_multiplier, guidance_session_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?)
+             competence_family, competence_duration_multiplier, guidance_session_id,
+             voluntary_choice_eligible, voluntary_choice_context,
+             voluntary_choice_location_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 citizen_id, action, target, material, amount, now, now + duration,
                 detail, intent_reason, project_id, experiment_method,
                 competence_family, competence_multiplier, guidance_session_id,
+                voluntary_choice_eligible, voluntary_choice_context,
+                voluntary_choice_location_id,
             ),
         )
         job_id = int(cur.lastrowid)
@@ -1768,6 +1853,8 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
 
 
 def complete_due_jobs(now: int) -> None:
+    pending_pattern_evidence: list[tuple[str, int, str, str, str]] = []
+
     with connect() as conn:
         jobs = conn.execute(
             "SELECT * FROM jobs WHERE status = 'active' AND end_minute <= ? ORDER BY id",
@@ -2551,7 +2638,55 @@ def complete_due_jobs(now: int) -> None:
                 record_plan_job_outcome(conn, completed_job, sim_minute=now)
                 record_practice_event_for_job(conn, completed_job, sim_minute=now)
 
+                if (
+                    job_status == "complete"
+                    and int(completed_job["voluntary_choice_eligible"] or 0) == 1
+                    and completed_job["voluntary_choice_context"]
+                    and completed_job["voluntary_choice_location_id"]
+                ):
+                    pending_pattern_evidence.append(
+                        (
+                            str(completed_job["citizen_id"]),
+                            int(completed_job["id"]),
+                            str(completed_job["action"]),
+                            str(completed_job["voluntary_choice_context"]),
+                            str(completed_job["voluntary_choice_location_id"]),
+                        )
+                    )
+
             if message:
                 add_history(conn, now, "activity", message)
 
         conn.commit()
+
+    # Memory opens its own connection, so source evidence is recorded only after
+    # the authoritative Simulation transaction commits. A Memory failure must not
+    # roll back or rewrite the physical result.
+    if pending_pattern_evidence:
+        try:
+            from .pattern_memory import record_voluntary_choice_evidence
+        except ImportError:
+            return
+
+        for owner_id, job_id, action_key, context_key, location_id in pending_pattern_evidence:
+            try:
+                record_voluntary_choice_evidence(
+                    owner_id,
+                    job_id,
+                    action_key=action_key,
+                    context_key=context_key,
+                    location_id=location_id,
+                )
+            except Exception:
+                with connect() as diagnostic_conn:
+                    add_history(
+                        diagnostic_conn,
+                        now,
+                        "diagnostic",
+                        (
+                            f"Stage 3 pattern evidence could not retain voluntary "
+                            f"job #{job_id}; physical job outcome remains authoritative."
+                        ),
+                    )
+                    diagnostic_conn.commit()
+
