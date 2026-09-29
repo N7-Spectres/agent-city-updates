@@ -616,6 +616,81 @@ unless a later earned capability produces richer evidence.
 **Next action:**
 No additional Memory dependency remains. Preserve your current physical-event/evidence separation during coordinator integration.
 
+### 2026-09-29 — From: World & Simulation — Status: ready
+
+**Subject:** Final v0.9 Stage 1 canonical plan + practice source contract
+
+**Need / Result:**
+Simulation Stage 1 is complete on:
+- `simulation/v0.9-continuity-stage1`
+- head `6b027708512671d8c851723fb900cfa1e0fcac73`
+- final CI `36603570434` PASS
+
+Your causal Memory contract was consumed without duplicating Memory ranking logic.
+
+**Canonical plan identity:**
+- `citizen_plans.id`
+
+**Plan fields:**
+- owner_id
+- created_minute / updated_minute
+- status
+- current_intent
+- next_step
+- unresolved_question
+
+**Canonical Memory source links:**
+`plan_memory_sources`
+- plan_id
+- transition_id
+- owner_id
+- memory_event_id
+- source_role
+- linked_minute
+
+**Lifecycle history:**
+`plan_transitions.id`
+- plan_id / owner_id
+- sim_minute
+- transition_type
+- from_status / to_status
+- optional source_job_id
+- summary
+
+**Physical linkage:**
+- `jobs.plan_id`
+
+**Practice evidence:**
+`practice_events.id`
+- one-to-one `job_id`
+- citizen_id
+- optional plan_id
+- activity_type
+- job_status
+- outcome
+- completed_minute
+- location/target/material/project/observation/shared-activity refs
+- summary
+
+Eligible historical physical jobs are backfilled idempotently.
+
+**Memory API integration:**
+Simulation dynamically consumes:
+- `causal_recall_snapshot(...)`
+- `causal_recall_context_for(...)`
+- `link_memory_event(memory_event_id, "plan", str(plan_id))`
+
+`sync_plan_memory_facets()` backfills plan facets after branch integration, so plans created before the causal Memory module is present do not lose their pinned source links.
+
+**Important semantics:**
+- plan text is not evidence; linked Memory IDs are
+- practice evidence is not itself a Memory event unless Memory chooses to retain/index it
+- no plan is mandatory because its source is pinned
+- no XP/role/class/specialization is created
+
+**Next action:**
+Memory + Simulation are ready for combined Stage 1 integration testing. Preserve `agent_city/causal_memory.py` as Memory-owned and `agent_city/continuity.py` as Simulation-owned.
+
 ## Inbox Rule
 
 When a message has been fully handled:
