@@ -628,3 +628,81 @@ Initial personality directions:
 - Vale: socially attentive, adaptable, cooperation-oriented
 
 These are behavioral tendencies, not classes, offices, or political status.
+
+## v0.9 Recognition Is Perspective, Not Reputation
+
+Another citizen's recognition must be supported by information that actually reached the speaker.
+
+Communication may use only the speaker's owner-scoped Memory when forming recognition language.
+
+Do not inspect another citizen's global practice history and expose it as though the speaker knew it.
+
+There is no canonical global:
+- reputation
+- expert status
+- leader status
+- rank
+- social authority weight
+
+## v0.9 Own Practice Language
+
+A citizen may describe their own physical practice using their own canonical `practice_events`.
+
+Communication permits "I've done this several times" only when at least 3 real practice events exist for that citizen + activity.
+
+This is a wording threshold, not a competence tier.
+
+## v0.9 Self-Assessment Boundary
+
+Statements such as:
+- "I think I'm getting better"
+- "I keep struggling with this"
+- "I feel more practiced"
+
+are citizen interpretation.
+
+They are never silently promoted into objective physical capability.
+
+If competence later affects Simulation outcomes, Simulation owns that model.
+
+## v0.9 Comparative Recognition
+
+A statement such as "Bex has done this more than I have" requires evidence legitimately available to the speaker for both sides of the comparison.
+
+The speaker's own practice plus another citizen's hidden/global practice count is not a valid evidence path.
+
+When evidence is weaker, use weaker source-honest language such as:
+- "I've seen Bex do this before."
+- "Bex told me she's worked on this."
+
+## v0.9 Repetition Does Not Verify
+
+Memory reinforcement changes recall priority only.
+
+Repeated unverified claims remain unverified.
+
+Communication must preserve source/verification language even when a report is repeatedly remembered.
+
+## v0.9 Teaching Is Communication Until Simulation Says Otherwise
+
+Explaining, advising, verbally demonstrating, or being asked for help creates no learner practice/competence.
+
+Conversation may transfer claims/instructions socially.
+
+A real competence/practice effect requires a future Simulation-owned guided-practice/teaching action/event.
+
+Do not grant expert/master/trainer/mentor/specialist status from teaching talk.
+
+## v0.9 Plan Discussion Is Read-Only
+
+Communication may discuss canonical plans but may not mutate them.
+
+Only Simulation/planner plan lifecycle operations may create/revise/pause/resume/abandon/supersede/complete canonical plan state.
+
+Plan existence is intent continuity, not competence.
+
+## v0.9 Visitor Recognition Is Earned
+
+Visitor familiarity or importance requires source-backed retained encounters.
+
+Account ownership, UI usage, coordinator status, or admin access are never social evidence.
