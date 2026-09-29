@@ -411,3 +411,51 @@ Need exact authoritative fields for:
 - [x] Memory branch and focused smoke are green
 - [ ] coordinator merges Stage 2 branches and runs assembled regression suite
 - [ ] Memory resumes only for integration regressions or a new milestone
+
+
+## v0.9.0 Stage 1 — Causal Memory Spine
+
+### Implemented on `memory/v0.9-causal-memory-stage1`
+
+- [x] audit v0.8.7 Memory archive/source model
+- [x] preserve `memory_events` as durable archive
+- [x] add additive `memory_event_facets` index
+- [x] auto-index source-backed events by safe relational facets
+- [x] add explicit future `plan` / `place` facet hook
+- [x] add bounded owner-scoped causal recall snapshot
+- [x] add bounded source-labelled model context
+- [x] add meaningful aging without history mutation
+- [x] add bounded reinforcement from repeated related events
+- [x] preserve unverified claim status under repetition
+- [x] add pinned-memory continuity for unfinished plans
+- [x] keep another citizen's continuity isolated
+- [x] add dedicated contract `V090_CAUSAL_MEMORY_CONTRACT.md`
+- [x] hand persistent-plan source interface to Simulation
+- [x] hand perspective-safe recall contract to Communication
+- [x] add `tests/smoke_v090_memory_stage1.py`
+- [x] full v0.4-v0.8.7 regression matrix + v0.9 Memory smoke green in CI `36598971733`
+- [x] remove temporary CI workflow
+
+### Waiting on Simulation Stage 1 implementation
+
+- [ ] stable persistent plan ID/lifecycle
+- [ ] stable plan creation/revision/abandon/completion history
+- [ ] plan owner + current intent + next step / unresolved question
+- [ ] stable initiating/revision `memory_event_id` references
+- [ ] canonical completed-action/practice event interface if existing jobs are insufficient
+- [ ] explicit interruption semantics that pause/revise plans without deleting source history
+
+### After Simulation plan contract arrives
+
+- [ ] integrate plan-owned pinned recall into planner decision packet
+- [ ] record/link plan lifecycle memories only from canonical plan events
+- [ ] verify a plan can resume after unrelated work/time
+- [ ] verify a plan can revise/abandon while retaining causal history
+
+### Later v0.9 stages
+
+- [ ] self-assessment from source-backed practice history
+- [ ] social recognition without global reputation
+- [ ] teaching only through explicit mechanisms
+- [ ] place meaning from citizen-specific retained events
+- [ ] habits/customs from repeated history + transmission
