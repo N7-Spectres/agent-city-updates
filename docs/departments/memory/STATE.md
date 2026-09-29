@@ -1007,3 +1007,87 @@ Communication INBOX now contains the perspective-safe recall/self-assessment/rec
 No public HTTP recall-score API was added in Stage 1. Recall score is internal retrieval machinery and must not become a visible identity/reputation/memory-strength label.
 
 No release metadata or `update.json` was changed.
+
+
+## v0.9 Stage 1 Simulation Contract Consumed — Practice Retention Complete
+
+Memory consumed the final Simulation Stage 1 contract:
+
+- branch `simulation/v0.9-continuity-stage1`
+- head `6b027708512671d8c851723fb900cfa1e0fcac73`
+- CI `36603570434`
+
+Memory branch is now:
+
+- `memory/v0.9-causal-memory-stage1`
+- final head `35e277f9ca5c6d8d9b77d89492b118ac04a1fc69`
+- validation `36606247505`
+
+### Canonical practice retention
+
+New module:
+
+`agent_city/practice_memory.py`
+
+Memory now consumes Simulation `practice_events.id` as canonical evidence that real physical practice occurred.
+
+Policy:
+
+1. if the physical job already has a durable Memory event, reuse that event
+2. add practice/activity/plan/location/material/target facets to that existing memory
+3. if the job has no durable autobiographical event, create one verified `simulation_practice_event` memory
+4. never create practice from talk, agreement, waiting, proximity, UI/admin interaction, or concept art
+
+This avoids double-counting one physical service/survey/shared exploration merely because multiple authoritative ledgers reference it.
+
+### New practice Memory source
+
+When a new event is required:
+
+- `source_type = simulation_practice_event`
+- `source_id = practice_events.id`
+- `event_kind = practice_<activity_type>`
+- owner = `practice_events.citizen_id`
+- status = verified
+
+Metadata preserves:
+- practice event ID
+- physical job ID
+- optional plan ID
+- activity type
+- job status/outcome
+- location
+- target/material
+- project/observation/shared-activity IDs when present
+
+### Outcome continuity
+
+Completed and failed practice are both eligible personal history.
+
+Failure/no-yield may be more salient for future recall but does not create a permanent negative identity label.
+
+### Integration behavior
+
+Memory startup safely no-ops before `practice_events` exists.
+
+After Memory + Simulation merge:
+- Simulation creates/backfills canonical practice events
+- Memory retains/dedupes them
+- causal facets become available to recall
+- Simulation plan-source facet backfill links prior plan reasons regardless of merge order
+
+No additional Memory schema beyond `memory_event_facets` is required.
+
+### Validation
+
+CI `36606247505` passed the complete v0.4-v0.8.7 matrix plus the expanded `tests/smoke_v090_memory_stage1.py`.
+
+The expanded smoke verifies:
+- unmatched canonical practice creates one verified Memory event
+- an already remembered job is not duplicated
+- existing event gains a stable `practice_event` facet
+- plan/activity practice facets become recallable
+- failed physical practice remains source-backed history
+- repeated synchronization is idempotent
+
+No release metadata or `update.json` was changed.
