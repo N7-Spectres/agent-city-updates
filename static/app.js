@@ -345,6 +345,10 @@ function locationById(id) {
   return state.locations.find(x => x.id === id);
 }
 
+function citizenNameById(id) {
+  return state?.citizens?.find(c => String(c.id) === String(id))?.name || String(id || "Unknown");
+}
+
 function depositsForLocation(locationId) {
   return state.deposits.filter(d => d.location_id === locationId && d.discovered);
 }
@@ -1269,6 +1273,10 @@ async function loadCitizenContinuity(citizenId, { force = false } = {}) {
     if (!memoryResponse.ok) throw new Error("continuity memory endpoint unavailable");
     const memory = await memoryResponse.json();
 
+    const competenceResponse = await fetch(`/api/competence/${encodeURIComponent(citizenId)}`);
+    if (!competenceResponse.ok) throw new Error("competence endpoint unavailable");
+    const competence = await competenceResponse.json();
+
     const openPlans = (objective.plans || [])
       .filter(plan => ["active", "paused"].includes(String(plan.status)))
       .slice(0, 4);
@@ -1286,7 +1294,7 @@ async function loadCitizenContinuity(citizenId, { force = false } = {}) {
       }
     }));
 
-    const data = { objective, memory, planMemories };
+    const data = { objective, memory, competence, planMemories };
     citizenContinuityCache.set(citizenId, { data, loadedAt: Date.now(), unavailable: false });
     if (sheetCitizenId === citizenId) renderCitizenSheet();
     return data;
@@ -1309,6 +1317,16 @@ function continuityMemoryRow(event) {
     ? `${event.source_type} #${event.source_id}`
     : "source unavailable";
   const planLinked = event?.pinned_by_plan ? "<em>Plan-linked</em>" : "";
+  const role = String(event?.source_role || "").trim();
+  const facets = Array.isArray(event?.facets) ? event.facets : [];
+  const counterpartyId = facets.find(f => String(f?.kind) === "counterparty")?.value;
+  const family = facets.find(f => String(f?.kind) === "competence_family")?.value;
+  const perspectiveBits = [
+    role && role !== "actor" ? role.replaceAll("_", " ") : "",
+    counterpartyId ? `with ${citizenNameById(counterpartyId)}` : "",
+    family ? String(family).replaceAll("_", " ") : "",
+  ].filter(Boolean);
+
   return `
     <div class="continuity-memory-row">
       <div class="continuity-row-head">
@@ -1316,6 +1334,7 @@ function continuityMemoryRow(event) {
         <time>${escapeHtml(event?.sim_label || formatMinute(event?.sim_minute || 0))}</time>
       </div>
       <p>${escapeHtml(event?.summary || "Remembered event")}</p>
+      ${perspectiveBits.length ? `<div class="continuity-memory-context">${perspectiveBits.map(bit => `<span>${escapeHtml(bit)}</span>`).join("")}</div>` : ""}
       <div class="knowledge-source">
         <span>${escapeHtml(source)}</span>
         ${planLinked}
@@ -1337,6 +1356,9 @@ function citizenContinuityMarkup(citizenId) {
 
   const objective = entry.data.objective || {};
   const generalMemory = entry.data.memory?.events || [];
+  const competence = entry.data.competence || {};
+  const competenceFamilies = Array.isArray(competence.families) ? competence.families : [];
+  const guidedSessions = Array.isArray(competence.guided_practice_sessions) ? competence.guided_practice_sessions : [];
   const planMemories = entry.data.planMemories || {};
   const plans = objective.plans || [];
   const openPlans = plans.filter(plan => ["active", "paused"].includes(String(plan.status)));
@@ -1403,6 +1425,47 @@ function citizenContinuityMarkup(citizenId) {
     </div>
   `).join("") || '<div class="sheet-empty muted">No recent practice events.</div>';
 
+  const competenceMarkup = competenceFamilies
+    .filter(row => Number(row.practice_count || 0) > 0)
+    .sort((a, b) => Number(b.practice_count || 0) - Number(a.practice_count || 0) || String(a.family).localeCompare(String(b.family)))
+    .map(row => {
+      const family = String(row.family || "work").replaceAll("_", " ");
+      const practiceCount = Number(row.practice_count || 0);
+      const completedCount = Number(row.completed_count || 0);
+      const failedCount = Number(row.failed_count || 0);
+      const reduction = Math.max(0, Number(row.duration_reduction_percent || 0));
+      return `
+        <div class="continuity-practice-family">
+          <div class="continuity-practice-head">
+            <strong>${escapeHtml(family)}</strong>
+            <span>${practiceCount} recorded event${practiceCount === 1 ? "" : "s"}</span>
+          </div>
+          <small>${completedCount} completed${failedCount ? ` • ${failedCount} failed` : ""}</small>
+          ${reduction > 0 ? `<p class="continuity-measured-effect"><b>Measured work effect:</b> comparable ${escapeHtml(family)} tasks are currently ${escapeHtml(trimNumber(reduction))}% shorter from prior practice.</p>` : ""}
+        </div>
+      `;
+    }).join("") || '<div class="sheet-empty muted">No recorded practice families yet.</div>';
+
+  const guidedMarkup = guidedSessions.slice(0, 8).map(session => {
+    const isGuide = String(session.teacher_id) === String(citizenId);
+    const counterpartId = isGuide ? session.learner_id : session.teacher_id;
+    const counterpart = citizenNameById(counterpartId);
+    const family = String(session.activity_family || "guided practice").replaceAll("_", " ");
+    const minute = session.completed_minute ?? session.started_minute;
+    const roleLine = isGuide
+      ? `Guided ${counterpart}`
+      : `Practiced with ${counterpart}`;
+    return `
+      <div class="continuity-guided-row">
+        <span>
+          <strong>${escapeHtml(family)}</strong>
+          <small>${escapeHtml(roleLine)} • ${escapeHtml(formatMinute(minute))}</small>
+        </span>
+        <em class="status-chip status-${escapeHtml(String(session.status || "recorded"))}">${escapeHtml(statusLabel(session.status || "recorded"))}</em>
+      </div>
+    `;
+  }).join("") || '<div class="sheet-empty muted">No guided-practice sessions recorded.</div>';
+
   const memoryMarkup = generalMemory.length
     ? generalMemory.map(continuityMemoryRow).join("")
     : '<div class="sheet-empty muted">No relevant active memories are available right now.</div>';
@@ -1417,10 +1480,13 @@ function citizenContinuityMarkup(citizenId) {
       <div class="continuity-plan-list">${planMarkup}</div>
       <h4>Recorded practice</h4>
       <div class="sheet-list">${countMarkup}</div>
+      <div class="continuity-practice-families">${competenceMarkup}</div>
       <details>
         <summary>Recent practice events</summary>
         <div class="sheet-list">${practiceRows}</div>
       </details>
+      <h4>Guided practice history</h4>
+      <div class="continuity-guided-list">${guidedMarkup}</div>
     </div>
     <div class="continuity-layer remembered">
       <div class="continuity-layer-head">
@@ -1435,7 +1501,7 @@ function citizenContinuityMarkup(citizenId) {
         <span>Citizen Interpretation</span>
         <small>Not an objective stat</small>
       </div>
-      <p class="muted">Self-reflection appears only when a source-backed attributed interpretation is available. Agent City does not infer expertise, rank, friendship, or preference from event counts.</p>
+      <p class="muted">Source-backed self-reflection remains Communication-owned and attributed. Measured work effects and event counts are evidence, not personality or expertise. Agent City does not infer rank, mentorship, friendship, or preference from them.</p>
     </div>
   `;
 }
