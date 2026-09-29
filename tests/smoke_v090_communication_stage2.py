@@ -107,7 +107,39 @@ def main() -> None:
                 ]
             return []
 
+        def guided_practice_snapshot(conn, citizen_id: str, *, limit: int = 30):
+            if citizen_id == "bex":
+                return [
+                    {
+                        "id": 12,
+                        "teacher_id": "bex",
+                        "learner_id": "cato",
+                        "activity_family": "extraction",
+                        "status": "complete",
+                        "started_minute": 1955,
+                        "completed_minute": 2000,
+                        "consumed_by_job_id": None,
+                        "summary": "Bex and Cato completed guided extraction practice.",
+                    }
+                ][:limit]
+            if citizen_id == "cato":
+                return [
+                    {
+                        "id": 12,
+                        "teacher_id": "bex",
+                        "learner_id": "cato",
+                        "activity_family": "extraction",
+                        "status": "complete",
+                        "started_minute": 1955,
+                        "completed_minute": 2000,
+                        "consumed_by_job_id": None,
+                        "summary": "Bex and Cato completed guided extraction practice.",
+                    }
+                ][:limit]
+            return []
+
         fake_competence.competence_snapshot = competence_snapshot
+        fake_competence.guided_practice_snapshot = guided_practice_snapshot
         sys.modules["agent_city.competence"] = fake_competence
 
         fake_guided = types.ModuleType("agent_city.guided_practice_memory")
