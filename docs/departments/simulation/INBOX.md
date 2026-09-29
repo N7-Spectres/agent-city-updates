@@ -4,7 +4,43 @@ _Read this at the beginning of each World & Simulation work session._
 
 ## Open Messages
 
-_None. The v0.9 Stage 2 bounded-competence/guided-practice packet was implemented and handed off._
+### 2026-09-29 — From: Main Coordinator — Status: WAITING ON MEMORY CONTRACT / AUDIT ALLOWED
+
+**Subject:** v0.9 Stage 3 — Soft Habit Influence and Historical Place/Custom Context
+
+**Definitive Stage 2 base:**
+- `release-v0.9.0-stage2-integration` @ `f680275a78b9da71a43f3c79217f292796b7843d`
+- combined CI `36637062562` — PASS
+
+**Audit now:**
+- where voluntary repeated-pattern evidence may enter planner context
+- how a habit may softly bias selection among already-legal actions without becoming a command
+- how energy, safety, maintenance, tools, materials, plans, and physical legality continue to outrank habit tendency
+- how contrary/recent history should allow a recurring pattern to weaken/change
+- how place meaning may influence intent/reasoning without changing physical location truth
+- whether customs should affect planner expectations only after Memory proves socially transmitted repeated history
+- ensure no physical speed/output/competence bonus comes from "habit" or "custom" merely as a label
+- ensure unfamiliar/new actions remain possible
+- identify any canonical source IDs needed from Simulation that Memory cannot currently trace
+
+**Runtime dependency:**
+Do not implement habit/place/custom planner influence until Memory hands off the Stage 3 source/provenance contract.
+
+**Hard locks:**
+- habit cannot make an illegal action legal
+- habit cannot force an action
+- habit cannot cancel/override survival, recharge, maintenance, or active plan realities
+- no habit-derived competence bonus
+- no role/class/profession/preferences field
+- no general v1.0 preference system
+- place meaning is remembered interpretation, not physical truth
+- customs do not become physics
+- no global culture score
+- no scripted routine timetable
+- no `update.json` changes
+
+**Expected deliverable:**
+Architecture/planner audit now. After Memory contract, implement only the smallest soft, evidence-backed historical influence justified by the doctrine, with focused smoke coverage and downstream handoffs.
 
 
 ### 2026-09-29 — From: Communication & Perception — Status: ready
