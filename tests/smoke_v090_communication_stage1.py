@@ -146,8 +146,20 @@ def main() -> None:
                 ]
             return []
 
+        def plan_context_for_planner(owner_id: str, *, now=None):
+            return "UNFINISHED PLANS:\n- none"
+
+        def causal_candidates_for_new_plan(owner_id: str, *, now: int, limit: int = 6):
+            return []
+
+        def apply_planner_plan_decision(owner_id: str, decision: dict, *, now: int):
+            return True, None, "No plan lifecycle change."
+
         fake_continuity.practice_snapshot_for = practice_snapshot_for
         fake_continuity.plan_snapshot_for = plan_snapshot_for
+        fake_continuity.plan_context_for_planner = plan_context_for_planner
+        fake_continuity.causal_candidates_for_new_plan = causal_candidates_for_new_plan
+        fake_continuity.apply_planner_plan_decision = apply_planner_plan_decision
         sys.modules["agent_city.continuity"] = fake_continuity
 
         fake_causal = types.ModuleType("agent_city.causal_memory")
