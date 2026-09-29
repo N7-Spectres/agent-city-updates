@@ -4,239 +4,148 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
-### 2026-09-28 — From: World & Simulation — Status: ready
+### 2026-09-29 — From: World & Simulation — Status: ready
 
-**Subject:** Final Stage 2 Simulation session handoff
+**Subject:** v0.9 Stage 1 persistent plans + practice evidence ready
 
-**Need / Result:**
-World & Simulation Stage 2 is complete and stopped in REVIEW.
+**Implementation:**
+- branch `simulation/v0.9-continuity-stage1`
+- head `6b027708512671d8c851723fb900cfa1e0fcac73`
+- base published v0.8.7 `be617e6e870ec3f1914d76cdb85107a6efc294d7`
+- final CI `36603570434` PASS
 
-**Authoritative implementation:**
-- branch `simulation/v0.8-exploration-stage2`
-- head `b81c9bb57884727e7a1c769d95ecb27928d1d489`
-- final CI `36456647323` PASS
+**Delivered:**
+- stable citizen plan IDs/lifecycle
+- plan transition history
+- canonical Memory-event source links
+- jobs linked to active plans
+- real completed/failed physical jobs -> stable practice evidence
+- historical physical-work backfill
+- planner persistent-plan context/operations
+- safe continuity read model
+- no competence score/class/role/reputation
 
-**Downstream status:**
-- Communication blocker for canonical rejection resolved and inbox cleaned
-- Memory has final shared-activity / observation source mapping
-- Assets has final authoritative movement/shared read model
-- COORDINATION already records Simulation in REVIEW
+**Integration note:**
+Memory's `agent_city/causal_memory.py` remains Memory-owned. After Memory + Simulation branches merge, autonomous new-plan candidate retrieval activates through Memory's public API. Simulation includes a facet backfill hook so earlier plan sources gain `plan` facets regardless of merge order.
 
-**Next action:**
-Coordinator waits for Communication + Assets completion, then assembles all Stage 2 branches and runs the complete integration suite.
+**No release publication or update.json change.**
 
+### 2026-09-29 — From: World & Simulation — Status: ready
 
-### 2026-09-28 — From: World & Simulation — Status: ready
+**Subject:** Memory v0.9 canonical plan/practice contract
 
-**Subject:** Stage 2 rejection lifecycle hardening
+**Plan identity:**
+- `citizen_plans.id`
 
-**Need / Result:**
-Added a visitor-owned nonphysical reject transition for Simulation shared activities.
+**Plan fields:**
+- owner_id
+- created_minute / updated_minute
+- status
+- current_intent
+- next_step
+- unresolved_question
 
-Endpoint:
-- `POST /api/shared-activities/{id}/reject`
+**Plan source mapping:**
+`plan_memory_sources`
+- plan_id
+- transition_id
+- owner_id
+- canonical `memory_event_id`
+- source_role
+- linked_minute
 
-Allowed only from:
-- `proposed`
-- `accepted`
+**Lifecycle history:**
+`plan_transitions.id`
+- plan_id / owner
+- sim minute
+- transition type
+- from/to status
+- optional source_job_id
+- summary
 
-Result:
-- status/outcome become `rejected`
-- no physical job
-- no coordinate change
-- no observation
+**Physical linkage:**
+- `jobs.plan_id`
 
-Final branch head is `b81c9bb57884727e7a1c769d95ecb27928d1d489`.
-Final full regression run `36456647323` passed.
-
-
-### 2026-09-28 — From: World & Simulation — Status: ready
-
-**Subject:** v0.8 Stage 2 local exploration/shared physical activity ready
-
-**Need / Result:**
-Implemented/tested on `simulation/v0.8-exploration-stage2`.
-
-Final branch:
-`b81c9bb57884727e7a1c769d95ecb27928d1d489`
-
-Final runtime validation:
-`36456647323` passed all v0.4-v0.7 regressions, all Stage 1 department smokes, and `tests/smoke_v080_stage2.py`.
-
-Delivered:
-- authoritative local meter movement jobs
-- hidden-terrain-derived duration/energy
-- coordinate return-energy reserve
-- server-derived in-transit positions
-- baseline-safe local inspection
-- stable observation IDs
-- meter-aware talk/visit/infrastructure legality
-- Simulation-owned shared proposal/accept/start/status lifecycle
-- explicit visitor acceptance separate from physical start
-- shared visitor+citizen walk/inspect
-- stable `shared_activities.id`, citizen job ID, source visit/exchange IDs, and observation ID
-- additive migration
-
-**Important constraints:**
-- no scanner
-- no globe travel
-- no chat-started movement
-- no concept-art equipment capability
-- hidden seeded truth remains hidden
-- no release metadata changed
-
-### 2026-09-28 — From: World & Simulation — Status: ready
-
-**Subject:** Communication Stage 2 physical shared-action contract
-
-Communication proposal identity remains separate from Simulation physical identity.
-
-**Canonical Simulation action ID:**
-- `shared_activities.id`
-
-Communication should store that value in its:
-- `shared_action_proposals.simulation_action_id`
-
-**Simulation lifecycle:**
-- `proposed`
-- `accepted`
-- `active`
-- `complete`
-- `failed` when applicable
-
-Suggested Communication UI mapping:
-- Simulation `active` -> Communication `started`
-- Simulation `complete` -> Communication `completed`
-
-**Source links on Simulation shared action:**
-- visitor
+**Practice evidence:**
+`practice_events.id`
+- one-to-one `job_id`
 - citizen_id
-- source_visit_id
-- source_exchange_id
-- optional tool_equipment_id
+- optional plan_id
+- activity_type
+- job_status / outcome
+- completed minute
+- location/target/material/project/observation/shared-action references
 
-**Physical links:**
-- citizen_job_id
-- observation_id
-- outcome / failure_reason
+Simulation dynamically calls:
+- `link_memory_event(memory_event_id, "plan", str(plan_id))`
 
-**Endpoints:**
-- POST `/api/shared-activities/propose`
-- POST `/api/shared-activities/{id}/accept`
-- POST `/api/shared-activities/{id}/start`
-- GET `/api/shared-activities/{id}`
+and `sync_plan_memory_facets()` backfills plan facets after merge if the plan existed before causal Memory was present.
 
-Proposal validates source visit/exchange ownership.
+**Memory rule:**
+Practice evidence is physical source material for future Memory/competence reasoning. It is not itself a Memory event unless Memory chooses to retain/index it according to policy.
 
-Acceptance changes intent only.
+### 2026-09-29 — From: World & Simulation — Status: ready
 
-Start revalidates physical state and creates the real job.
+**Subject:** Communication v0.9 plan/practice truth contract
 
-**Movement status:**
-Active payload includes real movement:
-- job_id
-- start/target x/y
-- path_distance_m
-- terrain_multiplier
-- start/end minute
-- current server-derived x/y
-- progress
-- elapsed/remaining minutes
+Communication may safely describe:
+- a citizen has an active/paused/completed/etc. plan if Simulation says so
+- current plan intent / next known step / unresolved question
+- completed/failed physical practice history from `practice_events`
 
-**Observation:**
-Successful walk/inspect completion sets:
-- `observation_id`
-- job `result_observation_id`
+But:
 
-**Communication follow-up needed:**
-Now that local movement exists, update `visible_citizens`/grounded current visibility to use meter proximity, not only `location_id`.
+- a plan is intention, not proof of future completion
+- plan existence is not competence evidence by itself
+- conversation about an activity is not practice
+- practice events are objective physical history, not an "expert" title
+- self-assessment remains citizen interpretation backed by owner-scoped Memory + practice evidence
+- recognition by another citizen requires that citizen's legitimate knowledge/experience path
+- no global reputation/expertise score
 
-### 2026-09-28 — From: World & Simulation — Status: ready
+Stage 2 Communication can use repeated `practice_events` plus causal Memory to support statements such as "I've done this several times," while preserving perspective and uncertainty.
 
-**Subject:** Memory Stage 2 physical exploration source contract
+### 2026-09-29 — From: World & Simulation — Status: ready
 
-Use:
-- local movement action source: completed `jobs.id` where action = `local_move`
-- local inspection evidence: `jobs.result_observation_id` / `spatial_observations.id`
-- shared exploration social/physical event: `shared_activities.id`
-- shared citizen physical job: `shared_activities.citizen_job_id`
-- shared evidence: `shared_activities.observation_id`
+**Subject:** Assets v0.9 safe continuity read model
 
-A successful shared exploration memory is valid only when:
-- status = `complete`
-- outcome = `success`
-- completed_minute is non-null
-- observation_id is non-null
+Safe state collections:
+- `state.plans[]`
+- `state.plan_transitions[]`
+- `state.practice_events[]`
 
-Preserve proposal/acceptance as intention/provenance, not completed exploration.
+Read endpoint:
+- `GET /api/continuity/{citizen_id}`
 
-Baseline observations have:
-- `detail_level = baseline`
-- material = null
-- geology_class = unclassified
-unless later real capability supports richer observation.
+Plans expose:
+- ID / owner
+- status
+- created/updated times
+- current intent
+- next step
+- unresolved question
+- linked Memory event IDs
+- recent transitions through the continuity endpoint
 
-Do not turn each interpolated movement tick into memory.
+Practice exposes:
+- physical job ID
+- activity type
+- job status/outcome
+- time
+- physical subject/location references
 
-### 2026-09-28 — From: World & Simulation — Status: ready
+**UI rule:**
+Do not turn counts into levels, expertise badges, classes, ranks, or reputation.
 
-**Subject:** Assets Stage 2 authoritative movement/shared read model
+A useful UI can show:
+- unfinished plan
+- why it exists through source-linked history
+- next known step
+- recent plan changes
+- actual work history
 
-**Citizen movement**
-`state.citizens[].local_movement`
-
-Fields:
-- job_id / action
-- frame_id
-- start_x_m / start_y_m
-- target_x_m / target_y_m
-- path_distance_m
-- terrain_multiplier
-- start_minute / end_minute
-- current authoritative x_m / y_m
-- progress
-- elapsed_minutes / total_minutes / remaining_minutes
-
-During active movement, citizen `position_x_m/y_m` in state already contains the current server-derived position.
-
-**Shared activity**
-`state.shared_activities[]`
-
-Canonical action ID:
-- `id`
-
-Lifecycle:
-- proposed
-- accepted
-- active
-- complete / failed
-
-Links:
-- citizen_job_id
-- source_visit_id / source_exchange_id
-- tool_equipment_id
-- observation_id
-- outcome / failure_reason
-
-Active shared rows include `movement` with the same authoritative progress shape.
-
-**Visitor presence**
-`GET /api/visitor/presence` now includes:
-- shared_activity_id
-- shared_activity
-- current x_m/y_m derived from the active shared movement
-
-**Validated observations**
-`state.spatial_observations[]` now includes `detail_level`.
-
-Baseline walk/inspect:
-- material null
-- geology unclassified
-- use radius_m for uncertainty/extent
-
-**Rendering rule:**
-Visual smoothing may interpolate only the real Simulation start/target/timing segment. Do not invent a different path or hidden terrain features.
+without exposing Memory recall scores or invented identity labels.
 
 ## Outbox Rule
 
-Keep durable architecture/rules in STATE/DECISIONS/BACKLOG. Keep this file focused on active handoffs.
+Keep durable architecture/rules in STATE/DECISIONS/BACKLOG. Keep this file focused on current handoffs.
