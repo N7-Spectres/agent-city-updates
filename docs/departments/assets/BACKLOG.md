@@ -263,3 +263,21 @@ Then hand the resulting base to Assets.
 Audit: **complete**
 
 Runtime Stage 2 UI: **waiting on coordinator-assembled Stage 2 base**
+
+
+## Session Closed — v0.9 Stage 2 UI Audit
+
+No further Assets work is authorized in this session.
+
+Completed:
+- audited Simulation Stage 2 competence read model
+- audited Memory Stage 2 remembered guided-practice surface
+- audited Communication Stage 2 interpretation/language contract
+- decided literal practice history remains primary
+- decided measured duration effect is text-only
+- defined guided-practice event presentation
+- prohibited mentor/expert/rank/proficiency UI
+- identified coordinator-assembly dependency
+- corrected COORDINATION sequencing so upstream Stage 2 is assembled before Assets implementation
+
+Resume only when the coordinator provides the assembled Stage 2 base or routes explicit review feedback/new work.
