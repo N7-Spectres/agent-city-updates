@@ -748,3 +748,21 @@ Home remains a "what is happening now?" surface.
 At most, Home may later show one compact unfinished-plan cue when it directly helps explain current activity.
 
 Deep continuity belongs on Citizens / Records.
+
+
+## v0.9 Audit-to-Implementation Handoff Rule
+
+Completing the continuity UI audit does not authorize runtime UI implementation.
+
+Assets must wait until:
+- the coordinator provides one combined v0.9 Stage 1 integration base,
+- Memory exposes the agreed UI-safe owner-scoped recalled-event projection,
+- Communication's recall-bound interpretation/self-assessment contract is integrated.
+
+Until then:
+- Simulation's objective plan/practice contract may inform design only,
+- no browser code should bind to development-only continuity endpoints,
+- no placeholder expertise/reputation/habit/place-meaning inference should be added.
+
+When reactivated, implementation should start with the smallest safe slice:
+Plans + Plan History + Recorded Practice, then add Relevant Memories / Self-Reflection only when their safe projections are final.
