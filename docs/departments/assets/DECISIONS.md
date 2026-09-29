@@ -879,3 +879,25 @@ Assets may decorate a remembered event only with fields already present in Memor
 - safe competence-family facet
 
 Assets must not reconstruct hidden Memory relevance, ranking, or social meaning from raw ledgers.
+
+
+## v0.9 Stage 2 Final Handoff Rule
+
+Once the Assets Stage 2 branch is:
+- based on the coordinator-assembled Stage 2 integration line,
+- fully regression-tested,
+- marked ready for review,
+- and free of Assets-owned blockers,
+
+Assets stops implementation and hands ownership back to the coordinator.
+
+The coordinator owns:
+- merging PR #26,
+- the final assembled Stage 2 regression run,
+- any release-line/version work,
+- and later Stage 3 activation.
+
+Assets resumes only for:
+- coordinator review feedback,
+- a UI regression discovered during final integration,
+- or a new Stage 3 work packet.
