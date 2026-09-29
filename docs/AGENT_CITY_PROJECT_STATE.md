@@ -18,6 +18,39 @@ Information law:
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
 
+## Next Major Milestone — v0.9 Civilization Continuity
+
+The v0.9 architecture doctrine is now locked in:
+
+- `docs/V090_CIVILIZATION_CONTINUITY_DOCTRINE.md`
+
+Core continuity law:
+
+> **Persistent behavior must have a traceable history.**
+
+v0.9 is explicitly not an RPG-class layer or generated biography system.
+
+Locked direction:
+- Memory is causal infrastructure, not flavor text.
+- persistent plans must survive across unrelated actions and remain revisable/abandonable.
+- practice may create differentiated competence only from real completed actions.
+- no behavior-causing miner / engineer / researcher / builder identity labels.
+- self-assessment must be grounded in personal history.
+- recognition must emerge through citizen-specific perspective rather than a universal reputation score.
+- places may accumulate different meanings for different citizens.
+- visitor continuity must come from real source-linked encounters.
+- habits require repeated behavior.
+- customs/culture require repetition plus social transmission.
+- bounded active recall and durable archive are separate concepts.
+
+Planned stage order:
+1. **Stage 1 — Causal Memory + Persistent Plans**
+2. **Stage 2 — Practice, Competence, Teaching, Recognition**
+3. **Stage 3 — Habits, Place Meaning, Social Customs**
+
+Memory & Social is the first Stage 1 dependency. Simulation may audit persistent-plan/event requirements in parallel, but implementation contracts must preserve Memory provenance/retrieval boundaries.
+
+
 ## Recent Visual Foundation
 
 **v0.8.1 — Citizen Visual Assets + Map Readability**
