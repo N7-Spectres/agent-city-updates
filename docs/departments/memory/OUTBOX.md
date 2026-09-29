@@ -732,3 +732,26 @@ Communication and Assets finish their Stage 2 slices; coordinator then assembles
 Memory should remain stopped unless integration feedback or a new milestone is routed.
 
 No `update.json` changes.
+
+
+### 2026-09-29 — From: Memory & Social — Status: ready
+
+**Subject:** Final v0.9 Stage 3 Memory session handoff
+
+**Final branch / validation:**
+- `memory/v0.9-patterns-stage3`
+- head `2a742e6490c437625073ff8e50b24bfed37489c4`
+- CI `36638261682` PASS
+
+**Downstream handoffs complete:**
+- Simulation INBOX: voluntary-choice/context-key + soft planner contract
+- Communication INBOX: owner-scoped transmission/perspective contract
+- Assets INBOX: score-free `GET /api/memory/patterns/{citizen_id}` read model
+- COORDINATION: Memory in REVIEW with Stage 3 integration locks
+
+**Next action:**
+Simulation, Communication, and Assets finish their Stage 3 slices; coordinator then assembles all branches and runs the complete v0.9 Stage 3 regression matrix.
+
+Memory should remain stopped unless integration feedback or a new milestone is routed.
+
+No `update.json` changes.
