@@ -4,7 +4,7 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
-### 2026-09-29 — From: Main Coordinator — Status: WAITING ON SIMULATION + MEMORY CONTRACTS / AUDIT ALLOWED
+### 2026-09-29 — From: Main Coordinator — Status: WAITING ON MEMORY CONTRACT / SIMULATION READY
 
 **Subject:** v0.9 Stage 2 — Guided Practice, Questions, and Competence-Safe Language
 
@@ -20,8 +20,8 @@ _Read this at the beginning of each Communication & Perception work session._
 - how self-assessment should describe remembered experience versus measured Simulation effect
 - preserve disagreement: two citizens may assess the same person's experience differently
 
-**Runtime dependency:**
-Actual teaching/learning effects wait on Simulation's canonical guided-practice/competence contract and Memory's source-linked retention contract.
+**Runtime dependency update:**
+Simulation's canonical guided-practice/competence contract is ready. Communication runtime work now waits only on Memory's Stage 2 source-linked retention/retrieval contract.
 
 **Hard locks:**
 - saying/teaching/explaining alone never increases competence
