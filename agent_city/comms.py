@@ -12,10 +12,12 @@ from .continuity_language import (
     guided_practice_context,
     help_question_context,
     measured_competence_context,
+    pattern_continuity_context,
     plan_discussion_context,
     recognition_context,
     self_assessment_context,
     teaching_boundary_context,
+    transmittable_pattern_catalog,
 )
 from .grounding import (
     citizen_capability_context,
@@ -23,7 +25,8 @@ from .grounding import (
     spatial_grounding_context,
 )
 from .provenance import knowledge_context_for, record_face_to_face_claims
-from .memory import record_conversation_memory, social_context_for
+from .memory import record_conversation_memory, record_knowledge_event, social_context_for
+from .pattern_memory import record_social_pattern_evidence
 from .personality import personality_context, dialogue_style_rules
 from .talk_diagnostics import record_talk_diagnostic
 from .world import format_sim_time
@@ -62,6 +65,171 @@ def _diag(source_job_id: int, **kwargs: Any) -> None:
         record_talk_diagnostic(source_job_id, **kwargs)
     except Exception:
         pass
+
+
+def _pattern_catalog_text(citizen_id: str) -> str:
+    rows = transmittable_pattern_catalog(citizen_id)
+    if not rows:
+        return "- none"
+    return "\n".join(
+        f"- {row['pattern_key']}: {row['description']}"
+        for row in rows
+    )
+
+
+def _existing_pattern_memory_id(owner_id: str, receipt_id: int) -> int | None:
+    with connect() as conn:
+        row = conn.execute(
+            """
+            SELECT id
+            FROM memory_events
+            WHERE owner_id = ?
+              AND source_type = 'information_receipt'
+              AND source_id = ?
+              AND event_kind = 'reported_social_pattern'
+              AND source_role = 'recipient'
+            LIMIT 1
+            """,
+            (owner_id, int(receipt_id)),
+        ).fetchone()
+    return int(row["id"]) if row else None
+
+
+def _project_social_pattern_claims(
+    conversation_id: int,
+    claims: list[dict[str, Any]] | None,
+    receipt_ids: list[int] | None,
+) -> list[int]:
+    """
+    Best-effort Stage 3 social-pattern projection.
+
+    A transcript-grounded claim can become social-pattern evidence only when:
+    - provenance already created a real face-to-face receipt,
+    - the claim value is the actual stored speaker text,
+    - the extractor chose an exact pattern key from that speaker's source-backed
+      transmittable catalog.
+
+    This cannot create the speaker's pattern, make the claim verified, or create
+    a custom by itself.
+    """
+    if not claims or not receipt_ids:
+        return []
+
+    with connect() as conn:
+        conversation = conn.execute(
+            """
+            SELECT id, sim_minute, initiator_id, target_id,
+                   initiator_text, target_text
+            FROM citizen_conversations
+            WHERE id = ?
+            """,
+            (int(conversation_id),),
+        ).fetchone()
+        if not conversation:
+            return []
+        placeholders = ",".join("?" for _ in receipt_ids)
+        receipts = conn.execute(
+            f"""
+            SELECT *
+            FROM information_receipts
+            WHERE id IN ({placeholders})
+              AND source_conversation_id = ?
+              AND channel = 'face_to_face_claim'
+              AND assertion_kind = 'speaker_claim'
+            """,
+            (*[int(v) for v in receipt_ids], int(conversation_id)),
+        ).fetchall()
+
+    role_to_speaker = {
+        "initiator": str(conversation["initiator_id"]),
+        "target": str(conversation["target_id"]),
+    }
+    role_to_text = {
+        "initiator": " ".join(str(conversation["initiator_text"] or "").split()),
+        "target": " ".join(str(conversation["target_text"] or "").split()),
+    }
+    catalogs = {
+        speaker_id: {
+            str(row["pattern_key"]): row
+            for row in transmittable_pattern_catalog(speaker_id)
+        }
+        for speaker_id in role_to_speaker.values()
+    }
+
+    receipt_lookup: dict[tuple[str, str], list[Any]] = {}
+    for row in receipts:
+        key = (
+            str(row["source_actor_id"] or ""),
+            " ".join(str(row["value_text"] or "").split()).casefold(),
+        )
+        receipt_lookup.setdefault(key, []).append(row)
+
+    evidence_ids: list[int] = []
+    for raw in claims[:12]:
+        if not isinstance(raw, dict):
+            continue
+        role = str(raw.get("speaker") or "").strip().lower()
+        if role not in role_to_speaker:
+            continue
+        if str(raw.get("subject_type") or "").strip().lower() != "social_pattern":
+            continue
+
+        pattern_key = str(raw.get("pattern_key") or "").strip()
+        value_text = " ".join(str(raw.get("value") or "").split()).strip()
+        if not pattern_key or not value_text:
+            continue
+        if value_text.casefold() not in role_to_text[role].casefold():
+            continue
+
+        speaker_id = role_to_speaker[role]
+        catalog_row = catalogs.get(speaker_id, {}).get(pattern_key)
+        if not catalog_row:
+            continue
+
+        matches = receipt_lookup.get((speaker_id, value_text.casefold()), [])
+        if not matches:
+            continue
+        receipt = matches[0]
+        recipient_id = str(receipt["recipient_id"])
+
+        metadata = {
+            "verification": str(receipt["verification"] or "unverified"),
+            "channel": "face_to_face_claim",
+            "source_actor_id": speaker_id,
+            "source_conversation_id": int(conversation_id),
+            "information_receipt_id": int(receipt["id"]),
+            "pattern_key": pattern_key,
+            "pattern_kind": str(catalog_row.get("kind") or "social_pattern"),
+            "context_key": str(catalog_row.get("context_key") or ""),
+        }
+        memory_id = record_knowledge_event(
+            recipient_id,
+            sim_minute=int(receipt["received_at_sim_minute"]),
+            event_kind="reported_social_pattern",
+            source_type="information_receipt",
+            source_id=int(receipt["id"]),
+            source_role="recipient",
+            summary=value_text,
+            metadata=metadata,
+            status="remembered",
+            importance=0.52,
+        )
+        if memory_id is None:
+            memory_id = _existing_pattern_memory_id(recipient_id, int(receipt["id"]))
+        if memory_id is None:
+            continue
+
+        evidence_id = record_social_pattern_evidence(
+            memory_id,
+            pattern_key=pattern_key,
+            actor_id=speaker_id,
+            transmission_mode="heard",
+            context_key=str(catalog_row.get("context_key") or ""),
+        )
+        if evidence_id is not None:
+            evidence_ids.append(int(evidence_id))
+
+    return evidence_ids
 
 
 def visible_citizens(citizen_id: str) -> list[dict[str, Any]]:
@@ -139,6 +307,10 @@ def _citizen_private_context(citizen_id: str, counterpart_id: str | None = None)
     dialogues = recent_dialogues_for(citizen_id, limit=4)
     provenance_knowledge = knowledge_context_for(citizen_id, limit=8)
     social_history = social_context_for(citizen_id, limit=3)
+    pattern_history = pattern_continuity_context(
+        citizen_id,
+        location_id=str(c["location_id"]),
+    )
     capability_context = citizen_capability_context(citizen_id)
     spatial_context = spatial_grounding_context(citizen_id)
     self_context = self_assessment_context(citizen_id)
@@ -181,6 +353,8 @@ Recent face-to-face conversation summaries for social continuity only (not physi
 {dialogue_text}
 Durable relationship history derived from actual recorded encounters:
 {social_history}
+
+{pattern_history}
 
 {capability_context}
 
@@ -347,10 +521,11 @@ def record_dialogue(
         pass
 
     try:
-        record_face_to_face_claims(conversation_id, claims)
+        receipt_ids = record_face_to_face_claims(conversation_id, claims)
+        _project_social_pattern_claims(conversation_id, claims, receipt_ids)
     except Exception:
         # The durable raw exchange remains authoritative for what was said.
-        # Claim projection can be safely retried/backfilled later.
+        # Claim/pattern projection can be safely retried/backfilled later.
         pass
 
     return conversation_id
@@ -580,8 +755,33 @@ async def _extract_claims_best_effort(
     This phase is intentionally non-fatal. The raw stored conversation is the
     information-transfer event even when claim classification is unavailable.
     """
+    with connect() as conn:
+        conversation = conn.execute(
+            """
+            SELECT initiator_id, target_id
+            FROM citizen_conversations
+            WHERE id = ?
+            """,
+            (int(conversation_id),),
+        ).fetchone()
+
+    initiator_patterns = (
+        _pattern_catalog_text(str(conversation["initiator_id"]))
+        if conversation else "- none"
+    )
+    target_patterns = (
+        _pattern_catalog_text(str(conversation["target_id"]))
+        if conversation else "- none"
+    )
+
     prompt = f"""
 Extract concrete factual assertions from this ALREADY STORED face-to-face exchange.
+
+ALLOWED SOURCE-BACKED SOCIAL PATTERN KEYS FOR THE INITIATOR:
+{initiator_patterns}
+
+ALLOWED SOURCE-BACKED SOCIAL PATTERN KEYS FOR THE TARGET:
+{target_patterns}
 
 INITIATOR:
 {initiator_text}
@@ -594,10 +794,11 @@ Return JSON only:
   "claims": [
     {{
       "speaker": "initiator or target",
-      "subject_type": "location, material, citizen, project, or other",
+      "subject_type": "location, material, citizen, project, social_pattern, or other",
       "subject_id": "known stable id if clearly present, otherwise null",
       "topic": "short factual topic key",
-      "value": "an exact sentence or clause copied verbatim from that speaker's text"
+      "value": "an exact sentence or clause copied verbatim from that speaker's text",
+      "pattern_key": "exact allowed source-backed pattern key above, but ONLY for a literal recurring/social pattern claim; otherwise null"
     }}
   ]
 }}
@@ -606,6 +807,8 @@ Rules:
 - Do not invent or paraphrase the claim value.
 - Include only factual assertions literally present in the stored text.
 - Questions, greetings, suggestions, guesses, and implications are not claims.
+- Use subject_type "social_pattern" and pattern_key only when the speaker literally states a recurring/social pattern that matches one of THAT SPEAKER'S allowed keys above.
+- Never invent, paraphrase, normalize, or transfer a pattern key between speakers.
 - An empty claims array is valid.
 """.strip()
 
@@ -710,12 +913,31 @@ Rules:
         )
         return
 
+    try:
+        pattern_evidence_ids = _project_social_pattern_claims(
+            conversation_id,
+            claims,
+            receipt_ids,
+        )
+    except Exception as exc:
+        pattern_evidence_ids = []
+        _diag(
+            source_job_id,
+            stage="pattern_projection",
+            outcome="degraded",
+            code="pattern_projection_failure",
+            detail=f"{type(exc).__name__}; raw exchange and claim receipts remain stored.",
+        )
+
     _diag(
         source_job_id,
         stage="claim_extraction",
         outcome="success",
         code="claims_projected" if receipt_ids else "claims_empty",
-        detail=f"{len(receipt_ids)} provenance receipt(s) created.",
+        detail=(
+            f"{len(receipt_ids)} provenance receipt(s) created; "
+            f"{len(pattern_evidence_ids)} source-backed pattern transmission(s) retained."
+        ),
     )
 
 
@@ -821,6 +1043,10 @@ INFORMATION RULES:
 - A real guided-practice session is a physical Simulation event. Ordinary explanation is not guided practice and grants zero competence.
 - A completed guided-practice session still creates no learner practice by itself; only the learner's later real matching task creates new practice evidence.
 - Teacher and learner describe one event, not permanent mentor/trainer/expert identities.
+- Recurring personal behavior may be described only from the source-backed recurring-history packet. "Current", "mixed", and "fading" describe evidence state, not a personality trait or preference.
+- Place continuity is personal remembered history, not an objective "favorite place", home, safe place, or sacred place label.
+- Social pattern candidates are perspective-specific evidence. Do not automatically call them customs, traditions, rules, rituals, or something everyone does.
+- Talking about a recurring/social pattern may transmit a claim to the listener, but speech cannot create the underlying repeated behavior or make the claim verified.
 
 SUMMARY TRUTH RULES:
 - The summary describes communication, not physical verification.
