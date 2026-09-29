@@ -555,3 +555,36 @@ Deferred:
 - [ ] Communication completes Stage 2 language/runtime
 - [ ] Assets completes Stage 2 UI/runtime
 - [ ] coordinator integrates all Stage 2 branches and runs full combined regression suite
+
+
+## v0.9.0 Stage 3 — Pattern Evidence Spine
+
+Implemented on `memory/v0.9-patterns-stage3`.
+
+Completed:
+- [x] branch from definitive Stage 2 base `f680275a78b9da71a43f3c79217f292796b7843d`
+- [x] add `memory_pattern_evidence` source projection
+- [x] add voluntary-choice evidence registration
+- [x] reject known survival/recharge/maintenance forced actions
+- [x] require deterministic context key
+- [x] require 3 events across 2 days for habit candidate
+- [x] derive current/mixed/fading from recent same-context choices
+- [x] preserve old history while later choices diverge
+- [x] prune deleted canonical source jobs
+- [x] add citizen-specific place continuity evidence
+- [x] keep place continuity separate from favorite/preference
+- [x] add social-transmission evidence registration
+- [x] require 3 events + 2 actors + 2 days for custom candidate
+- [x] preserve unverified transmission state
+- [x] prevent one private repeater from becoming custom
+- [x] prune deleted source memories
+- [x] add `GET /api/memory/patterns/{citizen_id}`
+- [x] add `tests/smoke_v090_memory_stage3.py`
+- [x] full Stage 2 integrated regression matrix + Stage 3 smoke green in CI `36638261682`
+- [x] remove temporary CI workflow
+
+Downstream:
+- [ ] Simulation adds deterministic voluntary-choice/context classification and soft planner consumption
+- [ ] Communication adds source-linked transmission registration and perspective-safe language
+- [ ] Assets consumes score-free pattern/place/custom evidence
+- [ ] coordinator integrates all Stage 3 department branches and runs the full v0.9 matrix
