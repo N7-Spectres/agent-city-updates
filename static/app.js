@@ -1848,7 +1848,11 @@ function renderMap() {
         title="${escapeHtml(citizen.name)} • ${escapeHtml(placement.label)}${progressText}"
         aria-label="${escapeHtml(citizen.name)} • ${escapeHtml(placement.label)}"
         onclick="selectCitizen('${citizen.id}')"
-      >${citizenAvatarMarkup(citizen, "map")}</button>
+      >${citizenAvatarMarkup(citizen, "map")}
+        ${placement.routeTraveling && placement.progress != null
+          ? `<span class="map-travel-progress" aria-hidden="true">${placement.progress}%</span>`
+          : ""}
+      </button>
     `;
   }).join("");
 
