@@ -4,7 +4,11 @@ _Read this at the beginning of each Memory & Social work session._
 
 ## Open Messages
 
-### 2026-09-29 — From: Main Coordinator — Status: READY / FIRST v0.9 DEPENDENCY
+_None currently._
+
+## Completed This Session
+
+### 2026-09-29 — From: Main Coordinator — Status: handled
 
 **Subject:** v0.9 Stage 1 — Causal Memory Spine
 
@@ -61,7 +65,23 @@ Define the smallest durable + bounded memory contract that can support persisten
 
 Do not publish `update.json`.
 
-## Completed This Session
+
+**Result:**
+Implemented on `memory/v0.9-causal-memory-stage1` @ `1394261f72d4fc5df7d41e065cd157350fee2785`.
+
+CI `36598971733` passed the complete v0.4-v0.8.7 regression matrix plus `tests/smoke_v090_memory_stage1.py`.
+
+Delivered:
+- immutable durable archive + separate active recall model
+- facet-based related-event reinforcement
+- meaningful aging without history rewrite
+- plan-pinned causal memory IDs
+- citizen isolation and claim-status preservation
+- Simulation persistent-plan source handoff
+- Communication perspective-safe recall handoff
+
+Contract: `docs/departments/memory/V090_CAUSAL_MEMORY_CONTRACT.md`.
+
 
 ### 2026-09-28 — From: Main Coordinator — Status: handled
 
