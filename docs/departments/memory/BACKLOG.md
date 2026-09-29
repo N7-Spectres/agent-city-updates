@@ -459,3 +459,22 @@ Need exact authoritative fields for:
 - [ ] teaching only through explicit mechanisms
 - [ ] place meaning from citizen-specific retained events
 - [ ] habits/customs from repeated history + transmission
+
+
+### Simulation Stage 1 contract consumed
+
+- [x] receive canonical `citizen_plans.id`
+- [x] receive `plan_memory_sources`
+- [x] receive `plan_transitions.id`
+- [x] receive `jobs.plan_id`
+- [x] receive canonical `practice_events.id`
+- [x] consume practice evidence into Memory
+- [x] dedupe practice against existing job-linked memories
+- [x] add practice/plan/activity facets
+- [x] preserve successful + failed source-backed physical experience
+- [x] expand `tests/smoke_v090_memory_stage1.py`
+- [x] full regression matrix green in CI `36606247505`
+- [x] temporary CI files removed
+- [ ] coordinator combines Memory + Simulation Stage 1
+- [ ] combined integration runs both v0.9 smokes with full regression matrix
+- [ ] after integration, Communication consumes source-backed practice for self-assessment/recognition design
