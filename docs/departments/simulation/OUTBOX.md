@@ -6,6 +6,28 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-29 — From: World & Simulation — Status: ready
 
+**Subject:** v0.9 World & Simulation session wrapped
+
+**Result:**
+The Persistent Plans + Practice Evidence Stage 1 packet is implemented, tested, documented, and fully handed off.
+
+**Authoritative branch / validation:**
+- `simulation/v0.9-continuity-stage1`
+- head `6b027708512671d8c851723fb900cfa1e0fcac73`
+- CI `36603570434` PASS
+
+**Handoffs complete:**
+- Memory has canonical plan/source/practice IDs and merge-order facet-backfill behavior
+- Communication has objective plan/practice evidence rules for self-assessment/recognition
+- Assets has the safe continuity read model with explicit no-XP/no-expert-badge constraints
+- COORDINATION records Simulation in REVIEW
+
+**Next action:**
+Stop Simulation work. Coordinator should combine Memory + Simulation Stage 1, run both v0.9 smokes with the full regression matrix, then route any integration conflicts back here.
+
+
+### 2026-09-29 — From: World & Simulation — Status: ready
+
 **Subject:** v0.9 Stage 1 persistent plans + practice evidence ready
 
 **Implementation:**
