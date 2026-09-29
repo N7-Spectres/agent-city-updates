@@ -512,6 +512,7 @@ def guided_practice_context(
         "- Asking a question or explaining something in ordinary conversation transfers information only; it creates no competence or practice.",
         "- You may ask another citizen about their experience even when you do not know the answer. Frame unknown experience as a question, not an assertion.",
         "- You may propose guided practice only when a legal guided-practice action appears above. The conversation proposal itself does not start the physical session.",
+        "- A legal guided-practice option proves only current physical action availability; it does not justify saying you are socially known to be more experienced than the learner.",
         "- A completed guided-practice session itself is not learner practice/competence. Only the learner's later real matching task creates new practice evidence.",
         "- If remembered guidance was later applied to a real task, describe the event/history only when the source-backed recall actually supports it.",
         "- Do not call yourself or the counterpart expert, master, mentor, trainer, specialist, leader, senior, or ranked because of a guided-practice event.",
