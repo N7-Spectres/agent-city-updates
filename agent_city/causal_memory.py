@@ -28,7 +28,6 @@ REINFORCING_FACET_KINDS = {
     "competence_family",
     "plan",
     "place",
-    "pattern_key",
 }
 
 
@@ -537,6 +536,7 @@ UI_SAFE_FACET_KINDS = {
     "competence_family",
     "plan",
     "place",
+    "pattern_key",
 }
 
 
