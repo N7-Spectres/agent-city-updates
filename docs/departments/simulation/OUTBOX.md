@@ -6,6 +6,29 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-29 — From: World & Simulation — Status: ready
 
+**Subject:** v0.9 Stage 2 World & Simulation session wrapped
+
+**Result:**
+The bounded competence + real guided-practice packet is implemented, tested, documented, and fully handed off.
+
+**Authoritative branch / validation:**
+- `simulation/v0.9-competence-stage2`
+- head `667f4659aeef9a9658d7e08f4ba7c54e267a38f9`
+- final CI `36618030044` PASS
+
+**Downstream handoffs complete:**
+- Memory has the canonical practice/competence/guided-session source contract
+- Communication has the real guided-practice/language boundary
+- Assets has the safe score-free competence read model
+- stale downstream "waiting on Simulation" inbox labels were cleared
+- COORDINATION already records Simulation in REVIEW and Memory as the next active dependency
+
+**Next action:**
+Stop Simulation work. Resume only for integration conflicts or a new routed task.
+
+
+### 2026-09-29 — From: World & Simulation — Status: ready
+
 **Subject:** v0.9 Stage 2 bounded competence + guided practice ready
 
 **Implementation:**
