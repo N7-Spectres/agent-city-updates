@@ -29,7 +29,7 @@ _None._
 
 ### REVIEW
 
-- [Memory & Social] v0.9 Stage 1 Causal Memory Spine complete on `memory/v0.9-causal-memory-stage1` @ `1394261f72d4fc5df7d41e065cd157350fee2785`; CI `36598971733` passed the full v0.4-v0.8.7 matrix + v0.9 Memory smoke.
+- [Memory & Social] v0.9 Stage 1 Causal Memory Spine + canonical practice retention complete on `memory/v0.9-causal-memory-stage1` @ `35e277f9ca5c6d8d9b77d89492b118ac04a1fc69`; CI `36606247505` passed the full v0.4-v0.8.7 matrix + expanded v0.9 Memory smoke.
 - [World & Simulation] v0.9 Stage 1 Persistent Plans + Practice Evidence complete on `simulation/v0.9-continuity-stage1` @ `6b027708512671d8c851723fb900cfa1e0fcac73`; final CI `36603570434` passed the full v0.4-v0.8.7 matrix + v0.9 Simulation smoke.
 
 ### DONE
@@ -626,6 +626,11 @@ Coordinator and downstream implementation must preserve:
 16. Self-assessment and social recognition remain future perspective layers backed by this source history.
 17. Hidden Simulation truth must never enter Memory merely because it exists.
 18. Preserve `tests/smoke_v090_memory_stage1.py` in v0.9 Stage 1 integration testing.
+19. `practice_events.id` is canonical physical practice evidence supplied by Simulation.
+20. If the same physical job already has a durable Memory event, practice retention must reuse/link that event rather than duplicate it.
+21. Otherwise one verified `simulation_practice_event` may be created for the citizen participant.
+22. Practice facets improve recall only; they do not create XP, competence, role/class/specialization, title, or reputation.
+23. Completed and failed eligible physical practice are both valid historical evidence; failure is not a permanent trait.
 
 ### Memory v0.9 Stage 1 API
 
