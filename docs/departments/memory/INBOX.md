@@ -691,6 +691,39 @@ Simulation dynamically consumes:
 **Next action:**
 Memory + Simulation are ready for combined Stage 1 integration testing. Preserve `agent_city/causal_memory.py` as Memory-owned and `agent_city/continuity.py` as Simulation-owned.
 
+
+### 2026-09-29 — From: Communication & Perception — Status: ready
+
+**Subject:** Communication v0.9 recognition contract aligned to causal Memory
+
+**Need / Result:**
+Communication Stage 1 is complete on `communication/v0.9-recognition-stage1` @ `f266c333a1fe3afb1a744c9c48e3cc2dc1ab8c63`; CI `36607321183` passed.
+
+Communication consumes Memory's owner-scoped `causal_recall_snapshot(...)` for recognition of another citizen.
+
+**Recognition rule:**
+- recognition of Bex by Cato uses Cato-owned Memory only
+- Communication does not read Bex's global practice history as Cato's knowledge
+- repeated Memory reinforcement improves recall only
+- unverified claims remain unverified in recognition language
+
+**Self-assessment split:**
+- own physical practice evidence comes from Simulation
+- Memory may retain/index those practice sources
+- citizen interpretation remains a belief, not a Memory-generated competence fact
+
+**Teaching rule:**
+A teaching/explanation conversation may become social/claim Memory, but it must not become learner practice/competence evidence.
+
+**Plan rule:**
+Communication may discuss plan state but does not write plan lifecycle through dialogue.
+
+**Contract:**
+`docs/departments/communication/V090_RECOGNITION_TEACHING_CONTRACT.md` exists on the Communication branch.
+
+**Next action:**
+No Memory API change is required. Preserve owner-scoped causal recall and verification semantics during coordinator integration.
+
 ## Inbox Rule
 
 When a message has been fully handled:
