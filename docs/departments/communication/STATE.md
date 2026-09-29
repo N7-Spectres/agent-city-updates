@@ -1040,3 +1040,37 @@ Temporary CI workflow was removed after the green run.
 The recognition/self-assessment/teaching language layer is implementation-complete and ready for coordinator Stage 1 integration with Memory + Simulation.
 
 No global reputation, competence score, skill-transfer mechanism, or authoritative title system was added.
+
+## v0.9 Stage 1 Session Close — 2026-09-29
+
+Communication v0.9 Stage 1 is closed for this session.
+
+Final implementation:
+- branch: `communication/v0.9-recognition-stage1`
+- head: `f266c333a1fe3afb1a744c9c48e3cc2dc1ab8c63`
+- final green CI: `36607321183`
+
+Completed:
+- perspective-safe recognition using speaker-owned Memory only
+- own-practice self-assessment language from canonical physical practice history
+- >=3 real practice events required before "I've done this several times" is permitted
+- self-assessment remains interpretation rather than capability truth
+- repeated unverified reports remain unverified despite recall reinforcement
+- no universal reputation, expert/master/leader/rank/class/specialization identity
+- teaching/explanation conversation creates no learner practice or competence
+- canonical plans are discussable but read-only to Communication
+- visitor continuity requires real retained interaction sources
+- citizen-to-citizen and visitor dialogue contexts now consume the continuity-language layer
+- safe continuity-language debug/read endpoint added
+- Memory, Simulation, and Assets handoffs completed
+- Communication moved to REVIEW in `COORDINATION.md`
+
+No Communication-owned v0.9 Stage 1 implementation remains.
+
+Resume only if:
+1. coordinator reports an integration conflict,
+2. Memory/Simulation merge changes the public recall/plan/practice interfaces,
+3. Assets needs clarification on evidence vs interpretation presentation, or
+4. a new v0.9 stage/milestone is routed.
+
+Before resuming, read `COORDINATION.md`, `communication/INBOX.md`, this `STATE.md`, and `V090_RECOGNITION_TEACHING_CONTRACT.md`.
