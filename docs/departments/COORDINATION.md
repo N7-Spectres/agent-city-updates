@@ -16,23 +16,25 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-- [Memory & Social] v0.9 Stage 3 — define the source-backed substrate for repeated voluntary habits, citizen-specific place meaning, and socially transmitted customs.
 
 ### WAITING
 
-- [World & Simulation] Stage 3 runtime behavior waits on Memory's repeated-pattern/place/custom evidence contract; planner/legality audit may proceed in parallel.
-- [Communication & Perception] Stage 3 runtime language/transmission waits on Memory's owner-scoped evidence contract; dialogue audit may proceed in parallel.
-- [Assets & Interface] Stage 3 runtime presentation waits on final Memory + Simulation + Communication safe read models; UI audit may proceed in parallel.
-- [Coordinator / v0.9 Stage 3 Integration] waits on department Stage 3 completion before final v0.9 assembly/release review.
+- [Assets & Interface] Memory Stage 3 read model is ready; runtime presentation still waits on final Simulation + Communication Stage 3 contracts.
+- [Coordinator / v0.9 Stage 3 Integration] Memory is ready; waits on Simulation + Communication + Assets completion before final v0.9 assembly/release review.
 
 ### READY
 
-- [Memory & Social] Stage 3 primary packet is in Memory INBOX, based on the definitive green Stage 2 runtime.
+- [World & Simulation] Memory Stage 3 voluntary-pattern/context contract is ready from `memory/v0.9-patterns-stage3`; Simulation may implement soft planner influence now.
+- [Communication & Perception] Memory Stage 3 owner-scoped transmission/perspective contract is ready; Communication may implement habit/place/custom language now.
+- [Assets & Interface] Memory Stage 3 score-free patterns endpoint is ready; final runtime UI still waits on Simulation + Communication contracts.
+
 - [World & Simulation] Stage 3 audit packet is in Simulation INBOX.
 - [Communication & Perception] Stage 3 audit packet is in Communication INBOX.
 - [Assets & Interface] Stage 3 audit packet is in Assets INBOX.
 
 ### REVIEW
+
+- [Memory & Social] v0.9 Stage 3 pattern evidence spine complete on `memory/v0.9-patterns-stage3` @ `2a742e6490c437625073ff8e50b24bfed37489c4`; CI `36638261682` passed the definitive Stage 2 matrix + `tests/smoke_v090_memory_stage3.py`.
 
 _None._
 
@@ -845,3 +847,31 @@ Coordinator/Assets integration must preserve:
 14. Home gets no competence clutter.
 15. Runtime UI work begins only from a coordinator-assembled Stage 2 base.
 16. No `update.json` changes.
+
+
+## Memory v0.9 Stage 3 Integration Locks
+
+Coordinator and downstream departments must preserve:
+
+1. `memory_pattern_evidence` stores source-linked evidence, not habit/custom/preference identity.
+2. Habit candidates require explicitly classified voluntary-choice evidence.
+3. Known forced/survival actions such as recharge, wait, travel, and required maintenance are excluded.
+4. Simulation owns the final voluntary-choice classification and deterministic context-key construction.
+5. Habit threshold is 3 matching voluntary source events across at least 2 simulation days.
+6. Recent contrary choices in the same context may move a candidate from current to mixed/fading without rewriting old history.
+7. Deleting/changing a canonical source removes/changes its pattern justification.
+8. Place continuity is citizen-specific retained experience evidence, not factual location truth and not a favorite/preference field.
+9. The same physical place may carry different continuity evidence for different citizens.
+10. Social custom evidence must originate from a real owner-scoped Memory event with legitimate transmission/observation.
+11. Supported transmission modes are observed, heard, and participated.
+12. Custom threshold is 3 source events, 2 distinct actors, 2 simulation days, and at least one actor other than the observer.
+13. One person's repeated private behavior can never create a custom candidate.
+14. Repeated unverified reports remain unverified.
+15. Custom candidates are owner-perspective evidence, not global culture facts.
+16. Memory exposes no habit score, preference score, favorite-place score, culture score, role/class/profession, or reputation metric.
+17. Simulation may use pattern evidence only as soft history among already-legal actions; it must never force or legalize an action.
+18. Communication may discuss/transmit patterns only through legitimate information paths; saying a custom exists does not create it.
+19. Assets must show evidence trails rather than badges/meters/titles.
+20. Preserve `GET /api/memory/patterns/{citizen_id}` as the score-free Stage 3 read model.
+21. Preserve `tests/smoke_v090_memory_stage3.py` in combined Stage 3 regression testing.
+22. No department publishes `update.json` during Stage 3.
