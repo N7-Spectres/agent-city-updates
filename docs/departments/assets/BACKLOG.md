@@ -325,3 +325,23 @@ _None for Assets._
 
 Next owner:
 **Coordinator / v0.9 Stage 2 Final Integration**
+
+
+## Session Closed — v0.9 Stage 2 Runtime UI
+
+No open Assets implementation task remains in this session.
+
+Completed:
+- competence read-model integration
+- factual per-family practice summary
+- compact measured duration-effect presentation
+- guided-practice event history
+- safe remembered role/counterparty/family context
+- conservative Communication-owned interpretation boundary
+- focused Stage 2 Assets smoke
+- full v0.4→v0.9 Stage 2 regression
+
+Resume only for coordinator review feedback, a discovered interface regression, or a new Stage 3 task.
+
+Current next owner:
+**Coordinator / v0.9 Stage 2 Final Integration**
