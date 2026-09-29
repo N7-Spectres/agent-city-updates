@@ -469,12 +469,23 @@ Need exact authoritative fields for:
 - [x] receive `jobs.plan_id`
 - [x] receive canonical `practice_events.id`
 - [x] consume practice evidence into Memory
+- [x] add recall-bound practice interpretation API
+- [x] hide recall score/reinforcement internals from model-facing practice context
 - [x] dedupe practice against existing job-linked memories
 - [x] add practice/plan/activity facets
 - [x] preserve successful + failed source-backed physical experience
 - [x] expand `tests/smoke_v090_memory_stage1.py`
-- [x] full regression matrix green in CI `36606247505`
+- [x] full regression matrix green in CI `36607115487`
 - [x] temporary CI files removed
 - [ ] coordinator combines Memory + Simulation Stage 1
 - [ ] combined integration runs both v0.9 smokes with full regression matrix
 - [ ] after integration, Communication consumes source-backed practice for self-assessment/recognition design
+
+
+### Communication compatibility
+
+- [x] review v0.9 Communication recognition/self-assessment branch against Memory contract
+- [x] confirm recognition remains speaker-owned
+- [ ] Communication must route model-facing self-assessment/teaching through Memory active practice recall
+- [ ] Communication must remove numeric reinforcement count from natural-language recognition evidence
+- [ ] coordinator integration waits until those two compatibility fixes are green
