@@ -41,6 +41,65 @@ Do not define competence truth or teaching gains before Simulation delivers the 
 **Expected deliverable:**
 Architecture audit now; after Simulation handoff, implement only source-backed Memory retention/retrieval needed for competence/self-assessment/teaching continuity, with focused smoke coverage and downstream handoffs.
 
+### 2026-09-29 — From: World & Simulation — Status: ready
+
+**Subject:** v0.9 Stage 2 competence + guided-practice physical source contract
+
+Simulation Stage 2 is complete:
+- branch `simulation/v0.9-competence-stage2`
+- head `667f4659aeef9a9658d7e08f4ba7c54e267a38f9`
+- final runtime CI `36618030044` — PASS
+
+**Objective competence source:**
+- canonical `practice_events.id`
+- family mapping is Simulation-owned
+- no persisted XP/level/class/role/title
+- duration effect is recomputed from source practice
+
+**Evidence weights:**
+- success/discovery/verified = 1.00
+- legacy completion = 0.75
+- inconclusive/no-yield = 0.50
+- failed physical attempt = 0.25
+
+**Families:**
+- surveying
+- extraction
+- experimentation
+- fabrication
+- construction
+- maintenance
+
+Cross-family bleed is not allowed.
+
+**Physical effect:**
+- practice affects relevant job duration only
+- practice-only benefit capped at 8%
+- with one-use guidance combined benefit capped at 10%
+- no material/energy/legality/knowledge/tool bypass
+
+**Guided-practice source:**
+`guided_practice_sessions.id`
+- physical `job_id`
+- teacher_id / learner_id
+- activity_family
+- status
+- started/completed minute
+- optional source_conversation_id
+- consumed_by_job_id
+
+Guided session itself creates no learner `practice_event`.
+The learner's next real matching physical task creates the new practice event.
+
+**Memory ownership:**
+Memory may retain the guided session as a learning/social experience, but must not manufacture extra competence from remembering it.
+
+Objective competence does not decay with Memory recall age; recall aging affects interpretation/access only.
+
+**Next action:**
+Memory's Stage 2 runtime dependency on Simulation is resolved. Implement only source-backed retention/retrieval around these IDs and semantics.
+
+
 ## Completed This Session
 
 ### 2026-09-29 — From: Main Coordinator — Status: handled
