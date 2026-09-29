@@ -74,6 +74,7 @@ from agent_city.exploration_memory import shared_exploration_context_for
 from agent_city.personality import personality_context, dialogue_style_rules
 from agent_city.world import WorldClock, format_sim_time
 from agent_city.continuity import plan_snapshot_for, practice_snapshot_for
+from agent_city.causal_memory import display_recall_snapshot
 from agent_city.visits import (
     close_visit, ensure_visit_schema, get_or_create_active_visit,
     get_recent_exchanges, previous_visits, summarize_visit_if_needed, visit_payload,
@@ -335,6 +336,48 @@ def get_citizen_continuity(citizen_id: str):
         "semantics": {
             "plans_are_intent_not_commands": True,
             "practice_is_evidence_not_competence_score": True,
+        },
+    }
+
+
+@app.get("/api/memory/continuity/{citizen_id}")
+def get_continuity_memory(
+    citizen_id: str,
+    plan_id: int | None = None,
+    limit: int = 8,
+):
+    with connect() as conn:
+        citizen = conn.execute(
+            "SELECT id, name FROM citizens WHERE id = ?",
+            (citizen_id,),
+        ).fetchone()
+        if plan_id is not None:
+            plan = conn.execute(
+                "SELECT id FROM citizen_plans WHERE id = ? AND owner_id = ?",
+                (int(plan_id), citizen_id),
+            ).fetchone()
+        else:
+            plan = None
+    if not citizen:
+        raise HTTPException(404, "Citizen not found")
+    if plan_id is not None and not plan:
+        raise HTTPException(404, "Plan not found for this citizen")
+
+    safe_limit = max(1, min(int(limit), 16))
+    return {
+        "citizen": {"id": citizen["id"], "name": citizen["name"]},
+        "plan_id": plan_id,
+        "events": display_recall_snapshot(
+            citizen_id,
+            plan_id=plan_id,
+            limit=safe_limit,
+        ),
+        "semantics": {
+            "citizen_scoped": True,
+            "active_recall_not_full_archive": True,
+            "internal_recall_scores_hidden": True,
+            "reinforcement_counts_hidden": True,
+            "remembered_perspective_not_objective_competence": True,
         },
     }
 
