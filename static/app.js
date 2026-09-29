@@ -1705,6 +1705,11 @@ function renderCitizenSheet() {
       <span class="sheet-label">Projects</span>
       <div class="sheet-list">${projectMarkup}</div>
     </div>
+    <div class="sheet-card sheet-card-wide continuity-card">
+      <span class="sheet-label">Continuity</span>
+      <p class="continuity-intro">Traceable history only. Records, remembered perspective, and citizen interpretation remain separate.</p>
+      <div class="continuity-grid">${citizenContinuityMarkup(citizen.id)}</div>
+    </div>
     <div class="sheet-card sheet-card-wide">
       <span class="sheet-label">Known discoveries & research</span>
       <div class="knowledge-facts">${citizenKnowledgeMarkup(citizen.id)}</div>
