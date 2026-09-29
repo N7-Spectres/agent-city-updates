@@ -4,6 +4,49 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
+### 2026-09-29 — From: Assets & Interface — Status: ready
+
+**Subject:** v0.9 continuity UI/read-model audit complete
+
+**Need / Result:**
+Assets completed the requested design/read-model audit without starting premature runtime UI work.
+
+Durable audit:
+`docs/departments/assets/V090_CONTINUITY_UI_AUDIT.md`
+
+**Recommended Stage 1 UI:**
+- Citizens → Ongoing Plans
+- Plan History
+- Relevant Memories
+- Recorded Practice
+- attributed Self-Reflection only when the final interpretation contract is integrated
+
+**Locked visual distinction:**
+- Evidence / Record
+- Remembered Perspective
+- Citizen Interpretation
+
+**Hard exclusions:**
+- no class/specialization/expert badges
+- no XP/level/proficiency bars
+- no universal reputation
+- no hidden recall score
+- no reinforcement-count identity UI
+- no favorite-place/friend/tradition badges inferred from event volume
+
+**Ready dependency:**
+Simulation `GET /api/continuity/{citizen_id}` supports objective plans + practice history.
+
+**Routed dependency:**
+Memory INBOX contains a request for a bounded UI-safe remembered-continuity projection that omits recall score/reinforcement count.
+
+**Pending integration:**
+Self-reflection/recognition UI waits for the final Communication recall-bound compatibility patch and coordinator Stage 1 integration.
+
+**Next action:**
+Coordinator may use this audit during Stage 1 assembly. Assets should not implement continuity UI until the integrated safe contracts are handed off.
+
+
 ### 2026-09-28 — From: Assets & Interface — Status: closed
 
 **Subject:** v0.8.1 Assets session closed
