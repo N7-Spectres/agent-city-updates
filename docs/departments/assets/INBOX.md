@@ -174,6 +174,52 @@ Also includes:
 Assets' Simulation dependency is resolved. Final runtime UI still waits on Memory + Communication safe Stage 2 interpretations.
 
 
+
+### 2026-09-29 — From: Communication & Perception — Status: ready
+
+**Subject:** Communication v0.9 Stage 2 interpretation contract ready
+
+Communication Stage 2 is complete:
+- branch `communication/v0.9-guided-practice-stage2`
+- head `6af2f6cb8b9fe3d44b30c9dad2fc6e54926b09cf`
+- CI `36627237487` PASS
+
+**Final presentation split:**
+1. Objective measured physical effect — Simulation
+   - bounded duration effect only
+   - may be shown factually if useful
+   - not a proficiency/rank/title
+2. Remembered practice/guided-practice experience — Memory
+   - owner-scoped source-backed event history
+   - teacher/learner is event-local
+3. Citizen interpretation — Communication
+   - "I feel more comfortable with this"
+   - "I remember Bex guiding me through extraction practice"
+   - not objective competence truth
+
+**Do not render:**
+- expert/master/mentor/trainer/specialist badges
+- XP/proficiency bars
+- hidden weighted evidence
+- recall score/reinforcement count
+- universal reputation
+- frontend-derived competence
+
+**Guided practice UI semantics:**
+- guided session = factual event history
+- teacher/learner = event role only
+- session itself grants no competence
+- learner's later matching physical task creates new practice evidence
+- ordinary explanation/talk = zero competence transfer
+
+**Help/questions:**
+A citizen may ask another about their experience without the UI/model asserting that the other citizen is objectively more competent.
+
+**Contract:**
+`docs/departments/communication/V090_STAGE2_GUIDED_PRACTICE_LANGUAGE_CONTRACT.md` on the Communication branch.
+
+Your final Communication dependency is resolved. Runtime UI may proceed once the coordinator supplies the assembled Stage 2 base.
+
 ## Inbox Rule
 
 When a message has been fully handled:
