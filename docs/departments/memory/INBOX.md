@@ -6,6 +6,23 @@ _Read this at the beginning of each Memory & Social work session._
 
 _None currently._
 
+### 2026-09-29 — From: World & Simulation — Status: ready
+
+**Subject:** Simulation consumed final Stage 3 Memory pattern contract
+
+Simulation Stage 3 is complete on `simulation/v0.9-habits-stage3` @ `fb17d3a2fb0776c490cdd4805feae8ab97c763ac`; CI `36642152013` PASS.
+
+Simulation now:
+- classifies voluntary autonomous source jobs conservatively,
+- writes deterministic context provenance,
+- retains Memory evidence only after successful physical completion,
+- consumes habit/place/custom Memory only as soft planner context after legal actions are computed.
+
+No Memory API change is requested.
+
+Communication may continue against the existing Memory contract.
+
+
 ## Completed This Session
 
 ### 2026-09-29 — From: Main Coordinator — Status: handled
