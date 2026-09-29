@@ -218,3 +218,84 @@ def sync_practice_memory() -> None:
         sync_practice_memory_in_conn(conn)
         ensure_causal_memory_schema_in_conn(conn)
         conn.commit()
+
+
+
+def practice_recall_snapshot_for(
+    citizen_id: str,
+    *,
+    activity: str | None = None,
+    now_minute: int | None = None,
+    limit: int = 8,
+) -> list[dict[str, Any]]:
+    """
+    Return bounded actively recalled physical practice for one citizen.
+
+    This is the model-facing bridge for self-assessment/teaching. It preserves
+    Memory aging/salience instead of exposing the full Simulation practice ledger.
+    """
+    from .causal_memory import causal_recall_snapshot
+
+    sync_practice_memory()
+    filters = {"activity": activity} if activity else None
+    recalled = causal_recall_snapshot(
+        citizen_id,
+        now_minute=now_minute,
+        facet_filters=filters,
+        limit=max(1, min(int(limit) * 3, 24)),
+    )
+
+    result: list[dict[str, Any]] = []
+    seen_practice_ids: set[str] = set()
+    for item in recalled:
+        practice_ids = [
+            str(facet["value"])
+            for facet in item.get("facets") or []
+            if str(facet.get("kind")) == "practice_event"
+        ]
+        if not practice_ids:
+            continue
+
+        fresh_ids = [pid for pid in practice_ids if pid not in seen_practice_ids]
+        if not fresh_ids:
+            continue
+        seen_practice_ids.update(fresh_ids)
+
+        clean = dict(item)
+        clean["practice_event_ids"] = fresh_ids
+        # Internal ranking machinery is intentionally omitted from this surface.
+        clean.pop("recall_score", None)
+        clean.pop("reinforcement_count", None)
+        clean.pop("matching_facets", None)
+        result.append(clean)
+        if len(result) >= max(1, min(int(limit), 16)):
+            break
+
+    return result
+
+
+def practice_recall_context_for(
+    citizen_id: str,
+    *,
+    activity: str | None = None,
+    now_minute: int | None = None,
+    limit: int = 6,
+) -> str:
+    memories = practice_recall_snapshot_for(
+        citizen_id,
+        activity=activity,
+        now_minute=now_minute,
+        limit=limit,
+    )
+    if not memories:
+        return "- no actively recalled source-backed physical practice matching this subject"
+
+    lines: list[str] = []
+    for item in memories:
+        truth = "Verified" if item.get("verification") == "verified" else "Remembered/claim"
+        lines.append(
+            f"- {truth}, {item.get('sim_label')} "
+            f"({item.get('source_type')} #{item.get('source_id')}): "
+            f"{' '.join(str(item.get('summary') or '').split())[:360]}"
+        )
+    return "\n".join(lines)[:1800]
