@@ -3712,3 +3712,102 @@ input:focus, textarea:focus { border-color: var(--accent); }
   }
 }
 
+
+
+/* v0.9 Stage 2 continuity: factual competence effects + guided-practice history */
+.continuity-practice-families,
+.continuity-guided-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 9px;
+}
+
+.continuity-practice-family,
+.continuity-guided-row {
+  padding: 9px 10px;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px;
+  background: rgba(0,0,0,.07);
+}
+
+.continuity-practice-head,
+.continuity-guided-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.continuity-practice-head strong,
+.continuity-guided-row strong {
+  color: var(--text);
+  font-size: 11px;
+  text-transform: capitalize;
+}
+
+.continuity-practice-head span {
+  color: var(--muted);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.continuity-practice-family > small,
+.continuity-guided-row small {
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.35;
+}
+
+.continuity-measured-effect {
+  margin: 7px 0 0;
+  padding-top: 7px;
+  border-top: 1px solid var(--line-soft);
+  color: #cfd9e3;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.continuity-measured-effect b {
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.continuity-guided-row > span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.continuity-guided-row .status-chip {
+  flex: 0 0 auto;
+}
+
+.continuity-memory-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 7px 0 0;
+}
+
+.continuity-memory-context span {
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 999px;
+  padding: 3px 6px;
+  color: var(--muted);
+  background: rgba(255,255,255,.025);
+  font-size: 7px;
+  line-height: 1.2;
+  text-transform: capitalize;
+}
+
+@media (max-width: 640px) {
+  .continuity-practice-head,
+  .continuity-guided-row {
+    align-items: start;
+  }
+
+  .continuity-practice-head {
+    display: grid;
+  }
+}
