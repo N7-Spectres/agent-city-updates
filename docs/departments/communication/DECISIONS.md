@@ -706,3 +706,20 @@ Plan existence is intent continuity, not competence.
 Visitor familiarity or importance requires source-backed retained encounters.
 
 Account ownership, UI usage, coordinator status, or admin access are never social evidence.
+
+## v0.9 Stage 1 Session Close Integration Invariants
+
+Coordinator integration must preserve all of these together:
+
+- own practice may support self-description but never titles, ranks, classes, XP, or guaranteed competence
+- another citizen's recognition remains speaker-perspective-only and may not read hidden/global practice counts
+- repeated Memory reinforcement changes recall priority only, never verification status
+- self-assessment remains interpretation unless Simulation later measures objective competence
+- conversation/explanation/teaching creates no learner practice or skill transfer
+- canonical plan state remains Simulation-owned and read-only to Communication
+- visitor familiarity/importance requires real source-backed encounters
+- `GET /api/continuity-language/{citizen_id}` is an evidence/debug surface, not a skill/reputation API
+- Memory owns causal recall; Simulation owns plan/practice truth; Communication owns perspective-safe language
+- all v0.8 grounding/provenance boundaries and v0.7 raw-exchange-first reliability remain intact
+
+If integration turns practice counts into a universal social ranking or lets one citizen see another's hidden practice history, the v0.9 Communication contract has been violated.
