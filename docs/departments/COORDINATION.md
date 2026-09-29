@@ -20,15 +20,18 @@ _None._
 
 ### WAITING
 
-- [World & Simulation] v0.9 Stage 1 persistent-plan / practice-event runtime implementation waits on Memory's causal retrieval/source contract; architecture audit may proceed now.
-- [Communication & Perception] v0.9 recognition / self-assessment / teaching runtime work waits on Memory + Simulation contracts; language/source audit may proceed now.
-- [Assets & Interface] v0.9 continuity UI runtime work waits on safe read models from Memory + Simulation + Communication; UI/read-model audit may proceed now.
+- [Communication & Perception] v0.9 recognition / self-assessment / teaching runtime work has Memory's causal recall contract; final runtime work still waits on Simulation's canonical plan/practice event contract.
+- [Assets & Interface] v0.9 continuity UI runtime work has Memory's causal contract but still waits on safe plan/self-assessment read models from Simulation + Communication; UI/read-model audit may proceed now.
 
 ### READY
 
-- [Memory & Social] v0.9 Stage 1 Causal Memory Spine — first implementation dependency. Read `docs/V090_CIVILIZATION_CONTINUITY_DOCTRINE.md` and the Memory INBOX packet.
+- [World & Simulation] Memory v0.9 Stage 1 persistent-plan source/retrieval contract is ready in `docs/departments/memory/V090_CAUSAL_MEMORY_CONTRACT.md`; Simulation may proceed with canonical plan lifecycle implementation.
+- [Communication & Perception] Memory v0.9 Stage 1 perspective-safe causal recall contract is ready; design audit may proceed while waiting on Simulation practice/plan events.
+
 
 ### REVIEW
+
+- [Memory & Social] v0.9 Stage 1 Causal Memory Spine complete on `memory/v0.9-causal-memory-stage1` @ `1394261f72d4fc5df7d41e065cd157350fee2785`; CI `36598971733` passed the full v0.4-v0.8.7 matrix + v0.9 Memory smoke.
 
 _None._
 
@@ -581,3 +584,36 @@ Global anti-patterns:
 
 Stage 1 completion target:
 a citizen can resume, revise, pause, abandon, or complete a meaningful persistent plan after unrelated actions/time have passed, with the current reason traceable to real retained history and without leaking that continuity to citizens who never acquired it.
+
+
+## Memory v0.9 Stage 1 Integration Locks
+
+Coordinator and downstream implementation must preserve:
+
+1. `memory_events` remains the durable source-backed archive.
+2. `memory_event_facets` is an index/projection only; it does not create truth, identity, skill, habit, or reputation.
+3. Active recall is bounded and computed separately from the durable archive.
+4. Aging may reduce recall priority but must never rewrite/delete source history.
+5. Reinforcement comes from multiple distinct related Memory events and affects retrieval priority only.
+6. Repeated unverified claims remain unverified regardless of reinforcement count.
+7. Recall is citizen-scoped; no global continuity packet exists.
+8. Persistent plans should store stable initiating/revision `memory_event_id` references.
+9. Old plan reasons may be pinned into active recall so they remain accessible after unrelated time/work.
+10. Pinning preserves access, not obligation; plans remain revisable/pausable/abandonable.
+11. Plan reason text alone is not causal evidence; the source Memory IDs are.
+12. Preferred causal chain is `real source → memory_event_id → plan/source link → bounded recall → interpretation → intent → Simulation validation`.
+13. No roles/classes/specialization fields may be introduced as behavior causes.
+14. No skill/competence gain may come from conversation, agreement, proximity, UI, or concept art.
+15. Internal recall score/reinforcement count must not become a citizen-visible reputation/memory-strength/identity metric.
+16. Self-assessment and social recognition remain future perspective layers backed by this source history.
+17. Hidden Simulation truth must never enter Memory merely because it exists.
+18. Preserve `tests/smoke_v090_memory_stage1.py` in v0.9 Stage 1 integration testing.
+
+### Memory v0.9 Stage 1 API
+
+Internal Python interfaces:
+- `causal_recall_snapshot(...)`
+- `causal_recall_context_for(...)`
+- `link_memory_event(memory_event_id, facet_kind, facet_value)`
+
+No public HTTP recall-score API is part of Stage 1.
