@@ -18,6 +18,46 @@ Information law:
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
 
+## v0.9 Stage 1 Integrated Baseline
+
+**Status: integrated and green; not yet published as v0.9.0**
+
+- branch: `release-v0.9.0-stage1-integration`
+- immutable green head: `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`
+- combined CI: `36615685005` — PASS
+- VERSION on integration branch: `0.9.0` for test/release-line preparation only
+- `update.json` remains on the published v0.8.7 runtime
+
+Integrated:
+- Memory causal archive / bounded active recall
+- persistent citizen plans + plan lifecycle/source links
+- canonical physical practice events
+- recall-bound self-assessment/teaching language
+- perspective-safe recognition without global reputation
+- UI-safe remembered-event projection
+- citizen-sheet Continuity UI:
+  - Ongoing plans
+  - Why this exists
+  - Plan history
+  - Recorded practice
+  - Relevant memories
+  - explicitly separated Citizen Interpretation layer
+- all v0.4 through v0.8.7 regressions remain green
+- all four v0.9 Stage 1 smokes pass together
+
+Integration corrections discovered by combined CI:
+- standalone Simulation smoke expected fallback Memory wording; integrated assertion now verifies source-linked causal recall
+- Communication isolated test doubles were expanded to match the real integrated Continuity/Memory interfaces
+- no runtime authority rules were weakened to make tests pass
+
+Stage 1 does **not** yet add:
+- competence modifiers
+- teaching skill transfer
+- habits/routines
+- place attachment
+- customs/culture
+- authored roles/classes/reputation
+
 ## Next Major Milestone — v0.9 Civilization Continuity
 
 The v0.9 architecture doctrine is now locked in:
