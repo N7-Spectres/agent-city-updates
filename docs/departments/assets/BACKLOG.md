@@ -101,3 +101,82 @@ For the next character-sheet / Home-state polish pass:
 - character-sheet maintenance bars may be slightly wider because the sheet has more space, but should still remain visually quiet
 - avoid stacking multiple large colored bars in one card
 - prefer one small visual cue per metric over decorative gauges
+
+
+## v0.9 Continuity UI — Audit Complete
+
+Master audit:
+`docs/departments/assets/V090_CONTINUITY_UI_AUDIT.md`
+
+### Ready after coordinator Stage 1 integration
+
+Citizens → Continuity first slice:
+
+1. **Plans**
+   - open/paused plans
+   - next step
+   - unresolved question
+   - transition history
+
+2. **Recorded Practice**
+   - factual Simulation events
+   - literal activity counts/grouping
+   - completed/failed rows
+   - no skill/proficiency UI
+
+### Waiting on Memory UI projection
+
+Relevant Memories / Why this plan exists.
+
+Assets request is in Memory INBOX.
+
+Need bounded owner-scoped display records with:
+- memory event ID
+- source type/ID/role
+- event kind
+- time
+- summary
+- verification/status
+- pinned-by-plan
+- safe display facets
+
+Must omit:
+- recall score
+- reinforcement count
+- hidden salience/importance ranking
+- global aggregation
+
+### Waiting on final Communication compatibility
+
+Self-reflection and recognition presentation should bind only after Communication consumes Memory's recall-bound practice interface and stops exposing reinforcement count in natural-language evidence.
+
+Do not bind production UI to the pre-patch continuity-language contract.
+
+### Future Stage 2/3 UI dependencies
+
+Do not implement until explicit safe read models exist:
+- observer-specific recognition projection
+- citizen-specific place-meaning projection
+- habit projection
+- custom/tradition projection
+
+### Non-goals
+
+- no Skills page
+- no reputation page
+- no class/specialization labels
+- no XP
+- no level bars
+- no favorite-place badges
+- no friend/trust badges
+- no tradition slots
+- no raw-event-count inference of continuity
+
+## Current v0.9 Assets Blockers
+
+Runtime implementation is waiting on:
+1. coordinator combined v0.9 Stage 1 integration base
+2. Memory UI-safe remembered-event projection
+3. final Communication recall-bound compatibility for self-reflection/recognition
+
+The design audit itself is complete.
