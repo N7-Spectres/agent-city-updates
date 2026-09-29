@@ -489,3 +489,19 @@ Need exact authoritative fields for:
 - [ ] Communication must route model-facing self-assessment/teaching through Memory active practice recall
 - [ ] Communication must remove numeric reinforcement count from natural-language recognition evidence
 - [ ] coordinator integration waits until those two compatibility fixes are green
+
+
+### Final v0.9 Stage 1 handoff
+
+- [x] causal Memory spine complete
+- [x] persistent-plan Memory source contract delivered
+- [x] Simulation plan/practice contract consumed
+- [x] canonical practice retention/dedupe complete
+- [x] recall-bound practice interpretation API complete
+- [x] full Memory regression matrix green in CI `36607115487`
+- [x] Communication compatibility issue identified and routed to Communication INBOX
+- [x] COORDINATION blocks integration on that semantic fix
+- [x] no remaining Memory-owned Stage 1 implementation task
+- [ ] Communication patches self-assessment/teaching to use Memory active recall
+- [ ] Communication removes numeric reinforcement count from model-facing recognition
+- [ ] coordinator combines Memory + Simulation + corrected Communication and runs all v0.9 Stage 1 smokes
