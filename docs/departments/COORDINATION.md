@@ -20,6 +20,8 @@ _None._
 
 ### WAITING
 
+- [Assets & Interface] continuity runtime UI waits on coordinator Stage 1 integration, Memory UI-safe remembered-event projection, and final Communication recall-bound compatibility; design audit itself is complete
+
 - [Communication & Perception] final v0.9 model-facing self-assessment/teaching must consume Memory active practice recall instead of the full durable `practice_events` ledger, and must stop exposing numeric `reinforcement_count` in natural-language evidence.
 - [Coordinator / v0.9 Stage 1 Integration] waits on the Communication recall-bound compatibility patch, then combines Memory + Simulation + Communication and runs all three v0.9 smokes with the full regression matrix.
 
@@ -28,6 +30,8 @@ _None._
 - [Assets & Interface] Memory causal contract and Simulation safe continuity read model are both ready; continuity UI/read-model audit may proceed.
 
 ### REVIEW
+
+- [Assets & Interface] v0.9 continuity UI/read-model audit complete; durable design at `docs/departments/assets/V090_CONTINUITY_UI_AUDIT.md`; no runtime UI started before safe integrated contracts
 
 - [Memory & Social] v0.9 Stage 1 Causal Memory Spine + canonical practice retention + recall-bound practice interpretation API complete on `memory/v0.9-causal-memory-stage1` @ `29a5b896b9bdcb7cb833f5bfaf25aabfac9f26d5`; CI `36607115487` passed the full v0.4-v0.8.7 matrix + expanded v0.9 Memory smoke.
 - [World & Simulation] v0.9 Stage 1 Persistent Plans + Practice Evidence complete on `simulation/v0.9-continuity-stage1` @ `6b027708512671d8c851723fb900cfa1e0fcac73`; final CI `36603570434` passed the full v0.4-v0.8.7 matrix + v0.9 Simulation smoke.
