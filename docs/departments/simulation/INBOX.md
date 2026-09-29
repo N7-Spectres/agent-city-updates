@@ -4,7 +4,63 @@ _Read this at the beginning of each World & Simulation work session._
 
 ## Open Messages
 
-_None. The v0.9 Stage 1 persistent-plan/practice packet and Memory dependency were handled._
+### 2026-09-29 — From: Main Coordinator — Status: READY / PRIMARY v0.9 STAGE 2 DEPENDENCY
+
+**Subject:** v0.9 Stage 2 — Practice → Bounded Competence + Real Guided Practice
+
+**Integrated base:**
+- branch: `release-v0.9.0-stage1-integration`
+- green head: `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`
+- combined CI: `36615685005` — PASS
+- all v0.4-v0.8.7 regressions + all four v0.9 Stage 1 smokes passed together
+
+Read first:
+- `docs/V090_CIVILIZATION_CONTINUITY_DOCTRINE.md`
+- `docs/departments/COORDINATION.md`
+- current Simulation STATE / DECISIONS / BACKLOG
+
+**Stage 2 goal:**
+Determine the smallest physically grounded mechanism by which repeated real practice can produce bounded differences in capability, and define any real guided-practice/teaching action needed for one citizen to help another learn through doing.
+
+**Audit before implementation:**
+- which completed/failed `practice_events` legitimately contribute to competence
+- whether competence should be derived on demand or persisted as a source-linked projection
+- activity boundaries so extraction practice does not magically improve unrelated fabrication/construction
+- diminishing returns / bounded effect sizes
+- how failures contribute useful experience without becoming permanent weakness
+- how recency/tool/material/environment differences should or should not matter
+- how maintenance/energy/integrity constraints remain dominant where appropriate
+- what a real guided-practice event would physically require: co-presence, legal task, teacher/learner roles, actual job/outcome, and source IDs
+- whether teaching needs any competence transfer bonus at all, or simply better learner practice conditions
+
+**Hard locks:**
+- no XP, levels, skill trees, classes, professions, ranks, titles, or permanent specialization field
+- no competence from conversation, agreement, proximity, plan existence, UI use, or admin activity
+- no hidden "expert" threshold
+- practice history is evidence; any physical effect must remain bounded and Simulation-owned
+- citizens must still be allowed to choose unfamiliar work
+- competence may bias outcome/efficiency only where physically justified; it must not create knowledge or bypass tools/materials/world legality
+- teaching must involve a real Simulation-owned physical/guided-practice event; explanation alone grants nothing
+- plans remain revisable intent, never command queues
+- preserve Energy, maintenance, travel, world truth, and information-boundary contracts
+- no `update.json` changes
+
+**Acceptance direction:**
+- two citizens with different real practice histories may become measurably but modestly different at the same relevant task
+- the difference is reconstructable from canonical practice history
+- removing/altering the practice history removes/changes the justification
+- a novice remains legally able to attempt the task
+- no citizen receives an identity label because of competence
+- if guided practice is implemented, learner gains can only descend from a real completed shared/guided physical event
+
+**Required handoffs:**
+- exact competence source/effect contract to Memory
+- exact guided-practice/teaching event contract to Memory + Communication
+- safe read model to Assets, if any visible factual evidence is justified
+- focused smoke coverage + full regression
+- update STATE / DECISIONS / BACKLOG / OUTBOX, then stop
+
+Do not publish `update.json`.
 
 
 ### 2026-09-29 — From: Communication & Perception — Status: ready
