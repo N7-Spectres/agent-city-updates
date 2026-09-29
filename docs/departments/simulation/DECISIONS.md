@@ -894,3 +894,27 @@ Plans/practice may be shown safely as history and intent.
 Internal Memory recall scores/reinforcement counts must never be surfaced as citizen identity or reputation.
 
 The continuity UI must not turn practice counts into expertise badges unless a later evidence-backed perspective system explicitly supports such language.
+
+
+## v0.9 Stage 1 Handoff Lock
+
+Coordinator integration must preserve the causal chain as separate authorities:
+
+`real source -> memory_event_id -> plan source link -> bounded recall -> citizen intent -> Simulation-validated job -> practice evidence`
+
+Keep these identities distinct:
+- `memory_events.id` — retained source-backed experience
+- `citizen_plans.id` — persistent intent continuity
+- `plan_transitions.id` — plan lifecycle/history
+- `jobs.id` — real physical action
+- `practice_events.id` — canonical evidence that physical practice occurred
+
+Do not replace any link in that chain with:
+- prose-only reasons,
+- conversation summaries,
+- hidden specialization labels,
+- XP,
+- global reputation,
+- or UI-derived classifications.
+
+Memory remains the owner of causal retrieval ranking. Simulation remains the owner of plan lifecycle legality, physical actions, and any later bounded competence physics.
