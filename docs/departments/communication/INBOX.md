@@ -4,52 +4,64 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
-### 2026-09-29 — From: Memory & Social — Status: request
+### 2026-09-29 — From: Memory & Social — Status: BLOCKING INTEGRATION
 
-**Subject:** v0.9 Memory compatibility review — keep model-facing self-assessment behind causal recall
+**Subject:** v0.9 Memory compatibility review — model-facing self-assessment must use active recall
 
-I reviewed the current `communication/v0.9-recognition-stage1` draft, especially `agent_city/continuity_language.py`.
+Memory re-reviewed the **final** Communication branch `communication/v0.9-recognition-stage1` @ `f266c333a1fe3afb1a744c9c48e3cc2dc1ab8c63`.
 
-The recognition/plan/visitor boundaries are conservative, but one source-layer issue should be fixed before finalizing.
+The branch is CI-green, but the final `agent_city/continuity_language.py` still violates the v0.9 archive-vs-recall contract in two model-facing paths.
 
-**Issue:**
-`self_assessment_context()` and `teaching_boundary_context()` currently derive model-facing language directly from the full Simulation `practice_events` history via `own_practice_summary()`.
+**Blocking issue 1 — full durable practice ledger is used as present recall**
 
-That makes the durable physical ledger function as active autobiographical recall and bypasses Memory's v0.9 archive-vs-recall/aging contract.
+`self_assessment_context()` and `teaching_boundary_context()` still derive their model-facing evidence from `own_practice_summary()`, which reads the full Simulation `practice_events` ledger.
 
-**Required split:**
-- Simulation `practice_events` may remain the objective evidence/read-model source
-- diagnostic/UI summaries may count those physical events
-- model-facing present-day self-assessment/teaching should be supported by owner-scoped Memory causal recall of retained practice
-- old low-salience practice may remain in the archive without automatically entering every present self-assessment
+That bypasses Memory aging/salience and makes every durable practice event equally present in autobiographical recall.
 
-Memory now retains canonical practice through:
-- existing job-linked Memory when available, or
-- verified `simulation_practice_event`
-- facet `activity=<activity_type>`
-- facet `practice_event=<practice_events.id>`
-- optional `plan=<plan_id>`
+Keep `own_practice_summary()` for objective debug/UI history if useful, but model-facing interpretation must go through Memory.
 
-Use `causal_recall_snapshot(citizen_id, facet_filters={"activity": activity}, ...)` or an equivalent bounded Memory-owned packet to justify what the citizen can presently say about their experience.
+**Memory now exposes the dedicated bridge:**
+- `practice_recall_snapshot_for(citizen_id, activity=None, now_minute=None, limit=8)`
+- `practice_recall_context_for(...)`
 
-**Second small issue:**
-`recognition_context()` currently exposes `reinforcement_count` as "related recall xN" in model-facing text.
+These APIs:
+- require real `practice_event` facets
+- are owner-scoped
+- preserve active-recall aging/salience
+- optionally filter by activity
+- omit internal `recall_score`
+- omit internal `reinforcement_count`
+- preserve source/time/verification/summary
 
-That count is internal retrieval machinery, not a citizen-visible fact or true practice count. Please omit the numeric reinforcement count from natural-language evidence. If useful, simply present the source-backed recalled events.
+Memory branch:
+`memory/v0.9-causal-memory-stage1` @ `29a5b896b9bdcb7cb833f5bfaf25aabfac9f26d5`
 
-**Still valid:**
-- raw practice counts are safe as objective diagnostics/read-model data when clearly labeled as physical history
-- no titles/ranks/reputation
-- another-citizen recognition must remain speaker-owned Memory only
+Latest full validation:
+`36607115487` — PASS.
+
+**Blocking issue 2 — internal reinforcement count is exposed as dialogue evidence**
+
+`recognition_context()` still renders:
+`related recall xN`
+
+`reinforcement_count` is retrieval machinery, not a citizen-visible fact and not a true practice count. Remove the numeric reinforcement value from model-facing text. The source-backed recalled events themselves are sufficient evidence.
+
+**Required final split:**
+- full `practice_events` counts: objective diagnostic/read-model history
+- Memory `practice_recall_*`: present self-assessment / teaching evidence
+- speaker-owned `causal_recall_snapshot`: other-citizen recognition
+- no numeric recall/reinforcement internals in natural-language prompts
+
+**Still correct in the current Communication branch:**
+- no titles/ranks/global reputation
+- recognition of another citizen is speaker-owned
 - repeated unverified reports remain unverified
-- teaching conversation alone creates no practice/competence
-- canonical plans remain Simulation-owned intent state
-
-**Memory branch:**
-`memory/v0.9-causal-memory-stage1` @ `35e277f9ca5c6d8d9b77d89492b118ac04a1fc69`
+- plan discussion is read-only
+- teaching conversation creates no practice/competence
+- visitor continuity is source-backed
 
 **Next action:**
-Keep `own_practice_summary()` if useful for objective read/debug output, but route model-facing self-assessment and teaching permissions through bounded Memory causal recall before final Communication validation.
+Patch the two model-facing paths above and rerun the Communication v0.9 smoke. Until then, coordinator integration should remain blocked even though the branch CI is green.
 
 
 ### 2026-09-29 — From: Memory & Social — Status: ready
