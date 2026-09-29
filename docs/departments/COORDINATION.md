@@ -16,33 +16,63 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-_None._
+- [Memory & Social] v0.9 Stage 3 — define the source-backed substrate for repeated voluntary habits, citizen-specific place meaning, and socially transmitted customs.
 
 ### WAITING
 
-- [Coordinator / v0.9 Stage 2 Final Integration] Assets runtime UI is complete; merge PR #26 into the assembled Stage 2 line and rerun the complete regression matrix including `tests/smoke_v090_assets_stage2.py`.
+- [World & Simulation] Stage 3 runtime behavior waits on Memory's repeated-pattern/place/custom evidence contract; planner/legality audit may proceed in parallel.
+- [Communication & Perception] Stage 3 runtime language/transmission waits on Memory's owner-scoped evidence contract; dialogue audit may proceed in parallel.
+- [Assets & Interface] Stage 3 runtime presentation waits on final Memory + Simulation + Communication safe read models; UI audit may proceed in parallel.
+- [Coordinator / v0.9 Stage 3 Integration] waits on department Stage 3 completion before final v0.9 assembly/release review.
 
 ### READY
 
+- [Memory & Social] Stage 3 primary packet is in Memory INBOX, based on the definitive green Stage 2 runtime.
+- [World & Simulation] Stage 3 audit packet is in Simulation INBOX.
+- [Communication & Perception] Stage 3 audit packet is in Communication INBOX.
+- [Assets & Interface] Stage 3 audit packet is in Assets INBOX.
+
 ### REVIEW
 
-- [Assets & Interface] v0.9 Stage 2 runtime UI complete on `assets/v0.9-stage2-continuity-ui` @ `224c8eb526dcf6bdfeb4e4457ef68727083b3a31`; PR #26 ready; full regression `36634754010` PASS
-
-- [Assets & Interface] v0.9 Stage 2 competence/guided-practice presentation audit complete; literal practice evidence remains primary, measured duration effect is text-only, guided practice remains event history, no RPG/mentor/rank UI.
-- [Communication & Perception] v0.9 Stage 2 guided-practice/questions/competence-safe language complete on `communication/v0.9-guided-practice-stage2` @ `6af2f6cb8b9fe3d44b30c9dad2fc6e54926b09cf`; CI `36627237487` PASS.
-- [Memory & Social] v0.9 Stage 2 experience/teaching Memory complete on `memory/v0.9-experience-stage2` @ `d4e91866e41eb6fd33a4459fc9bd057ac28a6ba5`; CI `36621525829` PASS.
-- [World & Simulation] v0.9 Stage 2 competence/guided-practice complete on `simulation/v0.9-competence-stage2` @ `667f4659aeef9a9658d7e08f4ba7c54e267a38f9`; CI `36618030044` PASS.
+_None._
 
 ### DONE
 
-- [Coordinator] assembled Simulation + Memory + Communication Stage 2 on `release-v0.9.0-stage2-integration` @ `ac548b06ea8a88a66a763902ab01a6567c3a2e79`; combined CI `36633452433` PASS.
-
+- [Coordinator] v0.9 Stage 2 fully integrated on `release-v0.9.0-stage2-integration` @ `f680275a78b9da71a43f3c79217f292796b7843d`; definitive CI `36637062562` PASS across v0.4-v0.8.7, all four Stage 1 smokes, and all four Stage 2 smokes.
+- [Assets & Interface] v0.9 Stage 2 runtime UI merged from PR #26 and validated in the definitive combined matrix.
+- [Communication & Perception] v0.9 Stage 2 guided-practice/questions/competence-safe language integrated.
+- [Memory & Social] v0.9 Stage 2 experience/teaching Memory integrated.
+- [World & Simulation] v0.9 Stage 2 bounded competence/guided-practice integrated.
 - [Coordinator] v0.9 Stage 1 integrated on `release-v0.9.0-stage1-integration` @ `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`; combined CI `36615685005` PASS.
-- [Memory & Social] v0.9 Stage 1 causal archive / bounded recall / practice retention integrated.
-- [World & Simulation] v0.9 Stage 1 persistent plans / transitions / practice events integrated.
-- [Communication & Perception] v0.9 Stage 1 self-assessment/recognition boundaries integrated.
-- [Assets & Interface] v0.9 Stage 1 continuity citizen-sheet runtime integrated.
 - [Coordinator] v0.9 Civilization Continuity doctrine locked.
+
+## v0.9 Stage 3 Dependency Lock
+
+Definitive Stage 2 base:
+- branch: `release-v0.9.0-stage2-integration`
+- green head: `f680275a78b9da71a43f3c79217f292796b7843d`
+- combined CI: `36637062562` — PASS
+
+Stage 3 order:
+1. Memory defines source-backed repeated-pattern, place-meaning, and social-custom evidence/provenance.
+2. Simulation/Planner consumes only safe owner-scoped pattern evidence as a soft choice influence among already-legal actions; it never turns a habit into a command or physical bonus.
+3. Communication may discuss/transmit patterns only through legitimate information paths; saying a custom exists cannot create it.
+4. Assets renders only safe evidence/perspective/interpretation surfaces and never invents favorite-place, habit, or tradition badges.
+5. Coordinator integrates Stage 3, reruns the entire matrix, and only then reviews v0.9.0 release readiness.
+
+Global Stage 3 locks:
+- **Persistent behavior must have a traceable history.**
+- repeated actions caused by survival/energy/maintenance constraints do not automatically become habits
+- one repeated action does not create a personality trait, role, preference, or identity
+- habits remain soft/revisable historical tendencies, never command queues
+- place meaning is citizen-scoped remembered significance, not physical truth and not automatically a favorite place
+- customs require repetition plus social transmission/observation across multiple participants or observers
+- one private habit is not culture
+- talking about a custom does not make it true
+- no universal culture/reputation score
+- no authored routines, friendship labels, profession labels, or tradition templates
+- Stage 3 does not add v1.0 comparison/inquiry/general preference machinery
+- no department publishes `update.json`
 
 ## v0.9 Stage 2 Dependency Lock
 
