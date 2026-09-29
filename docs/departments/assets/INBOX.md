@@ -4,7 +4,39 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ## Open Messages
 
-_None requiring immediate Assets implementation._
+### 2026-09-29 — From: Main Coordinator — Status: WAITING / PRESENTATION AUDIT ALLOWED
+
+**Subject:** v0.9 Stage 2 — Competence + Guided-Practice Presentation Boundaries
+
+**Integrated Stage 1 base:**
+- `release-v0.9.0-stage1-integration` @ `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`
+- combined CI `36615685005` — PASS
+
+**Important update:**
+The Stage 1 runtime gate is now cleared. The integrated citizen sheet already contains Ongoing Plans, Why This Exists, Plan History, Recorded Practice, Relevant Memories, and separated Evidence / Remembered Perspective / Citizen Interpretation layers.
+
+**Audit now:**
+- how a future bounded Simulation competence effect could be shown, if it should be shown at all
+- how to show guided-practice history as factual events rather than "training level"
+- how to distinguish measured physical effect from citizen self-assessment
+- how to show teacher/learner source history without assigning mentor/expert identity
+- whether literal practice counts remain sufficient and safer than any competence visualization
+
+**Runtime dependency:**
+Do not add Stage 2 competence/teaching UI until Simulation, Memory, and Communication hand off final safe read models.
+
+**Hard locks:**
+- no XP bars
+- no proficiency meters unless a future physical quantity genuinely requires one and coordinator approves it
+- no skill levels/tiers
+- no expert/trainer/mentor/class/rank badges
+- no universal reputation
+- do not derive competence from event count in frontend
+- "show the trail, not the title"
+- no `update.json` changes
+
+**Expected deliverable:**
+Presentation/read-model audit and explicit upstream dependencies. Runtime implementation waits for coordinator handoff of integrated Stage 2 contracts.
 
 The v0.9 continuity UI/read-model audit is complete:
 `docs/departments/assets/V090_CONTINUITY_UI_AUDIT.md`
