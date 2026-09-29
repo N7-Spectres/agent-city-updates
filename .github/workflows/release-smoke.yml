@@ -123,3 +123,6 @@ jobs:
 
       - name: Run v0.9 Stage 1 recall-bound Communication smoke
         run: python tests/smoke_v090_communication_stage1.py
+
+      - name: Run v0.9 Stage 1 continuity Assets/UI smoke
+        run: python tests/smoke_v090_assets_stage1.py
