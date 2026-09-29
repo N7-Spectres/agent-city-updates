@@ -20,18 +20,16 @@ _None._
 
 ### WAITING
 
-- [Coordinator / v0.9 Stage 1 Integration] combine Memory causal spine + Simulation plan/practice substrate + Communication recognition/teaching layer, preserve all ownership boundaries, and run all three v0.9 smokes with the full regression matrix.
+- [Communication & Perception] final v0.9 model-facing self-assessment/teaching must consume Memory active practice recall instead of the full durable `practice_events` ledger, and must stop exposing numeric `reinforcement_count` in natural-language evidence.
+- [Coordinator / v0.9 Stage 1 Integration] waits on the Communication recall-bound compatibility patch, then combines Memory + Simulation + Communication and runs all three v0.9 smokes with the full regression matrix.
 
 ### READY
 
-- [Communication & Perception] v0.9 recognition/self-assessment/teaching language layer ready on `communication/v0.9-recognition-stage1` @ `f266c333a1fe3afb1a744c9c48e3cc2dc1ab8c63`; CI `36607321183` passed the full v0.4-v0.8.7 matrix + Communication v0.9 smoke.
 - [Assets & Interface] Memory causal contract and Simulation safe continuity read model are both ready; continuity UI/read-model audit may proceed.
 
 ### REVIEW
 
-- [Communication & Perception] v0.9 perspective-safe recognition, evidence-backed self-assessment, read-only plan discussion, visitor continuity, and teaching-without-skill-transfer boundaries complete.
-
-- [Memory & Social] v0.9 Stage 1 Causal Memory Spine + canonical practice retention complete on `memory/v0.9-causal-memory-stage1` @ `35e277f9ca5c6d8d9b77d89492b118ac04a1fc69`; CI `36606247505` passed the full v0.4-v0.8.7 matrix + expanded v0.9 Memory smoke.
+- [Memory & Social] v0.9 Stage 1 Causal Memory Spine + canonical practice retention + recall-bound practice interpretation API complete on `memory/v0.9-causal-memory-stage1` @ `29a5b896b9bdcb7cb833f5bfaf25aabfac9f26d5`; CI `36607115487` passed the full v0.4-v0.8.7 matrix + expanded v0.9 Memory smoke.
 - [World & Simulation] v0.9 Stage 1 Persistent Plans + Practice Evidence complete on `simulation/v0.9-continuity-stage1` @ `6b027708512671d8c851723fb900cfa1e0fcac73`; final CI `36603570434` passed the full v0.4-v0.8.7 matrix + v0.9 Simulation smoke.
 
 ### DONE
@@ -633,6 +631,8 @@ Coordinator and downstream implementation must preserve:
 21. Otherwise one verified `simulation_practice_event` may be created for the citizen participant.
 22. Practice facets improve recall only; they do not create XP, competence, role/class/specialization, title, or reputation.
 23. Completed and failed eligible physical practice are both valid historical evidence; failure is not a permanent trait.
+24. Model-facing self-assessment/teaching must consume `practice_recall_snapshot_for` / `practice_recall_context_for` or equivalent Memory active recall, not the full durable practice ledger.
+25. Internal `recall_score` and `reinforcement_count` are retrieval machinery and must not appear as citizen-visible natural-language evidence.
 
 ### Memory v0.9 Stage 1 API
 
