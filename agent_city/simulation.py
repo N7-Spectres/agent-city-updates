@@ -16,6 +16,11 @@ from .exploration import (
     start_local_move as start_local_move_job,
 )
 from .talk_diagnostics import concise_failure_code_from_conn
+from .continuity import (
+    attach_job_to_plan,
+    record_plan_job_outcome,
+    record_practice_event_for_job,
+)
 
 BASE_CARRY_CAPACITY = 20.0
 RETURN_ENERGY_MARGIN = 5.0
@@ -1320,6 +1325,18 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
         material = chosen.get("material")
         amount = chosen.get("amount")
         intent_reason = str(request.get("reason") or "").strip()[:500] or None
+        plan_id = request.get("plan_id")
+        if plan_id is not None:
+            plan = conn.execute(
+                """
+                SELECT id FROM citizen_plans
+                WHERE id = ? AND owner_id = ? AND status = 'active'
+                """,
+                (int(plan_id), citizen_id),
+            ).fetchone()
+            if not plan:
+                return False, "The referenced plan is not an active plan owned by this citizen."
+            plan_id = int(plan_id)
 
         duration = 30
         detail = ""
@@ -1327,7 +1344,7 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
         experiment_method = None
 
         if action == "local_move":
-            ok, _, message = start_local_move_job(
+            ok, local_job_id, message = start_local_move_job(
                 conn,
                 citizen_id,
                 float(chosen["target_x_m"]),
@@ -1336,16 +1353,32 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
                 reason=intent_reason,
                 max_distance_m=LOCAL_MOVE_MAX_M,
             )
+            if ok and local_job_id is not None and plan_id is not None:
+                attach_job_to_plan(
+                    conn,
+                    owner_id=citizen_id,
+                    plan_id=plan_id,
+                    job_id=int(local_job_id),
+                    sim_minute=now,
+                )
             if ok:
                 conn.commit()
             return ok, message
 
         elif action == "local_inspect":
-            ok, _, message = start_local_inspection(
+            ok, inspect_job_id, message = start_local_inspection(
                 conn,
                 citizen_id,
                 now=now,
             )
+            if ok and inspect_job_id is not None and plan_id is not None:
+                attach_job_to_plan(
+                    conn,
+                    owner_id=citizen_id,
+                    plan_id=plan_id,
+                    job_id=int(inspect_job_id),
+                    sim_minute=now,
+                )
             if ok:
                 conn.commit()
             return ok, message
@@ -1639,6 +1672,15 @@ def start_action(citizen_id: str, request: dict[str, Any]) -> tuple[bool, str]:
             ),
         )
         job_id = int(cur.lastrowid)
+
+        if plan_id is not None:
+            attach_job_to_plan(
+                conn,
+                owner_id=citizen_id,
+                plan_id=plan_id,
+                job_id=job_id,
+                sim_minute=now,
+            )
 
         if action == "construct" and project_id is not None:
             conn.execute(
@@ -2405,6 +2447,14 @@ def complete_due_jobs(now: int) -> None:
                 "UPDATE jobs SET status = ?, outcome = ? WHERE id = ?",
                 (job_status, outcome, job["id"]),
             )
+            completed_job = conn.execute(
+                "SELECT * FROM jobs WHERE id = ?",
+                (job["id"],),
+            ).fetchone()
+            if completed_job:
+                record_plan_job_outcome(conn, completed_job, sim_minute=now)
+                record_practice_event_for_job(conn, completed_job, sim_minute=now)
+
             if message:
                 add_history(conn, now, "activity", message)
 

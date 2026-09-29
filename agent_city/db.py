@@ -395,6 +395,69 @@ def init_db() -> None:
             CREATE INDEX IF NOT EXISTS idx_shared_activities_participants
             ON shared_activities(visitor, citizen_id, status, id);
 
+            CREATE TABLE IF NOT EXISTS citizen_plans (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                owner_id TEXT NOT NULL,
+                created_minute INTEGER NOT NULL,
+                updated_minute INTEGER NOT NULL,
+                status TEXT NOT NULL DEFAULT 'active',
+                current_intent TEXT NOT NULL,
+                next_step TEXT NOT NULL,
+                unresolved_question TEXT
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_citizen_plans_owner
+            ON citizen_plans(owner_id, status, updated_minute, id);
+
+            CREATE TABLE IF NOT EXISTS plan_transitions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                plan_id INTEGER NOT NULL,
+                owner_id TEXT NOT NULL,
+                sim_minute INTEGER NOT NULL,
+                transition_type TEXT NOT NULL,
+                from_status TEXT,
+                to_status TEXT NOT NULL,
+                source_job_id INTEGER,
+                summary TEXT NOT NULL
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_plan_transitions_plan
+            ON plan_transitions(plan_id, sim_minute, id);
+
+            CREATE TABLE IF NOT EXISTS plan_memory_sources (
+                plan_id INTEGER NOT NULL,
+                transition_id INTEGER NOT NULL,
+                owner_id TEXT NOT NULL,
+                memory_event_id INTEGER NOT NULL,
+                source_role TEXT NOT NULL,
+                linked_minute INTEGER NOT NULL,
+                PRIMARY KEY(plan_id, transition_id, memory_event_id, source_role)
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_plan_memory_sources_owner
+            ON plan_memory_sources(owner_id, memory_event_id, plan_id);
+
+            CREATE TABLE IF NOT EXISTS practice_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                citizen_id TEXT NOT NULL,
+                job_id INTEGER NOT NULL UNIQUE,
+                plan_id INTEGER,
+                activity_type TEXT NOT NULL,
+                job_status TEXT NOT NULL,
+                outcome TEXT NOT NULL,
+                completed_minute INTEGER NOT NULL,
+                location_id TEXT,
+                target TEXT,
+                material TEXT,
+                project_id INTEGER,
+                observation_id INTEGER,
+                shared_activity_id INTEGER,
+                summary TEXT NOT NULL
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_practice_events_citizen
+            ON practice_events(citizen_id, activity_type, completed_minute, id);
+
             CREATE TABLE IF NOT EXISTS jobs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 citizen_id TEXT NOT NULL,
@@ -419,7 +482,8 @@ def init_db() -> None:
                 path_distance_m REAL,
                 terrain_multiplier REAL,
                 result_observation_id INTEGER,
-                shared_activity_id INTEGER
+                shared_activity_id INTEGER,
+                plan_id INTEGER
             );
 
             CREATE TABLE IF NOT EXISTS citizen_conversations (
@@ -472,6 +536,7 @@ def init_db() -> None:
         add_column_if_missing(conn, "jobs", "terrain_multiplier REAL", "terrain_multiplier")
         add_column_if_missing(conn, "jobs", "result_observation_id INTEGER", "result_observation_id")
         add_column_if_missing(conn, "jobs", "shared_activity_id INTEGER", "shared_activity_id")
+        add_column_if_missing(conn, "jobs", "plan_id INTEGER", "plan_id")
         add_column_if_missing(conn, "spatial_observations", "detail_level TEXT NOT NULL DEFAULT 'field'", "detail_level")
         add_column_if_missing(conn, "deposits", "discoverer_id TEXT", "discoverer_id")
         add_column_if_missing(conn, "deposits", "discovered_minute INTEGER", "discovered_minute")
@@ -771,6 +836,9 @@ def init_db() -> None:
                 ),
             )
 
+        from .continuity import sync_practice_events_in_conn
+        sync_practice_events_in_conn(conn)
+
         conn.commit()
 
 
@@ -870,6 +938,41 @@ def snapshot() -> dict[str, Any]:
         project_materials = [dict(r) for r in conn.execute("SELECT * FROM project_materials ORDER BY project_id, material")]
         jobs = [dict(r) for r in conn.execute("SELECT * FROM jobs WHERE status = 'active' ORDER BY id")]
         routes = [dict(r) for r in conn.execute("SELECT * FROM routes ORDER BY a, b")]
+        plans = [
+            dict(r) for r in conn.execute(
+                """
+                SELECT * FROM citizen_plans
+                ORDER BY
+                    CASE status WHEN 'active' THEN 0 WHEN 'paused' THEN 1 ELSE 2 END,
+                    updated_minute DESC, id DESC
+                LIMIT 80
+                """
+            )
+        ]
+        for plan in plans:
+            pid = int(plan["id"])
+            plan["memory_event_ids"] = [
+                int(row["memory_event_id"])
+                for row in conn.execute(
+                    """
+                    SELECT DISTINCT memory_event_id
+                    FROM plan_memory_sources
+                    WHERE plan_id = ?
+                    ORDER BY memory_event_id
+                    """,
+                    (pid,),
+                )
+            ]
+        plan_transitions = [
+            dict(r) for r in conn.execute(
+                "SELECT * FROM plan_transitions ORDER BY id DESC LIMIT 160"
+            )
+        ]
+        practice_events = [
+            dict(r) for r in conn.execute(
+                "SELECT * FROM practice_events ORDER BY id DESC LIMIT 160"
+            )
+        ]
 
         from .exploration import active_local_movement_payload, shared_activity_payload
         sim_now = int(get_meta(conn, "sim_minute") or "360")
@@ -1013,6 +1116,9 @@ def snapshot() -> dict[str, Any]:
             "project_materials": project_materials,
             "jobs": jobs,
             "routes": routes,
+            "plans": plans,
+            "plan_transitions": plan_transitions,
+            "practice_events": practice_events,
             "discoveries": discoveries,
             "citizen_knowledge": citizen_knowledge,
             "experiment_results": experiment_results,
