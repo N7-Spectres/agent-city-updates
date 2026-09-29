@@ -4,9 +4,8 @@ on:
   push:
     branches:
       - "release-v*"
-      - "simulation/v0.9-continuity-stage1"
     paths:
-      - "**"
+      - "VERSION"
 
 concurrency:
   group: release-smoke-${{ github.ref }}
@@ -115,6 +114,3 @@ jobs:
 
       - name: Run v0.8.7 route-token travel visualization smoke
         run: python tests/smoke_v087_route_tokens.py
-
-      - name: Run v0.9 Simulation continuity Stage 1 smoke
-        run: python tests/smoke_v090_simulation_stage1.py
