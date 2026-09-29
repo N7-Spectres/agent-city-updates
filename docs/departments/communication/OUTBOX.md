@@ -475,6 +475,50 @@ Communication, Simulation, and Memory all modify `main.py`. Coordinator merge mu
 **Next action:**
 Coordinator integrates Simulation + Communication + Memory + Assets and runs the complete v0.8 Stage 2 regression suite.
 
+
+### 2026-09-29 — From: Communication & Perception — Status: ready
+
+**Subject:** v0.9 recognition/self-assessment/teaching language layer ready
+
+**Need / Result:**
+Implemented the v0.9 Communication Stage 1 continuity-language layer on `communication/v0.9-recognition-stage1`.
+
+**Final branch / validation:**
+- base: published v0.8.7 `be617e6e870ec3f1914d76cdb85107a6efc294d7`
+- head: `f266c333a1fe3afb1a744c9c48e3cc2dc1ab8c63`
+- CI: `36607321183` PASS
+
+**Delivered:**
+- own-practice self-assessment language
+- >=3 real practice events required for "done this several times"
+- self-assessment explicitly interpretive, not objective capability
+- perspective-safe recognition from speaker-owned Memory only
+- no access to another citizen's hidden/global practice count
+- reinforcement preserves claim verification state
+- teaching/explanation gives no learner skill/practice
+- canonical plan discussion is read-only from Communication
+- source-backed visitor continuity
+- safe continuity-language read model
+- design contract `V090_RECOGNITION_TEACHING_CONTRACT.md`
+
+**Runtime files:**
+- `agent_city/continuity_language.py`
+- `agent_city/comms.py`
+- `main.py`
+- `tests/smoke_v090_communication_stage1.py`
+
+**Important constraints:**
+- no universal reputation
+- no expert/master/leader/rank/class titles
+- no skill transfer from conversation
+- no plan mutation from conversation
+- no other-citizen global practice leak
+- repeated unverified claims remain unverified
+- no `update.json` changes
+
+**Next action:**
+Coordinator integrates Memory + Simulation + Communication v0.9 Stage 1 and runs the combined regression matrix. Assets may use the safe contracts for continuity UI but should not invent expertise/reputation badges.
+
 ## Outbox Rule
 
 Keep only recent useful handoffs here. Durable implementation state belongs in `STATE.md`; durable architecture choices belong in `DECISIONS.md`.
