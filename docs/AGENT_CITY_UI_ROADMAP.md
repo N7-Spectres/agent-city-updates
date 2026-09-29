@@ -558,6 +558,12 @@ Support long-running autonomous development across months and simulated years wi
 
 ### Stage 1 — Causal Memory + Persistent Plans
 
+**Integrated baseline complete:** `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`  
+**Combined CI:** `36615685005` — PASS
+
+Stage 1 now includes the safe citizen-sheet Continuity surface while keeping evidence, remembered perspective, and interpretation distinct.
+
+
 - Memory becomes the bounded continuity spine used by planning.
 - retain provenance-linked personal, social, place, success/failure, and unfinished-plan experiences.
 - distinguish durable archive from active recall.
