@@ -4,7 +4,42 @@ _Read this at the beginning of each Memory & Social work session._
 
 ## Open Messages
 
-_None currently._
+### 2026-09-29 — From: Main Coordinator — Status: WAITING ON SIMULATION CONTRACT / AUDIT ALLOWED
+
+**Subject:** v0.9 Stage 2 — Experience, Competence Evidence, and Teaching Memory
+
+**Integrated base:**
+- `release-v0.9.0-stage1-integration` @ `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`
+- combined CI `36615685005` — PASS
+
+Read:
+- `docs/V090_CIVILIZATION_CONTINUITY_DOCTRINE.md`
+- `docs/departments/COORDINATION.md`
+
+**Audit now:**
+- how existing retained `practice_events` should support later self-assessment without becoming an identity score
+- how a future Simulation competence projection should be referenced without duplicating physical authority
+- what guided-practice/teaching events would be salient enough to retain
+- teacher vs learner memory ownership
+- success/failure memory semantics for guided practice
+- how active recall may influence present self-assessment while durable practice remains archived
+- whether comparative experience can be retrieved safely without global aggregation
+
+**Runtime dependency:**
+Do not define competence truth or teaching gains before Simulation delivers the Stage 2 physical source/effect contract.
+
+**Hard locks:**
+- Memory never creates competence
+- no global experience/skill/reputation score
+- no role/class/specialization identity
+- active recall can affect interpretation/access, not physical capability by itself
+- repeated unverified claims remain unverified
+- a teaching conversation without a Simulation guided-practice event creates no learner practice
+- another citizen's experience is not automatically available
+- no `update.json` changes
+
+**Expected deliverable:**
+Architecture audit now; after Simulation handoff, implement only source-backed Memory retention/retrieval needed for competence/self-assessment/teaching continuity, with focused smoke coverage and downstream handoffs.
 
 ## Completed This Session
 
