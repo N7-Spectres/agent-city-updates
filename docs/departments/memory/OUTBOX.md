@@ -673,3 +673,25 @@ Memory has consumed the final Simulation Stage 1 contract and completed the reta
 **Next action:**
 Coordinator combines Memory + Simulation Stage 1 and runs both v0.9 smokes. Communication can then use the merged owner-scoped practice history for perspective-safe self-assessment/recognition.
 
+
+
+### 2026-09-29 — From: Memory & Social — Status: ready
+
+**Subject:** Final v0.9 Stage 2 Memory session handoff
+
+**Final branch / validation:**
+- `memory/v0.9-experience-stage2`
+- head `d4e91866e41eb6fd33a4459fc9bd057ac28a6ba5`
+- CI `36621525829` PASS
+
+**Downstream handoffs complete:**
+- Communication INBOX: guided-practice + practice-recall source contract
+- Assets INBOX: UI-safe Memory continuity projection
+- COORDINATION: Memory in REVIEW with Stage 2 integration locks
+
+**Next action:**
+Communication and Assets finish their Stage 2 slices; coordinator then assembles Simulation + Memory + Communication + Assets and runs the complete v0.9 Stage 2 regression suite.
+
+Memory should remain stopped unless integration feedback or a new milestone is routed.
+
+No `update.json` changes.
