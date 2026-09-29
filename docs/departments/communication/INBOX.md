@@ -4,122 +4,41 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ## Open Messages
 
-### 2026-09-29 — From: Memory & Social — Status: ready
+_None. Communication v0.9 Stage 2 implementation is complete and ready for coordinator integration._
 
-**Subject:** Memory v0.9 Stage 2 teaching/experience contract ready
+## Completed v0.9 Stage 2
 
-Memory Stage 2 is complete:
-- branch `memory/v0.9-experience-stage2`
-- head `d4e91866e41eb6fd33a4459fc9bd057ac28a6ba5`
-- CI `36621525829` PASS
-
-**Use for self-assessment:**
-- `practice_recall_snapshot_for(citizen_id, family=..., ...)`
-- `practice_recall_context_for(citizen_id, family=..., ...)`
-
-These return actively recalled, owner-scoped real practice. They do not expose recall score or reinforcement count.
-
-**Use for teaching/learning continuity:**
-- `guided_practice_recall_snapshot_for(citizen_id, family=None, counterpart_id=None, role=None, ...)`
-- `guided_practice_recall_context_for(...)`
-
-Canonical event source:
-- `guided_practice_sessions.id`
-
-Memory gives both physical participants their own event:
-- teacher role
-- learner role
-
-**Language rules:**
-- "Bex guided me through extraction practice" is source-safe when recalled
-- teacher/learner is event-local, not a mentor/expert identity
-- a guided session itself is not learner practice or competence
-- only the learner's later real matching task creates new practice evidence
-- when that task used guidance, its retained practice may carry `guided_practice_session=<id>`
-- objective competence/effects remain Simulation-owned
-- Memory adds no global experience comparison
-
-**Comparative boundary:**
-Do not use another citizen's global practice/competence ledger as speaker knowledge. Comparison still requires evidence that legitimately reached the speaker.
-
-**Contract:**
-`docs/departments/memory/V090_STAGE2_EXPERIENCE_TEACHING_MEMORY_CONTRACT.md`
-
-**Next action:**
-Communication may now implement Stage 2 guided-practice/questions/self-assessment language and its focused smoke.
-
-
-### 2026-09-29 — From: Main Coordinator — Status: WAITING ON MEMORY CONTRACT / SIMULATION READY
+### 2026-09-29 — From: Main Coordinator — Status: handled
 
 **Subject:** v0.9 Stage 2 — Guided Practice, Questions, and Competence-Safe Language
 
-**Integrated base:**
-- `release-v0.9.0-stage1-integration` @ `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`
-- combined CI `36615685005` — PASS
+**Result:**
+Implemented on:
+- `communication/v0.9-guided-practice-stage2`
+- head `6af2f6cb8b9fe3d44b30c9dad2fc6e54926b09cf`
+- CI `36627237487` PASS
 
-**Audit now:**
-- language for discussing real competence effects without titles/ranks
-- how one citizen may ask another for help or explanation based only on legitimate perspective evidence
-- how a future guided-practice proposal/accept/start/complete lifecycle should differ from ordinary teaching conversation
-- what information can transfer through explanation versus what requires physical practice
-- how self-assessment should describe remembered experience versus measured Simulation effect
-- preserve disagreement: two citizens may assess the same person's experience differently
+Delivered measured self-effect language, source-backed guided-practice continuity, perspective-safe help/questions, planner guidance rules, and strict ordinary-talk-vs-real-practice separation.
 
-**Runtime dependency update:**
-Simulation's canonical guided-practice/competence contract is ready. Communication runtime work now waits only on Memory's Stage 2 source-linked retention/retrieval contract.
+### 2026-09-29 — From: Memory & Social — Status: handled
 
-**Hard locks:**
-- saying/teaching/explaining alone never increases competence
-- no expert/master/trainer/mentor title as authoritative identity
-- no global reputation
-- no remote/global access to other citizens' competence evidence
-- no conversation mutation of physical competence
-- recognition remains speaker/observer perspective
-- competence facts, if surfaced, must be clearly separated from interpretation
-- no `update.json` changes
+**Subject:** Memory v0.9 Stage 2 teaching/experience contract
 
-**Expected deliverable:**
-Communication design/source contract now; implement runtime guided-practice dialogue only after upstream physical + Memory contracts are stable. Add focused smoke coverage and update STATE / DECISIONS / BACKLOG / OUTBOX.
+**Result:**
+Communication consumes bounded:
+- `practice_recall_*`
+- `guided_practice_recall_*`
 
-### 2026-09-29 — From: World & Simulation — Status: ready
+Teacher/learner remain event roles and recall internals remain hidden.
+
+### 2026-09-29 — From: World & Simulation — Status: handled
 
 **Subject:** v0.9 Stage 2 real guided-practice + competence-safe language contract
 
-Simulation Stage 2 is complete:
-- branch `simulation/v0.9-competence-stage2`
-- head `667f4659aeef9a9658d7e08f4ba7c54e267a38f9`
-- final runtime CI `36618030044` — PASS
+**Result:**
+Communication consumes speaker-owned measured physical effect and legal `guided_practice` actions without exposing another citizen's hidden/global competence ledger.
 
-**Guided practice is now a real physical event:**
-`guided_practice_sessions.id`
-- teacher and learner must be co-present, free, and powered
-- guide must have more real relevant practice evidence than learner
-- session is a timed shared Simulation job
-- explanation alone still grants nothing
-- session itself does not create competence/practice
-- one completed session may modestly help the learner's next real matching task
-- the learner's actual task creates the new practice evidence
-
-**Safe language:**
-Communication may say:
-- "Bex guided Cato through an extraction practice session."
-- "Cato later used that guidance during extraction."
-- "Bex has more recorded extraction practice than Cato."
-
-Communication must not turn that into:
-- expert
-- mentor
-- trainer
-- specialist
-- rank/title/reputation
-
-**Objective competence:**
-Simulation exposes only bounded task-time effects reconstructed from canonical practice evidence.
-Self-assessment remains interpretation.
-Recognition remains observer-specific and source-bound.
-
-**Next action:**
-Communication's Simulation dependency is resolved. Bind questions/guided-practice language to the canonical session + practice IDs after Memory hands off its retention contract.
+Simulation remains authoritative for physical session start/completion, guidance support, and later learner practice.
 
 
 ## Completed This Session
