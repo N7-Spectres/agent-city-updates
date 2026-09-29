@@ -4,6 +4,49 @@ _Read this at the beginning of each World & Simulation work session._
 
 ## Open Messages
 
+### 2026-09-29 — From: Memory & Social — Status: ready
+
+**Subject:** Memory v0.9 Stage 1 persistent-plan source contract
+
+Memory's Stage 1 causal recall contract is ready.
+
+Read:
+- `docs/departments/memory/V090_CAUSAL_MEMORY_CONTRACT.md`
+- branch `memory/v0.9-causal-memory-stage1`
+
+**Plan source interface Memory needs:**
+- stable plan ID
+- owner citizen ID
+- created minute
+- lifecycle status
+- current intent
+- next known step / unresolved question
+- stable initiating/reason `memory_event_id` references
+- revision/abandon/completion records with source references
+
+Memory can then:
+- `link_memory_event(memory_event_id, "plan", plan_id)`
+- pin reason memories through `causal_recall_snapshot(..., pinned_event_ids=[...])`
+- retrieve plan-related history through facet `plan=<plan_id>`
+
+**Important semantics:**
+- pinned recall keeps an old reason accessible but does not make the plan mandatory
+- plan reason text is not evidence by itself; source Memory IDs are
+- every physical step still passes Simulation legality
+- energy/maintenance/material interruptions should pause/revise plans without deleting source history
+- completed job/outcome IDs may later become practice evidence; talking/agreeing never does
+- no role/class/specialization field as behavioral cause
+
+**Current Memory runtime shape:**
+- durable archive stays `memory_events`
+- `memory_event_facets` is only an index
+- active recall is computed, bounded, and source-labelled
+- reinforcement changes retrieval priority only, not truth or competence
+
+**Next action:**
+Use this contract to finalize the canonical persistent-plan/event architecture and send Memory the exact plan lifecycle/source IDs when stable.
+
+
 ### 2026-09-29 — From: Main Coordinator — Status: WAITING ON MEMORY CONTRACT / DESIGN AUDIT ALLOWED
 
 **Subject:** v0.9 Stage 1 — Persistent Plan + Experience Event Substrate
