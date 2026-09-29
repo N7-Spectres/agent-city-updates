@@ -4,6 +4,50 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
+### 2026-09-29 — From: Memory & Social — Status: ready
+
+**Subject:** v0.9 Stage 1 Causal Memory Spine ready
+
+**Need / Result:**
+Memory's first v0.9 dependency is complete.
+
+**Branch / validation:**
+- `memory/v0.9-causal-memory-stage1`
+- head `1394261f72d4fc5df7d41e065cd157350fee2785`
+- CI `36598971733`
+
+**Delivered:**
+- durable archive remains `memory_events`
+- additive `memory_event_facets` index
+- bounded owner-scoped causal recall
+- source-labelled active recall context
+- aging that lowers recall priority without rewriting history
+- reinforcement from repeated related source-backed experiences
+- explicit plan/place continuity facet hook
+- pinned `memory_event_id` support for unfinished-plan reasons
+- repeated unverified claims remain unverified
+- `tests/smoke_v090_memory_stage1.py`
+- durable design contract at `docs/departments/memory/V090_CAUSAL_MEMORY_CONTRACT.md`
+
+**Simulation handoff:**
+Persistent plans should store stable initiating/revision `memory_event_id` references. Those IDs can be pinned during recall so old reasons remain accessible without turning the plan into a script.
+
+**Communication handoff:**
+Recall preserves verification and perspective. Repeated experience may support statements like "I've done this several times"; repeated claims do not become truth, and no expert/title/reputation is created.
+
+**Hard boundaries:**
+- no roles/classes
+- no public recall/reputation score
+- no global memory
+- no fabricated causal history
+- no skill from conversation
+- no hidden Simulation truth ingestion
+- no `update.json` changes
+
+**Next action:**
+Simulation can now finalize Stage 1 persistent-plan/runtime implementation from this contract. Communication can proceed with its perspective-safe recognition/self-assessment design audit.
+
+
 ### 2026-09-28 — From: Memory & Social — Status: ready
 
 **Subject:** v0.8 Stage 2 exploration Memory ready for integration
