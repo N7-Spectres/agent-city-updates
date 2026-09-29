@@ -66,6 +66,7 @@ from agent_city.spatial_memory import (
 from agent_city.exploration_memory import shared_exploration_context_for
 from agent_city.personality import personality_context, dialogue_style_rules
 from agent_city.world import WorldClock, format_sim_time
+from agent_city.continuity import plan_snapshot_for, practice_snapshot_for
 from agent_city.visits import (
     close_visit, ensure_visit_schema, get_or_create_active_visit,
     get_recent_exchanges, previous_visits, summarize_visit_if_needed, visit_payload,
@@ -308,6 +309,27 @@ def get_location_knowledge(location_id: str, citizen_id: str | None = None):
     if citizen_id and not payload["citizens"]:
         raise HTTPException(404, "Citizen not found")
     return payload
+
+
+@app.get("/api/continuity/{citizen_id}")
+def get_citizen_continuity(citizen_id: str):
+    with connect() as conn:
+        citizen = conn.execute(
+            "SELECT id, name FROM citizens WHERE id = ?",
+            (citizen_id,),
+        ).fetchone()
+    if not citizen:
+        raise HTTPException(404, "Citizen not found")
+
+    return {
+        "citizen": {"id": citizen["id"], "name": citizen["name"]},
+        "plans": plan_snapshot_for(citizen_id, include_closed=True, limit=12),
+        "practice_events": practice_snapshot_for(citizen_id, limit=40),
+        "semantics": {
+            "plans_are_intent_not_commands": True,
+            "practice_is_evidence_not_competence_score": True,
+        },
+    }
 
 
 @app.post("/api/pause")
