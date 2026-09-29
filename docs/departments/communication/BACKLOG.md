@@ -97,3 +97,73 @@ Rule:
 - future intent must stay future intent; "agreed to inspect" is not "inspected"
 - a citizen may truthfully report their own live inventory/current state, but another citizen hearing it does not independently validate the physical fact
 - completed shared exploration should cite the canonical Simulation shared activity / observation chain before summary language upgrades from report to verified evidence
+
+## v0.9 Stage 1 Integration
+
+Communication runtime work is complete.
+
+Final branch:
+- `communication/v0.9-recognition-stage1`
+- head `f266c333a1fe3afb1a744c9c48e3cc2dc1ab8c63`
+- CI `36607321183`
+
+Coordinator merge must preserve:
+- Memory `agent_city/causal_memory.py`
+- Memory practice projection
+- Simulation `agent_city/continuity.py`
+- Communication `agent_city/continuity_language.py`
+- Communication changes in `agent_city/comms.py`
+- Communication visitor-context changes in `main.py`
+- `tests/smoke_v090_communication_stage1.py`
+
+Combined Stage 1 testing should run:
+- published v0.4-v0.8.7 regression matrix
+- `tests/smoke_v090_memory_stage1.py`
+- `tests/smoke_v090_simulation_stage1.py`
+- `tests/smoke_v090_communication_stage1.py`
+- Assets focused v0.9 test if/when added
+
+## Future Teaching Mechanism
+
+If Stage 2 adds actual skill/competence transfer, Communication needs Simulation-owned guided-practice evidence.
+
+Minimum future source contract should include:
+- teacher citizen ID
+- learner citizen ID
+- canonical job/action/event ID
+- activity type
+- physical task
+- completion/outcome
+- simulation minute
+- explicit competence/practice effect if Simulation supports one
+
+Conversation alone must remain insufficient.
+
+## Future Recognition Depth
+
+Potential later work, only if doctrine routes it:
+- source-backed subjective preferences for who to ask for help
+- evidence-backed disagreement in recognition between citizens
+- recognition aging/revision after newer witnessed outcomes
+- source reliability effects based on verified/contradicted history
+
+Do not collapse any of these into global reputation.
+
+## Current Non-Goals
+
+- XP/levels
+- permanent classes/specializations
+- expert badges
+- leader selection
+- universal reputation
+- skill gained from explanation
+- global access to other citizens' practice history
+- plan mutation through conversation
+
+## Ongoing Audit Rules
+
+- own practice can support self-description, not titles
+- other-citizen recognition uses speaker-owned Memory only
+- repeated claims do not become verified by repetition
+- visitor continuity requires real sources
+- preserve v0.8 grounding/provenance and v0.7 raw-exchange-first reliability
