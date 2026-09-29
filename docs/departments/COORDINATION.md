@@ -20,14 +20,13 @@ _None._
 
 ### WAITING
 
-_None._
+- [Memory & Social] v0.9 Stage 2 runtime work waits on Simulation's competence/guided-practice source contract; Memory architecture audit may proceed now.
+- [Communication & Perception] v0.9 Stage 2 runtime work waits on Simulation + Memory contracts; guided-practice/question/language audit may proceed now.
+- [Assets & Interface] v0.9 Stage 2 runtime UI waits on final safe Simulation + Memory + Communication read models; presentation audit may proceed now.
 
 ### READY
 
-- [World & Simulation] v0.9 Stage 2 — define bounded competence effects and any real guided-practice/teaching mechanism from canonical `practice_events`; no XP/classes.
-- [Memory & Social] v0.9 Stage 2 — define experience/self-assessment retention over the integrated practice substrate without turning practice into identity.
-- [Communication & Perception] v0.9 Stage 2 — prepare teaching/recognition behavior only after Simulation defines any real guided-practice effect; preserve perspective.
-- [Assets & Interface] v0.9 Stage 2 — audit future competence/teaching presentation only after safe upstream read models exist; no proficiency bars/badges.
+- [World & Simulation] v0.9 Stage 2 — primary dependency: define bounded practice-derived competence effects and any real guided-practice/teaching mechanism from canonical `practice_events`; no XP/classes.
 
 ### REVIEW
 
@@ -43,6 +42,31 @@ _None._
 - [Coordinator] v0.9 Civilization Continuity doctrine locked in `docs/V090_CIVILIZATION_CONTINUITY_DOCTRINE.md`
 - [Coordinator] v0.9 stage order locked: Causal Memory + Persistent Plans → Practice/Competence/Teaching/Recognition → Habits/Place Meaning/Social Customs
 - [Coordinator] v0.8.7 Route Travel Visualization published from `be617e6e870ec3f1914d76cdb85107a6efc294d7`; final CI `36595479188` passed
+
+## v0.9 Stage 2 Dependency Lock
+
+Integrated base:
+- branch: `release-v0.9.0-stage1-integration`
+- green head: `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`
+- combined CI: `36615685005` — PASS
+
+Order:
+1. Simulation defines any real competence effect and guided-practice physical event/source contract.
+2. Memory retains/retrieves only source-backed experience/teaching continuity from that contract.
+3. Communication consumes Simulation + Memory for perspective-safe teaching, questions, self-assessment, and recognition language.
+4. Assets consumes safe read models and continues to show evidence/history rather than titles or levels.
+5. Coordinator integrates Stage 2 and reruns the complete matrix before Stage 3 begins.
+
+Global Stage 2 locks:
+- no XP/levels/classes/skill trees
+- no authoritative expert/trainer/mentor/rank identity
+- no competence from conversation alone
+- no global reputation
+- no plan-to-competence shortcut
+- no frontend-derived competence
+- unfamiliar work remains legally attemptable unless ordinary physical legality prevents it
+- all competence effects must be bounded, source-backed, and physically justified
+- no department publishes `update.json`
 
 ## v0.8 Stage 1 Coordination Goal
 
