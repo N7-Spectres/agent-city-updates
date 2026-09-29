@@ -16,22 +16,17 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-- [Assets & Interface] v0.9 Stage 2 runtime UI is now authorized on the assembled green base `release-v0.9.0-stage2-integration@ac548b06ea8a88a66a763902ab01a6567c3a2e79`; combined CI `36633452433` PASS.
+_None._
 
 ### WAITING
 
-- [Coordinator / v0.9 Stage 2 Final Integration] waits only on Assets runtime completion, then reruns the complete regression matrix with the Assets Stage 2 smoke.
+- [Coordinator / v0.9 Stage 2 Final Integration] Assets runtime UI is complete; merge PR #26 into the assembled Stage 2 line and rerun the complete regression matrix including `tests/smoke_v090_assets_stage2.py`.
 
 ### READY
 
-- [Assets & Interface] exact assembled Stage 2 base is ready:
-  - branch `release-v0.9.0-stage2-integration`
-  - head `ac548b06ea8a88a66a763902ab01a6567c3a2e79`
-  - combined CI `36633452433` PASS
-  - includes Simulation + Memory + Communication Stage 2
-  - all v0.4-v0.8.7 regressions, all four v0.9 Stage 1 smokes, and all three upstream Stage 2 smokes pass together
-
 ### REVIEW
+
+- [Assets & Interface] v0.9 Stage 2 runtime UI complete on `assets/v0.9-stage2-continuity-ui` @ `224c8eb526dcf6bdfeb4e4457ef68727083b3a31`; PR #26 ready; full regression `36634754010` PASS
 
 - [Assets & Interface] v0.9 Stage 2 competence/guided-practice presentation audit complete; literal practice evidence remains primary, measured duration effect is text-only, guided practice remains event history, no RPG/mentor/rank UI.
 - [Communication & Perception] v0.9 Stage 2 guided-practice/questions/competence-safe language complete on `communication/v0.9-guided-practice-stage2` @ `6af2f6cb8b9fe3d44b30c9dad2fc6e54926b09cf`; CI `36627237487` PASS.
