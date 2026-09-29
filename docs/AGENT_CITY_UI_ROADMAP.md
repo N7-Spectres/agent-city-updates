@@ -533,6 +533,18 @@ Energy-safety correction:
 
 Confirmed bug recovery should prefer repairing the governing rule so the existing save can recover naturally. Direct admin state repair remains a last resort for impossible states created by software defects.
 
+### Shipped milestone — v0.8.7 Route Travel Visualization
+
+Shipped v0.8.7 commit: `be617e6e870ec3f1914d76cdb85107a6efc294d7`  
+Final CI: `36595479188` — PASS
+
+Presentation-only movement readability:
+- known-route travelers are positioned along the route according to authoritative job progress
+- map placement and left-card progress now describe the same travel fraction
+- compact travel percentage appears with the moving token
+- remaining route distance is available in token detail/tooltip text
+- Simulation still owns actual arrival and persisted position; presentation interpolation cannot create movement
+
 ### v0.9.0 — Civilization Continuity
 
 Support long-running autonomous development across months and simulated years.
