@@ -1,6 +1,6 @@
 {
-  "version": "0.8.6",
-  "notes": "Stranded Citizen Recovery: travel whose destination contains an operational charger no longer requires an additional post-arrival return-energy margin. A critically low citizen who still has enough energy to physically reach that charger may now make the trip and arrive on fumes, then autonomous daily-rhythm logic prioritizes charging. Trips away from charging keep the normal safety reserve. This fixes the deadlock observed with Iri at Resin Grove on 6% energy without teleporting or rewriting citizen position.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/a72f96b763671f01c5a8aa0ba41d87f7eb6b9a09",
+  "version": "0.8.7",
+  "notes": "Route Travel Visualization: citizen tokens now move proportionally along known route lines using the same authoritative job progress shown on the citizen cards. A traveler at 60% job progress is rendered about 60% of the way from origin to destination instead of remaining visually pinned to the departure landmark. Traveling tokens also show a compact progress badge, while tooltip/accessible text includes destination and approximate route distance remaining. This is presentation-only and does not write interpolated positions back into Simulation.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/be617e6e870ec3f1914d76cdb85107a6efc294d7",
   "sha256": ""
 }
