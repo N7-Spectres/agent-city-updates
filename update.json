@@ -1,6 +1,6 @@
 {
-  "version": "0.8.5",
-  "notes": "Daily Rhythm & Recharge: citizens now use a simulated daily work/recharge rhythm. 06:00–20:00 remains the normal active cycle, 20:00–22:00 is wind-down, and 22:00–06:00 favors low-activity, safe return, maintenance, conversation, and repeated charging until usable battery capacity is full. Critical energy takes priority over autonomous productivity, while already-active physical jobs are not cancelled by the clock. Charging now respects degraded battery-health capacity and requires a charger at the citizen's actual named location. The Home world view also reflects dawn, daylight, dusk, and night as presentation-only lighting.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/5b2395d7e7643a3d7ac9a82ac68090fc97b5f0b7",
+  "version": "0.8.6",
+  "notes": "Stranded Citizen Recovery: travel whose destination contains an operational charger no longer requires an additional post-arrival return-energy margin. A critically low citizen who still has enough energy to physically reach that charger may now make the trip and arrive on fumes, then autonomous daily-rhythm logic prioritizes charging. Trips away from charging keep the normal safety reserve. This fixes the deadlock observed with Iri at Resin Grove on 6% energy without teleporting or rewriting citizen position.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/a72f96b763671f01c5a8aa0ba41d87f7eb6b9a09",
   "sha256": ""
 }
