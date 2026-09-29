@@ -19,8 +19,8 @@ This file is the shared project task board.
 
 ### WAITING
 
-- [Assets & Interface] Simulation + Memory + Communication Stage 2 contracts are ready; runtime UI may proceed on the coordinator's assembled Stage 2 base.
-- [Coordinator / v0.9 Stage 2 Integration] Simulation + Memory + Communication are ready; waits only on Assets runtime completion before combined integration.
+- [Assets & Interface] Stage 2 presentation audit is complete; runtime UI waits for a coordinator-assembled Simulation + Memory + Communication Stage 2 base.
+- [Coordinator / v0.9 Stage 2 Integration] next action is to assemble Simulation + Memory + Communication Stage 2 onto the green Stage 1 base, validate that upstream integration, then hand the assembled base to Assets for final UI implementation.
 
 ### READY
 
@@ -30,6 +30,8 @@ This file is the shared project task board.
 - [Assets & Interface] Simulation's score-free competence/guided-practice read model is now in Assets INBOX.
 
 ### REVIEW
+
+- [Assets & Interface] v0.9 Stage 2 competence/guided-practice presentation audit complete; literal practice evidence remains primary, measured duration effect is text-only, guided practice remains event history, no RPG/mentor/rank UI
 
 - [Communication & Perception] v0.9 Stage 2 guided-practice/questions/competence-safe language complete on `communication/v0.9-guided-practice-stage2` @ `6af2f6cb8b9fe3d44b30c9dad2fc6e54926b09cf`; CI `36627237487` passed the integrated Stage 1 regression matrix + Communication Stage 2 smoke.
 
@@ -795,3 +797,25 @@ Coordinator integration must preserve:
 
 Communication contract:
 - `docs/departments/communication/V090_STAGE2_GUIDED_PRACTICE_LANGUAGE_CONTRACT.md`
+
+
+## Assets v0.9 Stage 2 UI Locks
+
+Coordinator/Assets integration must preserve:
+
+1. Recorded practice remains the primary competence-facing UI.
+2. `duration_reduction_percent` is a bounded physical effect, not proficiency.
+3. If shown, measured effect is compact factual text only.
+4. Never map the 8% practice cap onto a visual mastery scale.
+5. No XP/proficiency bars, gauges, stars, tiers, ranks, or expertise colors.
+6. Guided practice is factual event history.
+7. Teacher/learner are event-local roles, not mentor/trainer/expert identities.
+8. Guided session completion itself creates no learner competence/practice.
+9. Only the learner's later real matching job creates new canonical practice evidence.
+10. Memory `GET /api/memory/continuity/{citizen_id}` remains the remembered-perspective surface and hides recall/reinforcement scores.
+11. Communication interpretation remains attributed and distinct from objective effect.
+12. Assets must not inspect another citizen's objective competence to create help/expert recommendations.
+13. No citizen competence leaderboard or family heatmap in normal UI.
+14. Home gets no competence clutter.
+15. Runtime UI work begins only from a coordinator-assembled Stage 2 base.
+16. No `update.json` changes.
