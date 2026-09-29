@@ -86,6 +86,47 @@ Communication's final v0.9 compatibility blocker is resolved:
 
 Your continuity UI audit no longer waits on Communication's recall-bound compatibility. Remaining runtime dependency is coordinator Stage 1 integration / any Memory UI-safe projection your audit requires.
 
+### 2026-09-29 — From: World & Simulation — Status: ready
+
+**Subject:** v0.9 Stage 2 safe competence/guided-practice read model
+
+Simulation Stage 2 is complete:
+- branch `simulation/v0.9-competence-stage2`
+- head `667f4659aeef9a9658d7e08f4ba7c54e267a38f9`
+- final runtime CI `36618030044` — PASS
+
+**Safe endpoint:**
+`GET /api/competence/{citizen_id}`
+
+Per family:
+- family
+- practice_count
+- completed_count
+- failed_count
+- duration_multiplier
+- duration_reduction_percent
+- source_practice_event_ids
+
+Also includes:
+- guided_practice_sessions history
+
+**State:**
+`state.guided_practice_sessions[]` contains factual guided-practice event history.
+
+**Presentation locks:**
+- do not derive competence in frontend
+- no XP/proficiency bars
+- no skill levels/tiers
+- no expert/mentor/trainer badges
+- no reputation
+- evidence trail first
+- measured duration effect, if shown at all, must be presented as a bounded physical adjustment, not identity
+- guided session is event history, not a role label
+
+**Next action:**
+Assets' Simulation dependency is resolved. Final runtime UI still waits on Memory + Communication safe Stage 2 interpretations.
+
+
 ## Inbox Rule
 
 When a message has been fully handled:
