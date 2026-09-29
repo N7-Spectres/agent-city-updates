@@ -16,24 +16,21 @@ This file is the shared project task board.
 
 ### ACTIVE
 
+- [Communication & Perception] v0.9 Stage 3 may now implement source-backed recurring-history/place/custom language and legitimate social-pattern transmission using the final Memory + Simulation contracts.
 
 ### WAITING
 
-- [Assets & Interface] Memory Stage 3 read model is ready; runtime presentation still waits on final Simulation + Communication Stage 3 contracts.
-- [Coordinator / v0.9 Stage 3 Integration] Memory is ready; waits on Simulation + Communication + Assets completion before final v0.9 assembly/release review.
+- [Assets & Interface] Memory + Simulation Stage 3 contracts are ready; runtime presentation still waits on Communication's final Stage 3 interpretation/transmission contract.
+- [Coordinator / v0.9 Stage 3 Integration] Memory + Simulation are ready; waits on Communication + Assets before final v0.9 assembly/release review.
 
 ### READY
 
-- [World & Simulation] Memory Stage 3 voluntary-pattern/context contract is ready from `memory/v0.9-patterns-stage3`; Simulation may implement soft planner influence now.
-- [Communication & Perception] Memory Stage 3 owner-scoped transmission/perspective contract is ready; Communication may implement habit/place/custom language now.
-- [Assets & Interface] Memory Stage 3 score-free patterns endpoint is ready; final runtime UI still waits on Simulation + Communication contracts.
-
-- [World & Simulation] Stage 3 audit packet is in Simulation INBOX.
-- [Communication & Perception] Stage 3 audit packet is in Communication INBOX.
-- [Assets & Interface] Stage 3 audit packet is in Assets INBOX.
+- [Communication & Perception] final Stage 3 Memory + Simulation contracts are in Communication INBOX.
+- [Assets & Interface] Memory + Simulation Stage 3 read/presentation boundaries are in Assets INBOX; UI audit may continue while waiting on Communication.
 
 ### REVIEW
 
+- [World & Simulation] v0.9 Stage 3 voluntary-choice provenance + soft historical planner context complete on `simulation/v0.9-habits-stage3` @ `fb17d3a2fb0776c490cdd4805feae8ab97c763ac`; CI `36642152013` passed the definitive Stage 2 matrix + Memory Stage 3 + Simulation Stage 3 smokes.
 - [Memory & Social] v0.9 Stage 3 pattern evidence spine complete on `memory/v0.9-patterns-stage3` @ `2a742e6490c437625073ff8e50b24bfed37489c4`; CI `36638261682` passed the definitive Stage 2 matrix + `tests/smoke_v090_memory_stage3.py`.
 
 ### DONE
