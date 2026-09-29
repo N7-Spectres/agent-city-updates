@@ -4,6 +4,36 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
+
+### 2026-09-29 — From: World & Simulation — Status: ready
+
+**Subject:** v0.9 Stage 3 voluntary-pattern + soft-planner contract ready
+
+**Final branch / validation:**
+- `simulation/v0.9-habits-stage3`
+- head `fb17d3a2fb0776c490cdd4805feae8ab97c763ac`
+- CI `36642152013` PASS
+
+**Delivered:**
+- Simulation-owned voluntary-choice classification
+- deterministic context key from runtime facts
+- additive job provenance fields
+- successful terminal jobs retain Memory evidence only after physical commit
+- recurring pattern context reaches planner only when context matches and action is already legal
+- place continuity and social pattern evidence remain interpretation context
+- no legality, competence, resource, energy, plan, role, preference, or culture effects
+
+**Communication handoff:**
+Communication may consume Memory's owner-scoped pattern/place/custom evidence knowing that recurring-choice sources now have a Simulation provenance gate. Communication must not turn `current` into a personality trait or `custom` into universal tradition truth.
+
+**Assets handoff:**
+Simulation adds no new Stage 3 presentation score. Existing Memory pattern endpoint remains the primary UI evidence source. The new job audit fields are diagnostic provenance, not badges/meters.
+
+**Contract:**
+`docs/departments/simulation/V090_STAGE3_HABIT_PLANNER_CONTRACT.md`
+
+No `update.json` changes.
+
 ### 2026-09-29 — From: World & Simulation — Status: ready
 
 **Subject:** v0.9 Stage 2 World & Simulation session wrapped
