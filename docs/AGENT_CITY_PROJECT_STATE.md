@@ -4,7 +4,7 @@ _Last updated: 2026-09-28_
 
 ## Current Release
 
-**v0.8.6 — Stranded Citizen Recovery**
+**v0.8.7 — Route Travel Visualization**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -40,6 +40,23 @@ Delivered:
 - Simulation/Communication/Memory semantics unchanged
 
 ## Current Milestone
+
+**v0.8.7 — Route Travel Visualization**
+
+Published presentation hotfix:
+- branch: `release-v0.8.7`
+- immutable runtime commit: `be617e6e870ec3f1914d76cdb85107a6efc294d7`
+- final CI: `36595479188` — PASS
+
+Delivered:
+- legacy route-travel citizen tokens now interpolate between origin/destination using authoritative job progress
+- visual map position corresponds to the same progress fraction shown in the citizen card
+- traveling tokens display a compact percentage badge
+- travel tooltip/accessibility text includes destination and approximate route distance remaining
+- meter-space map no longer pins route travelers to their origin coordinate until arrival
+- interpolation remains presentation-only and never writes x/y back to Simulation
+- local meter movement and shared-activity movement semantics remain unchanged
+- dedicated `tests/smoke_v087_route_tokens.py` regression added
 
 **v0.8.6 — Stranded Citizen Recovery**
 
