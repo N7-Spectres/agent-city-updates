@@ -801,3 +801,17 @@ This preserves aging, salience, and bounded context.
 Internal `recall_score` and `reinforcement_count` must not be surfaced as natural-language citizen facts or hidden reputation/experience metrics.
 
 Other-citizen recognition may use speaker-owned causal recall, but should present the source-backed events rather than internal retrieval weights.
+
+
+## v0.9 Final Stage 1 Handoff Decision
+
+Memory's Stage 1 scope is closed.
+
+Do not add new Memory behavior before coordinator integration unless a concrete cross-department regression requires it.
+
+The only remaining v0.9 Stage 1 semantic blocker is outside Memory:
+Communication must keep model-facing self-assessment/teaching behind Memory active recall and must not expose internal reinforcement counts as citizen-visible evidence.
+
+A green branch is insufficient if it bypasses archive-vs-recall semantics.
+
+Memory remains in REVIEW until coordinator integration.
