@@ -281,3 +281,47 @@ Completed:
 - corrected COORDINATION sequencing so upstream Stage 2 is assembled before Assets implementation
 
 Resume only when the coordinator provides the assembled Stage 2 base or routes explicit review feedback/new work.
+
+
+## Review / Integration — v0.9 Stage 2 Assets
+
+Implementation complete.
+
+Review surface:
+- branch `assets/v0.9-stage2-continuity-ui`
+- head `224c8eb526dcf6bdfeb4e4457ef68727083b3a31`
+- base `release-v0.9.0-stage2-integration@ac548b06ea8a88a66a763902ab01a6567c3a2e79`
+- PR #26 — ready for review
+- full regression `36634754010` — PASS
+- 7 ahead / 0 behind
+
+Coordinator review checklist:
+- measured work effect appears only when non-zero
+- effect is compact text, never a bar/gauge
+- practice counts remain literal history
+- failed/completed counts remain factual
+- guided-practice rows use event-local role wording
+- no mentor/trainer/expert identity appears
+- Memory role/counterparty chips come only from safe projection
+- Stage 1 continuity layers remain intact
+- Home receives no competence clutter
+- Interpretation layer does not synthesize citizen beliefs from counts
+- `tests/smoke_v090_assets_stage2.py` remains in final matrix
+
+## Completed — v0.9 Stage 2 Assets
+
+- competence endpoint integrated into continuity cache
+- factual per-family practice rows
+- measured duration effect text
+- guided-practice history
+- source-role/counterparty/family remembered context
+- quiet Stage 2 continuity styling
+- Stage 2 Assets smoke
+- full v0.4→v0.9 Stage 2 branch regression
+
+## Current Blockers
+
+_None for Assets._
+
+Next owner:
+**Coordinator / v0.9 Stage 2 Final Integration**
