@@ -1,11 +1,10 @@
 # Assets & Interface — State
 
-_Last updated: 2026-09-28_
-_Current published release: v0.8.0 @ `a870982ba947fcc5af08ca190de396ae4308b645`_
-_Current hotfix base: `release-v0.8.1` @ `c55eb76b89b35a660275ac97f095dcc4f511683e`_
-_Current department branch: `assets/v0.8.1-citizen-visuals-map`_
-_Current branch head: `588dd08558a3b9aaed4a0ab8fe1d6e45a7838337`_
-_Current review surface: PR #19 — ready for review_
+_Last updated: 2026-09-29_
+_Current published release: v0.8.7 @ `be617e6e870ec3f1914d76cdb85107a6efc294d7`_
+_Current Assets activity: v0.9 continuity UI/read-model audit_
+_Current runtime branch: none; implementation waits for the combined v0.9 Stage 1 integration base_
+_Current status: REVIEW / WAITING FOR RUNTIME CONTRACT INTEGRATION_
 
 ## Mission
 
