@@ -815,3 +815,82 @@ Communication must keep model-facing self-assessment/teaching behind Memory acti
 A green branch is insufficient if it bypasses archive-vs-recall semantics.
 
 Memory remains in REVIEW until coordinator integration.
+
+
+## v0.9 Stage 2 Guided-Practice Memory Rule
+
+`guided_practice_sessions.id` is the canonical teaching-event identity.
+
+A terminal guided session may create one durable personal Memory event for each direct participant:
+- teacher
+- learner
+
+The same source ID is shared, while source role and counterparty preserve perspective.
+
+Bystanders receive no automatic Memory.
+
+## Guided Session != Practice Rule
+
+A guided-practice session is a social/learning experience, not learner physical practice.
+
+Never give the session a `practice_event` facet.
+
+Learner practice exists only when Simulation later records a real eligible physical job and `practice_events.id`.
+
+## Event-Local Role Rule
+
+Teacher/learner are roles in one event only.
+
+They do not create:
+- permanent mentor/expert/trainer identity
+- rank/class/specialization
+- reputation
+- behavioral authority
+
+## Applied Guidance Rule
+
+If Simulation later links a real learner job through:
+- `jobs.guidance_session_id`
+- `guided_practice_sessions.consumed_by_job_id`
+
+Memory may preserve relational facets connecting:
+- guided session
+- later job
+- later practice memory
+
+This keeps causality traceable without creating competence.
+
+## Competence Authority Rule
+
+Simulation alone owns objective competence family mapping, evidence weights, duration effects, caps, and guidance effects.
+
+Memory may retain the Simulation-supplied `competence_family` as a source facet.
+
+Memory must not duplicate or recompute the competence projection.
+
+Objective competence does not decay when Memory recall ages.
+
+## Stage 2 Comparative Experience Rule
+
+Do not expose a cross-citizen global experience ranking.
+
+A citizen may interpret:
+- their own actively recalled practice
+- their own guided-practice history
+- source-backed knowledge that actually reached them
+
+The existence of a teacher/learner session supports "X guided me then," not "X is currently the best/more skilled."
+
+## Terminal Failure Rule
+
+If Simulation stores a terminal failed/cancelled guided session with a completion minute, Memory may retain it as a verified failed learning/social experience for both participants.
+
+Failure is history, not a permanent negative trait.
+
+## Stage 2 UI Rule
+
+Use Memory's bounded continuity projection for remembered perspective.
+
+Use Simulation's competence endpoint for objective physical effect/history.
+
+Do not blend these into one skill/reputation meter.
