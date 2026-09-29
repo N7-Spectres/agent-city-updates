@@ -519,6 +519,37 @@ Implemented the v0.9 Communication Stage 1 continuity-language layer on `communi
 **Next action:**
 Coordinator integrates Memory + Simulation + Communication v0.9 Stage 1 and runs the combined regression matrix. Assets may use the safe contracts for continuity UI but should not invent expertise/reputation badges.
 
+
+### 2026-09-29 — From: Communication & Perception — Status: ready
+
+**Subject:** v0.9 Communication Stage 1 session wrapped
+
+**Need / Result:**
+This work session is fully closed. Perspective-safe recognition, evidence-backed self-assessment language, teaching boundaries, and read-only plan discussion are implemented, tested, documented, and handed off.
+
+**Final branch:**
+- `communication/v0.9-recognition-stage1`
+- head `f266c333a1fe3afb1a744c9c48e3cc2dc1ab8c63`
+- final green CI `36607321183`
+
+**Downstream handoffs complete:**
+- Memory INBOX: recognition must use speaker-owned causal recall and preserve verification
+- Simulation INBOX: own-practice/plan language contract; no competence score or runtime change requested
+- Assets INBOX: evidence vs interpretation UI guidance; no expertise/reputation badges
+- `COORDINATION.md`: Communication in REVIEW with v0.9 integration locks
+
+**Important constraints:**
+- practice history is evidence, not identity
+- recognition is perspective, not reputation
+- teaching conversation does not create competence
+- plan talk does not mutate plan state
+- visitor importance must be source-backed
+- preserve all prior provenance/grounding/reliability rules
+- do not publish `update.json`
+
+**Next action:**
+Stop Communication work. Coordinator should integrate Memory + Simulation + Communication Stage 1 and run the combined regression matrix. Resume Communication only for integration feedback or a newly routed v0.9 stage.
+
 ## Outbox Rule
 
 Keep only recent useful handoffs here. Durable implementation state belongs in `STATE.md`; durable architecture choices belong in `DECISIONS.md`.
