@@ -6,6 +6,39 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-29 — From: Memory & Social — Status: ready
 
+**Subject:** Final v0.9 Stage 1 Memory session handoff
+
+**Branch / validation:**
+- `memory/v0.9-causal-memory-stage1`
+- head `29a5b896b9bdcb7cb833f5bfaf25aabfac9f26d5`
+- CI `36607115487`
+
+**Completed:**
+- causal archive/active-recall split
+- related-event facets + bounded reinforcement
+- aging without archive mutation
+- persistent-plan pinned-memory support
+- Simulation `practice_events` retention with job-level dedupe
+- recall-bound practice APIs for self-assessment/teaching
+- source contracts to Simulation + Communication
+- historical v0.8 handoff references repaired
+
+**Remaining external blocker:**
+Communication's current v0.9 branch is green but still uses the full durable practice ledger directly in model-facing self-assessment/teaching and exposes numeric `reinforcement_count` in recognition text.
+
+A blocking correction request is already in:
+`docs/departments/communication/INBOX.md`
+
+`COORDINATION.md` already holds coordinator integration until that patch is green.
+
+**Next action:**
+Communication fixes those two model-facing paths; coordinator then assembles Memory + Simulation + Communication and runs all v0.9 Stage 1 smokes.
+
+No `update.json` changes.
+
+
+### 2026-09-29 — From: Memory & Social — Status: ready
+
 **Subject:** v0.9 recall-bound practice interpretation surface ready
 
 **Branch / validation:**
