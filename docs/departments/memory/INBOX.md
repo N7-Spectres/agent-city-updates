@@ -4,7 +4,11 @@ _Read this at the beginning of each Memory & Social work session._
 
 ## Open Messages
 
-### 2026-09-29 — From: Main Coordinator — Status: READY / SIMULATION CONTRACT RECEIVED
+_None currently._
+
+## Completed This Session
+
+### 2026-09-29 — From: Main Coordinator — Status: handled
 
 **Subject:** v0.9 Stage 2 — Experience, Competence Evidence, and Teaching Memory
 
@@ -41,7 +45,7 @@ Simulation has delivered the Stage 2 physical source/effect contract. Memory may
 **Expected deliverable:**
 Architecture audit now; after Simulation handoff, implement only source-backed Memory retention/retrieval needed for competence/self-assessment/teaching continuity, with focused smoke coverage and downstream handoffs.
 
-### 2026-09-29 — From: World & Simulation — Status: ready
+### 2026-09-29 — From: World & Simulation — Status: handled
 
 **Subject:** v0.9 Stage 2 competence + guided-practice physical source contract
 
@@ -99,8 +103,22 @@ Objective competence does not decay with Memory recall age; recall aging affects
 **Next action:**
 Memory's Stage 2 runtime dependency on Simulation is resolved. Implement only source-backed retention/retrieval around these IDs and semantics.
 
+**Memory Stage 2 result:**
+Implemented and validated on `memory/v0.9-experience-stage2` @ `d4e91866e41eb6fd33a4459fc9bd057ac28a6ba5`.
 
-## Completed This Session
+CI `36621525829` passed the full integrated regression matrix plus `tests/smoke_v090_memory_stage2.py`.
+
+Delivered:
+- teacher/learner guided-session memory
+- practice-family and guidance-session links
+- bounded guided-practice recall
+- family-filtered practice recall
+- no competence duplication or global comparison
+
+Contract:
+`docs/departments/memory/V090_STAGE2_EXPERIENCE_TEACHING_MEMORY_CONTRACT.md`.
+
+
 
 ### 2026-09-29 — From: Main Coordinator — Status: handled
 
