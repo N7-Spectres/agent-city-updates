@@ -1041,3 +1041,41 @@ Integration must not introduce:
 - frontend-derived competence
 
 The 8% practice-only cap, 10% combined cap, cross-family isolation, one-use guidance, and degraded-workbench bottleneck rule are all part of the same physical contract.
+
+
+## v0.9 Stage 3 — Historical Pattern Influence
+
+A recurring historical pattern is not a new law of physics.
+
+Simulation may classify an autonomous completed job as voluntary-pattern evidence only when the original choice had genuine room to vary. The current gate requires:
+
+- autonomous planner origin
+- at least two legal autonomous choices
+- active-cycle timing
+- an intent reason
+- a narrow eligible ordinary action
+- no persistent-plan attachment
+
+The context key must be deterministic runtime state, not LLM prose.
+
+Current key:
+
+`location:<location_id>|phase:<daily_phase>|open_choice`
+
+Pattern evidence is retained only after successful physical completion.
+
+Planner use is **context-only**:
+
+- legal actions are computed first
+- Memory pattern evidence is filtered to the same current context
+- a recurring action is shown only if that action is already legal
+- no numerical action weight, hard preference, sorting rule, or forced choice is introduced
+
+A `current` pattern means recent source-backed history supports repetition.  
+A `mixed` or `fading` pattern means later source-backed history has weakened it.
+
+Place continuity can inform reasoning but never changes geography or becomes a favorite-place field.
+
+Social custom candidates can inform expectations only as owner-perspective evidence. They do not create obligation, physical effects, or universal culture truth.
+
+Stage 3 intentionally stops before v1.0 general comparison/inquiry/preference machinery.
