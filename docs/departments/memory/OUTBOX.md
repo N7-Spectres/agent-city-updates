@@ -6,6 +6,43 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-29 — From: Memory & Social — Status: ready
 
+**Subject:** v0.9 Stage 3 pattern evidence spine ready
+
+**Branch / validation:**
+- `memory/v0.9-patterns-stage3`
+- head `2a742e6490c437625073ff8e50b24bfed37489c4`
+- CI `36638261682` PASS
+
+**Delivered:**
+- source-linked `memory_pattern_evidence`
+- voluntary habit-candidate evidence with forced-action exclusions
+- current/mixed/fading evidence state from recent contrary choices
+- citizen-specific place continuity evidence
+- socially transmitted custom candidates requiring multiple actors
+- source deletion/pruning semantics
+- score-free `GET /api/memory/patterns/{citizen_id}`
+
+**Thresholds:**
+- habit candidate: 3 matching voluntary source events across 2 days
+- custom candidate: 3 transmission events, 2 actors, 2 days, another actor involved
+
+**Hard boundaries:**
+- no habit/preference/personality identity
+- no favorite-place field
+- no culture/reputation score
+- no private-habit-to-custom shortcut
+- no unverified-claim promotion
+- no planner legality/mandatory action from Memory
+
+**Contract:**
+`docs/departments/memory/V090_STAGE3_PATTERN_EVIDENCE_CONTRACT.md`
+
+**Next action:**
+Simulation, Communication, and Assets may proceed from the Stage 3 Memory contract. Memory should remain in REVIEW until integration feedback or a new milestone.
+
+
+### 2026-09-29 — From: Memory & Social — Status: ready
+
 **Subject:** v0.9 Stage 2 experience/teaching Memory ready
 
 **Branch / validation:**
