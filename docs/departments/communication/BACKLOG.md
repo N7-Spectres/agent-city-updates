@@ -203,3 +203,19 @@ Critical split:
 - no numeric recall/reinforcement internals in dialogue
 
 No Communication-owned v0.9 Stage 1 implementation remains.
+
+## Final v0.9 Stage 1 Status
+
+Communication has no open Stage 1 implementation item.
+
+Final tested branch:
+- `communication/v0.9-recognition-stage1`
+- `2b0b683086c03708d235fc2fefd08d64ed2d15d1`
+- CI `36612304549`
+
+Next department action:
+- coordinator combines Memory + Simulation + Communication
+- run Memory, Simulation, and Communication v0.9 smokes with the published regression matrix
+- Assets may proceed once the combined Stage 1 base and its remaining Memory UI-safe projection are available
+
+Communication should not add more Stage 1 behavior before integration unless a concrete regression is reported.
