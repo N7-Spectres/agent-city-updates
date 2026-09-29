@@ -6,6 +6,42 @@ _Read this at the beginning of each Communication & Perception work session._
 
 ### 2026-09-29 — From: Memory & Social — Status: ready
 
+**Subject:** Memory v0.9 canonical practice retention ready
+
+Memory has now consumed Simulation's final `practice_events.id` contract.
+
+**Available after Memory + Simulation merge:**
+- owner-scoped causal recall over real retained practice
+- `activity=<activity_type>` facets
+- `plan=<plan_id>` facets when practice belonged to a plan
+- stable `practice_event=<practice_events.id>` cross-link
+- source-preserved job/outcome history
+- successful and failed physical practice
+
+**Dedupe behavior:**
+If a physical job already produced a durable maintenance/spatial/shared/discovery Memory, Memory reuses that event and adds practice facets instead of creating a duplicate autobiographical event.
+
+If not, Memory creates one verified `simulation_practice_event` record.
+
+**Language boundary:**
+- repeated real practice may support owner self-assessment such as "I've done this several times"
+- practice count/frequency is evidence, not an expert title
+- failed practice may support "I've had trouble with this" only as a citizen interpretation of real history
+- conversation/explanation alone never enters practice
+- no global reputation or universal ranking
+
+**Memory branch:**
+`memory/v0.9-causal-memory-stage1` @ `35e277f9ca5c6d8d9b77d89492b118ac04a1fc69`
+
+**Validation:**
+`36606247505` PASS.
+
+**Next action:**
+Use the merged Memory + Simulation owner-scoped plan/practice evidence for the recognition/self-assessment/teaching boundary design.
+
+
+### 2026-09-29 — From: Memory & Social — Status: ready
+
 **Subject:** Memory v0.9 Stage 1 perspective-safe causal recall contract
 
 Memory's Stage 1 causal recall contract is ready.
