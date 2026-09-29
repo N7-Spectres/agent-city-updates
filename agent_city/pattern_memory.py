@@ -344,6 +344,11 @@ def record_pattern_transmission(
     if not pattern_key or not value_text or source_actor_id == recipient_id:
         return None
 
+    # Make sure the speaker's source-backed practice Memory is current before
+    # validating that the claimed recurring pattern actually exists.
+    from .practice_memory import sync_practice_memory
+    sync_practice_memory()
+
     with connect() as conn:
         ensure_pattern_memory_schema_in_conn(conn)
         conversation = conn.execute(
