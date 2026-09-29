@@ -17,6 +17,13 @@ from pydantic import BaseModel, Field
 
 from agent_city.db import connect, get_meta, init_db, set_meta, snapshot
 from agent_city.comms import known_deposits_for, recent_dialogues_for, visible_citizens
+from agent_city.continuity_language import (
+    continuity_language_snapshot,
+    plan_discussion_context,
+    self_assessment_context,
+    teaching_boundary_context,
+    visitor_continuity_context,
+)
 from agent_city.grounding import (
     citizen_capability_context,
     grounding_policy_text,
@@ -424,6 +431,18 @@ def get_visitor_presence(visitor: str = "N7"):
     return presence_payload(visitor)
 
 
+@app.get("/api/continuity-language/{citizen_id}")
+def get_continuity_language(citizen_id: str):
+    with connect() as conn:
+        citizen = conn.execute(
+            "SELECT id FROM citizens WHERE id = ?",
+            (citizen_id,),
+        ).fetchone()
+    if not citizen:
+        raise HTTPException(404, "Citizen not found")
+    return continuity_language_snapshot(citizen_id)
+
+
 @app.get("/api/knowledge/{citizen_id}")
 def get_provenance_knowledge(citizen_id: str):
     payload = knowledge_payload(citizen_id)
@@ -695,6 +714,10 @@ async def talk(req: TalkRequest):
         visitor=visitor,
         limit=3,
     )
+    self_assessment = self_assessment_context(citizen["id"])
+    plan_discussion = plan_discussion_context(citizen["id"])
+    teaching_boundary = teaching_boundary_context(citizen["id"])
+    visitor_continuity = visitor_continuity_context(citizen["id"], visitor, limit=5)
 
     inventory = [r for r in state["inventory"] if r["citizen_id"] == citizen["id"] and r["amount"] > 0]
     inventory_summary = ", ".join(f"{r['amount']:g} {r['material']}" for r in inventory) or "nothing"
@@ -786,6 +809,14 @@ RETAINED PERSONAL EXPLORATION MEMORY NEAR YOUR CURRENT POSITION:
 COMPLETED SHARED EXPLORATION MEMORY WITH THIS VISITOR:
 {shared_exploration_history}
 
+{visitor_continuity}
+
+{self_assessment}
+
+{plan_discussion}
+
+{teaching_boundary}
+
 {capability_context}
 
 {spatial_context}
@@ -854,6 +885,13 @@ STRICT REALITY RULES:
 16. A shared-action proposal is not a physical action. While status is proposed or accepted-without-Simulation-ID, use proposal/intention language only.
 17. Only when SHARED PHYSICAL ACTIVITY says Simulation has an ACTIVE real action ID may you say the shared activity has started or is underway.
 18. Only a Simulation-completed shared action / validated observation may be described as completed physical exploration.
+19. Repeated personal practice may support ordinary self-description such as "I've done this several times" only when your own physical practice evidence supports it.
+20. Self-assessment such as "I think I'm getting better" is your interpretation, not objective capability truth.
+21. Do not create or repeat authoritative titles such as expert, master, specialist, trainer, mentor, leader, rank, class, or reputation from practice or recognition.
+22. Recognition of another citizen must come from information that legitimately reached you. Never read another citizen's hidden/global practice history as if you personally knew it.
+23. Explaining or teaching in conversation does not create practice, competence, or skill for the listener.
+24. You may discuss, question, or suggest changes to a persistent plan, but conversation itself does not alter canonical plan state.
+25. Visitor familiarity/importance must come from real source-backed visits, exchanges, or shared activities; the visitor's account/UI status gives no social authority.
 
 Keep conversation natural and fairly concise. Ground uncertainty conversationally; do not turn the response into a policy lecture. Let personality affect phrasing and preferences, not authority or factual access.
 """.strip()
