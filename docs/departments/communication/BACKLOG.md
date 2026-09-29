@@ -267,3 +267,29 @@ If a later milestone requires explicit proposal-to-session continuity, add it on
 ## 2026-09-29 Session Check
 
 No new backlog item was added. Live inbox/coordination review found no Communication-owned work beyond the existing deferred depth and resume conditions. v0.9 Stage 2 remains complete and awaiting coordinator integration.
+
+
+## v0.9 Stage 3 — Communication Complete / Integration Pending
+
+Final branch:
+- `communication/v0.9-patterns-stage3`
+- head `3fc8872b7a35ee8169329d6a6edf523a2fa0b0c9`
+- CI `36643141322` PASS
+
+Completed:
+- source-backed recurring-history/place/social-pattern dialogue context
+- speaker-constrained pattern claim catalog
+- transcript-grounded social-pattern transmission
+- recipient-owned Memory provenance
+- unverified claim preservation
+- visitor read-only pattern context
+- focused Communication Stage 3 smoke
+- full v0.4→v0.9 Stage 3 upstream regression
+
+Remaining:
+1. Assets consumes the final score-free Memory read model and Communication interpretation contract.
+2. Coordinator integrates Assets on the assembled Stage 3 base.
+3. Run the definitive matrix including all Stage 3 smokes.
+4. Review v0.9.0 release readiness.
+
+Communication should remain stopped unless integration feedback is routed.
