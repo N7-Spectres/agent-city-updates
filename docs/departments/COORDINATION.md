@@ -32,6 +32,8 @@ _None._
 
 ### DONE
 
+- [Coordinator] v0.8.7 Route Travel Visualization published from `be617e6e870ec3f1914d76cdb85107a6efc294d7`; final CI `36595479188` passed the complete matrix including `tests/smoke_v087_route_tokens.py`
+- [Assets & Interface] known-route citizen tokens now interpolate along route lines from authoritative job progress; no Simulation position writes
 - [Coordinator] v0.8.6 Stranded Citizen Recovery published from `a72f96b763671f01c5a8aa0ba41d87f7eb6b9a09`; final CI `36591711494` passed the complete matrix including `tests/smoke_v086_stranded_recovery.py`
 - [World & Simulation] operational-charger destinations no longer demand an impossible post-arrival reserve; actual travel cost still applies
 - [Coordinator] v0.8.5 Daily Rhythm & Recharge published from `5b2395d7e7643a3d7ac9a82ac68090fc97b5f0b7`; final CI `36498819565` passed the complete matrix including `tests/smoke_v085_daily_rhythm.py`
@@ -530,3 +532,19 @@ Emergency admin principle:
 - bug-created impossible states may receive minimal recovery intervention
 - prefer fixing the rule so the existing save self-recovers
 - direct state edits are last-resort repair, not visitor gameplay authority
+
+
+## v0.8.7 Release Result
+
+Published runtime:
+- branch: `release-v0.8.7`
+- immutable commit: `be617e6e870ec3f1914d76cdb85107a6efc294d7`
+- final GitHub Actions run: `36595479188`
+- result: **PASS**
+
+Shipped:
+- route-travel citizen tokens visually advance along the actual known route
+- screen position is proportional to authoritative travel-job progress
+- compact travel percentage badge added
+- remaining route distance included in token detail
+- no Simulation, Communication, or Memory authority changed
