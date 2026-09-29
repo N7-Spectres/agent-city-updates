@@ -1,7 +1,7 @@
 # Memory & Social — State
 
-_Last updated: 2026-09-28_
-_Current release: v0.7.0_
+_Last updated: 2026-09-29_
+_Current release: v0.8.7_
 _Current development branch: `memory/v0.9-causal-memory-stage1`_
 
 ## Mission
@@ -1115,3 +1115,35 @@ The full `practice_events` ledger remains appropriate for objective diagnostics/
 
 Final Memory branch head: `29a5b896b9bdcb7cb833f5bfaf25aabfac9f26d5`  
 Final Memory validation: `36607115487`
+
+
+## v0.9 Stage 1 Final Session Close
+
+Memory & Social v0.9 Stage 1 is complete for this work session.
+
+**Branch:** `memory/v0.9-causal-memory-stage1`  
+**Final clean head:** `29a5b896b9bdcb7cb833f5bfaf25aabfac9f26d5`  
+**Final Memory validation:** `36607115487`
+
+Delivered and handed off:
+- durable archive vs bounded active recall
+- source-backed facet index and reinforcement
+- meaningful aging without history rewrite
+- plan-pinned causal memory references
+- canonical Simulation `practice_events` retention with job-level dedupe
+- recall-bound practice interpretation APIs
+- Simulation persistent-plan source contract
+- Communication perspective-safe recall contract
+- Communication compatibility blocker for direct durable-ledger prompt use / numeric reinforcement exposure
+
+Memory has no remaining department-owned Stage 1 implementation task.
+
+Current external dependency:
+Communication must consume Memory active practice recall for model-facing self-assessment/teaching and remove numeric `reinforcement_count` from natural-language recognition evidence before coordinator integration.
+
+Resume Memory only for:
+- a Communication source/API clarification,
+- coordinator merge/integration regressions,
+- or a newly authorized v0.9 milestone.
+
+No release was published and `update.json` was not changed.
