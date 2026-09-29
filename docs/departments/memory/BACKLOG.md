@@ -588,3 +588,23 @@ Downstream:
 - [ ] Communication adds source-linked transmission registration and perspective-safe language
 - [ ] Assets consumes score-free pattern/place/custom evidence
 - [ ] coordinator integrates all Stage 3 department branches and runs the full v0.9 matrix
+
+
+### Final v0.9 Stage 3 handoff
+
+- [x] pattern evidence spine complete
+- [x] voluntary-choice evidence API complete
+- [x] forced/survival repetition exclusions complete
+- [x] habit candidate threshold/current-mixed-fading semantics complete
+- [x] source-pruning semantics complete
+- [x] citizen-specific place continuity complete
+- [x] social-transmission/custom evidence complete
+- [x] score-free pattern read model complete
+- [x] Simulation/Communication/Assets handoffs delivered
+- [x] full definitive Stage 2 matrix + Stage 3 smoke green in CI `36638261682`
+- [x] Memory moved to REVIEW
+- [x] no open Memory inbox items remain
+- [ ] Simulation completes Stage 3 planner/runtime slice
+- [ ] Communication completes Stage 3 language/transmission slice
+- [ ] Assets completes Stage 3 UI slice
+- [ ] coordinator integrates all Stage 3 branches and runs the full v0.9 regression suite
