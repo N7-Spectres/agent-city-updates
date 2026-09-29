@@ -758,3 +758,18 @@ They must not appear in natural-language self-assessment, recognition, teaching,
 Recognition should cite the recalled source-backed events themselves and preserve their verification state.
 
 Repetition can make something easier to recall without making it more true or more authoritative.
+
+## v0.9 Final Recall-Bound Handoff
+
+The final Stage 1 model-facing evidence hierarchy is:
+
+1. Simulation `practice_events` = durable physical practice archive
+2. Memory `practice_recall_*` = bounded active autobiographical recall
+3. Communication self-assessment/teaching language = interpretation over active recall
+4. Memory speaker-owned causal recall = perspective evidence about other citizens
+
+Do not skip layer 2 for model-facing self-assessment or teaching.
+
+Do not expose retrieval internals such as `recall_score` or `reinforcement_count` as citizen facts.
+
+This hierarchy is now a release-integration invariant.
