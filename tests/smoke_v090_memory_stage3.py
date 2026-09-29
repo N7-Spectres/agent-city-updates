@@ -164,7 +164,11 @@ def main() -> None:
             if item["source_type"] == "pattern_transmission"
         )
         assert transmitted["verification"] == "unverified"
-        assert transmitted["counterparty_id"] == "bex"
+        assert any(
+            facet["kind"] == "counterparty"
+            and facet["value"] == "bex"
+            for facet in transmitted["facets"]
+        )
         assert any(
             facet["kind"] == "pattern_key"
             and facet["value"] == "survey@rocky_basin"
