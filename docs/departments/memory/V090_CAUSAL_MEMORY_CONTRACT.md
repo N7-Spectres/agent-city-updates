@@ -200,3 +200,76 @@ Stage 1 does not add:
 - global memory
 - automatic skill from conversation
 - automatic place attachment
+
+
+## Canonical Practice Evidence Retention
+
+Simulation Stage 1 now exposes canonical physical practice through `practice_events.id`.
+
+Memory consumes that ledger through `agent_city/practice_memory.py`.
+
+### Source rule
+
+Practice evidence may enter durable personal Memory only from a real Simulation `practice_events` row.
+
+Practice does **not** come from:
+- conversation
+- agreement
+- proximity
+- waiting
+- UI/admin interaction
+- concept art
+
+### Dedupe rule
+
+The same physical job should not produce two autobiographical copies merely because it has multiple valid source ledgers.
+
+When a `practice_events.job_id` already corresponds to a durable Memory event, for example:
+- maintenance memory
+- spatial observation memory
+- shared-exploration memory
+- job/discovery memory
+
+Memory reuses that existing event and adds practice facets.
+
+If no durable Memory event represents the physical job, Memory creates one:
+
+- `source_type='simulation_practice_event'`
+- `source_id=practice_events.id`
+- `event_kind='practice_<activity_type>'`
+- owner = `practice_events.citizen_id`
+- status/verification = verified
+
+### Practice facets
+
+Practice-linked memories may receive:
+- `practice_event=<practice_events.id>`
+- `activity=<activity_type>`
+- `plan=<plan_id>` when present
+- location/material/target facets when safely available
+
+This improves later source-backed retrieval without creating XP, levels, titles, or a universal competence score.
+
+### Outcome rule
+
+Completed and failed real practice are both legitimate history.
+
+A failed/no-yield event may be more salient for later recall, but it is not a permanent negative trait.
+
+Practice outcome changes what happened, not who the citizen "is."
+
+### Authority split
+
+Simulation owns:
+- which jobs qualify as practice
+- `practice_events.id`
+- job status/outcome
+- later physical competence effects, if any
+
+Memory owns:
+- whether/how that evidence is retained
+- dedupe against existing autobiographical events
+- causal facets
+- bounded recall/reinforcement
+
+Communication may later interpret this history as perspective-safe self-assessment, but may not convert counts into authoritative expertise titles.
