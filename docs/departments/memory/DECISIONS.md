@@ -894,3 +894,18 @@ Use Memory's bounded continuity projection for remembered perspective.
 Use Simulation's competence endpoint for objective physical effect/history.
 
 Do not blend these into one skill/reputation meter.
+
+
+## v0.9 Stage 2 Completion Decision
+
+Memory's Stage 2 scope is closed.
+
+Do not add competence logic, teaching identity, global experience comparison, or new UI metrics in Memory before coordinator integration.
+
+The validated split remains:
+- Simulation = objective competence/effects
+- Memory = retained experience and active recall
+- Communication = interpretation/language
+- Assets = safe presentation
+
+Memory remains in REVIEW until combined Stage 2 integration.
