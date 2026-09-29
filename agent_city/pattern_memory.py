@@ -76,28 +76,23 @@ def _practice_rows_in_conn(conn, citizen_id: str) -> list[dict[str, Any]]:
         """
         SELECT DISTINCT
             me.id AS memory_event_id,
-            me.sim_minute,
+            p.completed_minute AS sim_minute,
             me.source_type,
             me.source_id,
             me.summary,
-            act.facet_value AS activity,
-            loc.facet_value AS location_id,
-            pe.facet_value AS practice_event_id
+            p.activity_type AS activity,
+            p.location_id AS location_id,
+            p.id AS practice_event_id
         FROM memory_events me
-        JOIN memory_event_facets act
-          ON act.owner_id = me.owner_id
-         AND act.memory_event_id = me.id
-         AND act.facet_kind = 'activity'
         JOIN memory_event_facets pe
           ON pe.owner_id = me.owner_id
          AND pe.memory_event_id = me.id
          AND pe.facet_kind = 'practice_event'
-        LEFT JOIN memory_event_facets loc
-          ON loc.owner_id = me.owner_id
-         AND loc.memory_event_id = me.id
-         AND loc.facet_kind = 'location'
+        JOIN practice_events p
+          ON p.citizen_id = me.owner_id
+         AND CAST(p.id AS TEXT) = pe.facet_value
         WHERE me.owner_id = ?
-        ORDER BY me.sim_minute, me.id
+        ORDER BY p.completed_minute, me.id
         """,
         (citizen_id,),
     ).fetchall()
