@@ -2,9 +2,10 @@
 
 _Last updated: 2026-09-29_
 _Current published release: v0.8.7 @ `be617e6e870ec3f1914d76cdb85107a6efc294d7`_
-_Current Assets activity: v0.9 continuity UI/read-model audit_
-_Current runtime branch: none; implementation waits for the combined v0.9 Stage 1 integration base_
-_Current status: REVIEW / WAITING FOR RUNTIME CONTRACT INTEGRATION_
+_Current Assets activity: v0.9 Stage 2 continuity runtime UI_
+_Current runtime branch: `assets/v0.9-stage2-continuity-ui` @ `224c8eb526dcf6bdfeb4e4457ef68727083b3a31`_
+_Current review surface: PR #26 — ready for review_
+_Current status: REVIEW_
 
 ## Mission
 
@@ -445,3 +446,85 @@ Required next sequence:
 5. coordinator runs the final combined regression matrix
 
 Do not infer additional Assets runtime work from this chat after closure.
+
+
+## v0.9 Stage 2 Runtime UI — Complete
+
+Assets implemented the final Stage 2 citizen-sheet UI on the coordinator-assembled green base.
+
+Base:
+- `release-v0.9.0-stage2-integration`
+- `ac548b06ea8a88a66a763902ab01a6567c3a2e79`
+- upstream combined CI `36633452433` PASS
+
+Assets branch:
+- `assets/v0.9-stage2-continuity-ui`
+- head `224c8eb526dcf6bdfeb4e4457ef68727083b3a31`
+- 7 ahead / 0 behind base
+- PR #26 ready and mergeable
+
+Delivered:
+
+### Evidence / Record
+- consumes `GET /api/competence/{citizen_id}`
+- per-family factual practice count
+- completed count
+- failed count
+- non-zero `duration_reduction_percent` shown as compact measured-work text
+- no frontend competence math
+- no bars/gauges/tiers/ranks
+
+### Guided Practice History
+- factual event rows from `guided_practice_sessions[]`
+- guide side: "Guided <counterpart>"
+- learner side: "Practiced with <counterpart>"
+- teacher/learner remain event-local roles
+- historical legality snapshot counts are not surfaced
+
+### Remembered Perspective
+- continues to use `GET /api/memory/continuity/{citizen_id}`
+- may display safe source role, counterparty, and competence-family context
+- no recall score
+- no reinforcement count
+
+### Citizen Interpretation
+- remains explicitly Communication-owned and attributed
+- Assets does not synthesize self-assessment text from practice counts or measured effects
+
+### Home
+- no competence badges, counts, skill icons, or guidance clutter added
+
+## Validation
+
+Static final audit:
+- 77 HTML IDs
+- 73 JS DOM refs
+- zero missing refs
+- zero duplicate IDs
+- JavaScript parses
+- no frontend competence math
+- final changed files:
+  - `static/app.js`
+  - `static/styles.css`
+  - `tests/smoke_v090_assets_stage2.py`
+
+Full branch regression:
+- GitHub Actions `36634754010` — PASS
+- Python compile
+- JavaScript syntax
+- complete v0.4→v0.8.7 regression matrix
+- all four v0.9 Stage 1 smokes
+- v0.9 Stage 2 Simulation smoke
+- v0.9 Stage 2 Memory smoke
+- v0.9 Stage 2 Communication smoke
+- v0.9 Stage 2 Assets smoke
+
+Temporary validation workflow removed after the green run.
+
+## Next Owner
+
+**Coordinator / v0.9 Stage 2 Final Integration**
+
+Coordinator should merge PR #26 into the assembled Stage 2 line and rerun the complete matrix including `tests/smoke_v090_assets_stage2.py`.
+
+No `update.json` or release metadata was changed by Assets.
