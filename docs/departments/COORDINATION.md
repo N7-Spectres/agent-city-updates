@@ -16,30 +16,31 @@ This file is the shared project task board.
 
 ### ACTIVE
 
+- [Assets & Interface] v0.9 Stage 2 runtime UI is now authorized on the assembled green base `release-v0.9.0-stage2-integration@ac548b06ea8a88a66a763902ab01a6567c3a2e79`; combined CI `36633452433` PASS.
 
 ### WAITING
 
-- [Assets & Interface] Stage 2 presentation audit is complete; runtime UI waits for a coordinator-assembled Simulation + Memory + Communication Stage 2 base.
-- [Coordinator / v0.9 Stage 2 Integration] next action is to assemble Simulation + Memory + Communication Stage 2 onto the green Stage 1 base, validate that upstream integration, then hand the assembled base to Assets for final UI implementation.
+- [Coordinator / v0.9 Stage 2 Final Integration] waits only on Assets runtime completion, then reruns the complete regression matrix with the Assets Stage 2 smoke.
 
 ### READY
 
-- [Assets & Interface] Memory's Stage 2 remembered-perspective contract is ready; existing `GET /api/memory/continuity/{citizen_id}` remains the safe Memory UI surface.
-
-- [World & Simulation] v0.9 Stage 2 bounded competence + real guided practice ready on `simulation/v0.9-competence-stage2` @ `667f4659aeef9a9658d7e08f4ba7c54e267a38f9`; final runtime CI `36618030044` passed the complete v0.4-v0.8.7 matrix, all v0.9 Stage 1 smokes, and `tests/smoke_v090_simulation_stage2.py`.
-- [Assets & Interface] Simulation's score-free competence/guided-practice read model is now in Assets INBOX.
+- [Assets & Interface] exact assembled Stage 2 base is ready:
+  - branch `release-v0.9.0-stage2-integration`
+  - head `ac548b06ea8a88a66a763902ab01a6567c3a2e79`
+  - combined CI `36633452433` PASS
+  - includes Simulation + Memory + Communication Stage 2
+  - all v0.4-v0.8.7 regressions, all four v0.9 Stage 1 smokes, and all three upstream Stage 2 smokes pass together
 
 ### REVIEW
 
-- [Assets & Interface] v0.9 Stage 2 competence/guided-practice presentation audit complete; literal practice evidence remains primary, measured duration effect is text-only, guided practice remains event history, no RPG/mentor/rank UI
-
-- [Communication & Perception] v0.9 Stage 2 guided-practice/questions/competence-safe language complete on `communication/v0.9-guided-practice-stage2` @ `6af2f6cb8b9fe3d44b30c9dad2fc6e54926b09cf`; CI `36627237487` passed the integrated Stage 1 regression matrix + Communication Stage 2 smoke.
-
-- [Memory & Social] v0.9 Stage 2 experience/teaching Memory complete on `memory/v0.9-experience-stage2` @ `d4e91866e41eb6fd33a4459fc9bd057ac28a6ba5`; CI `36621525829` passed the full integrated Stage 1 matrix + `tests/smoke_v090_memory_stage2.py`.
-
-- [World & Simulation] Stage 2 family-bounded competence, duration-only effects, failed-attempt experience, guided-practice sessions, one-use learner support, bottleneck dominance, safe read model, and regression coverage complete.
+- [Assets & Interface] v0.9 Stage 2 competence/guided-practice presentation audit complete; literal practice evidence remains primary, measured duration effect is text-only, guided practice remains event history, no RPG/mentor/rank UI.
+- [Communication & Perception] v0.9 Stage 2 guided-practice/questions/competence-safe language complete on `communication/v0.9-guided-practice-stage2` @ `6af2f6cb8b9fe3d44b30c9dad2fc6e54926b09cf`; CI `36627237487` PASS.
+- [Memory & Social] v0.9 Stage 2 experience/teaching Memory complete on `memory/v0.9-experience-stage2` @ `d4e91866e41eb6fd33a4459fc9bd057ac28a6ba5`; CI `36621525829` PASS.
+- [World & Simulation] v0.9 Stage 2 competence/guided-practice complete on `simulation/v0.9-competence-stage2` @ `667f4659aeef9a9658d7e08f4ba7c54e267a38f9`; CI `36618030044` PASS.
 
 ### DONE
+
+- [Coordinator] assembled Simulation + Memory + Communication Stage 2 on `release-v0.9.0-stage2-integration` @ `ac548b06ea8a88a66a763902ab01a6567c3a2e79`; combined CI `36633452433` PASS.
 
 - [Coordinator] v0.9 Stage 1 integrated on `release-v0.9.0-stage1-integration` @ `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`; combined CI `36615685005` PASS.
 - [Memory & Social] v0.9 Stage 1 causal archive / bounded recall / practice retention integrated.
