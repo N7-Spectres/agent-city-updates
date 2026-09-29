@@ -1031,6 +1031,23 @@ input:focus, textarea:focus { border-color: var(--accent); }
   box-shadow: 0 0 0 4px rgba(213,166,91,.08), 0 0 14px rgba(213,166,91,.25);
 }
 
+.map-travel-progress {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 5px);
+  transform: translateX(-50%);
+  padding: 2px 5px;
+  border: 1px solid rgba(213,166,91,.32);
+  border-radius: 999px;
+  background: rgba(9,13,18,.9);
+  color: var(--accent);
+  font-size: 8px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
 .map-visitor {
   position: absolute;
   transform: translate(-50%, -50%);
