@@ -20,6 +20,9 @@ const citizenKnowledgeCache = new Map();
 const locationKnowledgeCache = new Map();
 const knowledgeLoading = new Set();
 const KNOWLEDGE_REFRESH_MS = 12000;
+const citizenContinuityCache = new Map();
+const continuityLoading = new Set();
+const CONTINUITY_REFRESH_MS = 12000;
 
 const LOCATION_PRESENTATION = {
   seed_site: {
@@ -1357,6 +1360,7 @@ window.openCitizenSheet = function(id) {
   renderCitizenDirectory();
   renderCitizenSheet();
   loadCitizenKnowledge(id);
+  loadCitizenContinuity(id);
 };
 
 function renderCitizenSheet() {
