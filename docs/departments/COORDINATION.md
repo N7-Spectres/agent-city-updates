@@ -20,39 +20,25 @@ _None._
 
 ### WAITING
 
-- [Communication & Perception] v0.9 recognition / self-assessment / teaching runtime work has Memory's causal recall contract; final runtime work still waits on Simulation's canonical plan/practice event contract.
-- [Assets & Interface] v0.9 continuity UI runtime work has Memory's causal contract but still waits on safe plan/self-assessment read models from Simulation + Communication; UI/read-model audit may proceed now.
+- [Coordinator / v0.9 Stage 1 Integration] combine Memory causal spine + Simulation plan/practice substrate, preserve both ownership boundaries, and run both v0.9 smokes with the full regression matrix.
 
 ### READY
 
-- [World & Simulation] Memory v0.9 Stage 1 persistent-plan source/retrieval contract is ready in `docs/departments/memory/V090_CAUSAL_MEMORY_CONTRACT.md`; Simulation may proceed with canonical plan lifecycle implementation.
-- [Communication & Perception] Memory v0.9 Stage 1 perspective-safe causal recall contract is ready; design audit may proceed while waiting on Simulation practice/plan events.
-
+- [Communication & Perception] Memory causal recall and Simulation canonical plan/practice contracts are both ready; recognition/self-assessment/teaching boundary work may proceed.
+- [Assets & Interface] Memory causal contract and Simulation safe continuity read model are both ready; continuity UI/read-model audit may proceed.
 
 ### REVIEW
 
 - [Memory & Social] v0.9 Stage 1 Causal Memory Spine complete on `memory/v0.9-causal-memory-stage1` @ `1394261f72d4fc5df7d41e065cd157350fee2785`; CI `36598971733` passed the full v0.4-v0.8.7 matrix + v0.9 Memory smoke.
-
-_None._
+- [World & Simulation] v0.9 Stage 1 Persistent Plans + Practice Evidence complete on `simulation/v0.9-continuity-stage1` @ `6b027708512671d8c851723fb900cfa1e0fcac73`; final CI `36603570434` passed the full v0.4-v0.8.7 matrix + v0.9 Simulation smoke.
 
 ### DONE
 
 - [Coordinator] v0.9 Civilization Continuity doctrine locked in `docs/V090_CIVILIZATION_CONTINUITY_DOCTRINE.md`
 - [Coordinator] v0.9 stage order locked: Causal Memory + Persistent Plans → Practice/Competence/Teaching/Recognition → Habits/Place Meaning/Social Customs
 - [Coordinator] v0.9 department packets placed in Memory, Simulation, Communication, and Assets INBOX files
-- [Coordinator] v0.8.7 Route Travel Visualization published from `be617e6e870ec3f1914d76cdb85107a6efc294d7`; final CI `36595479188` passed the complete matrix including `tests/smoke_v087_route_tokens.py`
-- [Assets & Interface] known-route citizen tokens now interpolate along route lines from authoritative job progress; no Simulation position writes
-- [Coordinator] v0.8.6 Stranded Citizen Recovery published from `a72f96b763671f01c5a8aa0ba41d87f7eb6b9a09`; final CI `36591711494` passed the complete matrix including `tests/smoke_v086_stranded_recovery.py`
-- [World & Simulation] operational-charger destinations no longer demand an impossible post-arrival reserve; actual travel cost still applies
-- [Coordinator] v0.8.5 Daily Rhythm & Recharge published from `5b2395d7e7643a3d7ac9a82ac68090fc97b5f0b7`; final CI `36498819565` passed the complete matrix including `tests/smoke_v085_daily_rhythm.py`
-- [World & Simulation] autonomous daily rhythm now prioritizes recharge/safe return without redefining physical action legality or cancelling active jobs
-- [Assets & Interface] world presentation now reflects dawn/day/dusk/night from authoritative simulation time only
-- [Coordinator] v0.8.4 Conversation Summary Truth published from `ff78aab0e85331238eb67c989952a72499d1ed78`; final CI `36487822361` passed the complete matrix including `tests/smoke_v084_summary_truth.py`
-- [Communication & Perception] citizen conversation summaries now preserve report/intention vs physical verification boundaries
-- [Coordinator] v0.8.3 Citizen Personality + Natural Dialogue published from `e4d216b133a18dc4c68e1bba1ceb0457e952efb6`
-- [Coordinator] v0.8.2 Live State Readability published from `9a11b2bc21ba2338d6b231924036bf6d5935475c`
-- [Coordinator] v0.8.1 Citizen Visual Assets + Map Readability published from `fa27c942d08a9a97a2dbca5e86ab77dc7b9b7cc0`
-- [Coordinator] v0.8.0 Living World published from `a870982ba947fcc5af08ca190de396ae4308b645`
+- [Coordinator] v0.8.7 Route Travel Visualization published from `be617e6e870ec3f1914d76cdb85107a6efc294d7`; final CI `36595479188` passed
+- [Coordinator] v0.8.0–v0.8.6 release history remains complete and published
 
 ## v0.8 Stage 1 Coordination Goal
 
@@ -585,6 +571,38 @@ Global anti-patterns:
 Stage 1 completion target:
 a citizen can resume, revise, pause, abandon, or complete a meaningful persistent plan after unrelated actions/time have passed, with the current reason traceable to real retained history and without leaking that continuity to citizens who never acquired it.
 
+
+## Simulation v0.9 Stage 1 Integration Locks
+
+Coordinator and downstream implementation must preserve:
+
+1. `citizen_plans.id` is the canonical persistent-plan identity.
+2. A plan is citizen-owned intent continuity, not a command queue and not a competence label.
+3. Plan creation requires at least one canonical `memory_event_id` owned by that citizen.
+4. `plan_memory_sources` stores causal Memory references; plan reason text alone is not evidence.
+5. `plan_transitions.id` preserves creation/revision/pause/resume/abandon/complete/supersede and real step history.
+6. `jobs.plan_id` may reference only an active plan owned by the acting citizen.
+7. A physical job outcome records `step_outcome` but never auto-completes the plan.
+8. `practice_events.id` is one-to-one source-backed physical practice evidence from a real eligible `jobs.id`.
+9. Completed and failed physical work may be practice evidence; talk/wait/agreement/proximity/UI never are.
+10. Historical eligible jobs are backfilled idempotently into practice evidence without retroactive XP.
+11. Stage 1 creates no competence score, XP, level, role, class, specialization, expert title, or reputation.
+12. Memory remains owner of recall scoring/aging/reinforcement and `memory_event_facets`; Simulation must not duplicate that system.
+13. Simulation consumes Memory public APIs `causal_recall_snapshot`, `causal_recall_context_for`, and `link_memory_event` after integration.
+14. Standalone Simulation fails closed for autonomous new-plan candidate retrieval until Memory causal recall is present.
+15. `sync_plan_memory_facets()` must survive integration so merge order cannot lose plan-pinned Memory facets.
+16. Safe UI/read models may expose plan/practice history but not Memory recall scores as identity strength.
+17. Preserve `tests/smoke_v090_simulation_stage1.py`.
+18. No department publishes `update.json` during Stage 1.
+
+## Required v0.9 Stage 1 Integration Tests
+
+At minimum run together after Memory + Simulation integration:
+
+- complete published regression matrix v0.4 through v0.8.7
+- `tests/smoke_v090_memory_stage1.py`
+- `tests/smoke_v090_simulation_stage1.py`
+- Communication/Assets v0.9 focused tests when those branches add runtime/UI work
 
 ## Memory v0.9 Stage 1 Integration Locks
 
