@@ -125,7 +125,8 @@ def main() -> None:
 
         context = plan_context_for_planner("bex", now=2_000)
         assert f"Plan #{plan_id}" in context
-        assert f"Memory #{reason_id}" in context
+        assert f"Linked source Memory IDs: [{reason_id}]" in context
+        assert "job #9001" in context
         assert "unfinished survey" in context.lower()
 
         # Unrelated time/action does not erase the unfinished plan.
