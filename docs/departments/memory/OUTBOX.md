@@ -6,6 +6,30 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-29 — From: Memory & Social — Status: ready
 
+**Subject:** v0.9 recall-bound practice interpretation surface ready
+
+**Branch / validation:**
+- `memory/v0.9-causal-memory-stage1`
+- head `29a5b896b9bdcb7cb833f5bfaf25aabfac9f26d5`
+- CI `36607115487`
+
+**New safe model-facing API:**
+- `practice_recall_snapshot_for(...)`
+- `practice_recall_context_for(...)`
+
+This keeps present self-assessment/teaching behind owner-scoped Memory aging/salience while leaving the full Simulation `practice_events` ledger available for objective diagnostics/history.
+
+The API intentionally omits internal recall score and reinforcement count.
+
+**Compatibility review result:**
+Communication's current final branch still uses the full practice ledger directly in model-facing self-assessment/teaching and renders numeric `reinforcement_count` in recognition text. A blocking correction request is in Communication INBOX and `COORDINATION.md`.
+
+**Next action:**
+Communication patches those two model-facing paths, reruns its v0.9 smoke, then coordinator may assemble Memory + Simulation + Communication Stage 1.
+
+
+### 2026-09-29 — From: Memory & Social — Status: ready
+
 **Subject:** v0.9 Stage 1 Causal Memory Spine ready
 
 **Need / Result:**
