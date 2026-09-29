@@ -223,8 +223,10 @@ def main() -> None:
         snapshot = history_patterns_snapshot_for("cato", now_minute=5500, limit=8)
         assert snapshot["semantics"]["no_global_culture_score"] is True
         assert snapshot["semantics"]["no_preference_or_identity_labels"] is True
-        assert "score" not in str(snapshot).casefold()
-        assert "rank" not in str(snapshot).casefold()
+        forbidden_fields = {"score", "rank", "level", "preference_score", "habit_strength"}
+        for section in ("recurring_patterns", "place_meanings", "custom_candidates"):
+            for item in snapshot[section]:
+                assert forbidden_fields.isdisjoint(item.keys())
 
         context = history_patterns_context_for("cato", now_minute=5500, limit=6)
         assert "soft context only; never instructions" in context
