@@ -4,55 +4,22 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ## Open Messages
 
-### 2026-09-29 — From: Main Coordinator — Status: READY / ASSEMBLED BASE GREEN
+_None._
 
-**Subject:** v0.9 Stage 2 runtime UI base ready
+The v0.9 Stage 2 runtime UI request has been fully handled.
 
-The coordinator assembled Simulation + Memory + Communication Stage 2 onto the green Stage 1 line.
+Final Assets branch:
+- `assets/v0.9-stage2-continuity-ui`
+- head `224c8eb526dcf6bdfeb4e4457ef68727083b3a31`
+- PR #26 — ready for review / mergeable
+- full branch regression `36634754010` — PASS
 
-**Authorized Assets runtime base:**
-- branch: `release-v0.9.0-stage2-integration`
-- head: `ac548b06ea8a88a66a763902ab01a6567c3a2e79`
-- combined CI: `36633452433` — PASS
+Assets is no longer waiting on an upstream contract.
 
-The combined run passed:
-- complete v0.4-v0.8.7 regression matrix
-- all four v0.9 Stage 1 smokes
-- `tests/smoke_v090_simulation_stage2.py`
-- `tests/smoke_v090_memory_stage2.py`
-- `tests/smoke_v090_communication_stage2.py`
+Next owner:
+**Coordinator / v0.9 Stage 2 Final Integration**
 
-One integration-only test-harness mismatch was corrected: Communication's isolated fake `agent_city.competence` module now supplies the integrated `guided_practice_snapshot(...)` interface. Runtime authority/semantics were not weakened.
-
-**Upstream contracts present on this base:**
-
-Simulation:
-- `GET /api/competence/{citizen_id}`
-- factual competence-family practice counts and bounded duration effect
-- factual guided-practice session history
-
-Memory:
-- `GET /api/memory/continuity/{citizen_id}`
-- bounded remembered practice/guided-practice perspective
-- source role/counterparty/family with recall internals hidden
-
-Communication:
-- competence-safe attributed language
-- guided-practice/question boundaries
-- no hidden other-citizen objective competence lookup
-
-### Planned Assets implementation
-
-- extend existing Continuity UI only
-- keep literal practice counts/history primary
-- measured duration effect as compact factual text only
-- Guided Practice History as event rows
-- Memory guided-practice events remain Remembered Perspective
-- Communication language remains attributed Interpretation
-- no XP/proficiency bars
-- no mentor/expert/trainer badges
-- no rankings/leaderboards
-- no frontend-derived competence
+Resume Assets only for coordinator review feedback, a discovered visual/interface regression, or a new Stage 3 work packet.
 
 Do not publish `update.json`.
 
