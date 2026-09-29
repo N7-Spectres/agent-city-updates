@@ -552,11 +552,33 @@ def display_recall_snapshot(
     reinforcement, salience, and global aggregation machinery.
     """
     safe_limit = max(1, min(int(limit), 16))
-    filters = {"plan": str(plan_id)} if plan_id is not None else None
+    plan_value = str(plan_id) if plan_id is not None else None
+    filters = {"plan": plan_value} if plan_value is not None else None
+
+    pinned_ids: list[int] = []
+    if plan_value is not None:
+        try:
+            with connect() as conn:
+                rows = conn.execute(
+                    """
+                    SELECT memory_event_id
+                    FROM plan_memory_sources
+                    WHERE owner_id = ? AND CAST(plan_id AS TEXT) = ?
+                    ORDER BY memory_event_id
+                    """,
+                    (owner_id, plan_value),
+                ).fetchall()
+            pinned_ids = [int(row["memory_event_id"]) for row in rows]
+        except Exception:
+            # Memory may be exercised before the Simulation continuity schema
+            # exists. In that case the explicit plan facet remains sufficient.
+            pinned_ids = []
+
     recalled = causal_recall_snapshot(
         owner_id,
         now_minute=now_minute,
         facet_filters=filters,
+        pinned_event_ids=pinned_ids,
         limit=safe_limit,
     )
 
@@ -572,6 +594,10 @@ def display_recall_snapshot(
             for facet in safe_facets
             if facet["kind"] == "plan"
         })
+        if plan_value is not None and int(item["memory_event_id"]) in set(pinned_ids):
+            if plan_value not in linked_plan_ids:
+                linked_plan_ids.append(plan_value)
+                linked_plan_ids.sort()
 
         result.append({
             "owner_id": str(item["owner_id"]),
