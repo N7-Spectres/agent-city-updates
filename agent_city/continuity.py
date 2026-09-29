@@ -587,6 +587,31 @@ def record_plan_job_outcome(conn, job: Any, *, sim_minute: int) -> None:
     )
 
 
+def _practice_location_for_job(conn, job: Any) -> str | None:
+    action = str(job["action"] or "")
+    if action in {"travel", "survey"} and job["target"]:
+        return str(job["target"])
+    if action == "extract" and job["target"]:
+        row = conn.execute(
+            "SELECT location_id FROM deposits WHERE id = ?",
+            (str(job["target"]),),
+        ).fetchone()
+        if row:
+            return str(row["location_id"])
+    if action == "construct" and job["project_id"] is not None:
+        row = conn.execute(
+            "SELECT location_id FROM projects WHERE id = ?",
+            (int(job["project_id"]),),
+        ).fetchone()
+        if row:
+            return str(row["location_id"])
+    row = conn.execute(
+        "SELECT location_id FROM citizens WHERE id = ?",
+        (str(job["citizen_id"]),),
+    ).fetchone()
+    return str(row["location_id"]) if row else None
+
+
 def record_practice_event_for_job(conn, job: Any, *, sim_minute: int) -> int | None:
     action = str(job["action"] or "")
     if action not in PRACTICE_ACTIONS or str(job["status"]) not in {"complete", "failed"}:
@@ -599,11 +624,9 @@ def record_practice_event_for_job(conn, job: Any, *, sim_minute: int) -> int | N
     if existing:
         return int(existing["id"])
 
-    citizen = conn.execute(
-        "SELECT location_id FROM citizens WHERE id = ?",
-        (str(job["citizen_id"]),),
-    ).fetchone()
-    summary = f"Completed {action} job #{int(job['id'])} with outcome {job['outcome'] or 'success'}."
+    location_id = _practice_location_for_job(conn, job)
+    verb = "Completed" if str(job["status"]) == "complete" else "Ended"
+    summary = f"{verb} {action} job #{int(job['id'])} with outcome {job['outcome'] or job['status']}."
     cur = conn.execute(
         """
         INSERT INTO practice_events
@@ -620,7 +643,7 @@ def record_practice_event_for_job(conn, job: Any, *, sim_minute: int) -> int | N
             str(job["status"]),
             str(job["outcome"] or "success"),
             int(sim_minute),
-            str(citizen["location_id"]) if citizen else None,
+            location_id,
             str(job["target"]) if job["target"] is not None else None,
             str(job["material"]) if job["material"] is not None else None,
             int(job["project_id"]) if job["project_id"] is not None else None,
@@ -630,6 +653,29 @@ def record_practice_event_for_job(conn, job: Any, *, sim_minute: int) -> int | N
         ),
     )
     return int(cur.lastrowid)
+
+
+def sync_practice_events_in_conn(conn) -> int:
+    rows = conn.execute(
+        """
+        SELECT j.*
+        FROM jobs j
+        WHERE j.status IN ('complete', 'failed')
+          AND NOT EXISTS (
+              SELECT 1 FROM practice_events pe WHERE pe.job_id = j.id
+          )
+        ORDER BY j.end_minute, j.id
+        """
+    ).fetchall()
+    added = 0
+    for row in rows:
+        if record_practice_event_for_job(
+            conn,
+            row,
+            sim_minute=int(row["end_minute"]),
+        ) is not None:
+            added += 1
+    return added
 
 
 def practice_snapshot_for(citizen_id: str, *, limit: int = 40) -> list[dict[str, Any]]:
