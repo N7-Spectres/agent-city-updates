@@ -918,3 +918,97 @@ Do not replace any link in that chain with:
 - or UI-derived classifications.
 
 Memory remains the owner of causal retrieval ranking. Simulation remains the owner of plan lifecycle legality, physical actions, and any later bounded competence physics.
+
+
+## v0.9 Stage 2 Practice-Derived Competence
+
+Objective competence is derived from canonical `practice_events`, not stored as XP.
+
+Current family boundaries:
+- surveying
+- extraction
+- experimentation
+- fabrication
+- construction
+- maintenance
+
+Cross-family practice has no effect.
+
+### Evidence weighting
+
+- successful/discovery/verified completion: 1.00
+- legacy completion: 0.75
+- inconclusive/no-yield completion: 0.50
+- failed physical attempt: 0.25
+
+Failure may teach, but never becomes a permanent penalty.
+
+### Physical effect
+
+Practice may only reduce relevant job duration.
+
+Maximum practice-only reduction: 8%.
+
+Maximum combined practice + one-use guided-practice reduction: 10%.
+
+Competence never changes:
+- material cost
+- energy cost
+- physical legality
+- knowledge
+- tools
+- structures
+- resource truth
+- action availability
+
+No expert threshold exists.
+
+## Maintenance Bottleneck Dominance
+
+Severely degraded machinery outranks competence.
+
+When the Basic Workbench is below 90% efficiency, fabrication/experiment competence and guidance timing benefits are suppressed.
+
+Citizens cannot practice their way around damaged infrastructure.
+
+## Guided Practice
+
+Guided practice is a real Simulation-owned two-citizen job.
+
+Requirements:
+- physical co-presence
+- both citizens free
+- energy available
+- relevant teacher evidence > learner evidence
+- teacher has at least one meaningful unit of relevant evidence
+
+This is an event role, not a permanent identity.
+
+The session itself creates no competence/practice event.
+
+A completed session may make the learner's next real matching task modestly faster once.
+
+The actual learner task is what creates new practice evidence.
+
+Conversation/explanation alone never transfers competence.
+
+## Competence Reconstruction
+
+Every applied competence difference must remain traceable to:
+- `practice_events.id`
+- activity family
+- bounded formula
+- optional `guided_practice_sessions.id`
+- real target `jobs.id`
+
+Deleting/changing source practice evidence changes/removes the derived effect.
+
+No hidden untraceable citizen skill state is authoritative.
+
+## Recency Boundary
+
+Objective physical competence does not decay merely because practice is old.
+
+Memory recall may age in priority; that is a different perspective system.
+
+If future world complexity requires material/tool/environment-specific competence, add it only from explicit source-backed evidence, not from a hidden class tree.
