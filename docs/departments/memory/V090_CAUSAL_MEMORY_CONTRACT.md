@@ -273,3 +273,31 @@ Memory owns:
 - bounded recall/reinforcement
 
 Communication may later interpret this history as perspective-safe self-assessment, but may not convert counts into authoritative expertise titles.
+
+
+## Model-Facing Practice Recall
+
+Communication and future self-assessment logic should not read the full durable physical practice ledger as though every old event is equally active autobiographical recall.
+
+Memory exposes:
+
+- `practice_recall_snapshot_for(citizen_id, activity=None, now_minute=None, limit=8)`
+- `practice_recall_context_for(...)`
+
+These functions:
+
+- require the `practice_event` facet family
+- preserve normal Memory aging/salience
+- remain owner-scoped
+- optionally filter by activity
+- return only actively recalled source-backed practice
+- omit internal recall score
+- omit internal reinforcement count
+- keep source type / source ID / verification / time / summary
+
+This is the preferred model-facing bridge for:
+- self-assessment
+- teaching/explanation boundaries
+- later habit/preference reasoning
+
+The full Simulation `practice_events` ledger remains valid for objective diagnostics, continuity UI, and physical-history accounting, but should not bypass Memory when deciding what a citizen is presently recalling/interpreting.
