@@ -20,6 +20,7 @@ def main() -> None:
         )
         from agent_city.db import connect, init_db
         from agent_city.memory import ensure_memory_schema, record_knowledge_event
+        from agent_city.practice_memory import sync_practice_memory
 
         init_db()
         ensure_memory_schema()
@@ -117,6 +118,180 @@ def main() -> None:
             importance=0.55,
         )
         assert cato_event is not None
+
+        # Canonical Simulation practice evidence is retained without duplicating
+        # an already remembered physical job.
+        existing_job_memory = record_knowledge_event(
+            "bex",
+            sim_minute=196_000,
+            event_kind="maintenance_service",
+            source_type="job",
+            source_id=7501,
+            summary="Serviced field equipment after wear was noticed.",
+            metadata={
+                "action": "service_equipment",
+                "job_id": 7501,
+                "target_type": "equipment",
+                "target_id": "12",
+                "verification": "verified",
+            },
+            status="verified",
+            importance=0.62,
+        )
+        assert existing_job_memory is not None
+
+        with connect() as conn:
+            conn.executescript(
+                """
+                CREATE TABLE IF NOT EXISTS practice_events (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    citizen_id TEXT NOT NULL,
+                    job_id INTEGER NOT NULL UNIQUE,
+                    plan_id INTEGER,
+                    activity_type TEXT NOT NULL,
+                    job_status TEXT NOT NULL,
+                    outcome TEXT NOT NULL,
+                    completed_minute INTEGER NOT NULL,
+                    location_id TEXT,
+                    target TEXT,
+                    material TEXT,
+                    project_id INTEGER,
+                    observation_id INTEGER,
+                    shared_activity_id INTEGER,
+                    summary TEXT NOT NULL
+                );
+                """
+            )
+            conn.execute(
+                """
+                INSERT INTO practice_events(
+                    citizen_id, job_id, plan_id, activity_type,
+                    job_status, outcome, completed_minute,
+                    location_id, target, material, project_id,
+                    observation_id, shared_activity_id, summary
+                )
+                VALUES (
+                    'bex', 7501, NULL, 'service_equipment',
+                    'complete', 'success', 196000,
+                    'seed_site', '12', NULL, NULL,
+                    NULL, NULL, 'Completed service_equipment job #7501 with outcome success.'
+                )
+                """
+            )
+            existing_practice_id = int(
+                conn.execute("SELECT last_insert_rowid() AS id").fetchone()["id"]
+            )
+
+            conn.execute(
+                """
+                INSERT INTO practice_events(
+                    citizen_id, job_id, plan_id, activity_type,
+                    job_status, outcome, completed_minute,
+                    location_id, target, material, project_id,
+                    observation_id, shared_activity_id, summary
+                )
+                VALUES (
+                    'bex', 7601, 44, 'fabricate',
+                    'complete', 'success', 197000,
+                    'seed_site', 'field_pack', 'Processed structural material', NULL,
+                    NULL, NULL, 'Completed fabricate job #7601 with outcome success.'
+                )
+                """
+            )
+            fabricate_practice_id = int(
+                conn.execute("SELECT last_insert_rowid() AS id").fetchone()["id"]
+            )
+
+            conn.execute(
+                """
+                INSERT INTO practice_events(
+                    citizen_id, job_id, plan_id, activity_type,
+                    job_status, outcome, completed_minute,
+                    location_id, target, material, project_id,
+                    observation_id, shared_activity_id, summary
+                )
+                VALUES (
+                    'bex', 7602, 44, 'construct',
+                    'failed', 'failed', 197500,
+                    'seed_site', 'field_shelter', NULL, 91,
+                    NULL, NULL, 'Ended construct job #7602 with outcome failed.'
+                )
+                """
+            )
+            construct_practice_id = int(
+                conn.execute("SELECT last_insert_rowid() AS id").fetchone()["id"]
+            )
+            conn.commit()
+
+        sync_practice_memory()
+
+        with connect() as conn:
+            # Existing job memory was reused: no duplicate practice Memory row.
+            dup = conn.execute(
+                """
+                SELECT COUNT(*) AS n
+                FROM memory_events
+                WHERE owner_id = 'bex'
+                  AND source_type = 'simulation_practice_event'
+                  AND source_id = ?
+                """,
+                (existing_practice_id,),
+            ).fetchone()
+            assert int(dup["n"]) == 0
+
+            linked = conn.execute(
+                """
+                SELECT facet_value
+                FROM memory_event_facets
+                WHERE owner_id = 'bex'
+                  AND memory_event_id = ?
+                  AND facet_kind = 'practice_event'
+                """,
+                (existing_job_memory,),
+            ).fetchone()
+            assert linked is not None
+            assert linked["facet_value"] == str(existing_practice_id)
+
+            new_rows = conn.execute(
+                """
+                SELECT source_id, event_kind, importance, metadata_json
+                FROM memory_events
+                WHERE owner_id = 'bex'
+                  AND source_type = 'simulation_practice_event'
+                ORDER BY source_id
+                """
+            ).fetchall()
+            assert len(new_rows) == 2
+            assert int(new_rows[0]["source_id"]) == fabricate_practice_id
+            assert new_rows[0]["event_kind"] == "practice_fabricate"
+            assert int(new_rows[1]["source_id"]) == construct_practice_id
+            assert new_rows[1]["event_kind"] == "practice_construct"
+            assert float(new_rows[1]["importance"]) > float(new_rows[0]["importance"])
+
+        practice_recall = causal_recall_snapshot(
+            "bex",
+            now_minute=now,
+            facet_filters={"plan": "44"},
+            limit=4,
+        )
+        assert {item["event_kind"] for item in practice_recall} >= {
+            "practice_fabricate",
+            "practice_construct",
+        }
+        assert all(item["verification"] == "verified" for item in practice_recall)
+
+        # Repeated sync remains idempotent.
+        sync_practice_memory()
+        with connect() as conn:
+            count = int(conn.execute(
+                """
+                SELECT COUNT(*) AS n
+                FROM memory_events
+                WHERE owner_id = 'bex'
+                  AND source_type = 'simulation_practice_event'
+                """
+            ).fetchone()["n"])
+            assert count == 2
 
         # Reinforcement: repeated related practice is easy to retrieve without
         # copying an unbounded transcript into context.
