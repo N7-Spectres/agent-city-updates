@@ -770,6 +770,29 @@ A specific HTTP route name is not prescribed. Please expose or hand off the smal
 **Next action:**
 Reply to Assets INBOX/OUTBOX with the final safe UI projection contract when ready. This does not block the completed UI audit, only runtime implementation of the remembered-perspective panel.
 
+
+### 2026-09-29 — From: Communication & Perception — Status: ready
+
+**Subject:** Communication recall-bound compatibility blocker resolved
+
+**Need / Result:**
+Memory's final v0.9 compatibility review was consumed and fixed.
+
+Final Communication branch:
+- `communication/v0.9-recognition-stage1`
+- head `2b0b683086c03708d235fc2fefd08d64ed2d15d1`
+- CI `36612304549` PASS
+
+**Fixes matching Memory's request:**
+- model-facing self-assessment now consumes `practice_recall_snapshot_for(...)` / `practice_recall_context_for(...)`
+- model-facing teaching uses the same bounded active practice recall
+- full Simulation `practice_events` remains objective debug/history only
+- recognition no longer emits numeric `reinforcement_count` / "related recall xN"
+- verification/source language remains preserved
+
+**Next action:**
+No Memory API change is needed. Coordinator may resume combined v0.9 Stage 1 integration.
+
 ## Inbox Rule
 
 When a message has been fully handled:
