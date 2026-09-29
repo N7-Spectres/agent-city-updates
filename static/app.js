@@ -1728,8 +1728,33 @@ function physicalClusterOffset(citizen) {
 
 function citizenMapPlacement(citizen) {
   const movement = localMovementForCitizen(citizen);
+  const job = activeJobFor(citizen.id);
   const x = finiteNumber(citizen.position_x_m);
   const y = finiteNumber(citizen.position_y_m);
+
+  if (job?.action === "travel") {
+    const progress = jobProgress(job);
+    const fraction = progress?.fraction || 0;
+    const route = (state.routes || []).find(r =>
+      sameRoute(r.a, r.b, citizen.location_id, job.target)
+    );
+    const routeDistanceKm = Number(route?.distance_km);
+    const remainingKm = Number.isFinite(routeDistanceKm)
+      ? Math.max(0, routeDistanceKm * (1 - fraction))
+      : null;
+    const destination = locationById(job.target)?.name || job.target;
+    return {
+      pos: interpolatedPosition(citizen.location_id, job.target, fraction),
+      offset: { x: 0, y: 0 },
+      localMoving: false,
+      routeTraveling: true,
+      progress: progress?.percent || 0,
+      remainingKm,
+      label: remainingKm != null
+        ? "traveling to " + destination + " • " + (progress?.percent || 0) + "% • " + trimNumber(remainingKm) + " km remaining"
+        : "traveling to " + destination,
+    };
+  }
 
   if (spatialViewport && x != null && y != null) {
     const pos = metersToMap(x, y);
@@ -1743,19 +1768,6 @@ function citizenMapPlacement(citizen) {
       label: movement
         ? `local ${String(movement.action || "movement").replaceAll("_", " ")}`
         : `x ${trimNumber(x)} m • y ${trimNumber(y)} m`,
-    };
-  }
-
-  const job = activeJobFor(citizen.id);
-  if (job?.action === "travel") {
-    const progress = jobProgress(job);
-    return {
-      pos: interpolatedPosition(citizen.location_id, job.target, progress?.fraction || 0),
-      offset: { x: 0, y: 0 },
-      localMoving: false,
-      routeTraveling: true,
-      progress: progress?.percent || 0,
-      label: `traveling to ${locationById(job.target)?.name || job.target}`,
     };
   }
 
