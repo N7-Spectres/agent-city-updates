@@ -538,3 +538,20 @@ Deferred:
 - [ ] repeated teaching relationships/customs belong to later evidence-driven stages
 - [ ] habits/place meaning remain Stage 3
 - [ ] no global experience/reputation aggregation
+
+
+### Final v0.9 Stage 2 handoff
+
+- [x] guided-practice retention complete
+- [x] teacher/learner perspective ownership complete
+- [x] later real-practice guidance linkage complete
+- [x] family-filtered practice recall complete
+- [x] guided-practice recall complete
+- [x] Memory UI-safe continuity semantics handed to Assets
+- [x] teaching/experience recall contract handed to Communication
+- [x] full integrated regression matrix green in CI `36621525829`
+- [x] Memory moved to REVIEW
+- [x] no open Memory inbox items remain
+- [ ] Communication completes Stage 2 language/runtime
+- [ ] Assets completes Stage 2 UI/runtime
+- [ ] coordinator integrates all Stage 2 branches and runs full combined regression suite
