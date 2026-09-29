@@ -20,29 +20,29 @@ _None._
 
 ### WAITING
 
-- [Assets & Interface] continuity runtime UI waits on coordinator Stage 1 integration and any remaining Memory UI-safe remembered-event projection; Communication recall-bound compatibility is resolved.
-
-- [Coordinator / v0.9 Stage 1 Integration] Memory + Simulation + Communication Stage 1 branches are ready; combine them and run all three v0.9 smokes with the full regression matrix.
+_None._
 
 ### READY
 
+- [World & Simulation] v0.9 Stage 2 — define bounded competence effects and any real guided-practice/teaching mechanism from canonical `practice_events`; no XP/classes.
+- [Memory & Social] v0.9 Stage 2 — define experience/self-assessment retention over the integrated practice substrate without turning practice into identity.
+- [Communication & Perception] v0.9 Stage 2 — prepare teaching/recognition behavior only after Simulation defines any real guided-practice effect; preserve perspective.
+- [Assets & Interface] v0.9 Stage 2 — audit future competence/teaching presentation only after safe upstream read models exist; no proficiency bars/badges.
 
 ### REVIEW
 
-- [Communication & Perception] v0.9 recall-bound recognition/self-assessment/teaching layer complete on `communication/v0.9-recognition-stage1` @ `2b0b683086c03708d235fc2fefd08d64ed2d15d1`; CI `36612304549` passed the full published regression matrix + corrected v0.9 Communication smoke.
-
-- [Assets & Interface] v0.9 continuity UI/read-model audit complete; durable design at `docs/departments/assets/V090_CONTINUITY_UI_AUDIT.md`; no runtime UI started before safe integrated contracts
-
-- [Memory & Social] v0.9 Stage 1 Causal Memory Spine + canonical practice retention + recall-bound practice interpretation API complete on `memory/v0.9-causal-memory-stage1` @ `29a5b896b9bdcb7cb833f5bfaf25aabfac9f26d5`; CI `36607115487` passed the full v0.4-v0.8.7 matrix + expanded v0.9 Memory smoke.
-- [World & Simulation] v0.9 Stage 1 Persistent Plans + Practice Evidence complete on `simulation/v0.9-continuity-stage1` @ `6b027708512671d8c851723fb900cfa1e0fcac73`; final CI `36603570434` passed the full v0.4-v0.8.7 matrix + v0.9 Simulation smoke.
+_None._
 
 ### DONE
 
+- [Coordinator] v0.9 Stage 1 integrated on `release-v0.9.0-stage1-integration` @ `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`; combined CI `36615685005` PASS across v0.4-v0.8.7 + all four v0.9 Stage 1 smokes.
+- [Memory & Social] causal archive, bounded active recall, practice retention, recall-bound practice interpretation, and UI-safe remembered-event projection integrated.
+- [World & Simulation] persistent plans, plan transitions/source links, jobs→plan linkage, and canonical practice events integrated.
+- [Communication & Perception] recall-bound self-assessment/teaching and perspective-safe recognition integrated; no global reputation or skill-from-talk.
+- [Assets & Interface] continuity citizen-sheet runtime integrated with Ongoing Plans, Why This Exists, Plan History, Recorded Practice, Relevant Memories, and explicit truth-layer separation.
 - [Coordinator] v0.9 Civilization Continuity doctrine locked in `docs/V090_CIVILIZATION_CONTINUITY_DOCTRINE.md`
 - [Coordinator] v0.9 stage order locked: Causal Memory + Persistent Plans → Practice/Competence/Teaching/Recognition → Habits/Place Meaning/Social Customs
-- [Coordinator] v0.9 department packets placed in Memory, Simulation, Communication, and Assets INBOX files
 - [Coordinator] v0.8.7 Route Travel Visualization published from `be617e6e870ec3f1914d76cdb85107a6efc294d7`; final CI `36595479188` passed
-- [Coordinator] v0.8.0–v0.8.6 release history remains complete and published
 
 ## v0.8 Stage 1 Coordination Goal
 
