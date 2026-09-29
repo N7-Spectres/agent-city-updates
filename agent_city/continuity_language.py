@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections import Counter, defaultdict
+from collections import defaultdict
 from typing import Any
 
 from .db import connect, get_meta
@@ -31,6 +31,69 @@ def _practice_snapshot(citizen_id: str, *, limit: int = 120) -> list[dict[str, A
         return []
 
     return [dict(row) for row in rows]
+
+
+def _practice_recall_snapshot(
+    citizen_id: str,
+    *,
+    activity: str | None = None,
+    limit: int = 8,
+) -> list[dict[str, Any]]:
+    """
+    Model-facing practice evidence must come through Memory active recall.
+
+    The full Simulation practice ledger is objective archive/history only.
+    """
+    try:
+        from .practice_memory import practice_recall_snapshot_for
+    except ImportError:
+        return []
+
+    try:
+        rows = practice_recall_snapshot_for(
+            citizen_id,
+            activity=activity,
+            limit=max(1, min(int(limit), 16)),
+        )
+    except Exception:
+        return []
+
+    return [dict(row) for row in rows]
+
+
+def _practice_recall_context(
+    citizen_id: str,
+    *,
+    activity: str | None = None,
+    limit: int = 6,
+) -> str:
+    try:
+        from .practice_memory import practice_recall_context_for
+    except ImportError:
+        return "- no actively recalled source-backed physical practice matching this subject"
+
+    try:
+        return str(
+            practice_recall_context_for(
+                citizen_id,
+                activity=activity,
+                limit=max(1, min(int(limit), 12)),
+            )
+        )
+    except Exception:
+        return "- no actively recalled source-backed physical practice matching this subject"
+
+
+def _activity_values_from_recall(memories: list[dict[str, Any]]) -> list[str]:
+    values: list[str] = []
+    for memory in memories:
+        for facet in memory.get("facets") or []:
+            if str(facet.get("kind")) != "activity":
+                continue
+            value = str(facet.get("value") or "").strip()
+            if value and value not in values:
+                values.append(value)
+    return values
 
 
 def _plan_snapshot(citizen_id: str, *, include_closed: bool = False, limit: int = 6) -> list[dict[str, Any]]:
@@ -153,27 +216,52 @@ def own_practice_summary(citizen_id: str) -> list[dict[str, Any]]:
 
 
 def self_assessment_context(citizen_id: str, *, activity: str | None = None) -> str:
-    summaries = own_practice_summary(citizen_id)
-    if activity:
-        summaries = [item for item in summaries if item["activity"] == activity]
+    memories = _practice_recall_snapshot(
+        citizen_id,
+        activity=activity,
+        limit=8,
+    )
+    recall_text = _practice_recall_context(
+        citizen_id,
+        activity=activity,
+        limit=6,
+    )
 
     lines = ["SELF-ASSESSMENT EVIDENCE:"]
-    if not summaries:
-        lines.append("- no recorded physical practice matching this subject")
-    else:
-        for item in summaries[:6]:
-            last_label = format_sim_time(int(item["last_completed_minute"]))
+    lines.append(recall_text)
+
+    if memories:
+        activities = _activity_values_from_recall(memories)
+        if activity:
+            same_activity_count = len(memories)
+            if same_activity_count >= 3:
+                lines.append(
+                    f"- Your active recall currently contains at least 3 source-backed "
+                    f"{activity} practice experiences, so ordinary wording such as "
+                    f"'I've done {activity} several times' is supported."
+                )
+            else:
+                lines.append(
+                    f"- Your active recall currently contains fewer than 3 source-backed "
+                    f"{activity} practice experiences; do not claim 'several times' from hidden archive history."
+                )
+        elif activities:
             lines.append(
-                f"- {item['activity']}: {item['practice_count']} recorded physical practice "
-                f"event(s); {item['completed_count']} complete, {item['failed_count']} failed; "
-                f"latest {last_label} with outcome {item['last_outcome']}."
+                "- Recalled practice subjects presently available for self-assessment: "
+                + ", ".join(activities[:6])
+                + "."
             )
+    else:
+        lines.append(
+            "- No active practice recall is available for present self-assessment."
+        )
 
     lines.extend([
-        "- These counts describe your own real practice history. They are not XP, level, rank, role, title, or guaranteed competence.",
-        "- You may say you have done an activity several times only when that activity has at least 3 recorded practice events.",
-        "- You may interpret repeated successes/failures personally (for example, 'I feel more practiced' or 'I keep struggling with this'), but that self-assessment is a belief, not objective capability truth.",
-        "- Do not claim 'I am the expert/best/leader' from practice history.",
+        "- This packet is bounded active Memory, not the full durable practice ledger.",
+        "- Do not infer forgotten/low-salience archive history into present autobiographical recall.",
+        "- You may interpret recalled successes/failures personally (for example, 'I feel more practiced' or 'I keep struggling with this'), but that interpretation is not objective capability truth.",
+        "- Do not claim 'I am the expert/best/leader' from recalled practice.",
+        "- Recall source/time/verification may be discussed; internal recall/reinforcement math must not be exposed.",
     ])
 
     return "\n".join(lines)[:MAX_SELF_CONTEXT_CHARS]
@@ -212,11 +300,9 @@ def recognition_context(
     else:
         for item in memories:
             truth = "verified experience" if item.get("verification") == "verified" else "remembered/report"
-            reinforcement = int(item.get("reinforcement_count") or 1)
-            repeated = f"; related recall x{reinforcement}" if reinforcement > 1 else ""
             lines.append(
                 f"- {truth}, {item.get('sim_label')} "
-                f"({item.get('source_type')} #{item.get('source_id')}{repeated}): "
+                f"({item.get('source_type')} #{item.get('source_id')}): "
                 f"{' '.join(str(item.get('summary') or '').split())[:300]}"
             )
 
@@ -250,29 +336,32 @@ def plan_discussion_context(citizen_id: str) -> str:
 
 
 def teaching_boundary_context(citizen_id: str) -> str:
-    summaries = own_practice_summary(citizen_id)
-    practiced = [item for item in summaries if int(item["practice_count"]) > 0]
+    memories = _practice_recall_snapshot(citizen_id, limit=8)
+    recall_text = _practice_recall_context(citizen_id, limit=6)
+    activities = _activity_values_from_recall(memories)
 
     lines = ["TEACHING / EXPLANATION BOUNDARY:"]
-    if practiced:
+    lines.append(recall_text)
+
+    if activities:
         lines.append(
-            "- You have personal physical experience you may explain for: "
-            + ", ".join(
-                f"{item['activity']} ({item['practice_count']} practice event"
-                f"{'s' if item['practice_count'] != 1 else ''})"
-                for item in practiced[:5]
-            )
+            "- From your currently recalled source-backed practice, you may explain personal experience with: "
+            + ", ".join(activities[:6])
             + "."
         )
     else:
-        lines.append("- no source-backed physical practice is available as personal teaching experience")
+        lines.append(
+            "- No actively recalled source-backed physical practice is available as present teaching experience."
+        )
 
     lines.extend([
-        "- You may explain what you personally did, observed, tried, or learned from real experience.",
+        "- This teaching context uses bounded active Memory, not the full durable practice ledger.",
+        "- You may explain what you personally recall doing, observing, trying, or learning from real experience.",
         "- Explaining, advising, demonstrating verbally, or being asked for help does NOT create practice or competence for the listener.",
         "- Do not claim you 'trained' or 'made someone skilled' unless a future Simulation-owned guided-practice/teaching event proves it.",
         "- A teaching conversation may create social/claim memory only; skill effects remain Simulation-owned.",
         "- Do not call yourself or another citizen an expert, master, trainer, mentor, leader, or specialist as an authoritative title.",
+        "- Internal recall/reinforcement values are retrieval machinery and must not be spoken as experience metrics.",
     ])
     return "\n".join(lines)[:1600]
 
