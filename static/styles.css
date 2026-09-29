@@ -3811,3 +3811,136 @@ input:focus, textarea:focus { border-color: var(--accent); }
     display: grid;
   }
 }
+
+
+/* v0.9 Stage 3 continuity: source trails without identity badges. */
+.continuity-layer-note {
+  margin: -2px 0 8px;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.continuity-pattern-list,
+.continuity-source-list,
+.continuity-place-events,
+.continuity-social-sources {
+  display: grid;
+  gap: 8px;
+}
+
+.continuity-pattern-row {
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px;
+  background: rgba(0,0,0,.07);
+}
+
+.continuity-pattern-row > small,
+.continuity-pattern-row > p {
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.continuity-pattern-row > p {
+  margin: 6px 0 0;
+}
+
+.continuity-pattern-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.continuity-pattern-head strong {
+  color: var(--text);
+  font-size: 11px;
+  text-transform: capitalize;
+}
+
+.continuity-pattern-head > span,
+.continuity-evidence-state {
+  color: var(--muted);
+  font-size: 8px;
+  white-space: nowrap;
+}
+
+.continuity-evidence-state {
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 999px;
+  padding: 3px 6px;
+  background: rgba(255,255,255,.025);
+  text-transform: capitalize;
+}
+
+.continuity-source-list {
+  margin-top: 7px;
+}
+
+.continuity-source-chip {
+  display: inline-flex;
+  width: fit-content;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 999px;
+  padding: 3px 6px;
+  color: var(--muted);
+  background: rgba(255,255,255,.02);
+  font-size: 7px;
+}
+
+.continuity-source-chip.contrary {
+  border-style: dashed;
+}
+
+.continuity-contrary {
+  display: grid;
+  gap: 5px;
+  padding-top: 7px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.continuity-place-event,
+.continuity-social-source {
+  display: grid;
+  gap: 3px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.continuity-place-event:last-child,
+.continuity-social-source:last-child {
+  border-bottom: 0;
+}
+
+.continuity-place-event time,
+.continuity-place-event small,
+.continuity-social-source small,
+.continuity-verification-line {
+  color: var(--muted);
+  font-size: 7px;
+}
+
+.continuity-place-event span,
+.continuity-social-source span {
+  color: #d4dde7;
+  font-size: 8px;
+  line-height: 1.4;
+}
+
+.continuity-verification-line {
+  margin-top: 7px;
+}
+
+@media (max-width: 640px) {
+  .continuity-pattern-head {
+    display: grid;
+  }
+
+  .continuity-pattern-head > span,
+  .continuity-evidence-state {
+    width: fit-content;
+  }
+}
