@@ -591,6 +591,18 @@ Success means questions such as "Why does Iri avoid running her battery so low n
 
 ### v1.0 — Bonsai Civilization
 
+Future design notes:
+- `docs/V100_DEVELOPMENTAL_AUTONOMY_NOTES.md`
+
+Candidate developmental ladder:
+**memory continuity → comparison → inquiry → preference**
+
+Future developmental law:
+
+> **The system may provide capacity. History must provide the reason.**
+
+This is not a v0.9 scope expansion. v0.9 should provide continuity and evidence; v1.0 should be shaped by what citizens actually do with that substrate.
+
 v1.0 is reached when Agent City can be left running, revisited over a long period, and produce a settlement whose world state, relationships, knowledge, structures, habits, and decisions meaningfully descend from its own history.
 
 The core loop should be:
