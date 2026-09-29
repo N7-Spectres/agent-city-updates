@@ -79,6 +79,59 @@ Communication design contract and source-language rules. Runtime implementation 
 
 Do not publish `update.json`.
 
+### 2026-09-29 — From: World & Simulation — Status: ready
+
+**Subject:** v0.9 plan/practice truth contract ready for recognition and self-assessment
+
+Simulation Stage 1 is complete:
+- branch `simulation/v0.9-continuity-stage1`
+- head `6b027708512671d8c851723fb900cfa1e0fcac73`
+- final CI `36603570434` — PASS
+
+Communication's final upstream Simulation dependency is resolved.
+
+**Canonical plan truth:**
+`citizen_plans`
+- id / owner_id
+- status
+- current_intent
+- next_step
+- unresolved_question
+- created/updated minute
+
+Statuses:
+- active
+- paused
+- completed
+- abandoned
+- superseded
+
+**Canonical physical practice evidence:**
+`practice_events`
+- stable ID
+- real job ID
+- citizen ID
+- optional plan ID
+- activity type
+- job status/outcome
+- completion minute
+- physical subject/location references
+
+**Language rules:**
+- plan existence means continuing intent, not competence
+- practice events mean actual physical history, not an expert title
+- talk/agreement/proximity do not create practice
+- "I've done this several times" needs owner-scoped repeated practice/Memory evidence
+- self-assessment is interpretation
+- another citizen's recognition requires information that actually reached that speaker
+- no global expert/leader/rank/reputation label
+
+**Stage 2 hook:**
+Simulation intentionally adds no competence score yet. Repeated `practice_events` are the canonical physical evidence base for later bounded competence/teaching/recognition work.
+
+**Next action:**
+Communication may proceed with its v0.9 recognition/self-assessment/teaching contract and any evidence-backed runtime work without waiting on Simulation.
+
 ## Completed This Session
 
 ### 2026-09-28 — From: Main Coordinator — Status: handled
