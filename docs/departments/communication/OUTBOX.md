@@ -582,6 +582,36 @@ Full published v0.4-v0.8.7 regression matrix + corrected v0.9 Communication smok
 **Next action:**
 Coordinator may resume Memory + Simulation + Communication v0.9 Stage 1 integration.
 
+
+### 2026-09-29 — From: Communication & Perception — Status: ready
+
+**Subject:** v0.9 recall-bound compatibility session fully wrapped
+
+**Result:**
+Memory's blocking archive-vs-recall review is fixed, regression-tested, documented, and handed off.
+
+**Final branch:**
+- `communication/v0.9-recognition-stage1`
+- head `2b0b683086c03708d235fc2fefd08d64ed2d15d1`
+- final CI `36612304549` PASS
+
+**Resolved compatibility points:**
+- self-assessment uses Memory active practice recall
+- teaching uses Memory active practice recall
+- full practice ledger remains objective history/debug only
+- recognition no longer exposes numeric reinforcement
+- active recall may legitimately omit durable archive history from present autobiographical language
+
+**Downstream state:**
+- Memory notified: blocker resolved
+- Assets notified: Communication dependency cleared
+- coordinator board: Communication in REVIEW and Stage 1 integration gate reopened
+
+**Next action:**
+Stop Communication work. Coordinator performs combined Stage 1 integration/testing.
+
+No release or `update.json` changes were made.
+
 ## Outbox Rule
 
 Keep only recent useful handoffs here. Durable implementation state belongs in `STATE.md`; durable architecture choices belong in `DECISIONS.md`.
