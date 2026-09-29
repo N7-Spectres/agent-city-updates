@@ -22,12 +22,18 @@ Persistent behavior must have a traceable history.
 
 ## 1. Self-Assessment Source Rule
 
-A citizen may describe their own experience using their own canonical physical
-practice evidence.
+A citizen's physical practice archive comes from canonical Simulation practice
+evidence, but present autobiographical language must come through Memory's
+bounded active practice recall.
 
-Authoritative physical source:
+Authoritative physical archive:
 
 practice_events
+
+Model-facing recall bridge:
+
+practice_recall_snapshot_for(...)
+practice_recall_context_for(...)
 
 Examples that may be supported:
 
@@ -36,13 +42,18 @@ Examples that may be supported:
 - "I've had trouble with this more than once."
 - "I feel more practiced at this now."
 
-Communication may summarize counts to the citizen, but the count is evidence
-about personal history, not a skill score.
+The full durable practice ledger may support objective diagnostics/history.
+
+It must not be injected wholesale into present self-assessment/teaching prompts,
+because old/low-salience practice may exist without being actively recalled.
 
 ### "Several times" rule
 
-Communication permits the phrase "I've done this several times" only when the
-same citizen has at least three real practice events for that activity.
+Communication permits the phrase "I've done this several times" in present
+model-facing language only when bounded active Memory currently recalls at least
+three source-backed practice experiences for that activity.
+
+The durable archive may contain more events than the citizen currently recalls.
 
 This is a language threshold only.
 
@@ -59,7 +70,8 @@ It is not:
 
 Simulation can prove that physical practice happened.
 
-Memory can surface the relevant source-backed experiences.
+Memory surfaces the currently active source-backed practice experiences after
+aging/salience/relevance have been applied.
 
 The citizen may interpret those experiences.
 
@@ -151,9 +163,10 @@ language:
 
 ## 6. Repetition Does Not Upgrade Truth
 
-Memory reinforcement means easier recall.
+Memory reinforcement affects retrieval priority internally.
 
-It does not mean a claim becomes more true.
+It does not mean a claim becomes more true, and numeric reinforcement values
+must not be spoken as citizen-visible experience metrics.
 
 Three repeated unverified reports remain unverified reports.
 
@@ -161,7 +174,10 @@ Recognition language must preserve the underlying verification/source state.
 
 ## 7. Teaching Conversation Boundary
 
-A citizen with real personal practice may explain:
+A citizen may explain only the personal physical practice that is currently
+available through bounded active Memory recall.
+
+From that recalled practice they may explain:
 
 - what they did,
 - what they observed,
@@ -265,10 +281,12 @@ It consumes optional upstream APIs after coordinator integration.
 
 Memory:
 - causal_recall_snapshot(...)
+- practice_recall_snapshot_for(...)
+- practice_recall_context_for(...)
 
 Simulation:
-- practice_snapshot_for(...)
-- plan_snapshot_for(...)
+- practice_snapshot_for(...) for objective debug/history read models only
+- plan_snapshot_for(...) for current canonical plan discussion
 
 The adapter is merge-order safe. If upstream modules are absent, it returns no
 invented evidence.
@@ -307,11 +325,16 @@ This stage does not add:
 
 ### Safe self-description
 
-If Bex has four source-backed extraction practice events:
+If Bex's active practice recall currently contains at least three source-backed
+extraction experiences:
 
 "I've done extraction several times."
 
 Safe.
+
+If the durable archive contains four extraction events but active recall
+currently surfaces only one or two, the prompt must not inject "several times"
+from hidden archive history.
 
 "I'm the settlement's extraction expert."
 
