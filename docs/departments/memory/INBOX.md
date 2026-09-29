@@ -67,20 +67,25 @@ Do not publish `update.json`.
 
 
 **Result:**
-Implemented on `memory/v0.9-causal-memory-stage1` @ `1394261f72d4fc5df7d41e065cd157350fee2785`.
+Final Memory Stage 1 implementation is on `memory/v0.9-causal-memory-stage1` @ `29a5b896b9bdcb7cb833f5bfaf25aabfac9f26d5`.
 
-CI `36598971733` passed the complete v0.4-v0.8.7 regression matrix plus `tests/smoke_v090_memory_stage1.py`.
+Latest CI `36607115487` passed the complete v0.4-v0.8.7 regression matrix plus the expanded `tests/smoke_v090_memory_stage1.py`.
 
 Delivered:
 - immutable durable archive + separate active recall model
 - facet-based related-event reinforcement
 - meaningful aging without history rewrite
 - plan-pinned causal memory IDs
+- canonical Simulation `practice_events` retention with job-level dedupe
+- recall-bound practice interpretation API for self-assessment/teaching
 - citizen isolation and claim-status preservation
 - Simulation persistent-plan source handoff
 - Communication perspective-safe recall handoff
 
 Contract: `docs/departments/memory/V090_CAUSAL_MEMORY_CONTRACT.md`.
+
+**Integration status:**
+Memory itself has no remaining Stage 1 code dependency. Coordinator integration is currently blocked only on Communication consuming the recall-bound practice API and removing numeric reinforcement internals from model-facing recognition text.
 
 
 ### 2026-09-28 — From: Main Coordinator — Status: handled
