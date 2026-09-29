@@ -1,415 +1,288 @@
 # World & Simulation — State
 
-_Last updated: 2026-09-28_
-_Current published release: v0.7.0_
-_Stage 2 unified base: `release-v0.8.0` @ `017b417386f4f4e0f957dfb66285431223283739`_
-_Active implementation branch: `simulation/v0.8-exploration-stage2`_
-_Branch head: `b81c9bb57884727e7a1c769d95ecb27928d1d489`_
+_Last updated: 2026-09-29_
+_Current published release: v0.8.7_
+_Active implementation branch: `simulation/v0.9-continuity-stage1`_
+_Branch head: `6b027708512671d8c851723fb900cfa1e0fcac73`_
+_Base: published v0.8.7 `be617e6e870ec3f1914d76cdb85107a6efc294d7`_
 
 ## Mission
 
-Own physical truth.
+Own physical truth and canonical intent/practice event identity.
 
 > **The AI may decide intent. The simulation decides reality.**
 
-Stage 2 adds:
+v0.9 adds:
 
-> **Conversation may propose shared action. Only Simulation may start and complete it.**
+> **Persistent behavior must have a traceable history.**
 
-## Stage 1 Foundation Preserved
+## v0.9 Stage 1 — Persistent Plan Substrate
 
-The branch starts from the unified green Stage 1 integration base.
+Implemented canonical citizen-owned plans.
 
-Preserved:
-- persistent hidden planet seed
-- `seed_site_local` meter tangent-plane frame
-- deterministic hidden terrain/geology
-- stable generated deposit bodies
-- hidden/public knowledge boundary
-- `spatial_observations.id` safe evidence
-- all v0.5-v0.7 production/research/provenance/memory/maintenance/talk invariants
+### `citizen_plans`
 
-## v0.8 Stage 2 — Continuous Local Exploration
+Stable fields:
 
-### Local Movement Job
+- `id`
+- `owner_id`
+- `created_minute`
+- `updated_minute`
+- `status`
+- `current_intent`
+- `next_step`
+- `unresolved_question`
 
-New Simulation-owned physical action:
+Current lifecycle states:
 
-- `local_move`
+- `active`
+- `paused`
+- `completed`
+- `abandoned`
+- `superseded`
 
-Core implementation:
-- `agent_city/exploration.py::start_local_move(...)`
+A plan is intent continuity, not a command queue.
 
-A local move persists real job fields:
-- `spatial_frame_id`
-- `start_x_m / start_y_m`
-- `target_x_m / target_y_m`
-- `path_distance_m`
-- `terrain_multiplier`
-- `start_minute / end_minute`
-- status/outcome
+Every physical step still uses the normal legal-action path.
 
-Current local move limit:
-- 300 m per move
+## Plan Lifecycle History
 
-The planner is given safe nearby movement choices without being shown hidden terrain results.
+New durable table:
 
-### Terrain-Aware Physical Cost
+- `plan_transitions`
 
-Local movement samples deterministic hidden terrain along the straight local path.
+Fields:
 
-Simulation computes:
-- geometric distance
-- hidden terrain traversal multiplier
-- effective traversal distance
-- simulated duration
-- energy cost
+- stable transition `id`
+- `plan_id`
+- `owner_id`
+- `sim_minute`
+- `transition_type`
+- `from_status`
+- `to_status`
+- optional `source_job_id`
+- summary
 
-The hidden terrain samples are not exposed merely because they affected movement cost.
+Transition types currently include:
 
-### Return-Energy Reserve
+- created
+- revise
+- pause
+- resume
+- abandon
+- complete
+- supersede
+- step_started
+- step_outcome
 
-Before local movement or shared activity starts, Simulation checks whether the citizen will retain enough energy to reach a known operational charger from the destination plus a safety margin.
+Physical job completion never automatically marks a plan complete.
 
-The check is coordinate-based against actual charger x/y positions.
+Completion/abandonment/revision remains a separate citizen plan-lifecycle decision.
 
-### Authoritative In-Transit Position
+## Memory Source Anchors
 
-During an active local/shared movement, current position is derived server-side from the real job:
+New durable table:
 
-- start position
-- target position
-- start/end simulation minute
-- current simulation minute
+- `plan_memory_sources`
 
-Safe state exposes this as:
+It binds:
 
-`state.citizens[].local_movement`
+- plan ID
+- transition ID
+- owner citizen
+- canonical `memory_event_id`
+- source role
+- linked minute
 
-Fields include:
-- job_id
-- action
-- frame_id
-- start x/y
-- target x/y
-- path distance
-- terrain multiplier
-- start/end minute
-- authoritative x/y
-- progress
-- elapsed/total/remaining minutes
+Plan creation requires at least one existing Memory event owned by that citizen.
 
-While movement is active, the citizen's public `position_x_m / position_y_m` in `/api/state` is the server-derived current position.
+Foreign-citizen Memory cannot justify another citizen's plan.
 
-The persisted base citizen position is updated to the target only when the job completes.
+Plan reason prose is not the causal source. The linked Memory IDs are.
 
-Closing/reopening does not invent a new position because the job and simulation clock are persistent.
+## Memory Integration
 
-## Local Inspection
+Memory v0.9 Stage 1 remains the owner of causal ranking/retrieval.
 
-New autonomous action:
+Simulation consumes, when available:
 
-- `local_inspect`
+- `causal_recall_snapshot(...)`
+- `causal_recall_context_for(...)`
+- `link_memory_event(memory_event_id, "plan", plan_id)`
 
-It:
-- consumes small real energy
-- takes 15 simulated minutes
-- records one safe `spatial_observations.id` at the actual coordinate on completion
-- stores the resulting observation on `jobs.result_observation_id`
+Simulation does **not** duplicate recall score, aging, salience, or reinforcement.
 
-### Baseline Observation Boundary
+On the standalone Simulation branch, `agent_city.causal_memory` is intentionally absent. Therefore:
 
-Stage 2 adds observation `detail_level`.
+- existing plans/source links work
+- canonical plan state works
+- explicit source Memory ownership validation works
+- autonomous new-plan candidate retrieval fails closed to an empty list
 
-Ordinary direct/shared walk inspection uses:
+After Memory's Stage 1 branch is merged, the planner automatically receives bounded causal Memory candidates.
 
-- `detail_level = baseline`
+`sync_plan_memory_facets()` also backfills previously created plan/source links into Memory's plan facets after merge, so merge order does not lose pinned recall.
 
-Baseline inspection may reveal:
-- directly observed terrain class
-- elevation
-- stable physical body contact ID if physically encountered
+## Planner Continuity
 
-Baseline inspection does **not** reveal:
-- hidden geology classification
-- material identity
-- chemistry
-- richness
-- body geometry
+Planner context now includes:
 
-For baseline observations:
-- `geology_class = unclassified`
-- `material = null`
+- unfinished plans
+- current intent
+- next known step
+- unresolved question
+- linked source Memory IDs
+- source-backed pinned recall when Memory Stage 1 is present
+- bounded Memory candidates eligible to justify a new/revised plan
 
-Stage 1 field/tool observations retain their prior richer field detail where legitimately supported.
+Planner JSON may choose one plan operation alongside one physical action:
 
-No scanner was added.
+- none
+- create
+- continue
+- revise
+- pause
+- resume
+- abandon
+- complete
 
-## Meter-Aware Physical Legality
+A plan operation does not make a physical action legal.
 
-Stage 2 now makes several older systems respect meter-space.
+If a plan lifecycle choice fails validation, no plan truth is fabricated.
 
-### Citizen face-to-face talk
+## Real Jobs Linked to Plans
 
-Same `location_id` is no longer enough.
+`jobs` now has:
 
-Citizens must be within approximately 2 m for face-to-face talk legality.
+- `plan_id`
 
-### Visitor face-to-face access
+A job may be tagged only when:
 
-Visitor/citizen access now also uses meter proximity within a named region.
+- the plan belongs to that citizen
+- the plan is currently active
 
-If both are in Seed Site but 80 m apart, the visit is physically remote.
+When a tagged physical job starts:
 
-### Settlement infrastructure
+- `step_started` is recorded
 
-Seed Site workbench/storage/maintenance actions are only offered when the citizen is physically near the Seed Site landmark.
+When the job ends:
 
-Charging requires an operational charger physically within reach.
+- `step_outcome` is recorded
+- the plan remains open unless the citizen separately changes its lifecycle
 
-### Legacy route compatibility
+Paused, completed, abandoned, superseded, or foreign plans cannot tag new work.
 
-Legacy named-location routes remain supported.
+## Canonical Practice Evidence
 
-New real Stage 2 local offsets must return to the landmark before entering a legacy route.
+New durable table:
 
-For backward compatibility, old saves/tests that have a legacy `location_id` change without any Stage 2 local-movement history retain the old region-based route behavior.
+- `practice_events`
 
-Visitor route departure requires actual landmark proximity after Stage 2 shared/local movement.
+Practice evidence is one-to-one with a real completed or failed physical job.
 
-## Shared Visitor + Citizen Physical Activity
+Stable fields:
 
-New persistent table:
+- `id`
+- `citizen_id`
+- `job_id` UNIQUE
+- optional `plan_id`
+- `activity_type`
+- `job_status`
+- `outcome`
+- `completed_minute`
+- `location_id`
+- target/material/project references when present
+- observation ID when present
+- shared activity ID when present
+- summary
 
-- `shared_activities`
+Eligible activity types currently include real physical work such as:
 
-Stage 2 supports one narrow physical type:
+- travel / local movement
+- local/shared inspection
+- survey / extract / deposit
+- experiment
+- fabrication / construction
+- meaningful maintenance/service
 
-- `walk_inspect`
+Explicitly excluded from practice:
 
-This is intentionally not a generic visitor command system.
+- talk
+- wait
+- agreement
+- proximity
+- UI/admin activity
 
-### Stable Simulation Action Identity
+No competence score, XP, title, class, role, or specialization is created in Stage 1.
 
-Authoritative shared physical event/action ID:
+## Historical Practice Backfill
 
-- `shared_activities.id`
+v0.9 migration idempotently converts eligible historical completed/failed jobs from prior releases into the same `practice_events` evidence table.
 
-Related stable links:
-- physical citizen job: `citizen_job_id`
-- source visitor visit: `source_visit_id`
-- source visitor exchange: `source_exchange_id`
-- requested runtime equipment: `tool_equipment_id`
-- resulting evidence: `observation_id`
+This preserves actual citizen history instead of treating v0.9 as day zero.
 
-### Lifecycle
+Backfill does not reinterpret old work as a skill score.
 
-Simulation lifecycle is explicitly:
+## Safe Read Model
 
-`proposed -> accepted -> active -> complete`
+`/api/state` adds:
 
-A pre-start proposal may also become `rejected`. Failure can be represented separately.
+- `plans[]`
+- `plan_transitions[]`
+- `practice_events[]`
 
-Important:
-- `proposed`: intent/proposal only
-- `accepted`: visitor acceptance only, **no physical movement**
-- `active`: a real Simulation job exists and movement has begun
-- `complete`: movement/inspection completed and safe evidence exists
+Plans include linked `memory_event_ids`.
 
-Acceptance and physical start are separate API calls.
+New read-only endpoint:
 
-### Proposal Validation
+`GET /api/continuity/{citizen_id}`
 
-A shared proposal validates:
-- real visitor presence
-- real citizen
-- same location
-- <= 2 m physical proximity
-- citizen availability
-- visitor not route-traveling
-- Stage 2 shared distance <= 180 m
-- supplied source visit belongs to that visitor/citizen
-- supplied source exchange belongs to that visitor/citizen/visit
-- requested equipment is real, operational, and physically available
+Returns:
 
-Concept art cannot satisfy equipment requirements.
+- citizen ID/name
+- bounded plans
+- bounded practice events
+- explicit semantics:
+  - plans are intent, not commands
+  - practice is evidence, not a competence score
 
-### Start Revalidation
+There is no visitor/admin plan-write endpoint.
 
-Physical start rechecks:
-- accepted visitor identity
-- citizen/visitor co-location and proximity
-- citizen availability
-- visitor travel state
-- requested equipment availability
-- target local range
-- terrain-derived movement cost
-- return-energy reserve
+## Stage 1 Non-Goals
 
-Only then does Simulation create the real `shared_local_activity` job.
+Stage 1 does not add:
 
-### Shared Movement
+- competence modifiers
+- XP/levels
+- role/class/specialization
+- expert titles
+- universal reputation
+- automatic self-assessment
+- teaching
+- habits/customs
+- plan auto-execution
 
-During active shared movement:
-- citizen and visitor follow the same authoritative Simulation job progress
-- visitor presence exposes the same derived current x/y
-- ordinary route travel is blocked
-- face-to-face Visit status returns `shared_activity_active`
-
-### Shared Completion
-
-On completion:
-- citizen persisted x/y moves to the target
-- visitor persisted x/y moves to the same target
-- one baseline-safe `spatial_observations.id` is created
-- job stores `result_observation_id`
-- shared activity stores `observation_id`
-- shared activity becomes `complete` with `outcome = success`
-
-## Shared Activity API
-
-Simulation now exposes:
-
-### Propose
-`POST /api/shared-activities/propose`
-
-Body:
-- visitor
-- citizen_id
-- target_x_m / target_y_m
-- objective
-- source_visit_id
-- source_exchange_id
-- optional tool_equipment_id
-
-Creates proposal only. No movement.
-
-### Accept
-`POST /api/shared-activities/{id}/accept`
-
-Body:
-- visitor
-
-Transitions:
-- proposed -> accepted
-
-No movement.
-
-### Reject
-`POST /api/shared-activities/{id}/reject`
-
-Body:
-- visitor
-
-Allowed only from `proposed` or `accepted`.
-
-Transitions to `rejected` with no physical movement, no citizen job, and no observation.
-
-### Start
-`POST /api/shared-activities/{id}/start`
-
-Body:
-- visitor
-
-Revalidates physical conditions and, if legal:
-- accepted -> active
-- creates real citizen job
-
-### Status
-`GET /api/shared-activities/{id}`
-
-Returns authoritative Simulation lifecycle/status and active movement progress when present.
-
-## Safe State Read Model
-
-`/api/state` now includes:
-
-- existing safe Stage 1 spatial state
-- citizen `local_movement`
-- active jobs with real movement fields
-- `shared_activities[]`
-
-`shared_activities[]` may include:
-- id
-- visitor/citizen
-- activity type/objective
-- frame/start/target coordinates
-- lifecycle times/status
-- source visit/exchange IDs
-- tool equipment ID
-- citizen job ID
-- observation ID
-- outcome/failure reason
-- active movement payload when status = active
-
-No hidden world seed/body geometry/richness is added to the public read model.
-
-## Legacy Travel
-
-Existing named route travel remains intact and all historical travel smoke tests pass.
-
-Stage 2 does not replace the route network or add globe travel.
-
-## Migration
-
-Stage 2 migration is additive.
-
-New schema:
-- `shared_activities`
-- movement/source/result fields on `jobs`
-- `spatial_observations.detail_level`
-
-No save reset is required.
+Those later systems must descend from this source-backed evidence.
 
 ## Validation
 
-Final Stage 2 code passed GitHub Actions:
+Final GitHub Actions run:
 
-`36456647323`
+`36603570434` — PASS
 
 Passed:
+
 - Python compilation
 - JavaScript syntax
-- every v0.4-v0.7 regression suite
-- all four v0.8 Stage 1 department smokes
-- `tests/smoke_v080_stage2.py`
+- complete published regression matrix v0.4 through v0.8.7
+- `tests/smoke_v090_simulation_stage1.py`
 
-A first run correctly exposed a v0.5 legacy-location compatibility issue; the fix preserves legacy route semantics only when no real Stage 2 local offset exists.
+A previous full run `36603320118` also passed before the final merge-order Memory-facet hardening.
 
-The final runtime hardening added a visitor-owned pre-start rejection transition and re-ran the complete regression matrix successfully. The final branch commit only restored the release-only workflow.
+The final branch commit only restored the release-only workflow.
 
 ## Status
 
-World & Simulation Stage 2 physical exploration/shared-activity core is ready for dependent department integration/review.
+World & Simulation v0.9 Stage 1 is ready for integration with Memory's causal-memory branch and for downstream Communication/Assets consumption.
 
 No `update.json` or release metadata was changed.
-
-
-## Stage 2 Session Close
-
-World & Simulation Stage 2 implementation is complete.
-
-Authoritative handoff:
-- branch: `simulation/v0.8-exploration-stage2`
-- head: `b81c9bb57884727e7a1c769d95ecb27928d1d489`
-- unified Stage 1 base: `017b417386f4f4e0f957dfb66285431223283739`
-- final CI: `36456647323`
-
-Dependent contracts are being routed to Communication, Memory, and Assets. Simulation should resume only for integration conflicts or a new coordinator request.
-
-
-## Final Stage 2 Work-Session Handoff
-
-This World & Simulation work session is complete.
-
-Authoritative branch:
-- `simulation/v0.8-exploration-stage2`
-- head `b81c9bb57884727e7a1c769d95ecb27928d1d489`
-- final CI `36456647323`
-
-All Simulation-owned Stage 2 dependencies have been handed off:
-- Communication has final proposal/accept/start/reject/status mapping
-- Memory has final physical action/evidence source IDs
-- Assets has final continuous movement/shared-action read model
-
-Simulation status remains REVIEW. No additional Simulation work is pending unless coordinator integration exposes a conflict or a new inbox task arrives.
