@@ -114,3 +114,12 @@ jobs:
 
       - name: Run v0.8.7 route-token travel visualization smoke
         run: python tests/smoke_v087_route_tokens.py
+
+      - name: Run v0.9 Stage 1 causal Memory smoke
+        run: python tests/smoke_v090_memory_stage1.py
+
+      - name: Run v0.9 Stage 1 persistent-plan Simulation smoke
+        run: python tests/smoke_v090_simulation_stage1.py
+
+      - name: Run v0.9 Stage 1 recall-bound Communication smoke
+        run: python tests/smoke_v090_communication_stage1.py
