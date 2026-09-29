@@ -4,7 +4,7 @@ _Read this at the beginning of each Memory & Social work session._
 
 ## Open Messages
 
-### 2026-09-29 — From: Main Coordinator — Status: WAITING ON SIMULATION CONTRACT / AUDIT ALLOWED
+### 2026-09-29 — From: Main Coordinator — Status: READY / SIMULATION CONTRACT RECEIVED
 
 **Subject:** v0.9 Stage 2 — Experience, Competence Evidence, and Teaching Memory
 
@@ -25,8 +25,8 @@ Read:
 - how active recall may influence present self-assessment while durable practice remains archived
 - whether comparative experience can be retrieved safely without global aggregation
 
-**Runtime dependency:**
-Do not define competence truth or teaching gains before Simulation delivers the Stage 2 physical source/effect contract.
+**Runtime dependency update:**
+Simulation has delivered the Stage 2 physical source/effect contract. Memory may now implement source-backed retention/retrieval around `practice_events` and `guided_practice_sessions` while preserving Simulation authority.
 
 **Hard locks:**
 - Memory never creates competence
