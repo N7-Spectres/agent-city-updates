@@ -74,6 +74,21 @@ def _naturalize_conversation_summary(
     if not text:
         return text
 
+    # Strip role+name appositives before generic role replacement, e.g.
+    # "The initiator, Cato, brought up..." -> "Cato brought up...".
+    text = re.sub(
+        rf"\bthe initiator\s*,\s*{re.escape(initiator_name)}\s*,\s*",
+        f"{initiator_name} ",
+        text,
+        flags=re.IGNORECASE,
+    )
+    text = re.sub(
+        rf"\bthe target(?: citizen)?\s*,\s*{re.escape(target_name)}\s*,\s*",
+        f"{target_name} ",
+        text,
+        flags=re.IGNORECASE,
+    )
+
     replacements = (
         (r"\bthe initiator\b", initiator_name),
         (r"\binitiator\b", initiator_name),
