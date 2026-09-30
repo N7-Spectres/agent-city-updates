@@ -419,3 +419,27 @@ Release process:
 - cache-busted raw fallback retained
 - dedicated `tests/smoke_v0911_github_update_feed.py`
 - full release regression `36666508423` PASS
+
+
+## Completed — v0.9.12 Cato Body Pilot
+
+- first full-body Local citizen presentation
+- transparent Cato base-body world sprite
+- foot anchoring to Local world point
+- real-route travel inheritance
+- camera-depth scaling
+- selection / hover body treatment
+- travel-only bob with reduced-motion fallback
+- separate empty world equipment layer
+- future GLB slot / Blender handoff contract
+- `tests/smoke_v0912_cato_world_body.py`
+- full release regression `36711965473` PASS
+
+## Next Pre-Blender Citizen Work
+
+Potential next slices:
+1. tune Cato body scale/ground contact after live visual review
+2. add separately approved directional/pose frames if useful
+3. repeat the body-pilot pattern for another citizen
+4. add validated equipment overlays only when real equipped state exists
+5. eventually replace Cato sprite-body presentation with a true GLB while keeping the same Simulation position/travel contract
