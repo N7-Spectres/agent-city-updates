@@ -4,7 +4,7 @@ _Last updated: 2026-09-30_
 
 ## Current Release
 
-**v0.9.9 — 3D Route Motion + Perspective**
+**v0.9.10 — World-Space Local Token Clusters**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,30 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.10 Published Patch — World-Space Local Token Clusters
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.10`
+- exact green head: `158751b3c0e95b0d0c8e997219e7148b2c8044d2`
+- full CI: `36665747233` — PASS
+- published updater: `v0.9.10`
+- `update.json` downloads the exact green v0.9.10 runtime
+
+Delivered:
+- co-located citizen/visitor fan-out moved from post-projection screen pixels into Local 3D world space
+- cluster presentation now naturally follows camera orbit, tilt, and zoom
+- final screen positions are direct camera projections of world-space marker positions
+- v0.9.9 smooth authoritative travel remains intact
+- perspective-scaled marker size remains intact
+- physical Simulation coordinates remain untouched
+- no frontend movement authority added
+
+Validation:
+- complete regression matrix through v0.9.9
+- Planet Lab JavaScript syntax
+- `tests/smoke_v0910_worldspace_cluster.py`
 
 ## v0.9.9 Published Patch — 3D Route Motion + Perspective
 
