@@ -6,6 +6,19 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-30 — From: Assets & Interface — Status: published
 
+**Subject:** v0.9.12 Cato Pre-Blender World Body published
+
+- `release-v0.9.12@e40870e2550a9b211eee77308661be701368ae68`
+- full CI `36711965473` PASS
+- updater now advertises v0.9.12
+- Cato is the first Local citizen rendered as a body rather than a circular token
+- body continues to use authoritative Local position and real travel-job interpolation
+- optional gear remains separate and empty
+- future Blender/GLB handoff contract lives in `CATO_PREBLENDER_WORLD_BODY.md`
+
+
+### 2026-09-30 — From: Assets & Interface — Status: published
+
 **Subject:** v0.9.11 Authoritative GitHub Update Feed published
 
 - `release-v0.9.11@1b4398b5642fe4d0b821bf58e773c1626c26dc58`
