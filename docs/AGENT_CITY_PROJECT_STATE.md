@@ -4,7 +4,7 @@ _Last updated: 2026-09-30_
 
 ## Current Release
 
-**v0.9.11 — Authoritative GitHub Update Feed**
+**v0.9.12 — Cato Pre-Blender World Body**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,40 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.12 Published Patch — Cato Pre-Blender World Body
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.12`
+- exact green head: `e40870e2550a9b211eee77308661be701368ae68`
+- full CI: `36711965473` — PASS
+- published updater: `v0.9.12`
+- `update.json` downloads the exact green v0.9.12 runtime
+
+Delivered:
+- Cato is the first Local-map citizen rendered as a full body rather than a circular token
+- transparent equipment-free Cato body asset at `static/assets/citizens/cato/world/front.webp`
+- body is foot-anchored to Cato's authoritative Local position
+- existing authoritative route interpolation carries the body during real travel jobs
+- camera-depth scaling applies to the body
+- body-shaped hover/selection treatment
+- subtle travel bob only while a real travel job exists
+- shared-point presentation spacing widens when the larger body is present
+- empty `.world-equipment-layer` reserved for future validated gear
+- future presentation slot reserved for `static/assets/citizens/cato/world/model.glb`
+- other citizens remain token-based
+
+Truth boundary:
+- v0.9.12 is a 2.5D pre-Blender presentation pilot, not a real rigged model
+- no concept-art cargo harness, hook, crate, or other prop becomes inventory/equipment
+- no physical position, facing, travel, cargo, equipment, or capability is created by Assets
+
+Validation:
+- complete regression matrix through v0.9.11
+- Planet Lab JavaScript syntax
+- `tests/smoke_v0912_cato_world_body.py`
+- durable handoff: `docs/departments/assets/CATO_PREBLENDER_WORLD_BODY.md`
 
 ## v0.9.11 Published Patch — Authoritative GitHub Update Feed
 
