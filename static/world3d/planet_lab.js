@@ -35,6 +35,8 @@
 
   let state = null;
   let visitorPresence = null;
+  let stateClockBaseSimMinute = 0;
+  let stateClockBaseRealMs = performance.now();
   let mode = initialMode;
   let selected = { type: "location", id: "seed_site" };
   let markerItems = [];
@@ -501,6 +503,58 @@
     ];
   }
 
+  function locationById(id) {
+    return knownLocations().find(loc => String(loc.id) === String(id)) || null;
+  }
+
+  function activeJobFor(citizen) {
+    if (!citizen || !state) return null;
+    if (citizen.active_job_id != null) {
+      const job = (state.jobs || []).find(row => Number(row.id) === Number(citizen.active_job_id));
+      if (job) return job;
+    }
+    return (state.jobs || []).find(row => String(row.citizen_id) === String(citizen.id)) || null;
+  }
+
+  function continuousSimMinute(now = performance.now()) {
+    if (!state) return 0;
+    const base = Number.isFinite(Number(stateClockBaseSimMinute))
+      ? Number(stateClockBaseSimMinute)
+      : Number(state.sim_minute || 0);
+    if (state.paused) return base;
+    const elapsedSeconds = Math.max(0, now - stateClockBaseRealMs) / 1000;
+    const ratio = Math.max(0, Number(state.time_ratio || 0));
+    return base + ((elapsedSeconds * ratio) / 60);
+  }
+
+  function citizenRenderMeters(citizen, now = performance.now()) {
+    const fallbackX = finite(citizen && citizen.position_x_m);
+    const fallbackY = finite(citizen && citizen.position_y_m);
+    const fallback = [fallbackX, fallbackY];
+
+    const job = activeJobFor(citizen);
+    if (!job || String(job.action) !== "travel") return fallback;
+
+    const from = locationById(citizen.location_id);
+    const to = locationById(job.target);
+    if (!from || !to) return fallback;
+
+    const startMinute = finite(job.start_minute);
+    const endMinute = finite(job.end_minute);
+    if (startMinute == null || endMinute == null || endMinute <= startMinute) return fallback;
+
+    const fraction = clamp(
+      (continuousSimMinute(now) - startMinute) / (endMinute - startMinute),
+      0,
+      1,
+    );
+
+    return [
+      Number(from.x_m) + ((Number(to.x_m) - Number(from.x_m)) * fraction),
+      Number(from.y_m) + ((Number(to.y_m) - Number(from.y_m)) * fraction),
+    ];
+  }
+
   function rebuildLocalRoutes() {
     const vertices = [];
     const byId = new Map(knownLocations().map(loc => [String(loc.id), loc]));
@@ -624,10 +678,14 @@
     }
   }
 
-  function markerWorld(item) {
+  function markerWorld(item, now = performance.now()) {
     if (mode === "local") {
       if (item.type === "location") return localWorld(item.data.x_m, item.data.y_m, 0.045);
-      if (item.type === "citizen") return localWorld(item.data.position_x_m, item.data.position_y_m, 0.075);
+      if (item.type === "citizen") {
+        const [x, y] = citizenRenderMeters(item.data, now);
+        if (x == null || y == null) return null;
+        return localWorld(x, y, 0.075);
+      }
       if (item.type === "structure") return localWorld(item.data.x_m, item.data.y_m, 0.06);
       if (item.type === "visitor") return localWorld(item.data.x_m, item.data.y_m, 0.08);
       return null;
@@ -639,9 +697,9 @@
     return null;
   }
 
-  function markerMeterPoint(item) {
+  function markerMeterPoint(item, now = performance.now()) {
     if (item.type === "citizen") {
-      return [finite(item.data.position_x_m), finite(item.data.position_y_m)];
+      return citizenRenderMeters(item.data, now);
     }
     if (item.type === "visitor" || item.type === "location" || item.type === "structure") {
       return [finite(item.data.x_m), finite(item.data.y_m)];
@@ -649,25 +707,25 @@
     return [null, null];
   }
 
-  function sharesLocalPoint(a, b, toleranceMeters = 0.5) {
-    const [ax, ay] = markerMeterPoint(a);
-    const [bx, by] = markerMeterPoint(b);
+  function sharesLocalPoint(a, b, toleranceMeters = 0.5, now = performance.now()) {
+    const [ax, ay] = markerMeterPoint(a, now);
+    const [bx, by] = markerMeterPoint(b, now);
     if (ax == null || ay == null || bx == null || by == null) return false;
     return Math.hypot(ax - bx, ay - by) <= toleranceMeters;
   }
 
-  function localMarkerScreenOffset(item) {
+  function localMarkerScreenOffset(item, perspectiveScale = 1, now = performance.now()) {
     if (mode !== "local") return { x: 0, y: 0 };
 
     if (item.type === "citizen") {
       const colocated = markerItems
-        .filter(other => other.type === "citizen" && sharesLocalPoint(item, other))
+        .filter(other => other.type === "citizen" && sharesLocalPoint(item, other, 0.5, now))
         .sort((a, b) => String(a.id).localeCompare(String(b.id)));
 
       if (colocated.length <= 1) return { x: 0, y: 0 };
 
       const index = colocated.findIndex(other => String(other.id) === String(item.id));
-      const radius = clamp(54 + colocated.length * 7, 64, 92);
+      const radius = clamp(54 + colocated.length * 7, 64, 92) * perspectiveScale;
       const angle = (-Math.PI / 2) + ((Math.PI * 2 * index) / colocated.length);
 
       return {
@@ -678,23 +736,29 @@
 
     if (item.type === "visitor") {
       const citizenCount = markerItems.filter(
-        other => other.type === "citizen" && sharesLocalPoint(item, other)
+        other => other.type === "citizen" && sharesLocalPoint(item, other, 0.5, now)
       ).length;
 
       if (citizenCount > 0) {
-        const citizenRadius = clamp(54 + citizenCount * 7, 64, 92);
-        return { x: 0, y: citizenRadius + 48 };
+        const citizenRadius = clamp(54 + citizenCount * 7, 64, 92) * perspectiveScale;
+        return { x: 0, y: citizenRadius + (48 * perspectiveScale) };
       }
     }
 
     return { x: 0, y: 0 };
   }
 
-  function updateMarkers(matrix) {
+  function markerPerspectiveScale(item, world, eye) {
+    if (mode !== "local" || item.type === "location") return 1;
+    const distance = Math.max(0.35, vec3Length(vec3Sub(eye, world)));
+    return clamp(4.25 / distance, 0.5, 1.35);
+  }
+
+  function updateMarkers(matrix, now = performance.now()) {
     const eye = cameraEye();
 
     for (const item of markerItems) {
-      const world = markerWorld(item);
+      const world = markerWorld(item, now);
       if (!world) {
         item.element.hidden = true;
         continue;
@@ -711,8 +775,10 @@
         continue;
       }
 
-      const offset = localMarkerScreenOffset(item);
+      const perspectiveScale = markerPerspectiveScale(item, world, eye);
+      const offset = localMarkerScreenOffset(item, perspectiveScale, now);
       item.element.hidden = false;
+      item.element.style.setProperty("--marker-scale", perspectiveScale.toFixed(3));
       item.element.style.left = (projected.x + offset.x) + "px";
       item.element.style.top = (projected.y + offset.y) + "px";
     }
@@ -820,7 +886,10 @@
 
     if (mode === "local") {
       if (selected.type === "location") return localWorld(data.x_m, data.y_m, 0);
-      if (selected.type === "citizen") return localWorld(data.position_x_m, data.position_y_m, 0);
+      if (selected.type === "citizen") {
+        const [x, y] = citizenRenderMeters(data);
+        return x == null || y == null ? null : localWorld(x, y, 0);
+      }
       if (selected.type === "structure") return localWorld(data.x_m, data.y_m, 0);
       if (selected.type === "visitor") return localWorld(data.x_m, data.y_m, 0);
     } else if (selected.type === "location") {
@@ -999,7 +1068,7 @@
       drawSphere(matrix);
     }
 
-    updateMarkers(matrix);
+    updateMarkers(matrix, now);
     frameHandle = requestAnimationFrame(renderFrame);
   }
 
@@ -1011,7 +1080,14 @@
       ]);
 
       if (!stateResponse.ok) throw new Error("State endpoint unavailable");
-      state = await stateResponse.json();
+      const nextState = await stateResponse.json();
+      const receivedAt = performance.now();
+      const priorEstimate = state ? continuousSimMinute(receivedAt) : Number(nextState.sim_minute || 0);
+      state = nextState;
+      stateClockBaseSimMinute = state.paused
+        ? Number(state.sim_minute || 0)
+        : Math.max(Number(state.sim_minute || 0), priorEstimate);
+      stateClockBaseRealMs = receivedAt;
       visitorPresence = visitorResponse.ok ? await visitorResponse.json() : null;
       document.body.dataset.dayPhase = visualDayPhase(state.sim_minute);
 
