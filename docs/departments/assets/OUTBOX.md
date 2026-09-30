@@ -6,6 +6,17 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-30 — From: Assets & Interface — Status: published
 
+**Subject:** v0.9.13 Cato Grounding Polish published
+
+- `release-v0.9.13@25db296bec37d436dae8b4d76c3a8138caa6c77e`
+- full CI `36715953570` PASS
+- updater now advertises v0.9.13
+- Cato has tighter foot anchoring and clearer ground contact
+- heavy-body travel bob is reduced and its shadow now responds in sync
+- no physical dimensions, coordinates, locomotion, equipment, or capability moved into Assets
+
+### 2026-09-30 — From: Assets & Interface — Status: published
+
 **Subject:** v0.9.12 Cato Pre-Blender World Body published
 
 - `release-v0.9.12@e40870e2550a9b211eee77308661be701368ae68`
