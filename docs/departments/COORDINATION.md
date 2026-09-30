@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.10 World-Space Local Token Clusters published** from `release-v0.9.10@158751b3c0e95b0d0c8e997219e7148b2c8044d2`; full CI `36665747233` PASS.
+- [Assets & Interface] Local shared-point marker fan-out now lives in world space before camera projection, removing the fixed screen-space starburst behavior.
+
 - [Coordinator] **v0.9.9 3D Route Motion + Perspective published** from `release-v0.9.9@d942d38ea0f82d056a6494a2f7be64041974d5c8`; full CI `36664664989` PASS.
 - [Assets & Interface] Local 3D now animates real travel jobs along authoritative routes and scales markers/fan-out with camera depth.
 
@@ -54,6 +57,18 @@ _None._
 - [Coordinator] v0.9.2 Conversation Polish + Social-Energy Protection published.
 - [Coordinator] v0.9.1 History Records Polish published.
 - [Coordinator] v0.9.0 Civilization Continuity published.
+
+## v0.9.10 Published Patch
+
+- version: `0.9.10`
+- release branch: `release-v0.9.10`
+- exact immutable runtime: `158751b3c0e95b0d0c8e997219e7148b2c8044d2`
+- full CI: `36665747233` — PASS
+- updater advertises v0.9.10 and downloads the exact green runtime commit
+- shared-point Local token fan-out is now world-space rather than post-projection screen-space
+- orbit / tilt / zoom naturally affect the cluster geometry
+- smooth real-route travel from v0.9.9 remains intact
+- renderer remains read-only
 
 ## v0.9.9 Published Patch
 
