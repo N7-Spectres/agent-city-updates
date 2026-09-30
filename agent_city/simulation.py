@@ -1356,6 +1356,42 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
         return actions
 
 
+def _filter_autonomous_social_targets(
+    conn,
+    actions: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """
+    Protect critically low citizens from autonomous social interruption.
+
+    This is an autonomy/rhythm constraint, not physical illegality. A citizen
+    below the critical recharge threshold should get a chance to recharge
+    instead of being repeatedly selected as somebody else's talk or guided-
+    practice target.
+    """
+    filtered: list[dict[str, Any]] = []
+    for item in actions:
+        kind = str(item.get("action") or "")
+        counterpart_id: str | None = None
+        if kind == "talk":
+            counterpart_id = str(item.get("target") or "")
+        elif kind == "guided_practice":
+            counterpart_id = str(item.get("learner_id") or "")
+
+        if counterpart_id:
+            counterpart = conn.execute(
+                "SELECT energy FROM citizens WHERE id = ?",
+                (counterpart_id,),
+            ).fetchone()
+            if (
+                counterpart
+                and float(counterpart["energy"]) < CRITICAL_RECHARGE_ENERGY
+            ):
+                continue
+
+        filtered.append(item)
+    return filtered
+
+
 def autonomous_actions(citizen_id: str) -> list[dict[str, Any]]:
     """Physically legal actions filtered by the citizen's daily autonomy rhythm."""
     actions = possible_actions(citizen_id)
@@ -1366,6 +1402,7 @@ def autonomous_actions(citizen_id: str) -> list[dict[str, Any]]:
         if not citizen or citizen["active_job_id"] is not None:
             return []
         now = int(get_meta(conn, "sim_minute") or "360")
+        actions = _filter_autonomous_social_targets(conn, actions)
         return apply_daily_rhythm_to_actions(
             actions,
             sim_minute=now,
@@ -1404,6 +1441,25 @@ def start_action(
         now = int(get_meta(conn, "sim_minute") or "360")
         action = chosen["action"]
         target = chosen.get("target")
+
+        if autonomous_choice and action in {"talk", "guided_practice"}:
+            counterpart_id = (
+                str(chosen.get("learner_id") or "")
+                if action == "guided_practice"
+                else str(target or "")
+            )
+            counterpart = conn.execute(
+                "SELECT energy FROM citizens WHERE id = ?",
+                (counterpart_id,),
+            ).fetchone()
+            if (
+                counterpart
+                and float(counterpart["energy"]) < CRITICAL_RECHARGE_ENERGY
+            ):
+                return False, (
+                    "That citizen has critically low energy and needs a chance "
+                    "to recharge before an autonomous social activity."
+                )
 
         if float(c["energy"]) < CRITICAL_RECHARGE_ENERGY:
             if action not in {"charge", "wait"} and not _is_homeward_action(chosen):
@@ -1840,10 +1896,10 @@ def start_action(
             conn.execute(
                 """
                 UPDATE citizens
-                SET active_job_id = ?, current_activity = ?, last_planned_minute = ?
+                SET active_job_id = ?, current_activity = ?
                 WHERE id = ?
                 """,
-                (job_id, f"Talking with {c['name']}", now, target),
+                (job_id, f"Talking with {c['name']}", target),
             )
 
         reason_note = f" Reason: {intent_reason}" if intent_reason else ""
