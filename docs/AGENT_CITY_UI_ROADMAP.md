@@ -641,6 +641,15 @@ Success means questions such as "Why does Iri avoid running her battery so low n
 - smaller screens collapse to a one-column layout with horizontally scrollable controls
 - continuity truth layers and Memory/competence/pattern semantics remain unchanged
 
+### Shipped patch — v0.9.4 Zero-Energy Charger Recovery
+
+- repairs the impossible case where a citizen reaches 0% energy inside a charger-equipped location but is locally outside the 5 m charging radius
+- recovery is diagnostic/admin correction only, never an in-world visitor or citizen power
+- no energy is granted and no fictional action is created
+- only the stranded citizen's coordinate is aligned to the nearest operational charger at that same location
+- ordinary critical-energy charging then resumes through existing Simulation rules
+- runs on startup and world ticks, and records each correction diagnostically
+
 ### v1.0 — Bonsai Civilization
 
 Future design notes:
