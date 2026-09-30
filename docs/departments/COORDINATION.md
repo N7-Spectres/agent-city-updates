@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.17 Correct Aris Runtime Sprite published** from `release-v0.9.17@0d9f384c614f192da4423c3907a851ac8b0a2b9c`; full CI `36771435841` PASS.
+- [Assets & Interface] Aris's live Local runtime now uses the exact verified transparent sprite blob; v0.9.16 layering remains intact.
+
 - [Coordinator] **v0.9.15 Aris Transparent PNG Body published** from `release-v0.9.15@2edf2cd5fcd828973fd0f636e2d5119abe3d94e0`; full CI `36755833871` PASS.
 - [Assets & Interface] Aris's Local body now uses a true RGBA PNG, removing the rectangular matte while preserving the v0.9.14 body contract.
 
