@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.13 Cato Grounding Polish published** from `release-v0.9.13@25db296bec37d436dae8b4d76c3a8138caa6c77e`; full CI `36715953570` PASS.
+- [Assets & Interface] Cato's pre-Blender Local body now has tighter foot anchoring, clearer ground contact, and heavier travel presentation without changing physical authority.
+
 - [Coordinator] **v0.9.12 Cato Pre-Blender World Body published** from `release-v0.9.12@e40870e2550a9b211eee77308661be701368ae68`; full CI `36711965473` PASS.
 - [Assets & Interface] Cato is now the first full-body Local world citizen presentation, using the same authoritative position/travel pipeline as the token renderer.
 
@@ -63,6 +66,20 @@ _None._
 - [Coordinator] v0.9.2 Conversation Polish + Social-Energy Protection published.
 - [Coordinator] v0.9.1 History Records Polish published.
 - [Coordinator] v0.9.0 Civilization Continuity published.
+
+## v0.9.13 Published Patch
+
+- version: `0.9.13`
+- release branch: `release-v0.9.13`
+- exact immutable runtime: `25db296bec37d436dae8b4d76c3a8138caa6c77e`
+- full CI: `36715953570` — PASS
+- updater advertises v0.9.13 and downloads the exact green runtime commit
+- Cato body silhouette and screen-space grounding tuned
+- neutral ground-contact ring added
+- hover/selection grounding improved
+- travel bob reduced and shadow synchronized
+- reduced-motion preserved
+- no physical dimensions, collision, locomotion, coordinates, equipment, or capability moved into Assets
 
 ## v0.9.12 Published Patch
 
