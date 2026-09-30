@@ -1634,8 +1634,8 @@ function citizenContinuityMarkup(citizenId, section = "continuity") {
   return `
     <div class="continuity-layer">
       <div class="continuity-layer-head">
-        <span>Continuity</span>
-        <small>Traceable history</small>
+        <span>Evidence / Record</span>
+        <small>Simulation-owned continuity</small>
       </div>
       <h4>Ongoing plans</h4>
       <div class="continuity-plan-list">${planMarkup}</div>
