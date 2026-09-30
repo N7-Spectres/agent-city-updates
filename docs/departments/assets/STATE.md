@@ -1,9 +1,9 @@
 # Assets & Interface — State
 
 _Last updated: 2026-09-30_
-_Current published release: v0.9.12 @ `e40870e2550a9b211eee77308661be701368ae68`_
-_Current Assets activity: pre-Blender citizen body pipeline / Cato body pilot_
-_Current runtime branch: `release-v0.9.12` @ `e40870e2550a9b211eee77308661be701368ae68`_
+_Current published release: v0.9.13 @ `25db296bec37d436dae8b4d76c3a8138caa6c77e`_
+_Current Assets activity: pre-Blender citizen body pipeline / grounding polish complete_
+_Current runtime branch: `release-v0.9.13` @ `25db296bec37d436dae8b4d76c3a8138caa6c77e`_
 _Current review surface: published updater v0.9.6_
 _Current status: DONE / PUBLISHED_
 
@@ -693,3 +693,30 @@ Delivered:
 
 Durable contract:
 `docs/departments/assets/CATO_PREBLENDER_WORLD_BODY.md`
+
+
+## v0.9.13 Cato Grounding Polish — Published
+
+Status:
+**DONE / PUBLISHED**
+
+- release branch: `release-v0.9.13`
+- exact green runtime: `25db296bec37d436dae8b4d76c3a8138caa6c77e`
+- full CI: `36715953570` — PASS
+- updater: v0.9.13
+
+Delivered:
+- slightly stronger Cato heavy-body screen silhouette
+- tighter foot-line anchoring
+- subtle ground-contact ring
+- improved selected/hover grounding treatment
+- reduced travel-only bob
+- synchronized travel-shadow compression
+- reduced-motion fallback for both body and shadow
+- historical v0.9.12 smoke now checks the grounding invariant instead of one exact CSS percentage
+
+Authority boundary preserved:
+- no Simulation coordinate writes
+- no physical height/width/mass/collision truth
+- no locomotion or equipment authority
+- presentation remains read-only
