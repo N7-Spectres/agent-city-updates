@@ -4,7 +4,7 @@ _Last updated: 2026-09-30_
 
 ## Current Release
 
-**v0.9.10 — World-Space Local Token Clusters**
+**v0.9.11 — Authoritative GitHub Update Feed**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,28 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.11 Published Patch — Authoritative GitHub Update Feed
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.11`
+- exact green head: `1b4398b5642fe4d0b821bf58e773c1626c26dc58`
+- full CI: `36666508423` — PASS
+- published updater: `v0.9.11`
+- `update.json` downloads the exact green v0.9.11 runtime
+
+Delivered:
+- GitHub raw update feeds are translated internally to GitHub repository-contents API requests
+- branch/ref/file resolution now comes from repository state rather than raw CDN freshness
+- GitHub API request uses raw-file Accept header
+- stable user-saved feed URL remains unchanged
+- cache-busted raw request remains as fallback for API failure/rate limiting and for non-GitHub feeds
+- all v0.9.10 3D world-space cluster behavior remains intact
+
+Validation:
+- complete regression matrix through v0.9.10
+- `tests/smoke_v0911_github_update_feed.py`
 
 ## v0.9.10 Published Patch — World-Space Local Token Clusters
 
