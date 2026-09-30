@@ -2066,9 +2066,6 @@ function renderCitizenSheet() {
   `;
 }
 
-function renderLocationDirectory()
-}
-
 function renderLocationDirectory() {
   if (!state?.locations?.length) {
     els.locationDirectory.innerHTML = '<div class="muted">No known locations.</div>';
