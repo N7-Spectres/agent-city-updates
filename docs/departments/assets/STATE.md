@@ -1,9 +1,9 @@
 # Assets & Interface — State
 
 _Last updated: 2026-09-30_
-_Current published release: v0.9.11 @ `1b4398b5642fe4d0b821bf58e773c1626c26dc58`_
-_Current Assets activity: Home 3D World / RTS-style local world foundation_
-_Current runtime branch: `release-v0.9.11` @ `1b4398b5642fe4d0b821bf58e773c1626c26dc58`_
+_Current published release: v0.9.12 @ `e40870e2550a9b211eee77308661be701368ae68`_
+_Current Assets activity: pre-Blender citizen body pipeline / Cato body pilot_
+_Current runtime branch: `release-v0.9.12` @ `e40870e2550a9b211eee77308661be701368ae68`_
 _Current review surface: published updater v0.9.6_
 _Current status: DONE / PUBLISHED_
 
@@ -668,3 +668,28 @@ Delivered:
 - raw CDN branch freshness is no longer trusted as the primary update source
 - cache-busted raw fetch remains fallback
 - user-saved feed URL remains stable
+
+
+## v0.9.12 Cato Pre-Blender World Body — Published
+
+Status:
+**DONE / PUBLISHED**
+
+- release branch: `release-v0.9.12`
+- exact green runtime: `e40870e2550a9b211eee77308661be701368ae68`
+- full CI: `36711965473` — PASS
+- updater: v0.9.12
+
+Delivered:
+- Cato is the first full-body citizen in Local world presentation
+- body uses a transparent approved-concept-derived sprite
+- body is foot-anchored to authoritative Local world position
+- existing real route travel carries the body
+- camera depth scales the body
+- hover/selection glow and travel-only bob are presentation-only
+- equipment remains a separate empty layer
+- future GLB handoff slot is documented
+- other citizens remain token-based pending their own approved body work
+
+Durable contract:
+`docs/departments/assets/CATO_PREBLENDER_WORLD_BODY.md`
