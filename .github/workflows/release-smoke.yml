@@ -165,3 +165,7 @@ jobs:
 
       - name: Run v0.9.4 zero-energy charger recovery smoke
         run: python tests/smoke_v094_zero_energy_recovery.py
+
+
+      - name: Run Planet Lab prototype smoke
+        run: python tests/smoke_planet_lab.py
