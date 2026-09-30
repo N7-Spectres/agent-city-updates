@@ -4,7 +4,7 @@ _Last updated: 2026-09-30_
 
 ## Current Release
 
-**v0.9.1 — History Records Polish**
+**v0.9.2 — Conversation Polish + Social-Energy Protection**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -18,14 +18,16 @@ Information law:
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
 
-## v0.9.2 Conversation Polish + Social-Energy Protection — Green / Ready
+## v0.9.2 Published Patch — Conversation Polish + Social-Energy Protection
 
-**Status: pushed and fully regression-tested; not yet published**
+**Status: published from the fully regression-tested patch line**
 
 - branch: `release-v0.9.2`
 - exact green head: `ea4a838fa10a557ac6d3f032a55e1dc94a84012f`
 - full CI: `36654523357` — PASS
-- updater remains on published v0.9.1 until explicit publication
+- published updater: `v0.9.2`
+- publication manifest commit on `main`: `0f3bbd0bc7682e5345eb04a086b0adbfbb771f6d`
+- `update.json` downloads the exact green v0.9.2 runtime
 
 Delivered:
 
