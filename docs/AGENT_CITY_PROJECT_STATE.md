@@ -4,7 +4,7 @@ _Last updated: 2026-09-30_
 
 ## Current Release
 
-**v0.9.7 — Wider Local Marker Spread**
+**v0.9.8 — Fresh Update Checks**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,27 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.8 Published Patch — Fresh Update Checks
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.8`
+- exact green head: `2d0d01c51db30e495360fe04b9c23b115c9ec3c0`
+- full CI: `36663881198` — PASS
+- published updater: `v0.9.8`
+- `update.json` downloads the exact green v0.9.8 runtime
+
+Delivered:
+- every manifest check now adds a unique cache-busting query parameter
+- manifest requests send `Cache-Control: no-cache, no-store, max-age=0`
+- manifest requests send `Pragma: no-cache`
+- saved user feed URL remains stable; freshness is applied only to outbound requests
+- includes v0.9.7 wider Local 3D marker spread
+
+Validation:
+- complete regression matrix through v0.9.7
+- `tests/smoke_v098_update_cache.py`
 
 ## v0.9.7 Published Patch — Wider Local Marker Spread
 
