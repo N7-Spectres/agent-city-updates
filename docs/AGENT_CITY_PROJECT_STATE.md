@@ -4,7 +4,7 @@ _Last updated: 2026-09-30_
 
 ## Current Release
 
-**v0.9.13 — Cato Grounding Polish**
+**v0.9.14 — Aris Local World Body**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,38 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.14 Published Patch — Aris Local World Body
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.14`
+- exact green head: `9c1b51e419a030434ecf1271f80cb5a127216701`
+- full CI: `36752065690` — PASS
+- published updater: `v0.9.14`
+- `update.json` downloads the exact green v0.9.14 runtime
+
+Delivered:
+- Aris is the second Local citizen promoted from a circular token to a full-body presentation
+- approved Aris concept reference is preserved under his citizen asset tree
+- Aris uses the same authoritative Simulation position and real route-travel interpolation as Cato
+- leaner relative presentation scale preserves his approximately 1.85 m visual identity against Cato's heavier/taller silhouette
+- minimum Local zoom-out readability floor keeps Aris identifiable at the widest Local camera distance
+- Aris receives cyan ground-contact, hover/selection, and travel-only presentation treatment
+- Region and Planet continue to omit citizen body markers
+- Bex, Iri, Noma, and Vale remain token-based pending separate one-at-a-time rollouts
+
+Truth boundary:
+- Aris's height/scale values are presentation canon only
+- no physical dimension, coordinate, collision body, locomotion, equipment, cargo, or capability is created by Assets
+- Simulation remains the sole authority over physical reality
+
+Validation:
+- complete regression matrix through v0.9.13
+- JavaScript syntax checks
+- `tests/smoke_v0914_aris_world_body.py`
+- historical route-motion and Cato tests preserved as behavioral invariants
+- durable handoff: `docs/departments/assets/ARIS_PREBLENDER_WORLD_BODY.md`
 
 ## v0.9.13 Published Patch — Cato Grounding Polish
 
