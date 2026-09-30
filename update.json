@@ -1,6 +1,6 @@
 {
-  "version": "0.9.9",
-  "notes": "3D Route Motion + Perspective: makes the Home 3D Local view feel more spatial and RTS-like. Citizens with real Simulation travel jobs now move smoothly along the authoritative route from origin to destination using the job's start/end times and the city's actual time ratio; pausing the simulation freezes the visual travel. Citizen and visitor markers now scale with camera depth, and shared-point fan-out spacing scales with perspective as well, reducing the flat HUD/starburst feel. The renderer still performs no physical state writes and never invents travel.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/d942d38ea0f82d056a6494a2f7be64041974d5c8",
+  "version": "0.9.10",
+  "notes": "World-Space Local Token Clusters: fixes the remaining flat starburst effect in the Home 3D Local view. Co-located citizen and visitor presentation offsets now exist on the Local 3D ground plane before camera projection instead of being added afterward in screen pixels. The cluster therefore compresses, stretches, rotates, and scales naturally with camera orbit, tilt, and zoom while preserving one authoritative Simulation coordinate for each real shared point. v0.9.9 smooth authoritative route travel and perspective-scaled markers remain intact. The renderer performs no physical state writes.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/158751b3c0e95b0d0c8e997219e7148b2c8044d2",
   "sha256": ""
 }
