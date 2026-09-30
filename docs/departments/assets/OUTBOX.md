@@ -6,6 +6,18 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-30 — From: Assets & Interface — Status: published
 
+**Subject:** v0.9.7 Wider Local Marker Spread published
+
+- `release-v0.9.7@c783ff6875136de1edd5852676246ef69a442fd0`
+- full CI `36663515487` PASS
+- updater now advertises v0.9.7
+- co-located Local 3D citizen tokens use a wider screen-space ring
+- visitor marker is offset below crowded shared points
+- Simulation coordinates remain untouched
+
+
+### 2026-09-30 — From: Assets & Interface — Status: published
+
 **Subject:** v0.9.6 Home 3D World published
 
 **Release:**
