@@ -1,9 +1,9 @@
 # Assets & Interface — State
 
 _Last updated: 2026-09-30_
-_Current published release: v0.9.16 @ `0ba466061bea82a2ecd682a7db06180435ba572c`_
+_Current published release: v0.9.17 @ `0d9f384c614f192da4423c3907a851ac8b0a2b9c`_
 _Current Assets activity: Local body marker layering fix complete_
-_Current runtime branch: `release-v0.9.16` @ `0ba466061bea82a2ecd682a7db06180435ba572c`_
+_Current runtime branch: `release-v0.9.17` @ `0d9f384c614f192da4423c3907a851ac8b0a2b9c`_
 _Current review surface: published updater v0.9.16_
 _Current status: DONE / PUBLISHED_
 
@@ -790,3 +790,17 @@ Next step:
 
 Next action:
 **Live-check Aris while walking through Seed Site.**
+
+
+## v0.9.17 Correct Aris Runtime Sprite — Published
+
+- release branch: `release-v0.9.17`
+- exact green runtime: `0d9f384c614f192da4423c3907a851ac8b0a2b9c`
+- full CI: `36771435841` — PASS
+- verified runtime sprite blob: `f8811d359b1a232b0f27ce41d87163d5ac4cc57f`
+- file size: 14,262 bytes
+- dedicated smoke verifies the exact binary
+- no Simulation authority changes
+
+Next action:
+**Live visual check of Aris, then Bex if correct.**
