@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.5 Planet Lab published** via `update.json` on the exact green runtime `release-v0.9.5@3a5b226cda19775f080b726d79e79c72c016c0c1`; full CI `36661886711` PASS.
+- [Assets & Interface] Planet Lab is officially live as an isolated read-only WebGL world viewer with Planet / Region / Local navigation and authoritative local meter-space rendering.
+
 - [Coordinator] **v0.9.4 Zero-Energy Charger Recovery published** via `update.json` on `main` commit `ee51c23a7ece7d787e30b9871ae2a38c3c6a5393`.
 - [v0.9.4 Runtime] `release-v0.9.4@ed73598148e0f23b64834e9f716f3fab6ba2364e`; full CI `36657268659` PASS.
 - [World & Simulation] zero-energy same-location charger deadlock recovery is startup/tick-safe, idempotent, and diagnostic-only.
@@ -39,6 +42,21 @@ _None._
 - [Coordinator] v0.9.2 Conversation Polish + Social-Energy Protection published.
 - [Coordinator] v0.9.1 History Records Polish published.
 - [Coordinator] v0.9.0 Civilization Continuity published.
+
+## v0.9.5 Published Patch
+
+- version: `0.9.5`
+- release branch: `release-v0.9.5`
+- exact immutable runtime: `3a5b226cda19775f080b726d79e79c72c016c0c1`
+- full CI: `36661886711` — PASS
+- `update.json` advertises v0.9.5 and downloads the exact green runtime commit
+- adds official `/planet-lab`
+- adds **3D Planet Lab** to main navigation
+- raw browser WebGL, no external engine/CDN required
+- Local mode renders authoritative Simulation meter-space positions
+- Planet/Region modes remain presentation-only until global geodesy exists
+- no physical write actions
+- no hidden seeded-world truth exposure
 
 ## v0.9.4 Published Patch
 
