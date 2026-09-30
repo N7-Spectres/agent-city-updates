@@ -1,6 +1,6 @@
 {
-  "version": "0.9.1",
-  "notes": "History Records polish: Records → History now uses a two-column desktop layout with Recent Citizen Conversations on the left and Settlement Chronology on the right. Conversations are paginated at 8 per page and chronology at 12 per page using bounded database queries, so long-running cities do not load an ever-growing archive into the browser. Expanded “Read exchange” transcripts remain open across Agent City’s automatic state refresh, current History pages stay selected during refresh, and narrower screens stack the two columns responsively.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/371911bd9b337924ba1b960cb794caccd991c150",
+  "version": "0.9.2",
+  "notes": "Conversation polish and social-energy protection: citizen-to-citizen summaries now use names and natural human-facing language instead of internal role/schema terms such as initiator, target citizen, source job, action target, or proposal state. A defensive cleanup runs before summaries are stored while preserving claim-safe truth rules. Autonomous citizens also stop selecting critically low-energy citizens for talk or guided practice, start-time checks close stale-action races, and being someone else’s conversation partner no longer resets the listener’s planner clock, allowing urgent recharge to regain priority.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/ea4a838fa10a557ac6d3f032a55e1dc94a84012f",
   "sha256": ""
 }
