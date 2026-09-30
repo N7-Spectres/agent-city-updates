@@ -901,3 +901,30 @@ Assets resumes only for:
 - coordinator review feedback,
 - a UI regression discovered during final integration,
 - or a new Stage 3 work packet.
+
+
+## Home 3D World / RTS Viewer Decision
+
+Home's primary World View is now the interactive 3D Local surface.
+
+The intended interaction model is:
+
+> **RTS camera, not RTS authority.**
+
+Allowed presentation:
+- orbit, pan, zoom, focus, and inspect
+- watch citizens move according to authoritative Simulation state
+- click citizens to select them in the ordinary Home visit UI
+- switch Local / Region / Planet presentation scale
+- derive lighting from Simulation time
+
+Not allowed:
+- drag-selecting citizens as controllable units
+- frontend path assignment
+- frontend physical commands
+- invented movement between authoritative state updates
+- procedural terrain/resource truth that Simulation has not established
+
+The 2D map remains a fallback while the 3D viewer matures.
+
+Planet/Region views are presentation-only until an authoritative global coordinate/geodesy contract exists.
