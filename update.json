@@ -1,6 +1,6 @@
 {
-  "version": "0.9.15",
-  "notes": "Aris Transparent PNG Body: replaces Aris's boxed Local runtime sprite with a true RGBA PNG so the full-body citizen renders cleanly without a rectangular matte/background. Aris keeps the same Local-only authoritative position/travel pipeline, relative scale, zoom-out readability floor, grounding, selection, and travel presentation introduced in v0.9.14. Cato is unchanged; Region and Planet remain free of citizen body markers. No Simulation authority changes.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/2edf2cd5fcd828973fd0f636e2d5119abe3d94e0",
+  "version": "0.9.16",
+  "notes": "Local Body Marker Layering: keeps full-body Local citizens above ordinary circular token/location markers so embodied citizens cannot disappear inside crowded Seed Site clusters. Selected or hovered bodies rise one additional layer for inspection while the visitor marker remains readable. Aris's transparent PNG, relative scale, zoom-out floor, grounding, and authoritative travel behavior are unchanged; Cato is unchanged. No Simulation authority changes.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/0ba466061bea82a2ecd682a7db06180435ba572c",
   "sha256": ""
 }
