@@ -285,10 +285,29 @@
             </div>
 
             <div id="detail-history" class="detail-view">
-              <div class="history-section-label">RECENT CITIZEN CONVERSATIONS</div>
-              <div id="citizen-conversations" class="conversation-feed"></div>
-              <div class="history-section-label">SETTLEMENT CHRONOLOGY</div>
-              <div id="history" class="history"></div>
+              <div class="history-records-grid">
+                <section class="history-records-column conversation-history-column">
+                  <div class="history-column-head">
+                    <div>
+                      <div class="history-section-label">RECENT CITIZEN CONVERSATIONS</div>
+                      <span id="conversation-page-summary" class="history-page-summary">Loading…</span>
+                    </div>
+                  </div>
+                  <div id="citizen-conversations" class="conversation-feed"></div>
+                  <div id="conversation-pagination" class="history-pagination" aria-label="Citizen conversation pages"></div>
+                </section>
+
+                <section class="history-records-column chronology-history-column">
+                  <div class="history-column-head">
+                    <div>
+                      <div class="history-section-label">SETTLEMENT CHRONOLOGY</div>
+                      <span id="chronology-page-summary" class="history-page-summary">Loading…</span>
+                    </div>
+                  </div>
+                  <div id="history" class="history"></div>
+                  <div id="chronology-pagination" class="history-pagination" aria-label="Settlement chronology pages"></div>
+                </section>
+              </div>
             </div>
 
             <div id="detail-updates" class="detail-view hidden">
