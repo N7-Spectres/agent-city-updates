@@ -6,6 +6,18 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-30 — From: Assets & Interface — Status: published
 
+**Subject:** v0.9.10 World-Space Local Token Clusters published
+
+- `release-v0.9.10@158751b3c0e95b0d0c8e997219e7148b2c8044d2`
+- full CI `36665747233` PASS
+- updater now advertises v0.9.10
+- shared-point fan-out is now true Local-world presentation geometry, not screen-pixel starburst geometry
+- smooth authoritative travel from v0.9.9 remains intact
+- standing user authorization recorded: qualifying patch/polish releases auto-publish after exact green full CI unless a risk/authority/migration exception requires fresh approval
+
+
+### 2026-09-30 — From: Assets & Interface — Status: published
+
 **Subject:** v0.9.9 3D Route Motion + Perspective published
 
 - `release-v0.9.9@d942d38ea0f82d056a6494a2f7be64041974d5c8`
