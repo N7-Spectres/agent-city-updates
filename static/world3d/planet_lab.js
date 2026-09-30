@@ -12,13 +12,23 @@
   const resetCameraButton = document.getElementById("reset-camera");
   const modeButtons = [...document.querySelectorAll(".mode-button")];
 
-  // Pre-Blender citizen body pilot. This is presentation-only art layered over
-  // authoritative Simulation positions. Optional equipment remains separate.
+  // Pre-Blender Local citizen bodies. These are presentation-only art layered
+  // over authoritative Simulation positions. Optional equipment remains separate.
+  // Relative scale is visual canon/readability, not physical Simulation truth.
   const CITIZEN_WORLD_VISUALS = Object.freeze({
+    aris: Object.freeze({
+      kind: "sprite_body",
+      baseBody: "/static/assets/citizens/aris/world/front.webp",
+      futureModelSlot: "/static/assets/citizens/aris/world/model.glb",
+      presentationScale: 0.881,
+      minReadableScale: 0.52,
+    }),
     cato: Object.freeze({
       kind: "sprite_body",
       baseBody: "/static/assets/citizens/cato/world/front.webp",
       futureModelSlot: "/static/assets/citizens/cato/world/model.glb",
+      presentationScale: 1.0,
+      minReadableScale: 0.58,
     }),
   });
 
@@ -625,7 +635,8 @@
       img.alt = item.data.name || item.id;
 
       if (visual?.kind === "sprite_body") {
-        button.classList.add("world-body-marker", "cato-world-body");
+        const bodyClass = String(item.id) + "-world-body";
+        button.classList.add("world-body-marker", "citizen-world-body", bodyClass);
         button.dataset.worldVisual = visual.kind;
         img.className = "world-body-image";
         img.src = visual.baseBody;
@@ -639,7 +650,7 @@
         label.textContent = item.data.name || item.id;
 
         img.addEventListener("error", () => {
-          button.classList.remove("world-body-marker", "cato-world-body");
+          button.classList.remove("world-body-marker", "citizen-world-body", String(item.id) + "-world-body");
           button.removeAttribute("data-world-visual");
           gearLayer.remove();
           label.remove();
@@ -836,12 +847,20 @@
       }
 
       const perspectiveScale = markerPerspectiveScale(item, world, eye);
+      const visual = item.type === "citizen" ? worldVisualFor(item.id) : null;
+      const displayScale = visual?.kind === "sprite_body"
+        ? clamp(
+            perspectiveScale * Number(visual.presentationScale || 1),
+            Number(visual.minReadableScale || 0.5),
+            1.35 * Number(visual.presentationScale || 1)
+          )
+        : perspectiveScale;
       const travelJob = item.type === "citizen" ? activeJobFor(item.data) : null;
       const routeTraveling = String(travelJob?.action || "") === "travel";
 
       item.element.hidden = false;
       item.element.classList.toggle("route-traveling", routeTraveling);
-      item.element.style.setProperty("--marker-scale", perspectiveScale.toFixed(3));
+      item.element.style.setProperty("--marker-scale", displayScale.toFixed(3));
       item.element.style.left = projected.x + "px";
       item.element.style.top = projected.y + "px";
     }
