@@ -4053,3 +4053,254 @@ input:focus, textarea:focus { border-color: var(--accent); }
     justify-self: end;
   }
 }
+
+
+/* v0.9.3 Citizen sheet: at-a-glance profile + on-demand deep information. */
+#citizen-sheet-body {
+  display: block;
+}
+
+.citizen-sheet-dashboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(340px, .85fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.citizen-overview-column,
+.citizen-info-column {
+  min-width: 0;
+}
+
+.citizen-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.citizen-overview-grid .overview-wide {
+  grid-column: 1 / -1;
+}
+
+.citizen-info-column {
+  display: grid;
+  gap: 10px;
+}
+
+.citizen-detail-nav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.citizen-detail-tab {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.018);
+  color: var(--muted);
+  font-size: 10px;
+  text-align: left;
+}
+
+.citizen-detail-tab span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.citizen-detail-tab em {
+  flex: 0 0 auto;
+  min-width: 22px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  padding: 2px 5px;
+  color: var(--muted);
+  background: rgba(0,0,0,.12);
+  font-size: 8px;
+  font-style: normal;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.citizen-detail-tab.active {
+  border-color: rgba(213,166,91,.58);
+  color: var(--accent);
+  background: rgba(213,166,91,.07);
+}
+
+.citizen-detail-tab.active em {
+  border-color: rgba(213,166,91,.32);
+  color: var(--accent);
+}
+
+.citizen-detail-panel {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel-3);
+  padding: 13px;
+}
+
+.citizen-detail-panel-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.citizen-detail-panel-head h3 {
+  margin: 1px 0 0;
+  font-size: 17px;
+}
+
+.citizen-detail-note {
+  margin: 7px 0 11px;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.citizen-detail-content {
+  min-width: 0;
+}
+
+.citizen-detail-content .continuity-grid {
+  display: block;
+}
+
+.citizen-detail-content .continuity-layer {
+  margin-top: 9px;
+}
+
+.citizen-detail-content .continuity-layer:first-child {
+  margin-top: 0;
+}
+
+.citizen-detail-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.citizen-detail-stack > section {
+  min-width: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.citizen-detail-stack > section:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.citizen-detail-stack h4 {
+  margin: 0 0 8px;
+  font-size: 11px;
+}
+
+.citizen-social-list {
+  display: grid;
+  gap: 8px;
+}
+
+.citizen-social-row {
+  padding: 9px 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  background: rgba(0,0,0,.07);
+}
+
+.citizen-social-row > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.citizen-social-row strong {
+  color: var(--good);
+  font-size: 11px;
+}
+
+.citizen-social-row small {
+  color: var(--muted);
+  font-size: 8px;
+  text-align: right;
+}
+
+.citizen-social-row p {
+  margin: 6px 0 0;
+  color: #d7e0ea;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+@media (min-width: 1101px) {
+  .citizen-info-column {
+    position: sticky;
+    top: 14px;
+  }
+
+  .citizen-detail-content {
+    max-height: min(67vh, 760px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    padding-right: 4px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .citizen-sheet-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .citizen-detail-nav {
+    grid-template-columns: repeat(3, minmax(140px, 1fr));
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .citizen-info-column {
+    position: static;
+  }
+
+  .citizen-detail-content {
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 760px) {
+  .citizen-overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .citizen-overview-grid .overview-wide {
+    grid-column: auto;
+  }
+
+  .citizen-detail-nav {
+    display: flex;
+    overflow-x: auto;
+    gap: 7px;
+  }
+
+  .citizen-detail-tab {
+    flex: 0 0 auto;
+    min-width: 132px;
+  }
+
+  .citizen-social-row > div {
+    display: grid;
+  }
+
+  .citizen-social-row small {
+    text-align: left;
+  }
+}
