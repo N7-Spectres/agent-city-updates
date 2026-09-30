@@ -1,10 +1,10 @@
 # Assets & Interface — State
 
 _Last updated: 2026-09-30_
-_Current published release: v0.9.13 @ `25db296bec37d436dae8b4d76c3a8138caa6c77e`_
-_Current Assets activity: pre-Blender citizen body pipeline / grounding polish complete_
-_Current runtime branch: `release-v0.9.13` @ `25db296bec37d436dae8b4d76c3a8138caa6c77e`_
-_Current review surface: published updater v0.9.6_
+_Current published release: v0.9.14 @ `9c1b51e419a030434ecf1271f80cb5a127216701`_
+_Current Assets activity: pre-Blender citizen body pipeline / Aris rollout complete_
+_Current runtime branch: `release-v0.9.14` @ `9c1b51e419a030434ecf1271f80cb5a127216701`_
+_Current review surface: published updater v0.9.14_
 _Current status: DONE / PUBLISHED_
 
 ## Mission
@@ -720,3 +720,36 @@ Authority boundary preserved:
 - no physical height/width/mass/collision truth
 - no locomotion or equipment authority
 - presentation remains read-only
+
+
+## v0.9.14 Aris Local World Body — Published
+
+Status:
+**DONE / PUBLISHED**
+
+- release branch: `release-v0.9.14`
+- exact green runtime: `9c1b51e419a030434ecf1271f80cb5a127216701`
+- full CI: `36752065690` — PASS
+- updater: v0.9.14
+- PR #35 merged
+
+Delivered:
+- Aris is the second full-body Local citizen alongside Cato
+- approved Aris concept reference stored in the citizen asset tree
+- durable Aris pre-Blender body contract
+- authoritative Local position and real travel interpolation preserved
+- leaner relative body scale derived from the approved ~1.85 m visual cue
+- minimum Local zoom-out readability floor
+- Aris-specific cyan grounding / selection treatment
+- route-travel presentation with reduced-motion fallback
+- Region / Planet continue to omit citizen bodies
+- Bex, Iri, Noma, and Vale remain token-based
+
+Authority boundary preserved:
+- no Simulation coordinate writes
+- no new physical dimensions / collision truth
+- no locomotion, equipment, cargo, or capability authority
+- presentation remains read-only
+
+Next step:
+**Live visual review of Aris before the next citizen rollout.**
