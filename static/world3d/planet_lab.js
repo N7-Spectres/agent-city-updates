@@ -12,6 +12,20 @@
   const resetCameraButton = document.getElementById("reset-camera");
   const modeButtons = [...document.querySelectorAll(".mode-button")];
 
+  // Pre-Blender citizen body pilot. This is presentation-only art layered over
+  // authoritative Simulation positions. Optional equipment remains separate.
+  const CITIZEN_WORLD_VISUALS = Object.freeze({
+    cato: Object.freeze({
+      kind: "sprite_body",
+      baseBody: "/static/assets/citizens/cato/world/front.webp",
+      futureModelSlot: "/static/assets/citizens/cato/world/model.glb",
+    }),
+  });
+
+  function worldVisualFor(citizenId) {
+    return CITIZEN_WORLD_VISUALS[String(citizenId)] || null;
+  }
+
   const query = new URLSearchParams(window.location.search);
   const embedded = query.get("embed") === "1";
   const requestedMode = query.get("mode");
@@ -606,14 +620,42 @@
       button.append(dot, label);
     } else if (item.type === "citizen") {
       button.classList.add("citizen-marker");
+      const visual = worldVisualFor(item.id);
       const img = document.createElement("img");
       img.alt = item.data.name || item.id;
-      img.src = "/static/assets/citizens/" + encodeURIComponent(item.id) + "/token.webp";
-      img.addEventListener("error", () => {
-        img.remove();
-        button.textContent = String(item.data.name || item.id).slice(0, 1).toUpperCase();
-      }, { once: true });
-      button.append(img);
+
+      if (visual?.kind === "sprite_body") {
+        button.classList.add("world-body-marker", "cato-world-body");
+        button.dataset.worldVisual = visual.kind;
+        img.className = "world-body-image";
+        img.src = visual.baseBody;
+
+        const gearLayer = document.createElement("span");
+        gearLayer.className = "world-equipment-layer";
+        gearLayer.setAttribute("aria-hidden", "true");
+
+        const label = document.createElement("span");
+        label.className = "world-body-label";
+        label.textContent = item.data.name || item.id;
+
+        img.addEventListener("error", () => {
+          button.classList.remove("world-body-marker", "cato-world-body");
+          button.removeAttribute("data-world-visual");
+          gearLayer.remove();
+          label.remove();
+          img.className = "";
+          img.src = "/static/assets/citizens/" + encodeURIComponent(item.id) + "/token.webp";
+        }, { once: true });
+
+        button.append(img, gearLayer, label);
+      } else {
+        img.src = "/static/assets/citizens/" + encodeURIComponent(item.id) + "/token.webp";
+        img.addEventListener("error", () => {
+          img.remove();
+          button.textContent = String(item.data.name || item.id).slice(0, 1).toUpperCase();
+        }, { once: true });
+        button.append(img);
+      }
     } else if (item.type === "structure") {
       button.classList.add("structure-marker");
       button.setAttribute("aria-label", item.data.name || "Structure");
@@ -687,7 +729,8 @@
       } else if (item.type === "citizen") {
         const [x, y] = citizenRenderMeters(item.data, now);
         if (x == null || y == null) return null;
-        world = localWorld(x, y, 0.075);
+        const bodyLift = worldVisualFor(item.id)?.kind === "sprite_body" ? 0.018 : 0.075;
+        world = localWorld(x, y, bodyLift);
       } else if (item.type === "structure") {
         world = localWorld(item.data.x_m, item.data.y_m, 0.06);
       } else if (item.type === "visitor") {
@@ -738,7 +781,10 @@
       if (colocated.length <= 1) return [0, 0, 0];
 
       const index = colocated.findIndex(other => String(other.id) === String(item.id));
-      const radiusWorld = clamp(0.18 + (colocated.length * 0.018), 0.20, 0.31);
+      const hasBodyPilot = colocated.some(other => worldVisualFor(other.id)?.kind === "sprite_body");
+      const radiusWorld = hasBodyPilot
+        ? clamp(0.24 + (colocated.length * 0.022), 0.28, 0.40)
+        : clamp(0.18 + (colocated.length * 0.018), 0.20, 0.31);
       const angle = (-Math.PI / 2) + ((Math.PI * 2 * index) / colocated.length);
 
       return [
@@ -790,7 +836,11 @@
       }
 
       const perspectiveScale = markerPerspectiveScale(item, world, eye);
+      const travelJob = item.type === "citizen" ? activeJobFor(item.data) : null;
+      const routeTraveling = String(travelJob?.action || "") === "travel";
+
       item.element.hidden = false;
+      item.element.classList.toggle("route-traveling", routeTraveling);
       item.element.style.setProperty("--marker-scale", perspectiveScale.toFixed(3));
       item.element.style.left = projected.x + "px";
       item.element.style.top = projected.y + "px";
