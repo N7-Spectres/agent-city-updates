@@ -18,6 +18,32 @@ Information law:
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
 
+## v0.9.1 History Records Patch — Green / Ready
+
+**Status: pushed and fully regression-tested; not yet published**
+
+- branch: `release-v0.9.1`
+- exact green head: `371911bd9b337924ba1b960cb794caccd991c150`
+- full CI: `36652854090` — PASS
+- updater remains on published v0.9.0 until explicit publication
+
+Delivered:
+- Records → History now uses a desktop two-column layout:
+  - Recent Citizen Conversations on the left
+  - Settlement Chronology on the right
+- conversations are paginated at 8 per page
+- chronology is paginated at 12 per page
+- pagination is backed by bounded database queries rather than an unbounded browser archive
+- expanded “Read exchange” rows remain open across the 4-second state refresh
+- selected conversation/chronology pages remain stable across refresh
+- narrow screens stack the two History columns
+- Home recent activity remains lightweight and unchanged
+
+Validation:
+- complete prior regression matrix through v0.9.0
+- new `tests/smoke_v091_history_records.py`
+- Python compile and JavaScript syntax checks
+
 ## v0.9.0 Published Release — Civilization Continuity
 
 **Status: published from the definitive green runtime**
