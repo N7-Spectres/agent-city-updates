@@ -9,19 +9,18 @@ def main() -> None:
     js = (ROOT / "static" / "world3d" / "planet_lab.js").read_text(encoding="utf-8")
     css = (ROOT / "static" / "world3d" / "planet_lab.css").read_text(encoding="utf-8")
 
-    # Co-located citizens fan out in screen space only.
+    # Co-located citizens fan out for readability, but from one authoritative point.
     assert "function markerMeterPoint(item," in js
     assert "function sharesLocalPoint(a, b, toleranceMeters = 0.5" in js
-    assert "function localMarkerScreenOffset(item," in js
+    assert "function localMarkerWorldOffset(item," in js
     assert 'other.type === "citizen" && sharesLocalPoint(item, other' in js
-    assert "const radius = clamp(54 + colocated.length * 7, 64, 92)" in js
-    assert "projected.x + offset.x" in js
-    assert "projected.y + offset.y" in js
+    assert "radiusWorld" in js
 
-    # The visitor is pushed farther below a crowded shared point.
-    assert "return { x: 0, y: citizenRadius +" in js
+    # The visitor receives a distinct world-space presentation offset too.
+    assert "citizenRadiusWorld" in js
+    assert "citizenRadiusWorld + 0.16" in js
 
-    # Physical coordinates remain authoritative inputs; the spread is not written back.
+    # Physical coordinates remain authoritative inputs; presentation spread is never written back.
     assert "position_x_m" in js
     assert "position_y_m" in js
     assert ".position_x_m =" not in js
