@@ -1,6 +1,6 @@
 {
-  "version": "0.9.16",
-  "notes": "Local Body Marker Layering: keeps full-body Local citizens above ordinary circular token/location markers so embodied citizens cannot disappear inside crowded Seed Site clusters. Selected or hovered bodies rise one additional layer for inspection while the visitor marker remains readable. Aris's transparent PNG, relative scale, zoom-out floor, grounding, and authoritative travel behavior are unchanged; Cato is unchanged. No Simulation authority changes.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/0ba466061bea82a2ecd682a7db06180435ba572c",
+  "version": "0.9.17",
+  "notes": "Correct Aris Runtime Sprite: replaces the previously committed incorrect Aris PNG bytes with the exact verified transparent sprite used during visual review. The live Aris asset is now locked to Git blob f8811d359b1a232b0f27ce41d87163d5ac4cc57f at 14,262 bytes, and the release smoke verifies that exact asset. v0.9.16 body layering remains intact; Cato and all Simulation authority boundaries are unchanged.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/0d9f384c614f192da4423c3907a851ac8b0a2b9c",
   "sha256": ""
 }
