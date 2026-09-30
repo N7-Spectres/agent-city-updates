@@ -174,6 +174,11 @@ def index():
     return FileResponse(STATIC_DIR / "index.html")
 
 
+@app.get("/planet-lab")
+def planet_lab():
+    return FileResponse(STATIC_DIR / "world3d" / "planet_lab.html")
+
+
 @app.get("/api/state")
 def get_state():
     state = snapshot()
