@@ -785,6 +785,17 @@ body[data-day-phase="night"] .structure-marker {
 }
 
 
+/* v0.9.16 — full-body marker stacking */
+.citizen-marker.citizen-world-body {
+  z-index: 23;
+}
+
+.citizen-marker.citizen-world-body.selected,
+.citizen-marker.citizen-world-body:hover,
+.citizen-marker.citizen-world-body:focus-visible {
+  z-index: 25;
+}
+
 /* v0.9.14 — Aris Local world body */
 .citizen-marker.aris-world-body {
   width: 54px;
