@@ -24,18 +24,33 @@ _None._
 
 ### READY
 
-- [Coordinator / v0.9.2 Publication] conversation-summary polish + critical-energy social protection are green on `release-v0.9.2@ea4a838fa10a557ac6d3f032a55e1dc94a84012f`; CI `36654523357` PASS. `update.json` still advertises v0.9.1.
+_None._
 
 ### REVIEW
 
-- [Communication & Perception] name-based human-facing conversation summaries with defensive backend-role cleanup complete.
-- [World & Simulation] autonomous social targeting no longer starves critically low citizens of recharge/planner priority.
+_None._
 
 ### DONE
 
+- [Coordinator] **v0.9.2 Conversation Polish + Social-Energy Protection published** via `update.json` on `main` commit `0f3bbd0bc7682e5345eb04a086b0adbfbb771f6d`.
+- [v0.9.2 Runtime] `release-v0.9.2@ea4a838fa10a557ac6d3f032a55e1dc94a84012f`; full CI `36654523357` PASS.
 - [Coordinator] v0.9.1 History Records Polish published.
 - [v0.9.1 Runtime] `release-v0.9.1@371911bd9b337924ba1b960cb794caccd991c150`; full CI `36652854090` PASS.
 - [Coordinator] v0.9.0 Civilization Continuity published.
+
+## v0.9.2 Published Patch
+
+- version: `0.9.2`
+- release branch: `release-v0.9.2`
+- exact immutable runtime: `ea4a838fa10a557ac6d3f032a55e1dc94a84012f`
+- full CI: `36654523357` — PASS
+- publication manifest commit: `0f3bbd0bc7682e5345eb04a086b0adbfbb771f6d`
+- `update.json` now advertises v0.9.2 and downloads the exact green runtime commit
+- natural name-based citizen conversation summaries
+- defensive cleanup of backend-role/schema wording
+- autonomous low-energy citizens protected from talk/guided-practice targeting
+- incoming talk no longer resets listener planner timing
+- recharge/survival priority can recover without social starvation
 
 ## v0.9.1 Published Patch
 
