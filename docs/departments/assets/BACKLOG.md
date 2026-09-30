@@ -377,3 +377,12 @@ _None._
 
 Next owner:
 **Assets & Interface / next 3D world polish packet**
+
+
+## Completed — v0.9.7 Marker Spread
+
+- wider shared-point citizen token fan-out
+- separate visitor offset below crowded citizen clusters
+- no coordinate mutation
+- dedicated `tests/smoke_v097_local_marker_spread.py`
+- full release regression `36663515487` PASS
