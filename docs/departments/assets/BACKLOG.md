@@ -465,3 +465,36 @@ Potential next slices:
 3. add validated equipment overlays only when real equipped state exists
 4. continue structure/terrain readability polish around the body pipeline
 5. eventually replace Cato sprite-body presentation with a true GLB while keeping the same Simulation position/travel contract
+
+
+## Completed — v0.9.14 Aris Local World Body
+
+- canonical approved Aris concept reference
+- Aris Local body sprite
+- Aris + Cato shared sprite-body pipeline
+- Aris relative presentation scale `0.881`
+- Local minimum readable scale `0.52`
+- cyan grounding / selection / travel treatment
+- Local-only body visibility
+- Region / Planet body exclusion preserved
+- Cato behavior preserved
+- historical route-perspective test generalized to preserve behavior rather than an implementation variable name
+- `tests/smoke_v0914_aris_world_body.py`
+- full release regression `36752065690` PASS
+
+## Next Citizen Body Rollout
+
+**Do not bulk-rollout the remaining citizens.**
+
+Per user direction, proceed one citizen at a time and visually review each published Local body before promoting the next.
+
+Planned order:
+1. Bex
+2. Iri
+3. Noma
+4. Vale
+
+Immediate next action:
+- user live-reviews Aris in Local, including normal zoom and maximum Local zoom-out
+- verify Region / Planet still omit citizen bodies
+- only then begin Bex
