@@ -1,6 +1,6 @@
 {
-  "version": "0.9.4",
-  "notes": "Zero-Energy Charger Recovery: fixes an impossible deadlock where an idle citizen could reach 0% energy while still inside a location that contains an operational charger but remain more than 5 m from the charger’s local coordinate. Agent City now performs a narrow diagnostic/admin recovery on startup and world ticks: it aligns only that stranded citizen to the nearest operational charger at the same location, grants no energy, creates no fictional citizen action, records the intervention as diagnostic recovery, and makes the citizen planner-eligible so the existing critical-energy rule can resume ordinary charging. Citizens at other locations are never teleported to a charger.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/ed73598148e0f23b64834e9f716f3fab6ba2364e",
+  "version": "0.9.5",
+  "notes": "Planet Lab: adds the first official interactive 3D world prototype to Agent City. A new 3D Planet Lab entry opens a dependency-free WebGL viewer with drag-to-orbit, wheel zoom, Planet / Region / Local modes, clickable known locations, camera focus transitions, and a Local view driven by authoritative Simulation x/y coordinates for citizens, structures, routes, and visitor presence. Planet/Region mode is explicitly a presentation shell that magnifies the existing local tangent frame onto a globe without claiming global latitude/longitude or exposing hidden seeded-world truth. The prototype is read-only and does not grant visitor control over citizens or modify Simulation state.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/3a5b226cda19775f080b726d79e79c72c016c0c1",
   "sha256": ""
 }
