@@ -5,6 +5,7 @@ let focusedLocation = "seed_site";
 let openControlView = "history";
 let currentView = "home";
 let sheetCitizenId = null;
+let citizenDetailView = localStorage.getItem("agentCityCitizenDetailView") || "continuity";
 let citizenSearchQuery = "";
 let currentVisitAccessKey = null;
 let chatSubmitting = false;
@@ -1365,7 +1366,7 @@ function continuityMemoryRow(event) {
   `;
 }
 
-function citizenContinuityMarkup(citizenId) {
+function citizenContinuityMarkup(citizenId, section = "continuity") {
   const entry = citizenContinuityCache.get(citizenId);
   if (!entry) {
     loadCitizenContinuity(citizenId);
@@ -1579,38 +1580,65 @@ function citizenContinuityMarkup(citizenId) {
     `;
   }).join("") || '<div class="sheet-empty muted">No socially transmitted recurring pattern evidence currently qualifies.</div>';
 
+  if (section === "memories") {
+    return `
+      <div class="continuity-layer remembered">
+        <div class="continuity-layer-head">
+          <span>Remembered Perspective</span>
+          <small>Citizen-scoped active recall</small>
+        </div>
+        <h4>Relevant memories</h4>
+        <div class="continuity-memory-list">${memoryMarkup}</div>
+      </div>
+    `;
+  }
+
+  if (section === "experience") {
+    return `
+      <div class="continuity-layer">
+        <div class="continuity-layer-head">
+          <span>Experience / Practice</span>
+          <small>Simulation-owned evidence</small>
+        </div>
+        <h4>Recorded practice</h4>
+        <div class="sheet-list">${countMarkup}</div>
+        <div class="continuity-practice-families">${competenceMarkup}</div>
+        <details>
+          <summary>Recent practice events</summary>
+          <div class="sheet-list">${practiceRows}</div>
+        </details>
+        <h4>Guided practice history</h4>
+        <div class="continuity-guided-list">${guidedMarkup}</div>
+      </div>
+    `;
+  }
+
+  if (section === "patterns") {
+    return `
+      <div class="continuity-layer remembered">
+        <div class="continuity-layer-head">
+          <span>Patterns & Place</span>
+          <small>Revisable historical evidence</small>
+        </div>
+        <h4>Recurring choice evidence</h4>
+        <p class="continuity-layer-note">Repeated voluntary choices are shown as source-backed evidence states, not traits or preferences.</p>
+        <div class="continuity-pattern-list">${recurringChoiceMarkup}</div>
+        <h4>Place continuity</h4>
+        <div class="continuity-pattern-list">${placeContinuityMarkup}</div>
+        <h4>Social pattern evidence</h4>
+        <div class="continuity-pattern-list">${socialPatternMarkup}</div>
+      </div>
+    `;
+  }
+
   return `
     <div class="continuity-layer">
       <div class="continuity-layer-head">
-        <span>Evidence / Record</span>
-        <small>Simulation-owned</small>
+        <span>Continuity</span>
+        <small>Traceable history</small>
       </div>
       <h4>Ongoing plans</h4>
       <div class="continuity-plan-list">${planMarkup}</div>
-      <h4>Recorded practice</h4>
-      <div class="sheet-list">${countMarkup}</div>
-      <div class="continuity-practice-families">${competenceMarkup}</div>
-      <details>
-        <summary>Recent practice events</summary>
-        <div class="sheet-list">${practiceRows}</div>
-      </details>
-      <h4>Guided practice history</h4>
-      <div class="continuity-guided-list">${guidedMarkup}</div>
-    </div>
-    <div class="continuity-layer remembered">
-      <div class="continuity-layer-head">
-        <span>Remembered Perspective</span>
-        <small>Citizen-scoped active recall</small>
-      </div>
-      <h4>Relevant memories</h4>
-      <div class="continuity-memory-list">${memoryMarkup}</div>
-      <h4>Recurring choice evidence</h4>
-      <p class="continuity-layer-note">Repeated voluntary choices are shown as source-backed evidence states, not traits or preferences.</p>
-      <div class="continuity-pattern-list">${recurringChoiceMarkup}</div>
-      <h4>Place continuity</h4>
-      <div class="continuity-pattern-list">${placeContinuityMarkup}</div>
-      <h4>Social pattern evidence</h4>
-      <div class="continuity-pattern-list">${socialPatternMarkup}</div>
     </div>
     <div class="continuity-layer interpretation">
       <div class="continuity-layer-head">
@@ -1735,6 +1763,13 @@ window.openCitizenSheet = function(id) {
   loadCitizenContinuity(id);
 };
 
+window.openCitizenDetail = function(view) {
+  const valid = new Set(["continuity", "memories", "experience", "patterns", "social", "knowledge"]);
+  citizenDetailView = valid.has(view) ? view : "continuity";
+  localStorage.setItem("agentCityCitizenDetailView", citizenDetailView);
+  renderCitizenSheet();
+};
+
 function renderCitizenSheet() {
   const citizen = state?.citizens?.find(c => c.id === sheetCitizenId);
   if (!citizen) return;
@@ -1837,78 +1872,201 @@ function renderCitizenSheet() {
     </div>
   `).join("") : '<div class="sheet-empty muted">No reproducible learned processes yet.</div>';
 
-  els.citizenSheetBody.innerHTML = `
-    <div class="sheet-card">
-      <span class="sheet-label">Physical state</span>
-      <strong>${escapeHtml(locationText)}</strong>
-      ${citizenLiveVitalsMarkup(citizen)}
-    </div>
-    <div class="sheet-card">
-      <span class="sheet-label">Long-term maintenance</span>
-      <div class="maintenance-metric-grid">
-        <div>
-          <span>Battery health</span>
-          <strong>${Number.isFinite(batteryHealth) ? `${escapeHtml(trimNumber(batteryHealth))}%` : "Unknown"}</strong>
-          <small>${escapeHtml(conditionStateLabel(citizen.battery_state))}${citizen.battery_replacement_due ? " • replacement due" : ""} • not current charge</small>
-        </div>
-        <div>
-          <span>Usable capacity</span>
-          <strong>${Number.isFinite(usableEnergyCapacity) ? `${escapeHtml(trimNumber(usableEnergyCapacity))}%` : "Unknown"}</strong>
-          <small>Long-term capacity, distinct from current charge</small>
-        </div>
-        <div>
-          <span>Joint wear</span>
-          <strong>${Number.isFinite(jointWear) ? escapeHtml(trimNumber(jointWear)) : "Unknown"}</strong>
-          <small>${escapeHtml(conditionStateLabel(citizen.chassis_service_state))}${citizen.chassis_service_due ? " • service due" : ""}</small>
-        </div>
-        <div>
-          <span>Last service</span>
-          <strong>${citizen.last_service_minute != null ? escapeHtml(formatMinute(citizen.last_service_minute)) : "No recorded service"}</strong>
-          <small>Validated physical service timestamp</small>
-        </div>
+  const continuityData = citizenContinuityCache.get(citizen.id)?.data || null;
+  const objective = continuityData?.objective || {};
+  const memoryEvents = continuityData?.memory?.events || [];
+  const practiceEvents = objective.practice_events || [];
+  const guidedSessions = continuityData?.competence?.guided_practice_sessions || [];
+  const patterns = continuityData?.patterns || {};
+  const patternCount =
+    (patterns.habits || []).length +
+    (patterns.places || []).length +
+    (patterns.customs || []).length;
+  const openPlans = (objective.plans || []).filter(plan =>
+    ["active", "paused"].includes(String(plan.status))
+  );
+  const knowledgeFacts = citizenKnowledgeCache.get(citizen.id)?.data?.facts || [];
+  const socialRows = (state.citizen_conversations || [])
+    .filter(row =>
+      String(row.initiator_id) === String(citizen.id) ||
+      String(row.target_id) === String(citizen.id)
+    )
+    .slice(0, 8);
+
+  const activePlanOverview = openPlans.length
+    ? `
+      <div class="sheet-list-row">
+        <span>
+          <strong>${escapeHtml(openPlans[0].current_intent || `Plan #${openPlans[0].id}`)}</strong>
+          <small>${escapeHtml(statusLabel(openPlans[0].status))} • next: ${escapeHtml(openPlans[0].next_step || "Not specified")}</small>
+        </span>
+        ${openPlans.length > 1 ? `<em>${openPlans.length} open plans</em>` : ""}
       </div>
-    </div>
-    <div class="sheet-card">
-      <span class="sheet-label">Current configuration</span>
-      <strong>Mechanical citizen</strong>
-      <p>Approved base-body identity is presentation-only. Equipment below reflects validated physical state only.</p>
-    </div>
-    ${activeJobMarkup}
-    <div class="sheet-card">
-      <span class="sheet-label">Cargo</span>
-      <strong>${Number.isFinite(cargoCapacity) ? `${escapeHtml(trimNumber(cargoTotal))} / ${escapeHtml(trimNumber(cargoCapacity))} units` : `${escapeHtml(trimNumber(cargoTotal))} units carried`}</strong>
-      <div class="sheet-list">${cargoMarkup}</div>
-    </div>
-    <div class="sheet-card sheet-card-wide">
-      <span class="sheet-label">Equipped gear</span>
-      <div class="sheet-list">${gearMarkup}</div>
-    </div>
-    <div class="sheet-card sheet-card-wide">
-      <span class="sheet-label">Projects</span>
-      <div class="sheet-list">${projectMarkup}</div>
-    </div>
-    <div class="sheet-card sheet-card-wide continuity-card">
-      <span class="sheet-label">Continuity</span>
-      <p class="continuity-intro">Traceable history only. Records, remembered perspective, and citizen interpretation remain separate.</p>
-      <div class="continuity-grid">${citizenContinuityMarkup(citizen.id)}</div>
-    </div>
-    <div class="sheet-card sheet-card-wide">
-      <span class="sheet-label">Known discoveries & research</span>
-      <div class="knowledge-facts">${citizenKnowledgeMarkup(citizen.id)}</div>
-    </div>
-    <div class="sheet-card sheet-card-wide">
-      <span class="sheet-label">Experiments</span>
-      <div class="sheet-list">${experimentMarkup}</div>
-    </div>
-    <div class="sheet-card sheet-card-wide">
-      <span class="sheet-label">Learned processes</span>
-      <div class="sheet-list">${processMarkup}</div>
-    </div>
-    <div class="sheet-card sheet-card-wide">
-      <span class="sheet-label">Recent chronology</span>
-      <div class="sheet-notes">${historyMarkup}</div>
+    `
+    : continuityLoading.has(citizen.id)
+      ? '<div class="sheet-empty muted">Loading plan continuity…</div>'
+      : '<div class="sheet-empty muted">No active or paused persistent plan.</div>';
+
+  const socialMarkup = socialRows.length ? socialRows.map(row => {
+    const otherId = String(row.initiator_id) === String(citizen.id)
+      ? row.target_id
+      : row.initiator_id;
+    return `
+      <div class="citizen-social-row">
+        <div>
+          <strong>${escapeHtml(citizenNameById(otherId))}</strong>
+          <small>${escapeHtml(row.location_name || locationNameById(row.location_id || ""))} • ${escapeHtml(formatMinute(row.sim_minute || 0))}</small>
+        </div>
+        <p>${escapeHtml(row.summary || "Conversation recorded.")}</p>
+      </div>
+    `;
+  }).join("") : '<div class="sheet-empty muted">No recent citizen conversation records are in the current bounded snapshot.</div>';
+
+  const knowledgePanelMarkup = `
+    <div class="citizen-detail-stack">
+      <section>
+        <h4>Known discoveries & retained knowledge</h4>
+        <div class="knowledge-facts">${citizenKnowledgeMarkup(citizen.id)}</div>
+      </section>
+      <section>
+        <h4>Experiments</h4>
+        <div class="sheet-list">${experimentMarkup}</div>
+      </section>
+      <section>
+        <h4>Learned processes</h4>
+        <div class="sheet-list">${processMarkup}</div>
+      </section>
     </div>
   `;
+
+  const detailViews = {
+    continuity: {
+      title: "Continuity",
+      note: "Plans and interpretation remain traceable to source-backed history.",
+      markup: citizenContinuityMarkup(citizen.id, "continuity"),
+    },
+    memories: {
+      title: "Memories",
+      note: "Active recall is citizen-scoped and may be smaller than the durable archive.",
+      markup: citizenContinuityMarkup(citizen.id, "memories"),
+    },
+    experience: {
+      title: "Experience",
+      note: "Practice and guided-practice records are evidence, not levels or titles.",
+      markup: citizenContinuityMarkup(citizen.id, "experience"),
+    },
+    patterns: {
+      title: "Patterns & Places",
+      note: "Recurring choices, place continuity, and social-pattern evidence stay revisable.",
+      markup: citizenContinuityMarkup(citizen.id, "patterns"),
+    },
+    social: {
+      title: "Social",
+      note: "Recent face-to-face exchange history from the bounded civilization snapshot.",
+      markup: `<div class="citizen-social-list">${socialMarkup}</div>`,
+    },
+    knowledge: {
+      title: "Knowledge",
+      note: "Verified discoveries, experiments, and learned processes available to this citizen.",
+      markup: knowledgePanelMarkup,
+    },
+  };
+  const detail = detailViews[citizenDetailView] || detailViews.continuity;
+
+  const detailButtons = [
+    ["continuity", "Continuity", openPlans.length],
+    ["memories", "Memories", memoryEvents.length],
+    ["experience", "Experience", practiceEvents.length + guidedSessions.length],
+    ["patterns", "Patterns & Places", patternCount],
+    ["social", "Social", socialRows.length],
+    ["knowledge", "Knowledge", knowledgeFacts.length + experimentResults.length + learnedProcesses.length],
+  ].map(([key, label, count]) => `
+    <button
+      type="button"
+      class="citizen-detail-tab ${citizenDetailView === key ? "active" : ""}"
+      onclick="openCitizenDetail('${key}')"
+      aria-pressed="${citizenDetailView === key ? "true" : "false"}"
+    >
+      <span>${escapeHtml(label)}</span>
+      <em>${Number(count) || 0}</em>
+    </button>
+  `).join("");
+
+  els.citizenSheetBody.innerHTML = `
+    <div class="citizen-sheet-dashboard">
+      <section class="citizen-overview-column">
+        <div class="citizen-overview-grid">
+          <div class="sheet-card">
+            <span class="sheet-label">Physical state</span>
+            <strong>${escapeHtml(locationText)}</strong>
+            ${citizenLiveVitalsMarkup(citizen)}
+          </div>
+          <div class="sheet-card">
+            <span class="sheet-label">Long-term maintenance</span>
+            <div class="maintenance-metric-grid">
+              <div>
+                <span>Battery health</span>
+                <strong>${Number.isFinite(batteryHealth) ? `${escapeHtml(trimNumber(batteryHealth))}%` : "Unknown"}</strong>
+                <small>${escapeHtml(conditionStateLabel(citizen.battery_state))}${citizen.battery_replacement_due ? " • replacement due" : ""} • not current charge</small>
+              </div>
+              <div>
+                <span>Usable capacity</span>
+                <strong>${Number.isFinite(usableEnergyCapacity) ? `${escapeHtml(trimNumber(usableEnergyCapacity))}%` : "Unknown"}</strong>
+                <small>Long-term capacity, distinct from current charge</small>
+              </div>
+              <div>
+                <span>Joint wear</span>
+                <strong>${Number.isFinite(jointWear) ? escapeHtml(trimNumber(jointWear)) : "Unknown"}</strong>
+                <small>${escapeHtml(conditionStateLabel(citizen.chassis_service_state))}${citizen.chassis_service_due ? " • service due" : ""}</small>
+              </div>
+              <div>
+                <span>Last service</span>
+                <strong>${citizen.last_service_minute != null ? escapeHtml(formatMinute(citizen.last_service_minute)) : "No recorded service"}</strong>
+                <small>Validated physical service timestamp</small>
+              </div>
+            </div>
+          </div>
+          ${activeJobMarkup}
+          <div class="sheet-card">
+            <span class="sheet-label">Cargo</span>
+            <strong>${Number.isFinite(cargoCapacity) ? `${escapeHtml(trimNumber(cargoTotal))} / ${escapeHtml(trimNumber(cargoCapacity))} units` : `${escapeHtml(trimNumber(cargoTotal))} units carried`}</strong>
+            <div class="sheet-list">${cargoMarkup}</div>
+          </div>
+          <div class="sheet-card overview-wide">
+            <span class="sheet-label">Equipped gear</span>
+            <div class="sheet-list">${gearMarkup}</div>
+          </div>
+          <div class="sheet-card overview-wide">
+            <span class="sheet-label">Projects</span>
+            <div class="sheet-list">${projectMarkup}</div>
+          </div>
+          <div class="sheet-card overview-wide">
+            <span class="sheet-label">Active plan</span>
+            <div class="sheet-list">${activePlanOverview}</div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="citizen-info-column">
+        <div class="citizen-detail-nav" aria-label="Citizen information views">
+          ${detailButtons}
+        </div>
+        <section class="citizen-detail-panel">
+          <div class="citizen-detail-panel-head">
+            <div>
+              <span class="sheet-label">More information</span>
+              <h3>${escapeHtml(detail.title)}</h3>
+            </div>
+          </div>
+          <p class="citizen-detail-note">${escapeHtml(detail.note)}</p>
+          <div class="citizen-detail-content">${detail.markup}</div>
+        </section>
+      </aside>
+    </div>
+  `;
+}
+
+function renderLocationDirectory()
 }
 
 function renderLocationDirectory() {
