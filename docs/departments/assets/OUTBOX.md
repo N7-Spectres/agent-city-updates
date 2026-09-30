@@ -6,6 +6,21 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-30 — From: Assets & Interface — Status: published
 
+**Subject:** v0.9.14 Aris Local World Body published
+
+- `release-v0.9.14@9c1b51e419a030434ecf1271f80cb5a127216701`
+- full CI `36752065690` PASS
+- updater now advertises v0.9.14
+- PR #35 merged
+- Aris is now the second Local full-body citizen beside Cato
+- approved Aris concept reference and durable body contract are stored in GitHub
+- Aris remains Local-only and follows authoritative position / real travel state
+- Region / Planet remain free of citizen bodies
+- Bex, Iri, Noma, and Vale remain tokens until separate reviewed rollouts
+- next action is live visual review of Aris before Bex begins
+
+### 2026-09-30 — From: Assets & Interface — Status: published
+
 **Subject:** v0.9.13 Cato Grounding Polish published
 
 - `release-v0.9.13@25db296bec37d436dae8b4d76c3a8138caa6c77e`
