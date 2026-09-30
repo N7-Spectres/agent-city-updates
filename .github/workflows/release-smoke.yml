@@ -180,3 +180,7 @@ jobs:
 
       - name: Run v0.9.7 Local marker spread smoke
         run: python tests/smoke_v097_local_marker_spread.py
+
+
+      - name: Run v0.9.8 update-cache smoke
+        run: python tests/smoke_v098_update_cache.py
