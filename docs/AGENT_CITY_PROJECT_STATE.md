@@ -4,7 +4,7 @@ _Last updated: 2026-09-30_
 
 ## Current Release
 
-**v0.9.5 — Planet Lab**
+**v0.9.6 — Home 3D World**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,33 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.6 Published Patch — Home 3D World
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.6`
+- exact green head: `8407870349a4331c19bc9b36554e45dd151733ba`
+- full CI: `36662871853` — PASS
+- published updater: `v0.9.6`
+- `update.json` downloads the exact green v0.9.6 runtime
+
+Delivered:
+- Home **World View** is now 3D-first rather than a separate-lab-only experience
+- embedded Planet Lab opens in **Local** mode by default
+- Local / Region / Planet remain available inside the Home world panel
+- Local mode continues to use authoritative Simulation `x_m / y_m`
+- click-selecting a citizen in embedded 3D hands selection back to Home's visit interface
+- local renderer mirrors simulation-time Dawn / Day / Dusk / Night visual phases
+- previous 2D region map remains available through an explicit **2D fallback** control
+- full-screen Planet view remains available from main navigation
+- embedded/full-screen 3D remains read-only and performs no physical state writes
+
+Validation:
+- complete regression matrix through v0.9.4
+- Planet Lab smoke
+- Planet Lab JavaScript syntax check
+- `tests/smoke_v096_home_world3d.py`
 
 ## v0.9.5 Published Patch — Planet Lab
 
