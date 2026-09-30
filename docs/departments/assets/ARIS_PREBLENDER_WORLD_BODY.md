@@ -32,7 +32,9 @@ The 1.85 m cue is visual canon used to preserve relative character identity in A
 
 Local 3D uses:
 
-`static/assets/citizens/aris/world/front.webp`
+`static/assets/citizens/aris/world/front.png`
+
+The body sprite is a transparent PNG so no rectangular matte/background appears in the Local world.
 
 The body sprite:
 - is equipment-free runtime body art

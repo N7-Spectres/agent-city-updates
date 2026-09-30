@@ -18,7 +18,7 @@
   const CITIZEN_WORLD_VISUALS = Object.freeze({
     aris: Object.freeze({
       kind: "sprite_body",
-      baseBody: "/static/assets/citizens/aris/world/front.webp",
+      baseBody: "/static/assets/citizens/aris/world/front.png",
       futureModelSlot: "/static/assets/citizens/aris/world/model.glb",
       presentationScale: 0.881,
       minReadableScale: 0.52,
