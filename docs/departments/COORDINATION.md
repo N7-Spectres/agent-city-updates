@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.6 Home 3D World published** via `update.json` from `release-v0.9.6@8407870349a4331c19bc9b36554e45dd151733ba`; full CI `36662871853` PASS.
+- [Assets & Interface] Home World View now defaults to embedded 3D Local mode with Region/Planet pull-back, citizen selection handoff, simulation-time lighting, and explicit 2D fallback.
+
 - [Coordinator] **v0.9.5 Planet Lab published** via `update.json` on the exact green runtime `release-v0.9.5@3a5b226cda19775f080b726d79e79c72c016c0c1`; full CI `36661886711` PASS.
 - [Assets & Interface] Planet Lab is officially live as an isolated read-only WebGL world viewer with Planet / Region / Local navigation and authoritative local meter-space rendering.
 
@@ -42,6 +45,20 @@ _None._
 - [Coordinator] v0.9.2 Conversation Polish + Social-Energy Protection published.
 - [Coordinator] v0.9.1 History Records Polish published.
 - [Coordinator] v0.9.0 Civilization Continuity published.
+
+## v0.9.6 Published Patch
+
+- version: `0.9.6`
+- release branch: `release-v0.9.6`
+- exact immutable runtime: `8407870349a4331c19bc9b36554e45dd151733ba`
+- full CI: `36662871853` — PASS
+- `update.json` advertises v0.9.6 and downloads the exact green runtime commit
+- Home World View is 3D-first in Local mode
+- Local / Region / Planet controls remain available in-place
+- embedded citizen selection integrates with Home visit selection
+- local day-phase lighting follows Simulation time
+- old 2D region view remains an explicit fallback
+- 3D renderer remains read-only
 
 ## v0.9.5 Published Patch
 
