@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.12 Cato Pre-Blender World Body published** from `release-v0.9.12@e40870e2550a9b211eee77308661be701368ae68`; full CI `36711965473` PASS.
+- [Assets & Interface] Cato is now the first full-body Local world citizen presentation, using the same authoritative position/travel pipeline as the token renderer.
+
 - [Coordinator] **v0.9.11 Authoritative GitHub Update Feed published** from `release-v0.9.11@1b4398b5642fe4d0b821bf58e773c1626c26dc58`; full CI `36666508423` PASS.
 - [Updater] GitHub raw branch feeds now resolve through GitHub repository state via the contents API, with cache-busted raw fallback.
 
@@ -60,6 +63,20 @@ _None._
 - [Coordinator] v0.9.2 Conversation Polish + Social-Energy Protection published.
 - [Coordinator] v0.9.1 History Records Polish published.
 - [Coordinator] v0.9.0 Civilization Continuity published.
+
+## v0.9.12 Published Patch
+
+- version: `0.9.12`
+- release branch: `release-v0.9.12`
+- exact immutable runtime: `e40870e2550a9b211eee77308661be701368ae68`
+- full CI: `36711965473` — PASS
+- updater advertises v0.9.12 and downloads the exact green runtime commit
+- Cato Local marker upgraded to equipment-free full-body sprite presentation
+- body inherits authoritative Local position + real travel interpolation
+- camera depth, hover, selection, and travel-only presentation motion supported
+- equipment layer remains separate/empty
+- future GLB slot documented; no Blender dependency yet
+- renderer remains read-only
 
 ## v0.9.11 Published Patch
 
