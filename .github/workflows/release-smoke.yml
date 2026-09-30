@@ -188,3 +188,7 @@ jobs:
 
       - name: Run v0.9.9 3D route-motion smoke
         run: python tests/smoke_v099_3d_route_motion.py
+
+
+      - name: Run v0.9.10 world-space cluster smoke
+        run: python tests/smoke_v0910_worldspace_cluster.py
