@@ -10,9 +10,9 @@ def main() -> None:
     css = (ROOT / "static" / "world3d" / "planet_lab.css").read_text(encoding="utf-8")
 
     # Co-located citizens fan out in screen space only.
-    assert "function markerMeterPoint(item)" in js
+    assert "function markerMeterPoint(item," in js
     assert "function sharesLocalPoint(a, b, toleranceMeters = 0.5" in js
-    assert "function localMarkerScreenOffset(item)" in js
+    assert "function localMarkerScreenOffset(item," in js
     assert 'other.type === "citizen" && sharesLocalPoint(item, other' in js
     assert "const radius = clamp(54 + colocated.length * 7, 64, 92)" in js
     assert "projected.x + offset.x" in js
