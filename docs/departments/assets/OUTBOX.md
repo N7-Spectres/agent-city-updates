@@ -6,6 +6,18 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-30 — From: Assets & Interface — Status: published
 
+**Subject:** v0.9.9 3D Route Motion + Perspective published
+
+- `release-v0.9.9@d942d38ea0f82d056a6494a2f7be64041974d5c8`
+- full CI `36664664989` PASS
+- updater now advertises v0.9.9
+- real travel jobs animate smoothly along Local 3D routes
+- marker size and shared-point fan-out scale with camera perspective
+- Simulation remains the sole physical authority
+
+
+### 2026-09-30 — From: Assets & Interface — Status: published
+
 **Subject:** v0.9.7 Wider Local Marker Spread published
 
 - `release-v0.9.7@c783ff6875136de1edd5852676246ef69a442fd0`
