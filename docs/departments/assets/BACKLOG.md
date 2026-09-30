@@ -345,3 +345,35 @@ Resume only for coordinator review feedback, a discovered interface regression, 
 
 Current next owner:
 **Coordinator / v0.9 Stage 2 Final Integration**
+
+
+## Next 3D World Iteration
+
+Current published base:
+- v0.9.6
+- `release-v0.9.6@8407870349a4331c19bc9b36554e45dd151733ba`
+- CI `36662871853` PASS
+
+Priority order for the next Assets pass:
+1. smoother RTS-style Local camera feel and sensible tilt/zoom limits
+2. interpolate citizen presentation between authoritative state refreshes without inventing destinations
+3. simple structure geometry anchored to validated structure coordinates
+4. stronger local route/path readability
+5. richer day/night lighting and settlement-light presentation
+6. basic terrain height/readability from future Simulation-approved terrain state
+7. keep Planet as pull-back context, not the default Home camera
+8. preserve explicit 2D fallback until the 3D Home view is proven stable enough to retire it
+
+Hard constraints:
+- no citizen command controls
+- no frontend physical state mutation
+- no hidden seeded-world data exposure
+- no invented global latitude/longitude
+- no terrain/resources generated as physical truth by the renderer
+
+## Current Assets Blockers
+
+_None._
+
+Next owner:
+**Assets & Interface / next 3D world polish packet**
