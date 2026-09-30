@@ -1,6 +1,6 @@
 {
-  "version": "0.9.5",
-  "notes": "Planet Lab: adds the first official interactive 3D world prototype to Agent City. A new 3D Planet Lab entry opens a dependency-free WebGL viewer with drag-to-orbit, wheel zoom, Planet / Region / Local modes, clickable known locations, camera focus transitions, and a Local view driven by authoritative Simulation x/y coordinates for citizens, structures, routes, and visitor presence. Planet/Region mode is explicitly a presentation shell that magnifies the existing local tangent frame onto a globe without claiming global latitude/longitude or exposing hidden seeded-world truth. The prototype is read-only and does not grant visitor control over citizens or modify Simulation state.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/3a5b226cda19775f080b726d79e79c72c016c0c1",
+  "version": "0.9.6",
+  "notes": "Home 3D World: makes the interactive 3D Local world the default World View on Agent City Home instead of leaving it only on a separate Planet Lab page. The Home panel now embeds the read-only WebGL renderer in Local mode, keeps Region and Planet controls available inside the same view, passes 3D citizen selections back to the Home visit panel, mirrors simulation-time dawn/day/dusk/night lighting in the local scene, and retains the prior 2D map behind an explicit fallback button. The 3D surface remains presentation-only outside authoritative local meter-space and does not grant visitor control or write Simulation state.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/8407870349a4331c19bc9b36554e45dd151733ba",
   "sha256": ""
 }
