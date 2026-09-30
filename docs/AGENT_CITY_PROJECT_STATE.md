@@ -18,6 +18,47 @@ Information law:
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
 
+## v0.9.3 Citizen Sheet Navigation — Green / Ready
+
+**Status: pushed and fully regression-tested; not yet published**
+
+- branch: `release-v0.9.3`
+- exact green head: `2826784e2bde768e7388535820e217361d234cc9`
+- full CI: `36656229586` — PASS
+- updater remains on published v0.9.2 until explicit publication
+
+Delivered:
+- citizen sheet now prioritizes an at-a-glance profile dashboard
+- stable overview contains:
+  - physical state
+  - current energy / integrity
+  - long-term battery/joint maintenance
+  - current work
+  - cargo
+  - equipped gear
+  - projects
+  - active persistent plan summary
+- deep information moved to a right-side on-demand navigator:
+  - Continuity
+  - Memories
+  - Experience
+  - Patterns & Places
+  - Social
+  - Knowledge
+- each detail button exposes a quiet count without inventing rank/importance
+- selected detail view persists across normal auto-refresh and page reload
+- desktop deep-detail panel is sticky and internally scrollable, preventing the full character page from becoming an archive-length scroll
+- smaller screens collapse to one column and use horizontally scrollable detail controls
+- Stage 1 Evidence / Record, Remembered Perspective, and Citizen Interpretation semantics remain explicit
+- Stage 2 competence/guided-practice evidence remains unchanged
+- Stage 3 recurring-choice/place/social-pattern truth boundaries remain unchanged
+
+Validation:
+- complete regression matrix through v0.9.2
+- `tests/smoke_v093_citizen_sheet_navigation.py`
+- historical Stage 1 Assets/UI smoke updated only for the new presentation path, not weakened
+- Python compile and JavaScript syntax checks
+
 ## v0.9.2 Published Patch — Conversation Polish + Social-Energy Protection
 
 **Status: published from the fully regression-tested patch line**
