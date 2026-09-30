@@ -616,6 +616,15 @@ Success means questions such as "Why does Iri avoid running her battery so low n
 - narrower layouts stack the two columns
 - Home recent activity remains intentionally lightweight
 
+### Shipped patch — v0.9.2 Conversation Polish + Social-Energy Protection
+
+- citizen conversation summaries use natural names instead of backend participant-role wording
+- summary cleanup prevents internal schema/process labels from leaking into History
+- claim-safe conversation-summary truth rules remain intact
+- critically low-energy citizens are not chosen autonomously as talk/guided-practice targets
+- incoming conversations no longer postpone the listener's planner clock
+- urgent recharge can regain priority without being repeatedly interrupted by autonomous social activity
+
 ### v1.0 — Bonsai Civilization
 
 Future design notes:
