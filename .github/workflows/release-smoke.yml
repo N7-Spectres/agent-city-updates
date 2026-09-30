@@ -200,3 +200,7 @@ jobs:
 
       - name: Run v0.9.12 Cato world-body smoke
         run: python tests/smoke_v0912_cato_world_body.py
+
+
+      - name: Run v0.9.13 Cato grounding smoke
+        run: python tests/smoke_v0913_cato_grounding.py
