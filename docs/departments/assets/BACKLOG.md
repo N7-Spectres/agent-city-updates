@@ -410,3 +410,12 @@ Next owner:
 
 Release process:
 - qualifying future patch/polish candidates auto-publish after exact full green CI under the standing user authorization recorded in Assets DECISIONS
+
+
+## Completed — v0.9.11 Updater Feed Hardening
+
+- GitHub raw update feeds map to repository-contents API requests
+- raw-file Accept header used for manifest content
+- cache-busted raw fallback retained
+- dedicated `tests/smoke_v0911_github_update_feed.py`
+- full release regression `36666508423` PASS
