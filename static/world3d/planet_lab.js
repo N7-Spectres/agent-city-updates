@@ -680,15 +680,28 @@
 
   function markerWorld(item, now = performance.now()) {
     if (mode === "local") {
-      if (item.type === "location") return localWorld(item.data.x_m, item.data.y_m, 0.045);
-      if (item.type === "citizen") {
+      let world = null;
+
+      if (item.type === "location") {
+        world = localWorld(item.data.x_m, item.data.y_m, 0.045);
+      } else if (item.type === "citizen") {
         const [x, y] = citizenRenderMeters(item.data, now);
         if (x == null || y == null) return null;
-        return localWorld(x, y, 0.075);
+        world = localWorld(x, y, 0.075);
+      } else if (item.type === "structure") {
+        world = localWorld(item.data.x_m, item.data.y_m, 0.06);
+      } else if (item.type === "visitor") {
+        world = localWorld(item.data.x_m, item.data.y_m, 0.08);
       }
-      if (item.type === "structure") return localWorld(item.data.x_m, item.data.y_m, 0.06);
-      if (item.type === "visitor") return localWorld(item.data.x_m, item.data.y_m, 0.08);
-      return null;
+
+      if (!world) return null;
+
+      const offset = localMarkerWorldOffset(item, now);
+      return [
+        world[0] + offset[0],
+        world[1] + offset[1],
+        world[2] + offset[2],
+      ];
     }
 
     if (item.type === "location") {
@@ -714,24 +727,25 @@
     return Math.hypot(ax - bx, ay - by) <= toleranceMeters;
   }
 
-  function localMarkerScreenOffset(item, perspectiveScale = 1, now = performance.now()) {
-    if (mode !== "local") return { x: 0, y: 0 };
+  function localMarkerWorldOffset(item, now = performance.now()) {
+    if (mode !== "local") return [0, 0, 0];
 
     if (item.type === "citizen") {
       const colocated = markerItems
         .filter(other => other.type === "citizen" && sharesLocalPoint(item, other, 0.5, now))
         .sort((a, b) => String(a.id).localeCompare(String(b.id)));
 
-      if (colocated.length <= 1) return { x: 0, y: 0 };
+      if (colocated.length <= 1) return [0, 0, 0];
 
       const index = colocated.findIndex(other => String(other.id) === String(item.id));
-      const radius = clamp(54 + colocated.length * 7, 64, 92) * perspectiveScale;
+      const radiusWorld = clamp(0.18 + (colocated.length * 0.018), 0.20, 0.31);
       const angle = (-Math.PI / 2) + ((Math.PI * 2 * index) / colocated.length);
 
-      return {
-        x: Math.cos(angle) * radius,
-        y: Math.sin(angle) * radius,
-      };
+      return [
+        Math.cos(angle) * radiusWorld,
+        0,
+        Math.sin(angle) * radiusWorld,
+      ];
     }
 
     if (item.type === "visitor") {
@@ -740,12 +754,12 @@
       ).length;
 
       if (citizenCount > 0) {
-        const citizenRadius = clamp(54 + citizenCount * 7, 64, 92) * perspectiveScale;
-        return { x: 0, y: citizenRadius + (48 * perspectiveScale) };
+        const citizenRadiusWorld = clamp(0.18 + (citizenCount * 0.018), 0.20, 0.31);
+        return [0, 0, citizenRadiusWorld + 0.16];
       }
     }
 
-    return { x: 0, y: 0 };
+    return [0, 0, 0];
   }
 
   function markerPerspectiveScale(item, world, eye) {
@@ -776,11 +790,10 @@
       }
 
       const perspectiveScale = markerPerspectiveScale(item, world, eye);
-      const offset = localMarkerScreenOffset(item, perspectiveScale, now);
       item.element.hidden = false;
       item.element.style.setProperty("--marker-scale", perspectiveScale.toFixed(3));
-      item.element.style.left = (projected.x + offset.x) + "px";
-      item.element.style.top = (projected.y + offset.y) + "px";
+      item.element.style.left = projected.x + "px";
+      item.element.style.top = projected.y + "px";
     }
   }
 
