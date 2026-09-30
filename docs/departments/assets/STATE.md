@@ -1,9 +1,9 @@
 # Assets & Interface — State
 
 _Last updated: 2026-09-30_
-_Current published release: v0.9.9 @ `d942d38ea0f82d056a6494a2f7be64041974d5c8`_
+_Current published release: v0.9.10 @ `158751b3c0e95b0d0c8e997219e7148b2c8044d2`_
 _Current Assets activity: Home 3D World / RTS-style local world foundation_
-_Current runtime branch: `release-v0.9.9` @ `d942d38ea0f82d056a6494a2f7be64041974d5c8`_
+_Current runtime branch: `release-v0.9.10` @ `158751b3c0e95b0d0c8e997219e7148b2c8044d2`_
 _Current review surface: published updater v0.9.6_
 _Current status: DONE / PUBLISHED_
 
@@ -633,3 +633,21 @@ Delivered:
 - shared-point citizen/visitor fan-out scales with perspective
 - selected-citizen focus follows rendered travel position
 - renderer performs no coordinate/state writes
+
+
+## v0.9.10 World-Space Local Token Clusters — Published
+
+Status:
+**DONE / PUBLISHED**
+
+- release branch: `release-v0.9.10`
+- exact green runtime: `158751b3c0e95b0d0c8e997219e7148b2c8044d2`
+- full CI: `36665747233` — PASS
+- updater: v0.9.10
+
+Delivered:
+- shared-point citizen/visitor fan-out moved into Local 3D world space
+- camera orbit, tilt, and zoom now affect cluster geometry naturally
+- fixed screen-space starburst offset removed
+- smooth authoritative travel from v0.9.9 preserved
+- renderer performs no physical state writes
