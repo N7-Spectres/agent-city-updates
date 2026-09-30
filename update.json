@@ -1,6 +1,6 @@
 {
-  "version": "0.9.8",
-  "notes": "Fresh Update Checks: fixes stale update-manifest caching. Agent City now adds a unique cache-busting query value to each manifest request and sends no-cache headers, preventing GitHub/CDN-backed update feeds from briefly reporting an older release after publication. This release also includes the v0.9.7 wider Local 3D citizen marker spread.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/2d0d01c51db30e495360fe04b9c23b115c9ec3c0",
+  "version": "0.9.9",
+  "notes": "3D Route Motion + Perspective: makes the Home 3D Local view feel more spatial and RTS-like. Citizens with real Simulation travel jobs now move smoothly along the authoritative route from origin to destination using the job's start/end times and the city's actual time ratio; pausing the simulation freezes the visual travel. Citizen and visitor markers now scale with camera depth, and shared-point fan-out spacing scales with perspective as well, reducing the flat HUD/starburst feel. The renderer still performs no physical state writes and never invents travel.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/d942d38ea0f82d056a6494a2f7be64041974d5c8",
   "sha256": ""
 }
