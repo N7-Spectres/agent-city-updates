@@ -1,6 +1,6 @@
 {
-  "version": "0.9.14",
-  "notes": "Aris Local World Body: promotes Aris as the second full-body citizen in Local 3D alongside Cato. Aris uses the existing authoritative Simulation position and real route-travel pipeline, with a leaner 1.85 m-inspired presentation scale, cyan grounding/selection treatment, and a minimum Local zoom-out readability floor. Region and Planet remain free of citizen body markers. The approved Aris concept sheet is preserved as a canonical visual reference. Bex, Iri, Noma, and Vale remain token-based pending separate rollouts. Assets still does not create physical dimensions, coordinates, equipment, locomotion, collision, or capability truth.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/9c1b51e419a030434ecf1271f80cb5a127216701",
+  "version": "0.9.15",
+  "notes": "Aris Transparent PNG Body: replaces Aris's boxed Local runtime sprite with a true RGBA PNG so the full-body citizen renders cleanly without a rectangular matte/background. Aris keeps the same Local-only authoritative position/travel pipeline, relative scale, zoom-out readability floor, grounding, selection, and travel presentation introduced in v0.9.14. Cato is unchanged; Region and Planet remain free of citizen body markers. No Simulation authority changes.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/2edf2cd5fcd828973fd0f636e2d5119abe3d94e0",
   "sha256": ""
 }
