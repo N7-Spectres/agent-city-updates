@@ -4,7 +4,7 @@ _Last updated: 2026-09-30_
 
 ## Current Release
 
-**v0.9.14 — Aris Local World Body**
+**v0.9.15 — Aris Transparent PNG Body**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,29 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.15 Published Patch — Aris Transparent PNG Body
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.15`
+- exact green head: `2edf2cd5fcd828973fd0f636e2d5119abe3d94e0`
+- full CI: `36755833871` — PASS
+- published updater: `v0.9.15`
+- `update.json` downloads the exact green v0.9.15 runtime
+
+Delivered:
+- Aris's Local full-body asset is now a true transparent RGBA PNG
+- rectangular matte/background artifact removed
+- existing Aris relative scale and zoom-out readability floor preserved
+- existing authoritative Local position and real route-travel interpolation preserved
+- Cato remains unchanged
+- Region / Planet continue to omit citizen body markers
+
+Validation:
+- complete regression matrix through v0.9.14
+- Aris focused smoke now verifies PNG signature and RGBA color type
+- no Simulation authority changes
 
 ## v0.9.14 Published Patch — Aris Local World Body
 
