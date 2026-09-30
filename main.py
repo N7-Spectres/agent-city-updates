@@ -51,7 +51,10 @@ from agent_city.shared_actions import (
     shared_action_option_context,
 )
 from agent_city.talk_diagnostics import ensure_talk_diagnostic_schema
-from agent_city.simulation import cargo_capacity as physical_cargo_capacity
+from agent_city.simulation import (
+    cargo_capacity as physical_cargo_capacity,
+    recover_zero_energy_charger_deadlocks,
+)
 from agent_city.exploration import (
     accept_shared_activity,
     propose_shared_activity,
@@ -109,6 +112,7 @@ planner_task: asyncio.Task | None = None
 async def lifespan(app: FastAPI):
     global clock_task, planner_task
     init_db()
+    recover_zero_energy_charger_deadlocks()
     ensure_visit_schema()
     ensure_memory_schema()
     ensure_information_schema()
