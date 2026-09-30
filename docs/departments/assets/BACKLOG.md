@@ -397,3 +397,16 @@ Next owner:
 - perspective-scaled shared-point fan-out
 - dedicated `tests/smoke_v099_3d_route_motion.py`
 - full release regression `36664664989` PASS
+
+
+## Completed — v0.9.10 World-Space Cluster Fix
+
+- removed screen-space citizen starburst positioning
+- co-located presentation fan-out now lives in Local 3D world space
+- direct camera projection owns final screen positions
+- smooth route travel and perspective marker scaling preserved
+- `tests/smoke_v0910_worldspace_cluster.py`
+- full release regression `36665747233` PASS
+
+Release process:
+- qualifying future patch/polish candidates auto-publish after exact full green CI under the standing user authorization recorded in Assets DECISIONS
