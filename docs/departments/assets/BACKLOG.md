@@ -511,3 +511,15 @@ Immediate next action:
 Immediate next action:
 - user visually confirms corrected Aris in Local at ordinary and maximum zoom-out
 - then begin Bex as the next one-at-a-time citizen rollout
+
+
+## Completed — v0.9.16 Local Body Marker Layering
+
+- body markers z-index above normal Local token clusters
+- selected/hovered body inspection layer
+- dedicated `tests/smoke_v0916_body_layering.py`
+- full release regression `36769065592` PASS
+
+Immediate next action:
+- verify Aris remains visible while locally walking through crowded Seed Site markers
+- if visually correct, proceed to Bex
