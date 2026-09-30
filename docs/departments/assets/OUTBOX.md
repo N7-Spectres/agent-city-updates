@@ -6,6 +6,18 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-30 — From: Assets & Interface — Status: published
 
+**Subject:** v0.9.15 Aris Transparent PNG Body published
+
+- `release-v0.9.15@2edf2cd5fcd828973fd0f636e2d5119abe3d94e0`
+- full CI `36755833871` PASS
+- updater now advertises v0.9.15
+- Aris Local body now uses transparent RGBA PNG
+- black/rectangular matte artifact removed
+- Cato and all Simulation authority boundaries preserved
+- next action is live visual review before Bex begins
+
+### 2026-09-30 — From: Assets & Interface — Status: published
+
 **Subject:** v0.9.14 Aris Local World Body published
 
 - `release-v0.9.14@9c1b51e419a030434ecf1271f80cb5a127216701`
