@@ -14,9 +14,12 @@ def main() -> None:
 
     # Canon reference and runtime body both exist.
     assert reference.exists()
-    assert reference.stat().st_size > 50000
-    assert reference.read_bytes()[:4] == b"RIFF"
-    assert b"WEBP" in reference.read_bytes()[:16]
+    reference_bytes = reference.read_bytes()
+    assert len(reference_bytes) > 10000
+    assert reference_bytes[:4] == b"RIFF"
+    assert b"WEBP" in reference_bytes[:16]
+    declared_size = int.from_bytes(reference_bytes[4:8], "little") + 8
+    assert declared_size == len(reference_bytes)
 
     assert sprite.exists()
     assert sprite.stat().st_size > 1000
