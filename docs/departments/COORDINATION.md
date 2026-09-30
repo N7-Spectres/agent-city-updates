@@ -32,12 +32,26 @@ _None._
 
 ### DONE
 
-- [Coordinator] **v0.9.3 Citizen Sheet Navigation published** via `update.json` on `main` commit `5131bdb72082650cf6403b6c9437995953186e47`.
-- [v0.9.3 Runtime] `release-v0.9.3@2826784e2bde768e7388535820e217361d234cc9`; full CI `36656229586` PASS.
+- [Coordinator] **v0.9.4 Zero-Energy Charger Recovery published** via `update.json` on `main` commit `ee51c23a7ece7d787e30b9871ae2a38c3c6a5393`.
+- [v0.9.4 Runtime] `release-v0.9.4@ed73598148e0f23b64834e9f716f3fab6ba2364e`; full CI `36657268659` PASS.
+- [World & Simulation] zero-energy same-location charger deadlock recovery is startup/tick-safe, idempotent, and diagnostic-only.
+- [Coordinator] v0.9.3 Citizen Sheet Navigation published.
 - [Coordinator] v0.9.2 Conversation Polish + Social-Energy Protection published.
-- [v0.9.2 Runtime] `release-v0.9.2@ea4a838fa10a557ac6d3f032a55e1dc94a84012f`; full CI `36654523357` PASS.
 - [Coordinator] v0.9.1 History Records Polish published.
 - [Coordinator] v0.9.0 Civilization Continuity published.
+
+## v0.9.4 Published Patch
+
+- version: `0.9.4`
+- release branch: `release-v0.9.4`
+- exact immutable runtime: `ed73598148e0f23b64834e9f716f3fab6ba2364e`
+- full CI: `36657268659` — PASS
+- publication manifest commit: `ee51c23a7ece7d787e30b9871ae2a38c3c6a5393`
+- `update.json` now advertises v0.9.4 and downloads the exact green runtime commit
+- no free energy, no fictional action, no visitor power
+- same-location zero-energy charger offset is corrected to the nearest operational charger coordinate
+- ordinary charge action remains the recovery mechanism after the coordinate correction
+- diagnostic history records every intervention
 
 ## v0.9.3 Published Patch
 
