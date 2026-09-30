@@ -23,7 +23,7 @@ def main() -> None:
 
     assert sprite.exists()
     sprite_bytes = sprite.read_bytes()
-    assert sprite.stat().st_size > 5000
+    assert sprite.stat().st_size == 14262
     assert sprite_bytes[:8] == b"\x89PNG\r\n\x1a\n"
     # PNG color type 6 = RGBA, required so the Local body has real transparency.
     assert sprite_bytes[25] == 6
