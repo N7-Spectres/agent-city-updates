@@ -33,6 +33,9 @@ jobs:
       - name: Check JavaScript syntax
         run: node --check static/app.js
 
+      - name: Check Planet Lab JavaScript syntax
+        run: node --check static/world3d/planet_lab.js
+
       - name: Run v0.4 regression smoke
         run: python tests/smoke_v040.py
 
@@ -169,3 +172,7 @@ jobs:
 
       - name: Run Planet Lab prototype smoke
         run: python tests/smoke_planet_lab.py
+
+
+      - name: Run v0.9.6 Home 3D world integration smoke
+        run: python tests/smoke_v096_home_world3d.py
