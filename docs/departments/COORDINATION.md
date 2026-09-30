@@ -24,18 +24,18 @@ _None._
 
 ### READY
 
-_None._
+- [Coordinator / v0.9.3 Publication] citizen-sheet dashboard + on-demand detail navigation are green on `release-v0.9.3@2826784e2bde768e7388535820e217361d234cc9`; CI `36656229586` PASS. `update.json` still advertises v0.9.2.
 
 ### REVIEW
 
-_None._
+- [Assets & Interface] v0.9.3 at-a-glance Citizen dashboard and six-view deep-information navigator complete.
+- [Memory / Simulation / Communication contracts] unchanged; presentation still consumes their existing safe read models.
 
 ### DONE
 
-- [Coordinator] **v0.9.2 Conversation Polish + Social-Energy Protection published** via `update.json` on `main` commit `0f3bbd0bc7682e5345eb04a086b0adbfbb771f6d`.
+- [Coordinator] v0.9.2 Conversation Polish + Social-Energy Protection published.
 - [v0.9.2 Runtime] `release-v0.9.2@ea4a838fa10a557ac6d3f032a55e1dc94a84012f`; full CI `36654523357` PASS.
 - [Coordinator] v0.9.1 History Records Polish published.
-- [v0.9.1 Runtime] `release-v0.9.1@371911bd9b337924ba1b960cb794caccd991c150`; full CI `36652854090` PASS.
 - [Coordinator] v0.9.0 Civilization Continuity published.
 
 ## v0.9.2 Published Patch
