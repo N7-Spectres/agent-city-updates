@@ -1,6 +1,6 @@
 {
-  "version": "0.9.6",
-  "notes": "Home 3D World: makes the interactive 3D Local world the default World View on Agent City Home instead of leaving it only on a separate Planet Lab page. The Home panel now embeds the read-only WebGL renderer in Local mode, keeps Region and Planet controls available inside the same view, passes 3D citizen selections back to the Home visit panel, mirrors simulation-time dawn/day/dusk/night lighting in the local scene, and retains the prior 2D map behind an explicit fallback button. The 3D surface remains presentation-only outside authoritative local meter-space and does not grant visitor control or write Simulation state.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/8407870349a4331c19bc9b36554e45dd151733ba",
+  "version": "0.9.7",
+  "notes": "Wider Local Marker Spread: improves the Home 3D Local view when multiple citizens share the same authoritative meter coordinate. Co-located citizen tokens now fan out into a wider screen-space ring around the shared physical point, while the visitor marker is offset farther below the cluster for readability. Physical Simulation coordinates remain unchanged, and tokens automatically leave the visual ring when a citizen's authoritative position actually changes. The spread is presentation-only and does not create movement or alter Simulation state.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/c783ff6875136de1edd5852676246ef69a442fd0",
   "sha256": ""
 }
