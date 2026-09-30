@@ -14,7 +14,7 @@ def main() -> None:
     assert "urllib.parse.urlunsplit" in updater
     assert '"Cache-Control": "no-cache, no-store, max-age=0"' in updater
     assert '"Pragma": "no-cache"' in updater
-    assert "client.get(fresh_url, headers=headers)" in updater
+    assert "client.get(fresh_url, headers=fallback_headers)" in updater
 
     # The saved manifest URL remains the stable user setting; cache-busting is
     # applied only to the outbound request.
