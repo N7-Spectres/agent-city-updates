@@ -498,3 +498,16 @@ Immediate next action:
 - user live-reviews Aris in Local, including normal zoom and maximum Local zoom-out
 - verify Region / Planet still omit citizen bodies
 - only then begin Bex
+
+
+## Completed — v0.9.15 Aris Transparent PNG Body
+
+- transparent RGBA PNG runtime body for Aris
+- rectangular matte/background artifact removed
+- v0.9.14 body behavior preserved
+- focused smoke verifies PNG + alpha-capable RGBA color type
+- full release regression `36755833871` PASS
+
+Immediate next action:
+- user visually confirms corrected Aris in Local at ordinary and maximum zoom-out
+- then begin Bex as the next one-at-a-time citizen rollout
