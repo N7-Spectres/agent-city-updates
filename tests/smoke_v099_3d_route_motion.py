@@ -41,9 +41,12 @@ def main() -> None:
     assert "scale(var(--marker-scale, 1))" in css
     assert "transform-origin: center" in css
 
-    # Co-located fan-out scales with depth too.
-    assert "64, 92) * perspectiveScale" in js
-    assert "48 * perspectiveScale" in js
+    # Co-located fan-out now lives in the 3D world plane, so camera projection
+    # naturally supplies depth/tilt/zoom behavior.
+    assert "function localMarkerWorldOffset(item," in js
+    assert "radiusWorld" in js
+    assert "world[0] + offset[0]" in js
+    assert "world[2] + offset[2]" in js
 
     # Presentation must never write authoritative citizen coordinates.
     assert ".position_x_m =" not in js
