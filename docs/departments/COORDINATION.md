@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.11 Authoritative GitHub Update Feed published** from `release-v0.9.11@1b4398b5642fe4d0b821bf58e773c1626c26dc58`; full CI `36666508423` PASS.
+- [Updater] GitHub raw branch feeds now resolve through GitHub repository state via the contents API, with cache-busted raw fallback.
+
 - [Coordinator] **v0.9.10 World-Space Local Token Clusters published** from `release-v0.9.10@158751b3c0e95b0d0c8e997219e7148b2c8044d2`; full CI `36665747233` PASS.
 - [Assets & Interface] Local shared-point marker fan-out now lives in world space before camera projection, removing the fixed screen-space starburst behavior.
 
@@ -57,6 +60,17 @@ _None._
 - [Coordinator] v0.9.2 Conversation Polish + Social-Energy Protection published.
 - [Coordinator] v0.9.1 History Records Polish published.
 - [Coordinator] v0.9.0 Civilization Continuity published.
+
+## v0.9.11 Published Patch
+
+- version: `0.9.11`
+- release branch: `release-v0.9.11`
+- exact immutable runtime: `1b4398b5642fe4d0b821bf58e773c1626c26dc58`
+- full CI: `36666508423` — PASS
+- updater advertises v0.9.11 and downloads the exact green runtime commit
+- GitHub raw branch feeds use repository-contents API resolution
+- raw CDN fetch remains a fallback only
+- saved update-feed URL remains stable
 
 ## v0.9.10 Published Patch
 
