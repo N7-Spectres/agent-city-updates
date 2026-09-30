@@ -4304,3 +4304,20 @@ input:focus, textarea:focus { border-color: var(--accent); }
     text-align: left;
   }
 }
+
+
+/* Experimental Planet Lab entry. The prototype itself lives in /static/world3d/. */
+.primary-tab.prototype-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--accent);
+  border-style: dashed;
+}
+
+.primary-tab.prototype-link:hover,
+.primary-tab.prototype-link:focus-visible {
+  border-color: rgba(213,166,91,.5);
+  background: rgba(213,166,91,.08);
+  outline: none;
+}
