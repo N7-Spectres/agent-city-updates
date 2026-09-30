@@ -443,3 +443,25 @@ Potential next slices:
 3. repeat the body-pilot pattern for another citizen
 4. add validated equipment overlays only when real equipped state exists
 5. eventually replace Cato sprite-body presentation with a true GLB while keeping the same Simulation position/travel contract
+
+
+## Completed — v0.9.13 Cato Grounding Polish
+
+- Cato body screen box tuned for heavier silhouette
+- foot-line anchor tightened
+- neutral ground-contact ring
+- selected / hover ground emphasis
+- smaller travel bob
+- synchronized travel-shadow compression
+- reduced-motion coverage
+- `tests/smoke_v0913_cato_grounding.py`
+- full release regression `36715953570` PASS
+
+## Next Pre-Blender Citizen Work
+
+Potential next slices:
+1. add separately approved directional/pose frames if useful
+2. repeat the body-pilot pattern for another citizen
+3. add validated equipment overlays only when real equipped state exists
+4. continue structure/terrain readability polish around the body pipeline
+5. eventually replace Cato sprite-body presentation with a true GLB while keeping the same Simulation position/travel contract
