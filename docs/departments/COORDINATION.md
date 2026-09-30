@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.9 3D Route Motion + Perspective published** from `release-v0.9.9@d942d38ea0f82d056a6494a2f7be64041974d5c8`; full CI `36664664989` PASS.
+- [Assets & Interface] Local 3D now animates real travel jobs along authoritative routes and scales markers/fan-out with camera depth.
+
 - [Coordinator] **v0.9.8 Fresh Update Checks published** from `release-v0.9.8@2d0d01c51db30e495360fe04b9c23b115c9ec3c0`; full CI `36663881198` PASS.
 - [Updater] Manifest checks now bypass stale CDN/raw-file caches with a unique query token and no-cache headers.
 
@@ -51,6 +54,19 @@ _None._
 - [Coordinator] v0.9.2 Conversation Polish + Social-Energy Protection published.
 - [Coordinator] v0.9.1 History Records Polish published.
 - [Coordinator] v0.9.0 Civilization Continuity published.
+
+## v0.9.9 Published Patch
+
+- version: `0.9.9`
+- release branch: `release-v0.9.9`
+- exact immutable runtime: `d942d38ea0f82d056a6494a2f7be64041974d5c8`
+- full CI: `36664664989` — PASS
+- updater advertises v0.9.9 and downloads the exact green runtime commit
+- real travel jobs animate continuously on Local 3D routes
+- motion timing uses authoritative job timing + Simulation time ratio
+- pause freezes visual travel
+- marker size and cluster spacing scale with perspective
+- renderer remains read-only
 
 ## v0.9.8 Published Patch
 
