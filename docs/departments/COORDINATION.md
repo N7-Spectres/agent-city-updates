@@ -1,6 +1,6 @@
 # Agent City — Department Coordination Board
 
-_Last updated: 2026-09-29_
+_Last updated: 2026-09-30_
 
 This file is the shared project task board.
 
@@ -24,16 +24,33 @@ _None._
 
 ### READY
 
-- [Coordinator / v0.9.1 Publication] History records patch is green on `release-v0.9.1@371911bd9b337924ba1b960cb794caccd991c150`; CI `36652854090` PASS. `update.json` still advertises v0.9.0.
+_None._
 
 ### REVIEW
 
-- [v0.9.1 History Records] bounded pagination, two-column desktop History, responsive stacking, and exchange-open-state persistence are complete and tested.
+_None._
 
 ### DONE
 
+- [Coordinator] **v0.9.1 History Records Polish published** via `update.json` on `main` commit `d4a9d46c32cd967d5cd3b95dd5f83e1b43c8a0d8`.
+- [v0.9.1 Runtime] `release-v0.9.1@371911bd9b337924ba1b960cb794caccd991c150`; full CI `36652854090` PASS.
 - [Coordinator] v0.9.0 Civilization Continuity published.
 - [v0.9.0 Runtime] `release-v0.9.0@10e866fd693af7b8ba24d34331a19dde281ee670`; definitive CI `36649456577` PASS.
+
+## v0.9.1 Published Patch
+
+- version: `0.9.1`
+- release branch: `release-v0.9.1`
+- exact immutable runtime: `371911bd9b337924ba1b960cb794caccd991c150`
+- full CI: `36652854090` — PASS
+- publication manifest commit: `d4a9d46c32cd967d5cd3b95dd5f83e1b43c8a0d8`
+- `update.json` now advertises v0.9.1 and downloads the exact green runtime commit
+- 8 conversation records per page
+- 12 chronology events per page
+- bounded backend pagination
+- expanded exchanges persist through auto-refresh
+- History page selection persists through refresh
+- desktop two-column layout with responsive stacking
 
 ## v0.9.0 Published Release
 
