@@ -949,3 +949,26 @@ Still stop and ask before publication when:
 - another explicit project lock requires fresh approval
 
 This standing rule satisfies the project's normal explicit publication authorization for qualifying patch/polish releases until the user changes it.
+
+
+## Citizen Body Rollout Cadence Rule
+
+User direction received 2026-09-30:
+
+Pre-Blender Local citizen bodies are promoted **one citizen at a time**, not as a bulk batch.
+
+After each published body rollout:
+1. visually review that citizen in normal Local framing,
+2. visually review maximum Local zoom-out readability,
+3. confirm Region / Planet do not show citizen bodies,
+4. tune presentation if needed,
+5. only then begin the next citizen.
+
+Current sequence after Cato:
+1. Aris — published v0.9.14
+2. Bex
+3. Iri
+4. Noma
+5. Vale
+
+This cadence is a presentation/review rule. It does not give Assets authority over citizen physics, equipment, movement, or capability.
