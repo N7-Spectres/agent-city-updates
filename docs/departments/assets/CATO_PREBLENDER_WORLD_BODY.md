@@ -27,7 +27,7 @@ The body sprite is:
 - carried by the existing authoritative route-travel renderer
 - selected through the existing citizen selection/Visit flow
 
-Other citizens remain token-based until separately promoted.
+Aris is separately promoted in v0.9.14. Bex, Iri, Noma, and Vale remain token-based until their own approved rollout.
 
 ## Physical / Presentation Boundary
 

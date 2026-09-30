@@ -37,7 +37,8 @@ def main() -> None:
     # Tokens now participate visually in perspective rather than staying fixed-size HUD stickers.
     assert "function markerPerspectiveScale(item, world, eye)" in js
     assert "vec3Length(vec3Sub(eye, world))" in js
-    assert 'style.setProperty("--marker-scale", perspectiveScale.toFixed(3))' in js
+    assert "const perspectiveScale = markerPerspectiveScale(item, world, eye);" in js
+    assert 'style.setProperty("--marker-scale", displayScale.toFixed(3))' in js
     assert "scale(var(--marker-scale, 1))" in css
     assert "transform-origin: center" in css
 
