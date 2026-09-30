@@ -523,3 +523,16 @@ Immediate next action:
 Immediate next action:
 - verify Aris remains visible while locally walking through crowded Seed Site markers
 - if visually correct, proceed to Bex
+
+
+## Completed — v0.9.17 Correct Aris Runtime Sprite
+
+- identified that the live `front.png` bytes did not match the approved visible sprite
+- replaced runtime asset with verified Git blob `f8811d359b1a232b0f27ce41d87163d5ac4cc57f`
+- locked expected size at 14,262 bytes
+- added `tests/smoke_v0917_aris_verified_sprite.py`
+- full release regression `36771435841` PASS
+
+Immediate next action:
+- confirm Aris is visibly rendered in Local
+- if correct, proceed to Bex
