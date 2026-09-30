@@ -1,9 +1,9 @@
 # Assets & Interface — State
 
 _Last updated: 2026-09-30_
-_Current published release: v0.9.10 @ `158751b3c0e95b0d0c8e997219e7148b2c8044d2`_
+_Current published release: v0.9.11 @ `1b4398b5642fe4d0b821bf58e773c1626c26dc58`_
 _Current Assets activity: Home 3D World / RTS-style local world foundation_
-_Current runtime branch: `release-v0.9.10` @ `158751b3c0e95b0d0c8e997219e7148b2c8044d2`_
+_Current runtime branch: `release-v0.9.11` @ `1b4398b5642fe4d0b821bf58e773c1626c26dc58`_
 _Current review surface: published updater v0.9.6_
 _Current status: DONE / PUBLISHED_
 
@@ -651,3 +651,20 @@ Delivered:
 - fixed screen-space starburst offset removed
 - smooth authoritative travel from v0.9.9 preserved
 - renderer performs no physical state writes
+
+
+## v0.9.11 Authoritative GitHub Update Feed — Published
+
+Status:
+**DONE / PUBLISHED**
+
+- release branch: `release-v0.9.11`
+- exact green runtime: `1b4398b5642fe4d0b821bf58e773c1626c26dc58`
+- full CI: `36666508423` — PASS
+- updater: v0.9.11
+
+Delivered:
+- GitHub raw branch feeds resolve through GitHub repository-contents API state
+- raw CDN branch freshness is no longer trusted as the primary update source
+- cache-busted raw fetch remains fallback
+- user-saved feed URL remains stable
