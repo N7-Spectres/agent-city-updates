@@ -1,11 +1,11 @@
 # Assets & Interface — State
 
-_Last updated: 2026-09-29_
-_Current published release: v0.8.7 @ `be617e6e870ec3f1914d76cdb85107a6efc294d7`_
-_Current Assets activity: v0.9 Stage 2 continuity runtime UI_
-_Current runtime branch: `assets/v0.9-stage2-continuity-ui` @ `224c8eb526dcf6bdfeb4e4457ef68727083b3a31`_
-_Current review surface: PR #26 — ready for review_
-_Current status: REVIEW_
+_Last updated: 2026-09-30_
+_Current published release: v0.9.6 @ `8407870349a4331c19bc9b36554e45dd151733ba`_
+_Current Assets activity: Home 3D World / RTS-style local world foundation_
+_Current runtime branch: `release-v0.9.6` @ `8407870349a4331c19bc9b36554e45dd151733ba`_
+_Current review surface: published updater v0.9.6_
+_Current status: DONE / PUBLISHED_
 
 ## Mission
 
@@ -556,3 +556,42 @@ Coordinator can continue without this chat by using:
 - `docs/departments/assets/V090_STAGE2_COMPETENCE_UI_AUDIT.md`
 
 Do not infer additional implementation work from this chat after closure.
+
+
+## v0.9.6 Home 3D World — Published
+
+Status:
+**DONE / PUBLISHED**
+
+Release:
+- branch: `release-v0.9.6`
+- exact green runtime: `8407870349a4331c19bc9b36554e45dd151733ba`
+- full CI: `36662871853` — PASS
+- updater: v0.9.6
+
+Delivered:
+- Home World View now defaults to embedded 3D **Local** mode
+- Local / Region / Planet controls remain available inside the Home world panel
+- 3D citizen selection hands the citizen ID back to Home and opens the existing visit-selection flow
+- Local 3D uses authoritative Simulation meter coordinates only
+- local renderer mirrors Simulation-time Dawn / Day / Dusk / Night presentation phases
+- old 2D region map remains available as an explicit fallback
+- full-screen Planet view remains available from main navigation
+- 3D renderer is read-only and performs no physical writes
+
+Truth boundaries preserved:
+- Simulation still decides reality
+- local x/y is physically meaningful
+- Planet/Region remain presentation shells until global geodesy exists
+- no hidden planet seed, generated deposit bodies, richness, or undiscovered resource truth is exposed
+- visitors gain no RTS-style command authority over citizens
+
+Validation:
+- Planet Lab JavaScript syntax check
+- existing Planet Lab smoke
+- `tests/smoke_v096_home_world3d.py`
+- complete release regression matrix
+
+Next visual direction:
+- treat Home as an RTS-style **living-world viewer**, not an RTS command interface
+- improve local camera feel, live movement interpolation, structure geometry, terrain readability, and day/night presentation without moving physical authority into Assets
