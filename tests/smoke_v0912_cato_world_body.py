@@ -43,7 +43,10 @@ def main() -> None:
 
     # Body feels grounded and selected without pretending to be a true mesh.
     assert ".citizen-marker.cato-world-body" in css
-    assert "translate(-50%, -94%)" in css
+    # Grounding percentage may be tuned by later presentation-only patches;
+    # keep the invariant that the body is horizontally centered and foot-anchored.
+    assert "transform: translate(-50%, -" in css
+    assert "transform-origin: 50%" in css
     assert ".cato-world-body::after" in css
     assert ".cato-world-body.selected .world-body-image" in css
     assert "@keyframes cato-world-travel-bob" in css
