@@ -24,15 +24,17 @@ _None._
 
 ### READY
 
-- [Coordinator / v0.9.0 Publication] release candidate is green and ready for explicit publication approval. `update.json` still points to v0.8.7.
+_None._
 
 ### REVIEW
 
-- [v0.9.0 Release Candidate] branch `release-v0.9.0` @ `10e866fd693af7b8ba24d34331a19dde281ee670`; definitive CI `36649456577` PASS.
+_None._
 
 ### DONE
 
-- [Coordinator] v0.9 Stage 3 fully integrated on `release-v0.9.0-stage3-integration` @ `10e866fd693af7b8ba24d34331a19dde281ee670`; definitive CI `36649456577` PASS.
+- [Coordinator] **v0.9.0 Civilization Continuity published** via `update.json` on `main` commit `7c080eda9678ad6f5a6368a9af101f4460af29c0`.
+- [v0.9.0 Runtime] release branch `release-v0.9.0` @ `10e866fd693af7b8ba24d34331a19dde281ee670`; definitive CI `36649456577` PASS.
+- [Coordinator] v0.9 Stage 3 fully integrated and published in v0.9.0.
 - [Assets & Interface] v0.9 Stage 3 evidence-first recurring-history/place/social-pattern UI integrated.
 - [Communication & Perception] v0.9 Stage 3 pattern language + grounded social transmission integrated.
 - [World & Simulation] v0.9 Stage 3 voluntary-choice provenance + soft historical planner context integrated.
@@ -41,16 +43,18 @@ _None._
 - [Coordinator] v0.9 Stage 1 integrated on `release-v0.9.0-stage1-integration` @ `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`; CI `36615685005` PASS.
 - [Coordinator] v0.9 Civilization Continuity doctrine locked.
 
-## v0.9.0 Release Candidate
+## v0.9.0 Published Release
 
-- branch: `release-v0.9.0`
-- exact green runtime head: `10e866fd693af7b8ba24d34331a19dde281ee670`
+- version: `0.9.0`
+- release branch: `release-v0.9.0`
+- exact immutable runtime: `10e866fd693af7b8ba24d34331a19dde281ee670`
 - definitive CI: `36649456577` — PASS
+- publication manifest commit: `7c080eda9678ad6f5a6368a9af101f4460af29c0`
+- `update.json` now advertises v0.9.0 and downloads the exact green runtime commit
 - all v0.4-v0.8.7 regressions pass
 - all four v0.9 Stage 1 smokes pass
 - all four v0.9 Stage 2 smokes pass
 - all four v0.9 Stage 3 smokes pass
-- `update.json` remains v0.8.7 pending explicit publication approval
 
 ## v0.9 Stage 3 Dependency Lock
 
