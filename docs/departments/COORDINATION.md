@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.8 Fresh Update Checks published** from `release-v0.9.8@2d0d01c51db30e495360fe04b9c23b115c9ec3c0`; full CI `36663881198` PASS.
+- [Updater] Manifest checks now bypass stale CDN/raw-file caches with a unique query token and no-cache headers.
+
 - [Coordinator] **v0.9.7 Wider Local Marker Spread published** via `update.json` from `release-v0.9.7@c783ff6875136de1edd5852676246ef69a442fd0`; full CI `36663515487` PASS.
 - [Assets & Interface] Co-located Local 3D citizen tokens now use a wider screen-space fan-out while preserving authoritative Simulation coordinates.
 
@@ -48,6 +51,16 @@ _None._
 - [Coordinator] v0.9.2 Conversation Polish + Social-Energy Protection published.
 - [Coordinator] v0.9.1 History Records Polish published.
 - [Coordinator] v0.9.0 Civilization Continuity published.
+
+## v0.9.8 Published Patch
+
+- version: `0.9.8`
+- release branch: `release-v0.9.8`
+- exact immutable runtime: `2d0d01c51db30e495360fe04b9c23b115c9ec3c0`
+- full CI: `36663881198` — PASS
+- update checks use per-request cache busting + no-cache headers
+- stable saved feed URL is preserved
+- includes v0.9.7 wider Local marker spread
 
 ## v0.9.7 Published Patch
 
