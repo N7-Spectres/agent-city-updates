@@ -59,6 +59,50 @@ def _safe_summary_fallback() -> str:
     )
 
 
+def _naturalize_conversation_summary(
+    summary: str,
+    initiator_name: str,
+    target_name: str,
+) -> str:
+    """
+    Keep stored social summaries readable for people.
+
+    The dialogue generator uses structured participant roles internally, but
+    those schema labels must not leak into the citizen-facing History UI.
+    """
+    text = " ".join(str(summary or "").split()).strip()
+    if not text:
+        return text
+
+    replacements = (
+        (r"\bthe initiator\b", initiator_name),
+        (r"\binitiator\b", initiator_name),
+        (r"\bthe target citizen\b", target_name),
+        (r"\btarget citizen\b", target_name),
+        (r"\bthe conversation target\b", target_name),
+        (r"\bconversation target\b", target_name),
+        (r"\bthe target\b", target_name),
+        (r"\baction target\b", target_name),
+        (r"\bsource job(?:\s*#\d+)?\b", "the conversation"),
+        (r"\bproposal state\b", "discussion"),
+    )
+    for pattern, replacement in replacements:
+        text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
+
+    # Clean up the most common artifact if the model wrote both a role and name,
+    # e.g. "The initiator, Cato,..." before role substitution.
+    for name in (initiator_name, target_name):
+        escaped = re.escape(name)
+        text = re.sub(
+            rf"\b{escaped}\s*,\s*{escaped}\b",
+            name,
+            text,
+            flags=re.IGNORECASE,
+        )
+
+    return " ".join(text.split()).strip()
+
+
 def _diag(source_job_id: int, **kwargs: Any) -> None:
     """Diagnostics must never become a new reason for a valid talk to fail."""
     try:
@@ -606,8 +650,10 @@ async def _generate_raw_exchange(
                                     "initiator_text, target_text, and summary. "
                                     "Preserve local information boundaries. "
                                     "The summary is a social record of what was said, not physical evidence. "
-                                    "Never upgrade reports or agreements into validated, confirmed, verified, "
-                                    "proved, demonstrated, or established physical facts."
+                                    "Write summary prose for a human reader and never expose participant-role or "
+                                    "backend schema terms such as initiator, target citizen, source job, action target, "
+                                    "or proposal state. Never upgrade reports or agreements into validated, confirmed, "
+                                    "verified, proved, demonstrated, or established physical facts."
                                 ),
                             },
                             {"role": "user", "content": prompt},
@@ -1000,9 +1046,11 @@ async def generate_dialogue(
         code="physical_talk_valid",
     )
 
+    initiator_name = str(initiator["name"])
+    target_name = str(target["name"])
     initiator_context = _citizen_private_context(initiator_id, target_id)
     target_context = _citizen_private_context(target_id, initiator_id)
-    purpose = (reason or "The initiator wants to speak briefly.").strip()
+    purpose = (reason or f"{initiator_name} wants to speak briefly.").strip()
 
     prompt = f"""
 Create ONE short face-to-face conversation between two Agent City citizens who are physically together.
@@ -1010,13 +1058,13 @@ Create ONE short face-to-face conversation between two Agent City citizens who a
 Time: {format_sim_time(now)}
 Location: {location['name'] if location else location_id}
 
-INITIATOR PRIVATE KNOWLEDGE:
+{initiator_name.upper()} PRIVATE KNOWLEDGE:
 {initiator_context}
 
-TARGET PRIVATE KNOWLEDGE:
+{target_name.upper()} PRIVATE KNOWLEDGE:
 {target_context}
 
-Why the initiator chose to speak:
+Why {initiator_name} chose to speak:
 {purpose}
 
 {grounding_policy_text(visitor_facing=False)}
@@ -1028,7 +1076,7 @@ INFORMATION RULES:
 - They may directly observe the other citizen because they are at the same location.
 - They do NOT know current remote status unless that information actually reached them.
 - Do not invent completed work, discoveries, resources, remote events, or communication technology.
-- Keep it natural and brief: one statement from the initiator and one response from the target.
+- Keep it natural and brief: one statement from {initiator_name} and one response from {target_name}.
 - Let each citizen sound recognizably different. Do not flatten both voices into the same operational-assistant tone.
 - Personality may influence preference and wording, but never creates authority, rank, command rights, or extra knowledge.
 - An invented explanation, material property, terrain detail, weather effect, economic value, tool, or capability is not allowed just because it would make the conversation more colorful.
@@ -1050,7 +1098,10 @@ INFORMATION RULES:
 
 SUMMARY TRUTH RULES:
 - The summary describes communication, not physical verification.
-- Prefer verbs such as "said", "reported", "discussed", "compared", "planned", or "agreed".
+- Write the summary for a human reader using {initiator_name} and {target_name} by name.
+- Never refer to either citizen as "the initiator", "initiator", "the target", "target citizen", or "conversation target".
+- Never expose backend terms such as "source job", "action target", "proposal state", or other schema/process labels in the summary.
+- Prefer ordinary verbs such as "said", "reported", "discussed", "brought up", "compared", "planned", or "agreed".
 - Do not use "validated", "confirmed", "verified", "proved", "proven", "demonstrated", or "established" for a physical claim in a conversation summary.
 - An agreement to inspect, travel, recharge, build, or test remains an intention until Simulation records the physical action/outcome.
 - A citizen reporting their own inventory/status may be summarized as a report; the listener hearing it does not independently verify it.
@@ -1067,6 +1118,11 @@ Return JSON only:
         model=model,
         prompt=prompt,
         source_job_id=source_job_id,
+    )
+    dialogue["summary"] = _naturalize_conversation_summary(
+        dialogue["summary"],
+        initiator_name,
+        target_name,
     )
 
     try:
