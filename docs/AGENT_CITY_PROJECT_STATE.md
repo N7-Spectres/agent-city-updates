@@ -4,7 +4,7 @@ _Last updated: 2026-09-30_
 
 ## Current Release
 
-**v0.9.4 — Zero-Energy Charger Recovery**
+**v0.9.5 — Planet Lab**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,43 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.5 Published Patch — Planet Lab
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.5`
+- exact green head: `3a5b226cda19775f080b726d79e79c72c016c0c1`
+- full CI: `36661886711` — PASS
+- published updater: `v0.9.5`
+- `update.json` downloads the exact green v0.9.5 runtime
+
+Delivered:
+- official `/planet-lab` route
+- main navigation entry: **3D Planet Lab**
+- dependency-free browser WebGL prototype
+- click/drag orbit camera
+- mouse-wheel zoom
+- Planet / Region / Local view modes
+- keyboard mode switching and camera reset/focus
+- clickable known-location markers
+- Local mode uses authoritative Simulation `x_m / y_m`
+- Local mode shows real citizen positions using approved citizen head-token art
+- safe structure, route, and visitor placement from existing read state
+- simulated time influences globe lighting presentation
+- no external 3D runtime or CDN dependency
+- no Simulation write actions from Planet Lab
+- no hidden planet seed / generated deposit geometry / richness exposure
+
+Truth boundary:
+- Local mode is the physically meaningful meter-space view.
+- Planet/Region mode is a clearly labelled presentation shell built from the existing local tangent frame.
+- v0.9.5 does not claim global latitude/longitude or full planet terrain truth.
+
+Validation:
+- complete regression matrix through v0.9.4
+- `tests/smoke_planet_lab.py`
+- Python compile and JavaScript syntax checks
 
 ## v0.9.4 Published Patch — Zero-Energy Charger Recovery
 
