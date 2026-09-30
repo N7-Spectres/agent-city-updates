@@ -1,10 +1,10 @@
 # Assets & Interface — State
 
 _Last updated: 2026-09-30_
-_Current published release: v0.9.14 @ `9c1b51e419a030434ecf1271f80cb5a127216701`_
-_Current Assets activity: pre-Blender citizen body pipeline / Aris rollout complete_
-_Current runtime branch: `release-v0.9.14` @ `9c1b51e419a030434ecf1271f80cb5a127216701`_
-_Current review surface: published updater v0.9.14_
+_Current published release: v0.9.15 @ `2edf2cd5fcd828973fd0f636e2d5119abe3d94e0`_
+_Current Assets activity: Aris transparent Local body fix complete_
+_Current runtime branch: `release-v0.9.15` @ `2edf2cd5fcd828973fd0f636e2d5119abe3d94e0`_
+_Current review surface: published updater v0.9.15_
 _Current status: DONE / PUBLISHED_
 
 ## Mission
@@ -753,3 +753,25 @@ Authority boundary preserved:
 
 Next step:
 **Live visual review of Aris before the next citizen rollout.**
+
+
+## v0.9.15 Aris Transparent PNG Body — Published
+
+Status:
+**DONE / PUBLISHED**
+
+- release branch: `release-v0.9.15`
+- exact green runtime: `2edf2cd5fcd828973fd0f636e2d5119abe3d94e0`
+- full CI: `36755833871` — PASS
+- updater: v0.9.15
+
+Delivered:
+- Aris Local body switched from boxed WebP presentation to transparent RGBA PNG
+- rectangular background artifact removed
+- v0.9.14 relative scale / zoom-out readability preserved
+- grounding, hover/selection, travel, and reduced-motion behavior preserved
+- Cato unchanged
+- Region / Planet remain body-free
+
+Next step:
+**Live visual review of the corrected Aris sprite before Bex begins.**
