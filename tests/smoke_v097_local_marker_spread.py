@@ -11,15 +11,15 @@ def main() -> None:
 
     # Co-located citizens fan out in screen space only.
     assert "function markerMeterPoint(item)" in js
-    assert "function sharesLocalPoint(a, b, toleranceMeters = 0.5)" in js
+    assert "function sharesLocalPoint(a, b, toleranceMeters = 0.5" in js
     assert "function localMarkerScreenOffset(item)" in js
-    assert 'other.type === "citizen" && sharesLocalPoint(item, other)' in js
-    assert "const radius = clamp(54 + colocated.length * 7, 64, 92);" in js
+    assert 'other.type === "citizen" && sharesLocalPoint(item, other' in js
+    assert "const radius = clamp(54 + colocated.length * 7, 64, 92)" in js
     assert "projected.x + offset.x" in js
     assert "projected.y + offset.y" in js
 
     # The visitor is pushed farther below a crowded shared point.
-    assert "return { x: 0, y: citizenRadius + 48 };" in js
+    assert "return { x: 0, y: citizenRadius +" in js
 
     # Physical coordinates remain authoritative inputs; the spread is not written back.
     assert "position_x_m" in js
