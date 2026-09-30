@@ -6,6 +6,17 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-30 — From: Assets & Interface — Status: published
 
+**Subject:** v0.9.11 Authoritative GitHub Update Feed published
+
+- `release-v0.9.11@1b4398b5642fe4d0b821bf58e773c1626c26dc58`
+- full CI `36666508423` PASS
+- updater now advertises v0.9.11
+- GitHub raw branch feeds now resolve through repository state via the contents API
+- one-time immutable manifest bootstrap may be needed for installations still on pre-v0.9.11 updater code
+
+
+### 2026-09-30 — From: Assets & Interface — Status: published
+
 **Subject:** v0.9.10 World-Space Local Token Clusters published
 
 - `release-v0.9.10@158751b3c0e95b0d0c8e997219e7148b2c8044d2`
