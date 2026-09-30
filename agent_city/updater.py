@@ -5,6 +5,7 @@ import hashlib
 import json
 import shutil
 import tempfile
+import time
 import urllib.parse
 import zipfile
 from datetime import datetime
@@ -81,8 +82,26 @@ def _validate_https_url(url: str) -> None:
 
 async def fetch_manifest(manifest_url: str) -> dict[str, Any]:
     _validate_https_url(manifest_url)
+
+    # Update manifests must be checked fresh. Raw/CDN-backed feeds may otherwise
+    # briefly return a previously cached release after publication.
+    parsed = urllib.parse.urlsplit(manifest_url)
+    query = urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
+    query.append(("_agent_city_check", str(int(time.time() * 1000))))
+    fresh_url = urllib.parse.urlunsplit((
+        parsed.scheme,
+        parsed.netloc,
+        parsed.path,
+        urllib.parse.urlencode(query),
+        parsed.fragment,
+    ))
+
+    headers = {
+        "Cache-Control": "no-cache, no-store, max-age=0",
+        "Pragma": "no-cache",
+    }
     async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
-        response = await client.get(manifest_url)
+        response = await client.get(fresh_url, headers=headers)
         response.raise_for_status()
         manifest = response.json()
 
