@@ -184,3 +184,7 @@ jobs:
 
       - name: Run v0.9.8 update-cache smoke
         run: python tests/smoke_v098_update_cache.py
+
+
+      - name: Run v0.9.9 3D route-motion smoke
+        run: python tests/smoke_v099_3d_route_motion.py
