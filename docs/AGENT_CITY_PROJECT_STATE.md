@@ -4,7 +4,7 @@ _Last updated: 2026-09-30_
 
 ## Current Release
 
-**v0.9.2 — Conversation Polish + Social-Energy Protection**
+**v0.9.3 — Citizen Sheet Navigation**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -18,14 +18,16 @@ Information law:
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
 
-## v0.9.3 Citizen Sheet Navigation — Green / Ready
+## v0.9.3 Published Patch — Citizen Sheet Navigation
 
-**Status: pushed and fully regression-tested; not yet published**
+**Status: published from the fully regression-tested patch line**
 
 - branch: `release-v0.9.3`
 - exact green head: `2826784e2bde768e7388535820e217361d234cc9`
 - full CI: `36656229586` — PASS
-- updater remains on published v0.9.2 until explicit publication
+- published updater: `v0.9.3`
+- publication manifest commit on `main`: `5131bdb72082650cf6403b6c9437995953186e47`
+- `update.json` downloads the exact green v0.9.3 runtime
 
 Delivered:
 - citizen sheet now prioritizes an at-a-glance profile dashboard
