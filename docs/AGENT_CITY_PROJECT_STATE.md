@@ -18,6 +18,56 @@ Information law:
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
 
+## v0.9.0 Release Candidate — Civilization Continuity
+
+**Status: fully integrated, definitive CI green, ready for publication review**
+
+- release candidate branch: `release-v0.9.0`
+- exact green runtime head: `10e866fd693af7b8ba24d34331a19dde281ee670`
+- definitive full CI: `36649456577` — PASS
+- published updater still remains `v0.8.7` until explicit release publication
+- `update.json` has not been changed
+
+v0.9 now includes the complete three-stage continuity architecture:
+
+**Stage 1 — Causal Memory + Persistent Plans**
+- durable source-linked Memory with bounded active recall
+- persistent citizen plans and plan transitions
+- physical practice-event archive
+- perspective-safe self-assessment/recognition foundations
+- Continuity UI with Evidence / Remembered Perspective / Citizen Interpretation separation
+
+**Stage 2 — Practice, Competence, Teaching, Recognition**
+- family-bounded competence derived from real practice
+- bounded duration-only physical effects
+- real guided-practice sessions
+- one-use learner support on later matching real work
+- competence-safe dialogue and UI
+- no XP, levels, classes, ranks, or universal reputation
+
+**Stage 3 — Habits, Place Meaning, Social Customs**
+- source-backed recurring voluntary-choice evidence
+- current / mixed / fading historical pattern states
+- citizen-specific place continuity
+- socially transmitted recurring-pattern evidence
+- soft planner context only after actions are already legal
+- grounded face-to-face pattern transmission
+- evidence-first continuity UI
+- no habit/favorite-place/tradition badges, culture score, authored routine, or general preference system
+
+Final validation includes:
+- complete v0.4 through v0.8.7 regression matrix
+- all four v0.9 Stage 1 smokes
+- all four v0.9 Stage 2 smokes
+- all four v0.9 Stage 3 smokes
+- Python compilation and JavaScript syntax validation
+
+v0.9 remains governed by:
+
+> **Persistent behavior must have a traceable history.**
+
+The next developmental milestone remains v1.0, but no v1.0 comparison/inquiry/general-preference machinery is included in this release candidate.
+
 ## v0.9 Stage 1 Integrated Baseline
 
 **Status: integrated and green; not yet published as v0.9.0**
