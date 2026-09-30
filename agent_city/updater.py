@@ -80,11 +80,53 @@ def _validate_https_url(url: str) -> None:
         raise ValueError("Update URLs must use HTTPS.")
 
 
+def _github_contents_manifest_url(manifest_url: str) -> str | None:
+    parsed = urllib.parse.urlsplit(manifest_url)
+    if parsed.scheme != "https" or parsed.netloc.lower() != "raw.githubusercontent.com":
+        return None
+
+    parts = [urllib.parse.unquote(part) for part in parsed.path.strip("/").split("/") if part]
+    if len(parts) < 4:
+        return None
+
+    owner, repo = parts[0], parts[1]
+    if len(parts) >= 6 and parts[2:4] == ["refs", "heads"]:
+        ref = parts[4]
+        file_parts = parts[5:]
+    else:
+        ref = parts[2]
+        file_parts = parts[3:]
+
+    if not owner or not repo or not ref or not file_parts:
+        return None
+
+    encoded_owner = urllib.parse.quote(owner, safe="")
+    encoded_repo = urllib.parse.quote(repo, safe="")
+    encoded_path = "/".join(urllib.parse.quote(part, safe="") for part in file_parts)
+    query = urllib.parse.urlencode({"ref": ref})
+    return (
+        f"https://api.github.com/repos/{encoded_owner}/{encoded_repo}/"
+        f"contents/{encoded_path}?{query}"
+    )
+
+
 async def fetch_manifest(manifest_url: str) -> dict[str, Any]:
     _validate_https_url(manifest_url)
 
-    # Update manifests must be checked fresh. Raw/CDN-backed feeds may otherwise
-    # briefly return a previously cached release after publication.
+    # Prefer GitHub's repository contents API for raw.githubusercontent.com
+    # branch feeds. This resolves the requested branch/file from repository
+    # state instead of relying on raw-CDN freshness.
+    api_url = _github_contents_manifest_url(manifest_url)
+    api_headers = {
+        "Accept": "application/vnd.github.raw+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "User-Agent": "Agent-City-Updater",
+        "Cache-Control": "no-cache, no-store, max-age=0",
+        "Pragma": "no-cache",
+    }
+
+    # Keep the cache-busted raw request as a fallback for non-GitHub feeds and
+    # for temporary GitHub API failures/rate limits.
     parsed = urllib.parse.urlsplit(manifest_url)
     query = urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
     query.append(("_agent_city_check", str(int(time.time() * 1000))))
@@ -95,14 +137,25 @@ async def fetch_manifest(manifest_url: str) -> dict[str, Any]:
         urllib.parse.urlencode(query),
         parsed.fragment,
     ))
-
-    headers = {
+    fallback_headers = {
+        "User-Agent": "Agent-City-Updater",
         "Cache-Control": "no-cache, no-store, max-age=0",
         "Pragma": "no-cache",
     }
+
     async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
-        response = await client.get(fresh_url, headers=headers)
-        response.raise_for_status()
+        response = None
+        if api_url:
+            try:
+                response = await client.get(api_url, headers=api_headers)
+                response.raise_for_status()
+            except httpx.HTTPError:
+                response = None
+
+        if response is None:
+            response = await client.get(fresh_url, headers=fallback_headers)
+            response.raise_for_status()
+
         manifest = response.json()
 
     if not isinstance(manifest, dict):
