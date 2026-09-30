@@ -192,3 +192,7 @@ jobs:
 
       - name: Run v0.9.10 world-space cluster smoke
         run: python tests/smoke_v0910_worldspace_cluster.py
+
+
+      - name: Run v0.9.11 GitHub update-feed smoke
+        run: python tests/smoke_v0911_github_update_feed.py
