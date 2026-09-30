@@ -1,6 +1,6 @@
 # Agent City UI Roadmap
 
-_Last updated: 2026-09-29_
+_Last updated: 2026-09-30_
 
 ## Locked Direction
 
@@ -602,6 +602,19 @@ Goal:
 the civilization's present should increasingly be explainable by its own accumulated history.
 
 Success means questions such as "Why does Iri avoid running her battery so low now?" or "Why does Bex keep choosing this work?" can be answered from real source-linked history rather than hidden identity labels.
+
+### Shipped patch — v0.9.1 History Records Polish
+
+- Records → History uses a desktop two-column layout:
+  - Recent Citizen Conversations
+  - Settlement Chronology
+- conversations are paginated 8 per page
+- chronology is paginated 12 per page
+- pagination is backed by bounded server/database queries
+- expanded conversation exchanges stay open through automatic state refresh
+- current History pages stay selected through refresh
+- narrower layouts stack the two columns
+- Home recent activity remains intentionally lightweight
 
 ### v1.0 — Bonsai Civilization
 
