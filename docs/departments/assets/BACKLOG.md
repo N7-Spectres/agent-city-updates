@@ -386,3 +386,14 @@ Next owner:
 - no coordinate mutation
 - dedicated `tests/smoke_v097_local_marker_spread.py`
 - full release regression `36663515487` PASS
+
+
+## Completed — v0.9.9 3D Route Motion
+
+- smooth visual travel for real route jobs
+- authoritative timing and endpoints only
+- pause-aware visual motion
+- perspective-scaled markers
+- perspective-scaled shared-point fan-out
+- dedicated `tests/smoke_v099_3d_route_motion.py`
+- full release regression `36664664989` PASS
