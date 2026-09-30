@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.7 Wider Local Marker Spread published** via `update.json` from `release-v0.9.7@c783ff6875136de1edd5852676246ef69a442fd0`; full CI `36663515487` PASS.
+- [Assets & Interface] Co-located Local 3D citizen tokens now use a wider screen-space fan-out while preserving authoritative Simulation coordinates.
+
 - [Coordinator] **v0.9.6 Home 3D World published** via `update.json` from `release-v0.9.6@8407870349a4331c19bc9b36554e45dd151733ba`; full CI `36662871853` PASS.
 - [Assets & Interface] Home World View now defaults to embedded 3D Local mode with Region/Planet pull-back, citizen selection handoff, simulation-time lighting, and explicit 2D fallback.
 
@@ -45,6 +48,18 @@ _None._
 - [Coordinator] v0.9.2 Conversation Polish + Social-Energy Protection published.
 - [Coordinator] v0.9.1 History Records Polish published.
 - [Coordinator] v0.9.0 Civilization Continuity published.
+
+## v0.9.7 Published Patch
+
+- version: `0.9.7`
+- release branch: `release-v0.9.7`
+- exact immutable runtime: `c783ff6875136de1edd5852676246ef69a442fd0`
+- full CI: `36663515487` — PASS
+- `update.json` advertises v0.9.7 and downloads the exact green runtime commit
+- wider Local citizen token fan-out for shared coordinates
+- visitor marker moved farther below crowded shared points
+- physical coordinates remain unchanged
+- presentation-only spread, no frontend movement authority
 
 ## v0.9.6 Published Patch
 
