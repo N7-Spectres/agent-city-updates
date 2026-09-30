@@ -639,6 +639,57 @@
     return null;
   }
 
+  function markerMeterPoint(item) {
+    if (item.type === "citizen") {
+      return [finite(item.data.position_x_m), finite(item.data.position_y_m)];
+    }
+    if (item.type === "visitor" || item.type === "location" || item.type === "structure") {
+      return [finite(item.data.x_m), finite(item.data.y_m)];
+    }
+    return [null, null];
+  }
+
+  function sharesLocalPoint(a, b, toleranceMeters = 0.5) {
+    const [ax, ay] = markerMeterPoint(a);
+    const [bx, by] = markerMeterPoint(b);
+    if (ax == null || ay == null || bx == null || by == null) return false;
+    return Math.hypot(ax - bx, ay - by) <= toleranceMeters;
+  }
+
+  function localMarkerScreenOffset(item) {
+    if (mode !== "local") return { x: 0, y: 0 };
+
+    if (item.type === "citizen") {
+      const colocated = markerItems
+        .filter(other => other.type === "citizen" && sharesLocalPoint(item, other))
+        .sort((a, b) => String(a.id).localeCompare(String(b.id)));
+
+      if (colocated.length <= 1) return { x: 0, y: 0 };
+
+      const index = colocated.findIndex(other => String(other.id) === String(item.id));
+      const radius = clamp(54 + colocated.length * 7, 64, 92);
+      const angle = (-Math.PI / 2) + ((Math.PI * 2 * index) / colocated.length);
+
+      return {
+        x: Math.cos(angle) * radius,
+        y: Math.sin(angle) * radius,
+      };
+    }
+
+    if (item.type === "visitor") {
+      const citizenCount = markerItems.filter(
+        other => other.type === "citizen" && sharesLocalPoint(item, other)
+      ).length;
+
+      if (citizenCount > 0) {
+        const citizenRadius = clamp(54 + citizenCount * 7, 64, 92);
+        return { x: 0, y: citizenRadius + 48 };
+      }
+    }
+
+    return { x: 0, y: 0 };
+  }
+
   function updateMarkers(matrix) {
     const eye = cameraEye();
 
@@ -660,9 +711,10 @@
         continue;
       }
 
+      const offset = localMarkerScreenOffset(item);
       item.element.hidden = false;
-      item.element.style.left = projected.x + "px";
-      item.element.style.top = projected.y + "px";
+      item.element.style.left = (projected.x + offset.x) + "px";
+      item.element.style.top = (projected.y + offset.y) + "px";
     }
   }
 
