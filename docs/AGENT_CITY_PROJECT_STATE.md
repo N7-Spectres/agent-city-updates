@@ -18,6 +18,46 @@ Information law:
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
 
+## v0.9.2 Conversation Polish + Social-Energy Protection — Green / Ready
+
+**Status: pushed and fully regression-tested; not yet published**
+
+- branch: `release-v0.9.2`
+- exact green head: `ea4a838fa10a557ac6d3f032a55e1dc94a84012f`
+- full CI: `36654523357` — PASS
+- updater remains on published v0.9.1 until explicit publication
+
+Delivered:
+
+**Natural citizen-conversation summaries**
+- summary prompts now use citizen names rather than backend participant-role labels
+- user-facing summaries explicitly forbid schema/process wording such as:
+  - initiator
+  - target citizen / conversation target
+  - source job
+  - action target
+  - proposal state
+- a defensive normalization pass converts role leakage to citizen names before persistence
+- claim-safe summary rules from v0.8.4 remain unchanged
+
+**Critical-energy social protection**
+- autonomous planning no longer selects a citizen below the critical recharge threshold as a talk or guided-practice target
+- a start-time autonomous recheck closes the race where the target becomes critical after action enumeration
+- physical talk remains legal in `possible_actions()`; this is an autonomy/survival priority, not invented physical impossibility
+- being selected as somebody else's talk target no longer resets the listener's `last_planned_minute`
+- once the conversation ends, an overdue low-energy citizen can immediately regain planner priority and choose charging
+
+Observed diagnostic context:
+- a user-observed Bex state at Seed Site showed 1% energy despite no remembered travel
+- repository review confirmed a real starvation path: repeated incoming talks cost 1% energy to both participants and previously reset the listener's planner clock
+- this mechanism can explain stationary energy drain, but the exact historical cause of that specific local-save state is not asserted without inspecting that save's event history
+
+Validation:
+- complete prior regression matrix through v0.9.1
+- `tests/smoke_v092_natural_summaries.py`
+- `tests/smoke_v092_social_energy.py`
+- Python compile and JavaScript syntax checks
+
 ## v0.9.1 Published Patch — History Records Polish
 
 **Status: published from the fully regression-tested patch line**
