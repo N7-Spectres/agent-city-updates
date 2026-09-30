@@ -24,24 +24,16 @@ _None._
 
 ### READY
 
-_None._
+- [Coordinator / v0.9.1 Publication] History records patch is green on `release-v0.9.1@371911bd9b337924ba1b960cb794caccd991c150`; CI `36652854090` PASS. `update.json` still advertises v0.9.0.
 
 ### REVIEW
 
-_None._
+- [v0.9.1 History Records] bounded pagination, two-column desktop History, responsive stacking, and exchange-open-state persistence are complete and tested.
 
 ### DONE
 
-- [Coordinator] **v0.9.0 Civilization Continuity published** via `update.json` on `main` commit `7c080eda9678ad6f5a6368a9af101f4460af29c0`.
-- [v0.9.0 Runtime] release branch `release-v0.9.0` @ `10e866fd693af7b8ba24d34331a19dde281ee670`; definitive CI `36649456577` PASS.
-- [Coordinator] v0.9 Stage 3 fully integrated and published in v0.9.0.
-- [Assets & Interface] v0.9 Stage 3 evidence-first recurring-history/place/social-pattern UI integrated.
-- [Communication & Perception] v0.9 Stage 3 pattern language + grounded social transmission integrated.
-- [World & Simulation] v0.9 Stage 3 voluntary-choice provenance + soft historical planner context integrated.
-- [Memory & Social] v0.9 Stage 3 pattern evidence spine integrated.
-- [Coordinator] v0.9 Stage 2 fully integrated on `release-v0.9.0-stage2-integration` @ `f680275a78b9da71a43f3c79217f292796b7843d`; definitive CI `36637062562` PASS.
-- [Coordinator] v0.9 Stage 1 integrated on `release-v0.9.0-stage1-integration` @ `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`; CI `36615685005` PASS.
-- [Coordinator] v0.9 Civilization Continuity doctrine locked.
+- [Coordinator] v0.9.0 Civilization Continuity published.
+- [v0.9.0 Runtime] `release-v0.9.0@10e866fd693af7b8ba24d34331a19dde281ee670`; definitive CI `36649456577` PASS.
 
 ## v0.9.0 Published Release
 
