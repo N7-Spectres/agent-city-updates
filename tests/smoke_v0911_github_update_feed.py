@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from pathlib import Path
-
-from agent_city.updater import _github_contents_manifest_url
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from agent_city.updater import _github_contents_manifest_url
 
 
 def main() -> None:
