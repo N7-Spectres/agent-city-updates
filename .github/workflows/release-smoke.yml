@@ -176,3 +176,7 @@ jobs:
 
       - name: Run v0.9.6 Home 3D world integration smoke
         run: python tests/smoke_v096_home_world3d.py
+
+
+      - name: Run v0.9.7 Local marker spread smoke
+        run: python tests/smoke_v097_local_marker_spread.py
