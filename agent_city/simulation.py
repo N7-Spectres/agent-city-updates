@@ -721,6 +721,110 @@ def nearby_operational_charger(conn, x_m: float, y_m: float, radius_m: float = 5
     return None
 
 
+def recover_zero_energy_charger_deadlocks(now: int | None = None) -> list[str]:
+    """
+    Repair the narrow impossible state where an idle citizen has exactly zero
+    energy inside a location that contains an operational charger, but their
+    stored local coordinate is outside the charger's usable radius.
+
+    This is diagnostic/admin recovery, not an in-world citizen action. It gives
+    no energy and creates no job. The smallest correction is to align the
+    stranded citizen's coordinate with the nearest charger at that same
+    location, then make the citizen planner-eligible so ordinary charging can
+    resume under the existing low-energy autonomy rule.
+    """
+    recovered: list[str] = []
+
+    with connect() as conn:
+        minute = (
+            int(now)
+            if now is not None
+            else int(get_meta(conn, "sim_minute") or "360")
+        )
+        citizens = conn.execute(
+            """
+            SELECT *
+            FROM citizens
+            WHERE active_job_id IS NULL
+              AND energy <= 0
+            ORDER BY rowid
+            """
+        ).fetchall()
+
+        for citizen in citizens:
+            chargers = conn.execute(
+                """
+                SELECT *
+                FROM structures
+                WHERE provides_charging = 1
+                  AND condition > ?
+                  AND location_id = ?
+                  AND x_m IS NOT NULL
+                  AND y_m IS NOT NULL
+                ORDER BY id
+                """,
+                (MIN_OPERATIONAL_CONDITION, citizen["location_id"]),
+            ).fetchall()
+            if not chargers:
+                continue
+
+            cx = float(citizen["position_x_m"] or 0.0)
+            cy = float(citizen["position_y_m"] or 0.0)
+            charger = min(
+                chargers,
+                key=lambda row: math.hypot(
+                    float(row["x_m"]) - cx,
+                    float(row["y_m"]) - cy,
+                ),
+            )
+            distance = math.hypot(
+                float(charger["x_m"]) - cx,
+                float(charger["y_m"]) - cy,
+            )
+            if distance <= 5.0:
+                continue
+
+            eligible_minute = max(0, minute - 60)
+            conn.execute(
+                """
+                UPDATE citizens
+                SET position_x_m = ?,
+                    position_y_m = ?,
+                    current_activity = 'Available',
+                    last_planned_minute = CASE
+                        WHEN last_planned_minute IS NULL THEN ?
+                        WHEN last_planned_minute > ? THEN ?
+                        ELSE last_planned_minute
+                    END
+                WHERE id = ?
+                """,
+                (
+                    float(charger["x_m"]),
+                    float(charger["y_m"]),
+                    eligible_minute,
+                    eligible_minute,
+                    eligible_minute,
+                    citizen["id"],
+                ),
+            )
+            add_history(
+                conn,
+                minute,
+                "diagnostic",
+                (
+                    "Admin recovery corrected an impossible zero-energy charger "
+                    f"offset for {citizen['name']} at "
+                    f"{location_name(conn, citizen['location_id'])}; position "
+                    f"was aligned to {charger['name']} so ordinary charging can resume."
+                ),
+            )
+            recovered.append(str(citizen["id"]))
+
+        conn.commit()
+
+    return recovered
+
+
 def citizens_physically_close(a: Any, b: Any, radius_m: float = 2.0) -> bool:
     return math.hypot(
         float(a["position_x_m"] or 0.0) - float(b["position_x_m"] or 0.0),
