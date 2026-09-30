@@ -12,6 +12,12 @@
   const resetCameraButton = document.getElementById("reset-camera");
   const modeButtons = [...document.querySelectorAll(".mode-button")];
 
+  const query = new URLSearchParams(window.location.search);
+  const embedded = query.get("embed") === "1";
+  const requestedMode = query.get("mode");
+  const initialMode = ["planet", "region", "local"].includes(requestedMode) ? requestedMode : "planet";
+  if (embedded) document.body.classList.add("embedded");
+
   const gl = canvas.getContext("webgl", {
     antialias: true,
     alpha: false,
@@ -29,7 +35,7 @@
 
   let state = null;
   let visitorPresence = null;
-  let mode = "planet";
+  let mode = initialMode;
   let selected = { type: "location", id: "seed_site" };
   let markerItems = [];
   let dragging = false;
@@ -74,6 +80,40 @@
   const titleCase = value => String(value || "")
     .replaceAll("_", " ")
     .replace(/\b\w/g, c => c.toUpperCase());
+
+  function visualDayPhase(simMinute) {
+    const minute = ((Number(simMinute) % 1440) + 1440) % 1440;
+    if (minute >= 300 && minute < 420) return "dawn";
+    if (minute >= 420 && minute < 1080) return "day";
+    if (minute >= 1080 && minute < 1320) return "dusk";
+    return "night";
+  }
+
+  function localPalette() {
+    const phase = visualDayPhase(state?.sim_minute || 0);
+    return {
+      dawn: {
+        clear: [0.055, 0.075, 0.105, 1],
+        plane: [0.065, 0.135, 0.14, 0.96],
+        grid: [0.32, 0.67, 0.70, 0.20],
+      },
+      day: {
+        clear: [0.018, 0.04, 0.052, 1],
+        plane: [0.055, 0.14, 0.14, 0.96],
+        grid: [0.28, 0.68, 0.72, 0.18],
+      },
+      dusk: {
+        clear: [0.055, 0.035, 0.065, 1],
+        plane: [0.055, 0.09, 0.105, 0.97],
+        grid: [0.30, 0.50, 0.62, 0.17],
+      },
+      night: {
+        clear: [0.006, 0.012, 0.027, 1],
+        plane: [0.018, 0.055, 0.075, 0.98],
+        grid: [0.22, 0.46, 0.58, 0.15],
+      },
+    }[phase];
+  }
 
   function vec3Length(v) {
     return Math.hypot(v[0], v[1], v[2]);
@@ -390,10 +430,11 @@
   }
 
   function drawLocal(mvp) {
+    const palette = localPalette();
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    bindColorBuffer(localPlane.buffer, mvp, [0.04, 0.12, 0.13, 0.94], gl.TRIANGLES, localPlane.count);
-    bindColorBuffer(localGrid.buffer, mvp, [0.25, 0.66, 0.70, 0.16], gl.LINES, localGrid.count);
+    bindColorBuffer(localPlane.buffer, mvp, palette.plane, gl.TRIANGLES, localPlane.count);
+    bindColorBuffer(localGrid.buffer, mvp, palette.grid, gl.LINES, localGrid.count);
     if (localRouteBuffer && localRouteVertexCount) {
       bindColorBuffer(localRouteBuffer, mvp, [0.85, 0.64, 0.28, 0.52], gl.LINES, localRouteVertexCount);
     }
@@ -819,6 +860,15 @@
     renderSelection();
     renderLocationList();
     refreshMarkerSelection();
+
+    if (embedded && window.parent !== window && type === "citizen") {
+      window.parent.postMessage({
+        type: "agent-city-world-select",
+        entityType: "citizen",
+        id: String(id),
+      }, window.location.origin);
+    }
+
     if (focus) focusSelected();
   }
 
@@ -886,7 +936,8 @@
 
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
-    gl.clearColor(0.012, 0.027, 0.039, 1);
+    const clear = mode === "local" ? localPalette().clear : [0.012, 0.027, 0.039, 1];
+    gl.clearColor(clear[0], clear[1], clear[2], clear[3]);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     const matrix = viewProjection();
@@ -910,6 +961,7 @@
       if (!stateResponse.ok) throw new Error("State endpoint unavailable");
       state = await stateResponse.json();
       visitorPresence = visitorResponse.ok ? await visitorResponse.json() : null;
+      document.body.dataset.dayPhase = visualDayPhase(state.sim_minute);
 
       refreshFrames();
       renderLocationList();
@@ -1009,7 +1061,7 @@
 
   window.addEventListener("resize", updateCanvasSize);
 
-  fetchWorldState();
+  fetchWorldState().then(() => setMode(initialMode, false));
   window.setInterval(fetchWorldState, 4000);
   frameHandle = requestAnimationFrame(renderFrame);
 
