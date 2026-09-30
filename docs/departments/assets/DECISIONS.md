@@ -928,3 +928,24 @@ Not allowed:
 The 2D map remains a fallback while the 3D viewer matures.
 
 Planet/Region views are presentation-only until an authoritative global coordinate/geodesy contract exists.
+
+
+## Patch Auto-Publish Rule
+
+User authorization received 2026-09-30:
+
+For Agent City patch/polish work developed interactively with the user, once:
+- the intended implementation is complete,
+- the exact release candidate passes the full release regression matrix,
+- no new physical-authority, destructive migration, security, or materially different product decision is introduced,
+
+the coordinator should publish the patch automatically rather than stopping for an additional "push it" confirmation.
+
+Still stop and ask before publication when:
+- CI fails or is inconclusive
+- a change mutates/expands Simulation authority or visitor control
+- a destructive or irreversible data migration is involved
+- release scope materially exceeds the work the user was reviewing
+- another explicit project lock requires fresh approval
+
+This standing rule satisfies the project's normal explicit publication authorization for qualifying patch/polish releases until the user changes it.
