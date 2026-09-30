@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.14 Aris Local World Body published** from `release-v0.9.14@9c1b51e419a030434ecf1271f80cb5a127216701`; full CI `36752065690` PASS.
+- [Assets & Interface] Aris is now the second full-body Local citizen alongside Cato; Region/Planet remain body-free and the remaining four citizens stay token-based.
+
 - [Coordinator] **v0.9.13 Cato Grounding Polish published** from `release-v0.9.13@25db296bec37d436dae8b4d76c3a8138caa6c77e`; full CI `36715953570` PASS.
 - [Assets & Interface] Cato's pre-Blender Local body now has tighter foot anchoring, clearer ground contact, and heavier travel presentation without changing physical authority.
 
@@ -66,6 +69,20 @@ _None._
 - [Coordinator] v0.9.2 Conversation Polish + Social-Energy Protection published.
 - [Coordinator] v0.9.1 History Records Polish published.
 - [Coordinator] v0.9.0 Civilization Continuity published.
+
+## v0.9.14 Published Patch
+
+- version: `0.9.14`
+- release branch: `release-v0.9.14`
+- exact immutable runtime: `9c1b51e419a030434ecf1271f80cb5a127216701`
+- full CI: `36752065690` — PASS
+- updater advertises v0.9.14 and downloads the exact green runtime commit
+- approved Aris concept reference and durable visual contract are in the repository
+- Aris Local body inherits authoritative position and real travel interpolation
+- Aris has leaner relative scale plus Local zoom-out readability protection
+- Region / Planet remain free of citizen body markers
+- Bex, Iri, Noma, and Vale remain token-based
+- body rollout is intentionally one citizen at a time with live visual review between releases
 
 ## v0.9.13 Published Patch
 
