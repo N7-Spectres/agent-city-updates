@@ -6,6 +6,18 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-30 — From: Assets & Interface — Status: published
 
+**Subject:** v0.9.16 Local Body Marker Layering published
+
+- `release-v0.9.16@0ba466061bea82a2ecd682a7db06180435ba572c`
+- full CI `36769065592` PASS
+- updater now advertises v0.9.16
+- embodied Local citizens now stay above normal token/location clusters
+- selected/hovered bodies rise above the visitor marker for inspection
+- intended fix: Aris no longer disappears while walking through crowded Seed Site
+- no Simulation authority changes
+
+### 2026-09-30 — From: Assets & Interface — Status: published
+
 **Subject:** v0.9.15 Aris Transparent PNG Body published
 
 - `release-v0.9.15@2edf2cd5fcd828973fd0f636e2d5119abe3d94e0`
