@@ -4321,3 +4321,63 @@ input:focus, textarea:focus { border-color: var(--accent); }
   background: rgba(213,166,91,.08);
   outline: none;
 }
+
+
+/* v0.9.6 — Home 3D world integration */
+.world-stage-3d .home-world-3d {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  background: #071018;
+}
+
+.world-stage-3d:not(.show-legacy-map) > .route-layer,
+.world-stage-3d:not(.show-legacy-map) > .map-layer,
+.world-stage-3d:not(.show-legacy-map) > .map-controls,
+.world-stage-3d:not(.show-legacy-map) > .visitor-map-status,
+.world-stage-3d:not(.show-legacy-map) > .map-legend {
+  display: none;
+}
+
+.world-stage-3d.show-legacy-map .home-world-3d {
+  display: none;
+}
+
+.world-view-fallback-toggle {
+  position: absolute;
+  z-index: 32;
+  top: 14px;
+  right: 14px;
+  min-height: 34px;
+  padding: 7px 12px;
+  border: 1px solid rgba(213,166,91,.28);
+  border-radius: 999px;
+  background: rgba(6,12,18,.82);
+  color: var(--accent);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+
+.world-view-fallback-toggle:hover,
+.world-view-fallback-toggle:focus-visible {
+  border-color: rgba(213,166,91,.62);
+  outline: none;
+}
+
+.world-stage-3d.show-legacy-map .world-view-fallback-toggle {
+  background: rgba(6,12,18,.94);
+}
+
+@media (max-width: 720px) {
+  .world-view-fallback-toggle {
+    top: 8px;
+    right: 8px;
+  }
+}
