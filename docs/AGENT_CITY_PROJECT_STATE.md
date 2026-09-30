@@ -4,7 +4,7 @@ _Last updated: 2026-09-30_
 
 ## Current Release
 
-**v0.9.12 — Cato Pre-Blender World Body**
+**v0.9.13 — Cato Grounding Polish**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,36 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.13 Published Patch — Cato Grounding Polish
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.13`
+- exact green head: `25db296bec37d436dae8b4d76c3a8138caa6c77e`
+- full CI: `36715953570` — PASS
+- published updater: `v0.9.13`
+- `update.json` downloads the exact green v0.9.13 runtime
+
+Delivered:
+- Cato's full-body Local presentation has a slightly stronger heavy silhouette
+- foot-line anchoring tightened to improve ground contact
+- subtle ground-contact ring added beneath the body
+- hover/selection treatment now reinforces the ground contact as well as the sprite
+- travel-only bob reduced to better match Cato's heavy presentation
+- travel shadow compresses in sync with the visual bob
+- reduced-motion keeps both body and ground shadow static
+
+Truth boundary:
+- all v0.9.13 size/anchor values are presentation measurements only
+- no physical height, width, mass, collision body, locomotion model, position, travel, equipment, or capability was added by Assets
+- Simulation remains authoritative for physical reality
+
+Validation:
+- complete regression matrix through v0.9.12
+- Planet Lab JavaScript syntax
+- `tests/smoke_v0913_cato_grounding.py`
+- v0.9.12 body smoke updated to preserve the foot-anchor invariant without freezing one CSS tuning percentage
 
 ## v0.9.12 Published Patch — Cato Pre-Blender World Body
 
