@@ -590,7 +590,7 @@ Stage 1 now includes the safe citizen-sheet Continuity surface while keeping evi
 
 **Fully integrated:** `10e866fd693af7b8ba24d34331a19dde281ee670`  
 **Definitive full CI:** `36649456577` — PASS  
-**Status:** complete; v0.9.0 release candidate is ready for publication review.
+**Status:** complete and published in v0.9.0.
 
 - repeated choices may become routines/preferences only after an explicit evidence threshold.
 - places may accumulate citizen-specific remembered meaning.
