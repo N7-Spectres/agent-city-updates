@@ -1,6 +1,6 @@
 {
-  "version": "0.8.7",
-  "notes": "Route Travel Visualization: citizen tokens now move proportionally along known route lines using the same authoritative job progress shown on the citizen cards. A traveler at 60% job progress is rendered about 60% of the way from origin to destination instead of remaining visually pinned to the departure landmark. Traveling tokens also show a compact progress badge, while tooltip/accessible text includes destination and approximate route distance remaining. This is presentation-only and does not write interpolated positions back into Simulation.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/be617e6e870ec3f1914d76cdb85107a6efc294d7",
+  "version": "0.9.0",
+  "notes": "Civilization Continuity: citizens now carry source-linked history forward instead of treating each choice as isolated. v0.9 adds durable causal memory and revisable persistent plans; bounded competence derived only from real practice; real guided-practice sessions with no conversation-only skill transfer; perspective-safe self-assessment and recognition; source-backed recurring voluntary patterns; citizen-specific place continuity; and socially transmitted custom evidence. Historical patterns may softly inform already-legal choices but never become classes, roles, commands, universal reputation, XP, favorite-place flags, habit badges, or culture scores. The Citizens continuity view now exposes the evidence trail, remembered perspective, measured practice effects, guided-practice history, and Stage 3 recurring-history/place/social-pattern evidence.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/10e866fd693af7b8ba24d34331a19dde281ee670",
   "sha256": ""
 }
