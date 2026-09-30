@@ -1,6 +1,6 @@
 {
-  "version": "0.9.7",
-  "notes": "Wider Local Marker Spread: improves the Home 3D Local view when multiple citizens share the same authoritative meter coordinate. Co-located citizen tokens now fan out into a wider screen-space ring around the shared physical point, while the visitor marker is offset farther below the cluster for readability. Physical Simulation coordinates remain unchanged, and tokens automatically leave the visual ring when a citizen's authoritative position actually changes. The spread is presentation-only and does not create movement or alter Simulation state.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/c783ff6875136de1edd5852676246ef69a442fd0",
+  "version": "0.9.8",
+  "notes": "Fresh Update Checks: fixes stale update-manifest caching. Agent City now adds a unique cache-busting query value to each manifest request and sends no-cache headers, preventing GitHub/CDN-backed update feeds from briefly reporting an older release after publication. This release also includes the v0.9.7 wider Local 3D citizen marker spread.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/2d0d01c51db30e495360fe04b9c23b115c9ec3c0",
   "sha256": ""
 }
