@@ -162,3 +162,6 @@ jobs:
 
       - name: Run v0.9.3 citizen-sheet navigation smoke
         run: python tests/smoke_v093_citizen_sheet_navigation.py
+
+      - name: Run v0.9.4 zero-energy charger recovery smoke
+        run: python tests/smoke_v094_zero_energy_recovery.py
