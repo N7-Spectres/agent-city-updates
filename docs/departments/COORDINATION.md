@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.15 Aris Transparent PNG Body published** from `release-v0.9.15@2edf2cd5fcd828973fd0f636e2d5119abe3d94e0`; full CI `36755833871` PASS.
+- [Assets & Interface] Aris's Local body now uses a true RGBA PNG, removing the rectangular matte while preserving the v0.9.14 body contract.
+
 - [Coordinator] **v0.9.14 Aris Local World Body published** from `release-v0.9.14@9c1b51e419a030434ecf1271f80cb5a127216701`; full CI `36752065690` PASS.
 - [Assets & Interface] Aris is now the second full-body Local citizen alongside Cato; Region/Planet remain body-free and the remaining four citizens stay token-based.
 
@@ -69,6 +72,16 @@ _None._
 - [Coordinator] v0.9.2 Conversation Polish + Social-Energy Protection published.
 - [Coordinator] v0.9.1 History Records Polish published.
 - [Coordinator] v0.9.0 Civilization Continuity published.
+
+## v0.9.15 Published Patch
+
+- version: `0.9.15`
+- release branch: `release-v0.9.15`
+- exact immutable runtime: `2edf2cd5fcd828973fd0f636e2d5119abe3d94e0`
+- full CI: `36755833871` — PASS
+- updater advertises v0.9.15 and downloads the exact green runtime
+- Aris Local body asset switched to transparent RGBA PNG
+- body scale, grounding, travel, and Region/Planet boundaries preserved
 
 ## v0.9.14 Published Patch
 
