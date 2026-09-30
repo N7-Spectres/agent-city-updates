@@ -16,27 +16,41 @@ This file is the shared project task board.
 
 ### ACTIVE
 
-- [Assets & Interface] v0.9 Stage 3 may now implement the final evidence-first recurring-history/place/social-pattern UI using the completed Memory + Simulation + Communication contracts.
+_None._
 
 ### WAITING
 
-- [Coordinator / v0.9 Stage 3 Final Integration] waits only on Assets runtime completion, then runs the definitive v0.9 matrix and release-readiness review.
+_None._
 
 ### READY
 
-- [Assets & Interface] all Stage 3 upstream contracts are ready. Coordinator upstream base is `communication/v0.9-patterns-stage3@3fc8872b7a35ee8169329d6a6edf523a2fa0b0c9`, CI `36643141322` PASS.
+- [Coordinator / v0.9.0 Publication] release candidate is green and ready for explicit publication approval. `update.json` still points to v0.8.7.
 
 ### REVIEW
 
-- [Communication & Perception] Stage 3 pattern language + grounded social transmission complete on `communication/v0.9-patterns-stage3` @ `3fc8872b7a35ee8169329d6a6edf523a2fa0b0c9`; CI `36643141322` PASS.
-- [World & Simulation] Stage 3 voluntary-choice provenance + soft historical planner context complete on `simulation/v0.9-habits-stage3` @ `fb17d3a2fb0776c490cdd4805feae8ab97c763ac`; CI `36642152013` PASS.
-- [Memory & Social] Stage 3 pattern evidence spine complete on `memory/v0.9-patterns-stage3` @ `2a742e6490c437625073ff8e50b24bfed37489c4`; CI `36638261682` PASS.
+- [v0.9.0 Release Candidate] branch `release-v0.9.0` @ `10e866fd693af7b8ba24d34331a19dde281ee670`; definitive CI `36649456577` PASS.
 
 ### DONE
 
+- [Coordinator] v0.9 Stage 3 fully integrated on `release-v0.9.0-stage3-integration` @ `10e866fd693af7b8ba24d34331a19dde281ee670`; definitive CI `36649456577` PASS.
+- [Assets & Interface] v0.9 Stage 3 evidence-first recurring-history/place/social-pattern UI integrated.
+- [Communication & Perception] v0.9 Stage 3 pattern language + grounded social transmission integrated.
+- [World & Simulation] v0.9 Stage 3 voluntary-choice provenance + soft historical planner context integrated.
+- [Memory & Social] v0.9 Stage 3 pattern evidence spine integrated.
 - [Coordinator] v0.9 Stage 2 fully integrated on `release-v0.9.0-stage2-integration` @ `f680275a78b9da71a43f3c79217f292796b7843d`; definitive CI `36637062562` PASS.
 - [Coordinator] v0.9 Stage 1 integrated on `release-v0.9.0-stage1-integration` @ `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`; CI `36615685005` PASS.
 - [Coordinator] v0.9 Civilization Continuity doctrine locked.
+
+## v0.9.0 Release Candidate
+
+- branch: `release-v0.9.0`
+- exact green runtime head: `10e866fd693af7b8ba24d34331a19dde281ee670`
+- definitive CI: `36649456577` — PASS
+- all v0.4-v0.8.7 regressions pass
+- all four v0.9 Stage 1 smokes pass
+- all four v0.9 Stage 2 smokes pass
+- all four v0.9 Stage 3 smokes pass
+- `update.json` remains v0.8.7 pending explicit publication approval
 
 ## v0.9 Stage 3 Dependency Lock
 
