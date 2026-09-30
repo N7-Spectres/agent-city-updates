@@ -1,10 +1,10 @@
 # Assets & Interface — State
 
 _Last updated: 2026-09-30_
-_Current published release: v0.9.15 @ `2edf2cd5fcd828973fd0f636e2d5119abe3d94e0`_
-_Current Assets activity: Aris transparent Local body fix complete_
-_Current runtime branch: `release-v0.9.15` @ `2edf2cd5fcd828973fd0f636e2d5119abe3d94e0`_
-_Current review surface: published updater v0.9.15_
+_Current published release: v0.9.16 @ `0ba466061bea82a2ecd682a7db06180435ba572c`_
+_Current Assets activity: Local body marker layering fix complete_
+_Current runtime branch: `release-v0.9.16` @ `0ba466061bea82a2ecd682a7db06180435ba572c`_
+_Current review surface: published updater v0.9.16_
 _Current status: DONE / PUBLISHED_
 
 ## Mission
@@ -775,3 +775,18 @@ Delivered:
 
 Next step:
 **Live visual review of the corrected Aris sprite before Bex begins.**
+
+
+## v0.9.16 Local Body Marker Layering — Published
+
+- release branch: `release-v0.9.16`
+- exact green runtime: `0ba466061bea82a2ecd682a7db06180435ba572c`
+- full CI: `36769065592` — PASS
+- updater: v0.9.16
+- full-body Local citizens render above ordinary token/location markers
+- selected/hovered bodies rise one additional layer
+- visitor marker remains readable
+- no Simulation authority changes
+
+Next action:
+**Live-check Aris while walking through Seed Site.**
