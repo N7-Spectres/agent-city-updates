@@ -13,11 +13,11 @@ def main() -> None:
     css = (ROOT / "static" / "world3d" / "planet_lab.css").read_text(encoding="utf-8")
     js = (ROOT / "static" / "world3d" / "planet_lab.js").read_text(encoding="utf-8")
 
-    # The prototype is reachable but isolated from the ordinary app.
+    # The 3D world is reachable full-screen and from the ordinary app.
     assert '@app.get("/planet-lab")' in main_py
     assert 'STATIC_DIR / "world3d" / "planet_lab.html"' in main_py
     assert 'href="/planet-lab"' in index
-    assert "3D Planet Lab" in index
+    assert ">Planet</a>" in index
     assert ".primary-tab.prototype-link" in styles
 
     # No external engine/CDN is required for the first navigation prototype.
@@ -91,7 +91,7 @@ def main() -> None:
     assert "prefers-reduced-motion" in css
     assert "reduceMotion.matches" in js
 
-    print("Agent City Planet Lab prototype smoke passed.")
+    print("Agent City Planet Lab smoke passed.")
 
 
 if __name__ == "__main__":
