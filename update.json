@@ -1,6 +1,6 @@
 {
-  "version": "0.9.0",
-  "notes": "Civilization Continuity: citizens now carry source-linked history forward instead of treating each choice as isolated. v0.9 adds durable causal memory and revisable persistent plans; bounded competence derived only from real practice; real guided-practice sessions with no conversation-only skill transfer; perspective-safe self-assessment and recognition; source-backed recurring voluntary patterns; citizen-specific place continuity; and socially transmitted custom evidence. Historical patterns may softly inform already-legal choices but never become classes, roles, commands, universal reputation, XP, favorite-place flags, habit badges, or culture scores. The Citizens continuity view now exposes the evidence trail, remembered perspective, measured practice effects, guided-practice history, and Stage 3 recurring-history/place/social-pattern evidence.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/10e866fd693af7b8ba24d34331a19dde281ee670",
+  "version": "0.9.1",
+  "notes": "History Records polish: Records → History now uses a two-column desktop layout with Recent Citizen Conversations on the left and Settlement Chronology on the right. Conversations are paginated at 8 per page and chronology at 12 per page using bounded database queries, so long-running cities do not load an ever-growing archive into the browser. Expanded “Read exchange” transcripts remain open across Agent City’s automatic state refresh, current History pages stay selected during refresh, and narrower screens stack the two columns responsively.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/371911bd9b337924ba1b960cb794caccd991c150",
   "sha256": ""
 }
