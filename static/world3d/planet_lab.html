@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agent City — Planet Lab</title>
+  <link rel="stylesheet" href="/static/world3d/planet_lab.css" />
+</head>
+<body>
+  <main class="lab-shell">
+    <header class="lab-topbar">
+      <div class="brand">
+        <a class="back-link" href="/">← Agent City</a>
+        <div>
+          <div class="eyebrow">EXPERIMENTAL 3D NAVIGATION</div>
+          <h1>Planet Lab</h1>
+        </div>
+      </div>
+
+      <div class="lab-status">
+        <span id="sim-time">Loading world…</span>
+        <span id="connection-pill" class="pill">Connecting…</span>
+      </div>
+    </header>
+
+    <section class="viewport-shell">
+      <canvas id="world-canvas" aria-label="Interactive 3D Agent City world prototype"></canvas>
+      <div id="marker-layer" class="marker-layer" aria-live="polite"></div>
+
+      <aside class="lab-panel left-panel">
+        <div class="panel-title">
+          <span class="eyebrow">KNOWN WORLD</span>
+          <strong>Locations</strong>
+        </div>
+        <div id="location-list" class="location-list"></div>
+
+        <div class="truth-note">
+          <strong>Prototype globe</strong>
+          <p>
+            The globe is a presentation shell. Agent City's authoritative local meter frame
+            is visually anchored and magnified on it; no global latitude/longitude is claimed yet.
+          </p>
+        </div>
+      </aside>
+
+      <aside class="lab-panel right-panel">
+        <div class="panel-title">
+          <span class="eyebrow">SELECTION</span>
+          <strong id="selection-title">Seed Site</strong>
+        </div>
+        <div id="selection-body" class="selection-body">
+          <p>Select a known location or switch to Local mode to inspect citizens.</p>
+        </div>
+      </aside>
+
+      <div class="mode-switch" role="group" aria-label="World view mode">
+        <button class="mode-button active" data-mode="planet">Planet</button>
+        <button class="mode-button" data-mode="region">Region</button>
+        <button class="mode-button" data-mode="local">Local</button>
+      </div>
+
+      <div class="camera-help">
+        <span><b>Drag</b> orbit</span>
+        <span><b>Wheel</b> zoom</span>
+        <span><b>Shift + drag</b> pan local</span>
+        <span><b>1 / 2 / 3</b> modes</span>
+        <span><b>R</b> reset</span>
+      </div>
+
+      <button id="reset-camera" class="reset-camera" type="button">Reset camera</button>
+
+      <div class="compass" aria-hidden="true">
+        <span class="north">N</span>
+        <span class="east">E</span>
+        <span class="south">S</span>
+        <span class="west">W</span>
+        <i></i>
+      </div>
+
+      <div class="prototype-banner">
+        <span>Presentation prototype</span>
+        <strong id="mode-caption">Planet shell • safe known-state markers only</strong>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/world3d/planet_lab.js"></script>
+</body>
+</html>
