@@ -24,6 +24,14 @@ const citizenContinuityCache = new Map();
 const continuityLoading = new Set();
 const CONTINUITY_REFRESH_MS = 12000;
 
+let historyRecords = null;
+let historyRecordsLoading = false;
+let historyConversationPage = 1;
+let historyChronologyPage = 1;
+const HISTORY_CONVERSATIONS_PER_PAGE = 8;
+const HISTORY_CHRONOLOGY_PER_PAGE = 12;
+const openConversationIds = new Set();
+
 const LOCATION_PRESENTATION = {
   seed_site: {
     direction: { x: 0, y: 0 },
@@ -225,6 +233,10 @@ const els = {
   maintenanceEvents: document.getElementById("maintenance-events"),
   history: document.getElementById("history"),
   citizenConversations: document.getElementById("citizen-conversations"),
+  conversationPagination: document.getElementById("conversation-pagination"),
+  chronologyPagination: document.getElementById("chronology-pagination"),
+  conversationPageSummary: document.getElementById("conversation-page-summary"),
+  chronologyPageSummary: document.getElementById("chronology-page-summary"),
   visitorStatus: document.getElementById("visitor-status"),
   selectedTitle: document.getElementById("selected-title"),
   selectedLabel: document.getElementById("selected-label"),
@@ -276,6 +288,9 @@ function setView(name) {
     computeLocationPositions();
     renderMap();
   }
+  if (currentView === "records" && openControlView === "history") {
+    void loadHistoryRecords();
+  }
 }
 
 function bindViewNavigation() {
@@ -316,6 +331,9 @@ async function loadState() {
   state = await response.json();
   await loadVisitorPresence();
   render();
+  if (currentView === "records" && openControlView === "history") {
+    void loadHistoryRecords();
+  }
 
   if (!restoredVisit) {
     restoredVisit = true;
@@ -2561,49 +2579,89 @@ function conversationIdFromChronology(message) {
   return match ? Number(match[1]) : null;
 }
 
-function renderCitizenConversationHistory() {
-  const allConversations = state.citizen_conversations || [];
-  const conversations = allConversations.slice(0, 12);
+function captureOpenConversationTranscripts() {
+  if (!els.citizenConversations) return;
+  els.citizenConversations
+    .querySelectorAll("details.conversation-transcript[data-conversation-id]")
+    .forEach(details => {
+      const id = String(details.dataset.conversationId || "");
+      if (!id) return;
+      if (details.open) openConversationIds.add(id);
+      else openConversationIds.delete(id);
+    });
+}
 
-  const completionHistory = new Map();
-  for (const row of state.history || []) {
-    const conversationId = conversationIdFromChronology(row.message);
-    if (conversationId != null) completionHistory.set(conversationId, row);
+function historyPaginationMarkup(page, totalPages, setterName) {
+  if (totalPages <= 1) return "";
+  return `
+    <button type="button" onclick="${setterName}(${page - 1})" ${page <= 1 ? "disabled" : ""}>Previous</button>
+    <span>Page ${page} of ${totalPages}</span>
+    <button type="button" onclick="${setterName}(${page + 1})" ${page >= totalPages ? "disabled" : ""}>Next</button>
+  `;
+}
+
+async function loadHistoryRecords() {
+  if (historyRecordsLoading) return;
+  historyRecordsLoading = true;
+
+  try {
+    const params = new URLSearchParams({
+      conversation_page: String(historyConversationPage),
+      chronology_page: String(historyChronologyPage),
+      conversation_page_size: String(HISTORY_CONVERSATIONS_PER_PAGE),
+      chronology_page_size: String(HISTORY_CHRONOLOGY_PER_PAGE),
+    });
+    const response = await fetch(`/api/records/history?${params.toString()}`, { cache: "no-store" });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Could not load settlement history.");
+
+    historyRecords = data;
+    historyConversationPage = Number(data.conversations?.page) || 1;
+    historyChronologyPage = Number(data.chronology?.page) || 1;
+    renderHistoryRecords();
+  } catch (error) {
+    if (els.citizenConversations && !historyRecords) {
+      els.citizenConversations.innerHTML = `<div class="muted conversation-empty">${escapeHtml(error.message)}</div>`;
+    }
+    if (els.history && !historyRecords) {
+      els.history.innerHTML = '<div class="muted">Settlement chronology could not be loaded.</div>';
+    }
+  } finally {
+    historyRecordsLoading = false;
+  }
+}
+
+function renderHistoryRecords() {
+  captureOpenConversationTranscripts();
+
+  const conversationPage = historyRecords?.conversations;
+  const chronologyPage = historyRecords?.chronology;
+
+  if (!conversationPage || !chronologyPage) {
+    els.citizenConversations.innerHTML = '<div class="muted conversation-empty">Loading conversation records…</div>';
+    els.history.innerHTML = '<div class="muted">Loading settlement chronology…</div>';
+    els.conversationPagination.innerHTML = "";
+    els.chronologyPagination.innerHTML = "";
+    els.conversationPageSummary.textContent = "Loading…";
+    els.chronologyPageSummary.textContent = "Loading…";
+    return;
   }
 
-  const snapshotKeys = new Set(allConversations.map(c =>
-    normalizedConversationKey(c.sim_minute, c.initiator_name, c.target_name, c.location_name)
-  ));
-
-  // Legacy conversation chronology can predate canonical completion IDs. Preserve
-  // those real chronology rows when their exchange is outside the current snapshot.
-  const chronologyOnly = (state.history || [])
-    .filter(h => h.category === "conversation")
-    .filter(h => {
-      const parsed = parseConversationHistoryMessage(h.message);
-      if (!parsed) return false;
-      const key = normalizedConversationKey(
-        h.sim_minute,
-        parsed.personA,
-        parsed.personB,
-        parsed.locationName
-      );
-      return !snapshotKeys.has(key);
-    })
-    .slice(0, 6);
-
-  const storedCards = conversations.map(c => {
+  const conversations = Array.isArray(conversationPage.items) ? conversationPage.items : [];
+  els.citizenConversations.innerHTML = conversations.length ? conversations.map(c => {
     const conversationId = Number(c.id ?? c.source_id);
-    const completion = Number.isFinite(conversationId) ? completionHistory.get(conversationId) : null;
+    const id = Number.isFinite(conversationId) ? String(conversationId) : "";
     const summary = String(c.summary || "").trim() || "No compact summary is available for this exchange.";
     const initiatorText = String(c.initiator_text || "").trim();
     const targetText = String(c.target_text || "").trim();
     const hasTranscript = Boolean(initiatorText || targetText);
     const sourceJobId = c.source_job_id != null ? String(c.source_job_id) : "";
     const idLabel = Number.isFinite(conversationId) ? `Conversation #${conversationId}` : "Conversation record";
+    const completionMinute = Number(c.completed_minute);
+    const isOpen = id && openConversationIds.has(id);
 
     return `
-      <article class="conversation-card" data-conversation-id="${Number.isFinite(conversationId) ? escapeHtml(String(conversationId)) : ""}">
+      <article class="conversation-card" data-conversation-id="${escapeHtml(id)}">
         <div class="conversation-card-head">
           <div class="conversation-people">
             <strong>${escapeHtml(c.initiator_name)}</strong>
@@ -2616,60 +2674,77 @@ function renderCitizenConversationHistory() {
         <div class="conversation-record-meta">
           <span>${escapeHtml(idLabel)}</span>
           ${sourceJobId ? `<span>Talk job #${escapeHtml(sourceJobId)}</span>` : "<span>Legacy conversation</span>"}
-          ${completion ? `<span>Completed ${escapeHtml(formatMinute(completion.sim_minute))}</span>` : ""}
+          ${Number.isFinite(completionMinute) ? `<span>Completed ${escapeHtml(formatMinute(completionMinute))}</span>` : ""}
         </div>
         <div class="conversation-summary">
           <span>Summary</span>
           <p>${escapeHtml(summary)}</p>
         </div>
         ${hasTranscript ? `
-          <details class="conversation-transcript">
+          <details class="conversation-transcript" data-conversation-id="${escapeHtml(id)}" ${isOpen ? "open" : ""}>
             <summary>Read exchange</summary>
             ${initiatorText ? `<div><strong>${escapeHtml(c.initiator_name)}</strong><span>${escapeHtml(initiatorText)}</span></div>` : ""}
             ${targetText ? `<div><strong>${escapeHtml(c.target_name)}</strong><span>${escapeHtml(targetText)}</span></div>` : ""}
           </details>
-        ` : '<div class="conversation-record-note">Exchange text is not available in this state snapshot.</div>'}
+        ` : '<div class="conversation-record-note">Exchange text is not available for this conversation record.</div>'}
       </article>
     `;
-  });
+  }).join("") : '<div class="muted conversation-empty">No citizen-to-citizen conversations recorded yet.</div>';
 
-  const chronologyCards = chronologyOnly.map(h => {
-    const parsed = parseConversationHistoryMessage(h.message);
-    return `
-      <article class="conversation-card chronology-only">
-        <div class="conversation-card-head">
-          <div class="conversation-people">
-            <strong>${escapeHtml(parsed.personA)}</strong>
-            <span aria-hidden="true">↔</span>
-            <strong>${escapeHtml(parsed.personB)}</strong>
-          </div>
-          <time>${formatMinute(h.sim_minute)}</time>
-        </div>
-        <div class="conversation-location">At ${escapeHtml(parsed.locationName)}</div>
-        <div class="conversation-summary">
-          <span>Legacy chronology record</span>
-          <p>${escapeHtml(h.message)}</p>
-        </div>
-        <div class="conversation-record-note">
-          Chronology confirms this conversation, but its exchange text is outside the current state snapshot.
-        </div>
-      </article>
-    `;
-  });
+  els.citizenConversations
+    .querySelectorAll("details.conversation-transcript[data-conversation-id]")
+    .forEach(details => {
+      details.addEventListener("toggle", () => {
+        const id = String(details.dataset.conversationId || "");
+        if (!id) return;
+        if (details.open) openConversationIds.add(id);
+        else openConversationIds.delete(id);
+      });
+    });
 
-  const sections = [];
-  if (storedCards.length) sections.push(storedCards.join(""));
-  if (chronologyCards.length) {
-    sections.push(`
-      <div class="conversation-gap-label">Older chronology-only conversation records</div>
-      ${chronologyCards.join("")}
-    `);
-  }
+  const conversationTotal = Number(conversationPage.total) || 0;
+  const conversationPages = Number(conversationPage.total_pages) || 1;
+  els.conversationPageSummary.textContent = conversationTotal
+    ? `Page ${historyConversationPage} of ${conversationPages} • ${conversationTotal} conversations`
+    : "No conversation records yet";
+  els.conversationPagination.innerHTML = historyPaginationMarkup(
+    historyConversationPage,
+    conversationPages,
+    "setConversationHistoryPage"
+  );
 
-  els.citizenConversations.innerHTML = sections.length
-    ? sections.join("")
-    : '<div class="muted conversation-empty">No citizen-to-citizen conversations recorded yet.</div>';
+  const chronology = Array.isArray(chronologyPage.items) ? chronologyPage.items : [];
+  els.history.innerHTML = chronology.length ? chronology.map(h => `
+    <div class="history-entry ${h.category === "diagnostic" ? "diagnostic" : ""}">
+      <div class="history-dot"></div>
+      <div>
+        <strong>${formatMinute(h.sim_minute)}${h.category === "diagnostic" ? " • diagnostic" : ""}</strong>
+        <p>${escapeHtml(h.message)}</p>
+      </div>
+    </div>
+  `).join("") : '<div class="muted">No settlement chronology recorded yet.</div>';
+
+  const chronologyTotal = Number(chronologyPage.total) || 0;
+  const chronologyPages = Number(chronologyPage.total_pages) || 1;
+  els.chronologyPageSummary.textContent = chronologyTotal
+    ? `Page ${historyChronologyPage} of ${chronologyPages} • ${chronologyTotal} events`
+    : "No chronology records yet";
+  els.chronologyPagination.innerHTML = historyPaginationMarkup(
+    historyChronologyPage,
+    chronologyPages,
+    "setChronologyHistoryPage"
+  );
 }
+
+window.setConversationHistoryPage = function(page) {
+  historyConversationPage = Math.max(1, Number(page) || 1);
+  void loadHistoryRecords();
+};
+
+window.setChronologyHistoryPage = function(page) {
+  historyChronologyPage = Math.max(1, Number(page) || 1);
+  void loadHistoryRecords();
+};
 
 function renderDrawerLists() {
   els.locations.innerHTML = state.locations.map(loc => {
@@ -2732,17 +2807,7 @@ function renderDrawerLists() {
 
   renderMakingBuilding();
 
-  renderCitizenConversationHistory();
-
-  els.history.innerHTML = state.history.map(h => `
-    <div class="history-entry ${h.category === "diagnostic" ? "diagnostic" : ""}">
-      <div class="history-dot"></div>
-      <div>
-        <strong>${formatMinute(h.sim_minute)}${h.category === "diagnostic" ? " • diagnostic" : ""}</strong>
-        <p>${escapeHtml(h.message)}</p>
-      </div>
-    </div>
-  `).join("");
+  renderHistoryRecords();
 }
 
 function formatMinute(minute) {
@@ -2775,6 +2840,7 @@ function openControlRoomView(name, title, eyebrow = "DETAILS") {
   };
 
   if (activeMap[name]) activeMap[name].classList.add("active");
+  if (name === "history") void loadHistoryRecords();
 }
 
 function updateMapZoomLabel() {
