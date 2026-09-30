@@ -24,19 +24,34 @@ _None._
 
 ### READY
 
-- [Coordinator / v0.9.3 Publication] citizen-sheet dashboard + on-demand detail navigation are green on `release-v0.9.3@2826784e2bde768e7388535820e217361d234cc9`; CI `36656229586` PASS. `update.json` still advertises v0.9.2.
+_None._
 
 ### REVIEW
 
-- [Assets & Interface] v0.9.3 at-a-glance Citizen dashboard and six-view deep-information navigator complete.
-- [Memory / Simulation / Communication contracts] unchanged; presentation still consumes their existing safe read models.
+_None._
 
 ### DONE
 
+- [Coordinator] **v0.9.3 Citizen Sheet Navigation published** via `update.json` on `main` commit `5131bdb72082650cf6403b6c9437995953186e47`.
+- [v0.9.3 Runtime] `release-v0.9.3@2826784e2bde768e7388535820e217361d234cc9`; full CI `36656229586` PASS.
 - [Coordinator] v0.9.2 Conversation Polish + Social-Energy Protection published.
 - [v0.9.2 Runtime] `release-v0.9.2@ea4a838fa10a557ac6d3f032a55e1dc94a84012f`; full CI `36654523357` PASS.
 - [Coordinator] v0.9.1 History Records Polish published.
 - [Coordinator] v0.9.0 Civilization Continuity published.
+
+## v0.9.3 Published Patch
+
+- version: `0.9.3`
+- release branch: `release-v0.9.3`
+- exact immutable runtime: `2826784e2bde768e7388535820e217361d234cc9`
+- full CI: `36656229586` — PASS
+- publication manifest commit: `5131bdb72082650cf6403b6c9437995953186e47`
+- `update.json` now advertises v0.9.3 and downloads the exact green runtime commit
+- at-a-glance citizen profile dashboard
+- six-view right-side deep-information navigator
+- selected deep view persists across refresh/reload
+- desktop sticky/internal-scroll detail panel
+- responsive horizontal detail controls on smaller screens
 
 ## v0.9.2 Published Patch
 
