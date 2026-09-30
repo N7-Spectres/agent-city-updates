@@ -21,7 +21,10 @@ def main() -> None:
     assert 'cato: Object.freeze({' in js
     assert 'kind: "sprite_body"' in js
     assert 'baseBody: "/static/assets/citizens/cato/world/front.webp"' in js
-    assert '"world-body-marker", "cato-world-body"' in js
+    # Later citizens may share the same body pipeline; Cato must retain its own class.
+    assert '"world-body-marker"' in js
+    assert '"citizen-world-body"' in js
+    assert 'String(item.id) + "-world-body"' in js
 
     # Body is grounded on the same authoritative Local movement/travel pipeline.
     assert "citizenRenderMeters(item.data, now)" in js
