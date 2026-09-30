@@ -4,7 +4,7 @@ _Last updated: 2026-09-30_
 
 ## Current Release
 
-**v0.9.8 — Fresh Update Checks**
+**v0.9.9 — 3D Route Motion + Perspective**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,33 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.9 Published Patch — 3D Route Motion + Perspective
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.9`
+- exact green head: `d942d38ea0f82d056a6494a2f7be64041974d5c8`
+- full CI: `36664664989` — PASS
+- published updater: `v0.9.9`
+- `update.json` downloads the exact green v0.9.9 runtime
+
+Delivered:
+- citizens with real `travel` jobs move continuously along the authoritative route in Local 3D
+- motion derives from real job `start_minute` / `end_minute`
+- visual progress uses Simulation's actual `time_ratio`
+- pausing Agent City freezes visual travel
+- marker size responds to camera depth
+- shared-point citizen fan-out scales with perspective
+- visitor/citizen tokens feel less like fixed HUD stickers
+- selected-citizen focus follows rendered travel position
+- no coordinate writes
+- no invented travel or destination
+
+Validation:
+- complete regression matrix through v0.9.8
+- Planet Lab JavaScript syntax
+- `tests/smoke_v099_3d_route_motion.py`
 
 ## v0.9.8 Published Patch — Fresh Update Checks
 
