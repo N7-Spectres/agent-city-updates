@@ -212,3 +212,7 @@ jobs:
 
       - name: Run v0.9.16 body-layering smoke
         run: python tests/smoke_v0916_body_layering.py
+
+
+      - name: Run v0.9.17 verified Aris sprite smoke
+        run: python tests/smoke_v0917_aris_verified_sprite.py
