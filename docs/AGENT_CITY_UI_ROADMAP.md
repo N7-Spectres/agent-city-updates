@@ -625,6 +625,22 @@ Success means questions such as "Why does Iri avoid running her battery so low n
 - incoming conversations no longer postpone the listener's planner clock
 - urgent recharge can regain priority without being repeatedly interrupted by autonomous social activity
 
+### Shipped patch — v0.9.3 Citizen Sheet Navigation
+
+- citizen detail page now prioritizes a stable at-a-glance profile dashboard
+- physical state, current work, maintenance, cargo, equipped gear, projects, and active plan remain immediately visible
+- deeper information lives behind six on-demand views:
+  - Continuity
+  - Memories
+  - Experience
+  - Patterns & Places
+  - Social
+  - Knowledge
+- selected deep-information view persists across auto-refresh and reload
+- desktop uses a sticky right-side detail panel with internal scrolling
+- smaller screens collapse to a one-column layout with horizontally scrollable controls
+- continuity truth layers and Memory/competence/pattern semantics remain unchanged
+
 ### v1.0 — Bonsai Civilization
 
 Future design notes:
