@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def main() -> None:
     js = (ROOT / "static" / "world3d" / "planet_lab.js").read_text(encoding="utf-8")
     css = (ROOT / "static" / "world3d" / "planet_lab.css").read_text(encoding="utf-8")
-    sprite = ROOT / "static" / "assets" / "citizens" / "aris" / "world" / "front.webp"
+    sprite = ROOT / "static" / "assets" / "citizens" / "aris" / "world" / "front.png"
     reference = ROOT / "static" / "assets" / "citizens" / "aris" / "reference" / "concept" / "approved_dark_sheet_v1.webp"
     contract = (ROOT / "docs" / "departments" / "assets" / "ARIS_PREBLENDER_WORLD_BODY.md").read_text(encoding="utf-8")
 
@@ -22,14 +22,16 @@ def main() -> None:
     assert declared_size == len(reference_bytes)
 
     assert sprite.exists()
-    assert sprite.stat().st_size > 1000
-    assert sprite.read_bytes()[:4] == b"RIFF"
-    assert b"WEBP" in sprite.read_bytes()[:16]
+    sprite_bytes = sprite.read_bytes()
+    assert sprite.stat().st_size > 5000
+    assert sprite_bytes[:8] == b"\x89PNG\r\n\x1a\n"
+    # PNG color type 6 = RGBA, required so the Local body has real transparency.
+    assert sprite_bytes[25] == 6
 
     # Aris joins Cato, and only Aris joins Cato in this rollout.
     assert 'aris: Object.freeze({' in js
     assert 'cato: Object.freeze({' in js
-    assert 'baseBody: "/static/assets/citizens/aris/world/front.webp"' in js
+    assert 'baseBody: "/static/assets/citizens/aris/world/front.png"' in js
     assert 'futureModelSlot: "/static/assets/citizens/aris/world/model.glb"' in js
     for citizen in ("bex", "iri", "noma", "vale"):
         assert f'/static/assets/citizens/{citizen}/world/front.webp' not in js
