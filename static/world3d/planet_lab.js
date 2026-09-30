@@ -1,0 +1,1019 @@
+(() => {
+  "use strict";
+
+  const canvas = document.getElementById("world-canvas");
+  const markerLayer = document.getElementById("marker-layer");
+  const locationList = document.getElementById("location-list");
+  const selectionTitle = document.getElementById("selection-title");
+  const selectionBody = document.getElementById("selection-body");
+  const simTime = document.getElementById("sim-time");
+  const connectionPill = document.getElementById("connection-pill");
+  const modeCaption = document.getElementById("mode-caption");
+  const resetCameraButton = document.getElementById("reset-camera");
+  const modeButtons = [...document.querySelectorAll(".mode-button")];
+
+  const gl = canvas.getContext("webgl", {
+    antialias: true,
+    alpha: false,
+    preserveDrawingBuffer: false,
+  });
+
+  if (!gl) {
+    connectionPill.textContent = "WebGL unavailable";
+    connectionPill.classList.add("offline");
+    selectionBody.innerHTML = "<p>This browser did not provide WebGL. The ordinary Agent City interface still works.</p>";
+    return;
+  }
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  let state = null;
+  let visitorPresence = null;
+  let mode = "planet";
+  let selected = { type: "location", id: "seed_site" };
+  let markerItems = [];
+  let dragging = false;
+  let dragKind = "orbit";
+  let lastPointer = { x: 0, y: 0 };
+  let frameHandle = null;
+  let cameraTween = null;
+  let localRouteBuffer = null;
+  let localRouteVertexCount = 0;
+
+  const camera = {
+    yaw: -0.72,
+    pitch: 0.34,
+    distance: 3.25,
+    target: [0, 0, 0],
+  };
+
+  const localFrame = {
+    seedX: 0,
+    seedY: 0,
+    metersPerWorld: 1000,
+    radiusMeters: 1000,
+  };
+
+  const globeFrame = {
+    anchorLat: 0.32,
+    anchorLon: -0.58,
+    radiansPerMeter: 0.0001,
+  };
+
+  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+  const finite = value => {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+  };
+  const escapeHtml = value => String(value == null ? "" : value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+  const titleCase = value => String(value || "")
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, c => c.toUpperCase());
+
+  function vec3Length(v) {
+    return Math.hypot(v[0], v[1], v[2]);
+  }
+
+  function vec3Normalize(v) {
+    const length = vec3Length(v) || 1;
+    return [v[0] / length, v[1] / length, v[2] / length];
+  }
+
+  function vec3Dot(a, b) {
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  }
+
+  function vec3Sub(a, b) {
+    return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  }
+
+  function vec3Cross(a, b) {
+    return [
+      a[1] * b[2] - a[2] * b[1],
+      a[2] * b[0] - a[0] * b[2],
+      a[0] * b[1] - a[1] * b[0],
+    ];
+  }
+
+  function mat4Perspective(fovY, aspect, near, far) {
+    const f = 1 / Math.tan(fovY / 2);
+    const nf = 1 / (near - far);
+    return [
+      f / aspect, 0, 0, 0,
+      0, f, 0, 0,
+      0, 0, (far + near) * nf, -1,
+      0, 0, (2 * far * near) * nf, 0,
+    ];
+  }
+
+  function mat4LookAt(eye, center, up) {
+    const z = vec3Normalize(vec3Sub(eye, center));
+    const x = vec3Normalize(vec3Cross(up, z));
+    const y = vec3Cross(z, x);
+
+    return [
+      x[0], y[0], z[0], 0,
+      x[1], y[1], z[1], 0,
+      x[2], y[2], z[2], 0,
+      -vec3Dot(x, eye), -vec3Dot(y, eye), -vec3Dot(z, eye), 1,
+    ];
+  }
+
+  function mat4Multiply(a, b) {
+    const out = new Array(16).fill(0);
+    for (let c = 0; c < 4; c += 1) {
+      for (let r = 0; r < 4; r += 1) {
+        out[c * 4 + r] =
+          a[0 * 4 + r] * b[c * 4 + 0] +
+          a[1 * 4 + r] * b[c * 4 + 1] +
+          a[2 * 4 + r] * b[c * 4 + 2] +
+          a[3 * 4 + r] * b[c * 4 + 3];
+      }
+    }
+    return out;
+  }
+
+  function transformPoint(matrix, point) {
+    const x = point[0];
+    const y = point[1];
+    const z = point[2];
+    return [
+      matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12],
+      matrix[1] * x + matrix[5] * y + matrix[9] * z + matrix[13],
+      matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14],
+      matrix[3] * x + matrix[7] * y + matrix[11] * z + matrix[15],
+    ];
+  }
+
+  function cameraEye() {
+    const cp = Math.cos(camera.pitch);
+    return [
+      camera.target[0] + camera.distance * cp * Math.sin(camera.yaw),
+      camera.target[1] + camera.distance * Math.sin(camera.pitch),
+      camera.target[2] + camera.distance * cp * Math.cos(camera.yaw),
+    ];
+  }
+
+  function viewProjection() {
+    const aspect = Math.max(0.1, canvas.clientWidth / Math.max(1, canvas.clientHeight));
+    const projection = mat4Perspective(Math.PI / 3.2, aspect, 0.02, 100);
+    const view = mat4LookAt(cameraEye(), camera.target, [0, 1, 0]);
+    return mat4Multiply(projection, view);
+  }
+
+  function compileShader(type, source) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      const message = gl.getShaderInfoLog(shader);
+      gl.deleteShader(shader);
+      throw new Error(message || "Shader compilation failed");
+    }
+    return shader;
+  }
+
+  function createProgram(vertexSource, fragmentSource) {
+    const program = gl.createProgram();
+    gl.attachShader(program, compileShader(gl.VERTEX_SHADER, vertexSource));
+    gl.attachShader(program, compileShader(gl.FRAGMENT_SHADER, fragmentSource));
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      const message = gl.getProgramInfoLog(program);
+      gl.deleteProgram(program);
+      throw new Error(message || "Shader link failed");
+    }
+    return program;
+  }
+
+  const litProgram = createProgram(
+    [
+      "attribute vec3 aPosition;",
+      "attribute vec3 aNormal;",
+      "uniform mat4 uMVP;",
+      "varying vec3 vNormal;",
+      "varying vec3 vPosition;",
+      "void main() {",
+      "  vNormal = aNormal;",
+      "  vPosition = aPosition;",
+      "  gl_Position = uMVP * vec4(aPosition, 1.0);",
+      "}",
+    ].join("\n"),
+    [
+      "precision mediump float;",
+      "uniform vec3 uLightDir;",
+      "uniform vec3 uBaseColor;",
+      "varying vec3 vNormal;",
+      "varying vec3 vPosition;",
+      "void main() {",
+      "  vec3 n = normalize(vNormal);",
+      "  float daylight = max(dot(n, normalize(uLightDir)), 0.0);",
+      "  float polar = 0.5 + 0.5 * abs(n.y);",
+      "  vec3 deep = uBaseColor * (0.28 + daylight * 0.72);",
+      "  vec3 cyan = vec3(0.03, 0.20, 0.25) * (1.0 - daylight) * 0.7;",
+      "  vec3 polarTint = vec3(0.10, 0.16, 0.18) * polar * 0.16;",
+      "  gl_FragColor = vec4(deep + cyan + polarTint, 1.0);",
+      "}",
+    ].join("\n")
+  );
+
+  const colorProgram = createProgram(
+    [
+      "attribute vec3 aPosition;",
+      "uniform mat4 uMVP;",
+      "void main() {",
+      "  gl_Position = uMVP * vec4(aPosition, 1.0);",
+      "}",
+    ].join("\n"),
+    [
+      "precision mediump float;",
+      "uniform vec4 uColor;",
+      "void main() {",
+      "  gl_FragColor = uColor;",
+      "}",
+    ].join("\n")
+  );
+
+  function createBuffer(data) {
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+    return buffer;
+  }
+
+  function createSphere(latSegments, lonSegments) {
+    const positions = [];
+    const normals = [];
+    const indices = [];
+
+    for (let lat = 0; lat <= latSegments; lat += 1) {
+      const v = lat / latSegments;
+      const phi = (v - 0.5) * Math.PI;
+      const cosPhi = Math.cos(phi);
+      const sinPhi = Math.sin(phi);
+
+      for (let lon = 0; lon <= lonSegments; lon += 1) {
+        const u = lon / lonSegments;
+        const theta = u * Math.PI * 2;
+        const x = cosPhi * Math.sin(theta);
+        const y = sinPhi;
+        const z = cosPhi * Math.cos(theta);
+        positions.push(x, y, z);
+        normals.push(x, y, z);
+      }
+    }
+
+    for (let lat = 0; lat < latSegments; lat += 1) {
+      for (let lon = 0; lon < lonSegments; lon += 1) {
+        const a = lat * (lonSegments + 1) + lon;
+        const b = a + lonSegments + 1;
+        indices.push(a, b, a + 1, b, b + 1, a + 1);
+      }
+    }
+
+    const indexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+
+    return {
+      position: createBuffer(positions),
+      normal: createBuffer(normals),
+      index: indexBuffer,
+      count: indices.length,
+    };
+  }
+
+  function createGlobeGrid() {
+    const lines = [];
+    const radius = 1.006;
+
+    for (let latDeg = -60; latDeg <= 60; latDeg += 30) {
+      const lat = latDeg * Math.PI / 180;
+      for (let i = 0; i < 96; i += 1) {
+        const lonA = (i / 96) * Math.PI * 2;
+        const lonB = ((i + 1) / 96) * Math.PI * 2;
+        const c = Math.cos(lat);
+        const y = Math.sin(lat) * radius;
+        lines.push(
+          c * Math.sin(lonA) * radius, y, c * Math.cos(lonA) * radius,
+          c * Math.sin(lonB) * radius, y, c * Math.cos(lonB) * radius
+        );
+      }
+    }
+
+    for (let lonDeg = 0; lonDeg < 360; lonDeg += 30) {
+      const lon = lonDeg * Math.PI / 180;
+      for (let i = 0; i < 48; i += 1) {
+        const latA = (-Math.PI / 2) + (i / 48) * Math.PI;
+        const latB = (-Math.PI / 2) + ((i + 1) / 48) * Math.PI;
+        lines.push(
+          Math.cos(latA) * Math.sin(lon) * radius,
+          Math.sin(latA) * radius,
+          Math.cos(latA) * Math.cos(lon) * radius,
+          Math.cos(latB) * Math.sin(lon) * radius,
+          Math.sin(latB) * radius,
+          Math.cos(latB) * Math.cos(lon) * radius
+        );
+      }
+    }
+
+    return { buffer: createBuffer(lines), count: lines.length / 3 };
+  }
+
+  const sphere = createSphere(44, 64);
+  const globeGrid = createGlobeGrid();
+
+  const localPlane = {
+    buffer: createBuffer([
+      -3, 0, -3,
+       3, 0, -3,
+       3, 0,  3,
+      -3, 0, -3,
+       3, 0,  3,
+      -3, 0,  3,
+    ]),
+    count: 6,
+  };
+
+  const localGridData = [];
+  for (let i = -12; i <= 12; i += 1) {
+    const p = i * 0.25;
+    localGridData.push(-3, 0.008, p, 3, 0.008, p);
+    localGridData.push(p, 0.008, -3, p, 0.008, 3);
+  }
+  const localGrid = { buffer: createBuffer(localGridData), count: localGridData.length / 3 };
+
+  function bindColorBuffer(buffer, mvp, color, primitive, count) {
+    gl.useProgram(colorProgram);
+    const posLoc = gl.getAttribLocation(colorProgram, "aPosition");
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.enableVertexAttribArray(posLoc);
+    gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
+    gl.uniformMatrix4fv(gl.getUniformLocation(colorProgram, "uMVP"), false, new Float32Array(mvp));
+    gl.uniform4fv(gl.getUniformLocation(colorProgram, "uColor"), new Float32Array(color));
+    gl.drawArrays(primitive, 0, count);
+  }
+
+  function drawSphere(mvp) {
+    gl.useProgram(litProgram);
+    const posLoc = gl.getAttribLocation(litProgram, "aPosition");
+    const normalLoc = gl.getAttribLocation(litProgram, "aNormal");
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, sphere.position);
+    gl.enableVertexAttribArray(posLoc);
+    gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, sphere.normal);
+    gl.enableVertexAttribArray(normalLoc);
+    gl.vertexAttribPointer(normalLoc, 3, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphere.index);
+    gl.uniformMatrix4fv(gl.getUniformLocation(litProgram, "uMVP"), false, new Float32Array(mvp));
+
+    const minute = Number(state && state.sim_minute || 0);
+    const dayAngle = ((minute % 1440) / 1440) * Math.PI * 2;
+    const lightDir = [Math.cos(dayAngle), 0.42, Math.sin(dayAngle)];
+    gl.uniform3fv(gl.getUniformLocation(litProgram, "uLightDir"), new Float32Array(lightDir));
+    gl.uniform3fv(gl.getUniformLocation(litProgram, "uBaseColor"), new Float32Array([0.08, 0.22, 0.27]));
+
+    gl.drawElements(gl.TRIANGLES, sphere.count, gl.UNSIGNED_SHORT, 0);
+
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    bindColorBuffer(globeGrid.buffer, mvp, [0.20, 0.75, 0.82, 0.16], gl.LINES, globeGrid.count);
+    gl.disable(gl.BLEND);
+  }
+
+  function drawLocal(mvp) {
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    bindColorBuffer(localPlane.buffer, mvp, [0.04, 0.12, 0.13, 0.94], gl.TRIANGLES, localPlane.count);
+    bindColorBuffer(localGrid.buffer, mvp, [0.25, 0.66, 0.70, 0.16], gl.LINES, localGrid.count);
+    if (localRouteBuffer && localRouteVertexCount) {
+      bindColorBuffer(localRouteBuffer, mvp, [0.85, 0.64, 0.28, 0.52], gl.LINES, localRouteVertexCount);
+    }
+    gl.disable(gl.BLEND);
+  }
+
+  function knownLocations() {
+    return (state && state.locations || []).filter(loc => finite(loc.x_m) != null && finite(loc.y_m) != null);
+  }
+
+  function seedLocation() {
+    return knownLocations().find(loc => String(loc.id) === "seed_site") || knownLocations()[0] || { x_m: 0, y_m: 0, id: "seed_site", name: "Seed Site" };
+  }
+
+  function refreshFrames() {
+    const seed = seedLocation();
+    localFrame.seedX = finite(seed.x_m) || 0;
+    localFrame.seedY = finite(seed.y_m) || 0;
+
+    const points = [];
+    for (const loc of knownLocations()) points.push([finite(loc.x_m), finite(loc.y_m)]);
+    for (const citizen of state && state.citizens || []) {
+      if (finite(citizen.position_x_m) != null && finite(citizen.position_y_m) != null) {
+        points.push([finite(citizen.position_x_m), finite(citizen.position_y_m)]);
+      }
+    }
+    for (const structure of state && state.structures || []) {
+      if (finite(structure.x_m) != null && finite(structure.y_m) != null) {
+        points.push([finite(structure.x_m), finite(structure.y_m)]);
+      }
+    }
+
+    let maxRadius = 500;
+    for (const point of points) {
+      maxRadius = Math.max(
+        maxRadius,
+        Math.hypot(point[0] - localFrame.seedX, point[1] - localFrame.seedY)
+      );
+    }
+
+    localFrame.radiusMeters = maxRadius;
+    localFrame.metersPerWorld = maxRadius / 2.18;
+    globeFrame.radiansPerMeter = 0.42 / maxRadius;
+    rebuildLocalRoutes();
+  }
+
+  function localWorld(xMeters, yMeters, lift) {
+    const x = ((finite(xMeters) || 0) - localFrame.seedX) / localFrame.metersPerWorld;
+    const z = -(((finite(yMeters) || 0) - localFrame.seedY) / localFrame.metersPerWorld);
+    return [x, lift || 0.025, z];
+  }
+
+  function globeWorld(xMeters, yMeters, radius) {
+    const dx = (finite(xMeters) || 0) - localFrame.seedX;
+    const dy = (finite(yMeters) || 0) - localFrame.seedY;
+    const lat = globeFrame.anchorLat + dy * globeFrame.radiansPerMeter;
+    const lon = globeFrame.anchorLon + (dx * globeFrame.radiansPerMeter) / Math.max(0.25, Math.cos(globeFrame.anchorLat));
+    const r = radius || 1.025;
+    const c = Math.cos(lat);
+    return [
+      c * Math.sin(lon) * r,
+      Math.sin(lat) * r,
+      c * Math.cos(lon) * r,
+    ];
+  }
+
+  function rebuildLocalRoutes() {
+    const vertices = [];
+    const byId = new Map(knownLocations().map(loc => [String(loc.id), loc]));
+    for (const route of state && state.routes || []) {
+      const a = byId.get(String(route.a));
+      const b = byId.get(String(route.b));
+      if (!a || !b) continue;
+      const p1 = localWorld(a.x_m, a.y_m, 0.018);
+      const p2 = localWorld(b.x_m, b.y_m, 0.018);
+      vertices.push(...p1, ...p2);
+    }
+
+    if (localRouteBuffer) gl.deleteBuffer(localRouteBuffer);
+    localRouteBuffer = vertices.length ? createBuffer(vertices) : null;
+    localRouteVertexCount = vertices.length / 3;
+  }
+
+  function project(world, matrix) {
+    const clip = transformPoint(matrix, world);
+    if (clip[3] <= 0.001) return null;
+    const ndcX = clip[0] / clip[3];
+    const ndcY = clip[1] / clip[3];
+    const ndcZ = clip[2] / clip[3];
+    if (ndcZ < -1.2 || ndcZ > 1.2 || Math.abs(ndcX) > 1.25 || Math.abs(ndcY) > 1.25) return null;
+    return {
+      x: (ndcX * 0.5 + 0.5) * canvas.clientWidth,
+      y: (-ndcY * 0.5 + 0.5) * canvas.clientHeight,
+    };
+  }
+
+  function markerVisibleOnGlobe(world, eye) {
+    const normal = vec3Normalize(world);
+    const cameraDirection = vec3Normalize(eye);
+    return vec3Dot(normal, cameraDirection) > 0.02;
+  }
+
+  function createMarkerElement(item) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "world-marker";
+
+    if (item.type === "location") {
+      button.classList.add("location-marker");
+      const dot = document.createElement("span");
+      dot.className = "marker-dot";
+      const label = document.createElement("span");
+      label.className = "marker-label";
+      label.textContent = item.data.name || item.id;
+      button.append(dot, label);
+    } else if (item.type === "citizen") {
+      button.classList.add("citizen-marker");
+      const img = document.createElement("img");
+      img.alt = item.data.name || item.id;
+      img.src = "/static/assets/citizens/" + encodeURIComponent(item.id) + "/token.webp";
+      img.addEventListener("error", () => {
+        img.remove();
+        button.textContent = String(item.data.name || item.id).slice(0, 1).toUpperCase();
+      }, { once: true });
+      button.append(img);
+    } else if (item.type === "structure") {
+      button.classList.add("structure-marker");
+      button.setAttribute("aria-label", item.data.name || "Structure");
+    } else if (item.type === "visitor") {
+      button.classList.add("visitor-marker");
+      button.textContent = "YOU";
+    }
+
+    button.title = item.data.name || item.data.kind || item.id;
+    button.addEventListener("click", event => {
+      event.stopPropagation();
+      selectItem(item.type, item.id, true);
+    });
+    return button;
+  }
+
+  function rebuildMarkers() {
+    markerLayer.replaceChildren();
+    markerItems = [];
+
+    for (const loc of knownLocations()) {
+      const item = { type: "location", id: String(loc.id), data: loc };
+      item.element = createMarkerElement(item);
+      markerLayer.append(item.element);
+      markerItems.push(item);
+    }
+
+    if (mode === "local") {
+      for (const citizen of state && state.citizens || []) {
+        if (finite(citizen.position_x_m) == null || finite(citizen.position_y_m) == null) continue;
+        const item = { type: "citizen", id: String(citizen.id), data: citizen };
+        item.element = createMarkerElement(item);
+        markerLayer.append(item.element);
+        markerItems.push(item);
+      }
+
+      for (const structure of state && state.structures || []) {
+        if (finite(structure.x_m) == null || finite(structure.y_m) == null) continue;
+        const item = { type: "structure", id: String(structure.id), data: structure };
+        item.element = createMarkerElement(item);
+        markerLayer.append(item.element);
+        markerItems.push(item);
+      }
+
+      if (visitorPresence && finite(visitorPresence.x_m) != null && finite(visitorPresence.y_m) != null) {
+        const item = { type: "visitor", id: "visitor", data: visitorPresence };
+        item.element = createMarkerElement(item);
+        markerLayer.append(item.element);
+        markerItems.push(item);
+      }
+    }
+
+    refreshMarkerSelection();
+  }
+
+  function refreshMarkerSelection() {
+    for (const item of markerItems) {
+      item.element.classList.toggle(
+        "selected",
+        selected && item.type === selected.type && String(item.id) === String(selected.id)
+      );
+    }
+  }
+
+  function markerWorld(item) {
+    if (mode === "local") {
+      if (item.type === "location") return localWorld(item.data.x_m, item.data.y_m, 0.045);
+      if (item.type === "citizen") return localWorld(item.data.position_x_m, item.data.position_y_m, 0.075);
+      if (item.type === "structure") return localWorld(item.data.x_m, item.data.y_m, 0.06);
+      if (item.type === "visitor") return localWorld(item.data.x_m, item.data.y_m, 0.08);
+      return null;
+    }
+
+    if (item.type === "location") {
+      return globeWorld(item.data.x_m, item.data.y_m, 1.026);
+    }
+    return null;
+  }
+
+  function updateMarkers(matrix) {
+    const eye = cameraEye();
+
+    for (const item of markerItems) {
+      const world = markerWorld(item);
+      if (!world) {
+        item.element.hidden = true;
+        continue;
+      }
+
+      if (mode !== "local" && !markerVisibleOnGlobe(world, eye)) {
+        item.element.hidden = true;
+        continue;
+      }
+
+      const projected = project(world, matrix);
+      if (!projected) {
+        item.element.hidden = true;
+        continue;
+      }
+
+      item.element.hidden = false;
+      item.element.style.left = projected.x + "px";
+      item.element.style.top = projected.y + "px";
+    }
+  }
+
+  function renderLocationList() {
+    const locations = knownLocations();
+    if (!locations.length) {
+      locationList.innerHTML = '<div class="truth-note"><p>No authoritative location coordinates are available.</p></div>';
+      return;
+    }
+
+    locationList.innerHTML = locations.map(loc => {
+      const active = selected && selected.type === "location" && String(selected.id) === String(loc.id);
+      return '<button class="location-row' + (active ? ' selected' : '') + '" data-location-id="' + escapeHtml(loc.id) + '">' +
+        '<strong>' + escapeHtml(loc.name || loc.id) + '</strong>' +
+        '<span>x ' + escapeHtml(Number(loc.x_m).toFixed(1)) + ' m • y ' + escapeHtml(Number(loc.y_m).toFixed(1)) + ' m</span>' +
+        '</button>';
+    }).join("");
+
+    for (const button of locationList.querySelectorAll("[data-location-id]")) {
+      button.addEventListener("click", () => selectItem("location", button.dataset.locationId, true));
+    }
+  }
+
+  function selectedData() {
+    if (!selected || !state) return null;
+    if (selected.type === "location") return knownLocations().find(loc => String(loc.id) === String(selected.id)) || null;
+    if (selected.type === "citizen") return (state.citizens || []).find(row => String(row.id) === String(selected.id)) || null;
+    if (selected.type === "structure") return (state.structures || []).find(row => String(row.id) === String(selected.id)) || null;
+    if (selected.type === "visitor") return visitorPresence;
+    return null;
+  }
+
+  function renderSelection() {
+    const data = selectedData();
+    if (!data) {
+      selectionTitle.textContent = "Nothing selected";
+      selectionBody.innerHTML = "<p>Select a known marker.</p>";
+      return;
+    }
+
+    if (selected.type === "location") {
+      const deposits = (state.deposits || []).filter(dep => String(dep.location_id) === String(data.id) && dep.discovered);
+      selectionTitle.textContent = data.name || data.id;
+      selectionBody.innerHTML =
+        '<dl class="selection-grid">' +
+        '<dt>Local X</dt><dd>' + escapeHtml(Number(data.x_m).toFixed(1)) + ' m</dd>' +
+        '<dt>Local Y</dt><dd>' + escapeHtml(Number(data.y_m).toFixed(1)) + ' m</dd>' +
+        '<dt>Surveyed</dt><dd>' + (data.surveyed ? "Yes" : "No") + '</dd>' +
+        '<dt>Known resources</dt><dd>' + deposits.length + '</dd>' +
+        '</dl>' +
+        '<p>Planet/Region placement is a magnified presentation of the local tangent frame, not global latitude/longitude.</p>';
+      return;
+    }
+
+    if (selected.type === "citizen") {
+      selectionTitle.textContent = data.name || data.id;
+      selectionBody.innerHTML =
+        '<dl class="selection-grid">' +
+        '<dt>Activity</dt><dd>' + escapeHtml(data.current_activity || "Unknown") + '</dd>' +
+        '<dt>Energy</dt><dd>' + escapeHtml(Math.round(Number(data.energy || 0))) + '%</dd>' +
+        '<dt>Integrity</dt><dd>' + escapeHtml(Math.round(Number(data.integrity || 0))) + '%</dd>' +
+        '<dt>Local X</dt><dd>' + escapeHtml(Number(data.position_x_m || 0).toFixed(1)) + ' m</dd>' +
+        '<dt>Local Y</dt><dd>' + escapeHtml(Number(data.position_y_m || 0).toFixed(1)) + ' m</dd>' +
+        '</dl>';
+      return;
+    }
+
+    if (selected.type === "structure") {
+      selectionTitle.textContent = data.name || ("Structure #" + data.id);
+      selectionBody.innerHTML =
+        '<dl class="selection-grid">' +
+        '<dt>Kind</dt><dd>' + escapeHtml(titleCase(data.kind || "structure")) + '</dd>' +
+        '<dt>Status</dt><dd>' + escapeHtml(titleCase(data.status || "recorded")) + '</dd>' +
+        '<dt>Condition</dt><dd>' + escapeHtml(finite(data.condition) == null ? "Unknown" : Number(data.condition).toFixed(1) + "%") + '</dd>' +
+        '<dt>Local X</dt><dd>' + escapeHtml(Number(data.x_m || 0).toFixed(1)) + ' m</dd>' +
+        '<dt>Local Y</dt><dd>' + escapeHtml(Number(data.y_m || 0).toFixed(1)) + ' m</dd>' +
+        '</dl>';
+      return;
+    }
+
+    if (selected.type === "visitor") {
+      selectionTitle.textContent = "Visitor";
+      selectionBody.innerHTML =
+        '<dl class="selection-grid">' +
+        '<dt>Location</dt><dd>' + escapeHtml(data.location_name || data.location_id || "Unknown") + '</dd>' +
+        '<dt>Local X</dt><dd>' + escapeHtml(Number(data.x_m || 0).toFixed(1)) + ' m</dd>' +
+        '<dt>Local Y</dt><dd>' + escapeHtml(Number(data.y_m || 0).toFixed(1)) + ' m</dd>' +
+        '</dl>';
+    }
+  }
+
+  function findItem(type, id) {
+    if (type === "location") return knownLocations().find(row => String(row.id) === String(id)) || null;
+    if (type === "citizen") return (state && state.citizens || []).find(row => String(row.id) === String(id)) || null;
+    if (type === "structure") return (state && state.structures || []).find(row => String(row.id) === String(id)) || null;
+    if (type === "visitor") return visitorPresence;
+    return null;
+  }
+
+  function selectedWorld() {
+    const data = findItem(selected.type, selected.id);
+    if (!data) return null;
+
+    if (mode === "local") {
+      if (selected.type === "location") return localWorld(data.x_m, data.y_m, 0);
+      if (selected.type === "citizen") return localWorld(data.position_x_m, data.position_y_m, 0);
+      if (selected.type === "structure") return localWorld(data.x_m, data.y_m, 0);
+      if (selected.type === "visitor") return localWorld(data.x_m, data.y_m, 0);
+    } else if (selected.type === "location") {
+      return globeWorld(data.x_m, data.y_m, 1);
+    }
+    return null;
+  }
+
+  function ease(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  function animateCamera(next, duration) {
+    const ms = reduceMotion.matches ? 0 : (duration || 800);
+    if (!ms) {
+      camera.yaw = next.yaw == null ? camera.yaw : next.yaw;
+      camera.pitch = next.pitch == null ? camera.pitch : next.pitch;
+      camera.distance = next.distance == null ? camera.distance : next.distance;
+      camera.target = next.target ? [...next.target] : camera.target;
+      cameraTween = null;
+      return;
+    }
+
+    cameraTween = {
+      started: performance.now(),
+      duration: ms,
+      from: {
+        yaw: camera.yaw,
+        pitch: camera.pitch,
+        distance: camera.distance,
+        target: [...camera.target],
+      },
+      to: {
+        yaw: next.yaw == null ? camera.yaw : next.yaw,
+        pitch: next.pitch == null ? camera.pitch : next.pitch,
+        distance: next.distance == null ? camera.distance : next.distance,
+        target: next.target ? [...next.target] : [...camera.target],
+      },
+    };
+  }
+
+  function updateTween(now) {
+    if (!cameraTween) return;
+    const raw = clamp((now - cameraTween.started) / cameraTween.duration, 0, 1);
+    const t = ease(raw);
+    const from = cameraTween.from;
+    const to = cameraTween.to;
+
+    camera.yaw = from.yaw + (to.yaw - from.yaw) * t;
+    camera.pitch = from.pitch + (to.pitch - from.pitch) * t;
+    camera.distance = from.distance + (to.distance - from.distance) * t;
+    camera.target = [
+      from.target[0] + (to.target[0] - from.target[0]) * t,
+      from.target[1] + (to.target[1] - from.target[1]) * t,
+      from.target[2] + (to.target[2] - from.target[2]) * t,
+    ];
+
+    if (raw >= 1) cameraTween = null;
+  }
+
+  function cameraForGlobePoint(world, distance) {
+    const n = vec3Normalize(world);
+    return {
+      yaw: Math.atan2(n[0], n[2]),
+      pitch: Math.asin(clamp(n[1], -1, 1)),
+      distance,
+      target: [0, 0, 0],
+    };
+  }
+
+  function focusSelected() {
+    const world = selectedWorld();
+    if (!world) return;
+
+    if (mode === "planet") {
+      animateCamera(cameraForGlobePoint(world, 2.7), 700);
+    } else if (mode === "region") {
+      animateCamera(cameraForGlobePoint(world, 1.55), 760);
+    } else {
+      animateCamera({
+        target: [world[0], 0, world[2]],
+        distance: Math.min(camera.distance, 3.0),
+      }, 650);
+    }
+  }
+
+  function selectItem(type, id, focus) {
+    selected = { type, id: String(id) };
+    renderSelection();
+    renderLocationList();
+    refreshMarkerSelection();
+    if (focus) focusSelected();
+  }
+
+  function setMode(nextMode, focus) {
+    if (!["planet", "region", "local"].includes(nextMode)) return;
+    mode = nextMode;
+
+    for (const button of modeButtons) {
+      button.classList.toggle("active", button.dataset.mode === mode);
+    }
+
+    if (mode === "planet") {
+      modeCaption.textContent = "Planet shell • local frame visually anchored";
+      animateCamera({
+        yaw: -0.72,
+        pitch: 0.34,
+        distance: 3.25,
+        target: [0, 0, 0],
+      }, 900);
+    } else if (mode === "region") {
+      modeCaption.textContent = "Regional globe focus • known landmarks only";
+      const seed = seedLocation();
+      const world = globeWorld(seed.x_m, seed.y_m, 1);
+      animateCamera(cameraForGlobePoint(world, 1.6), 850);
+    } else {
+      modeCaption.textContent = "Local tangent surface • authoritative meter coordinates";
+      const target = selectedWorld() || [0, 0, 0];
+      animateCamera({
+        yaw: -0.72,
+        pitch: 0.82,
+        distance: 4.25,
+        target: [target[0], 0, target[2]],
+      }, 900);
+    }
+
+    rebuildMarkers();
+    if (focus) focusSelected();
+  }
+
+  function resetCamera() {
+    if (mode === "planet") {
+      animateCamera({ yaw: -0.72, pitch: 0.34, distance: 3.25, target: [0, 0, 0] }, 600);
+    } else if (mode === "region") {
+      const seed = seedLocation();
+      animateCamera(cameraForGlobePoint(globeWorld(seed.x_m, seed.y_m, 1), 1.6), 600);
+    } else {
+      animateCamera({ yaw: -0.72, pitch: 0.82, distance: 4.25, target: [0, 0, 0] }, 600);
+    }
+  }
+
+  function updateCanvasSize() {
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    const width = Math.max(1, Math.round(canvas.clientWidth * ratio));
+    const height = Math.max(1, Math.round(canvas.clientHeight * ratio));
+    if (canvas.width !== width || canvas.height !== height) {
+      canvas.width = width;
+      canvas.height = height;
+    }
+    gl.viewport(0, 0, width, height);
+  }
+
+  function renderFrame(now) {
+    updateTween(now);
+    updateCanvasSize();
+
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
+    gl.clearColor(0.012, 0.027, 0.039, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    const matrix = viewProjection();
+    if (mode === "local") {
+      drawLocal(matrix);
+    } else {
+      drawSphere(matrix);
+    }
+
+    updateMarkers(matrix);
+    frameHandle = requestAnimationFrame(renderFrame);
+  }
+
+  async function fetchWorldState() {
+    try {
+      const [stateResponse, visitorResponse] = await Promise.all([
+        fetch("/api/state", { cache: "no-store" }),
+        fetch("/api/visitor/presence?visitor=N7", { cache: "no-store" }),
+      ]);
+
+      if (!stateResponse.ok) throw new Error("State endpoint unavailable");
+      state = await stateResponse.json();
+      visitorPresence = visitorResponse.ok ? await visitorResponse.json() : null;
+
+      refreshFrames();
+      renderLocationList();
+      rebuildMarkers();
+
+      if (!findItem(selected.type, selected.id)) {
+        selected = { type: "location", id: String(seedLocation().id) };
+      }
+      renderSelection();
+
+      simTime.textContent = state.sim_label || ("Sim minute " + Number(state.sim_minute || 0));
+      connectionPill.textContent = "Live state";
+      connectionPill.classList.remove("offline");
+      connectionPill.classList.add("online");
+    } catch (error) {
+      connectionPill.textContent = "State unavailable";
+      connectionPill.classList.remove("online");
+      connectionPill.classList.add("offline");
+      console.error("Planet Lab state refresh failed", error);
+    }
+  }
+
+  function minCameraDistance() {
+    if (mode === "planet") return 1.35;
+    if (mode === "region") return 1.18;
+    return 0.45;
+  }
+
+  function maxCameraDistance() {
+    if (mode === "local") return 9;
+    return 8;
+  }
+
+  canvas.addEventListener("contextmenu", event => event.preventDefault());
+
+  canvas.addEventListener("pointerdown", event => {
+    dragging = true;
+    dragKind = mode === "local" && (event.shiftKey || event.button === 2) ? "pan" : "orbit";
+    lastPointer = { x: event.clientX, y: event.clientY };
+    canvas.classList.add("dragging");
+    canvas.setPointerCapture(event.pointerId);
+    cameraTween = null;
+  });
+
+  canvas.addEventListener("pointermove", event => {
+    if (!dragging) return;
+    const dx = event.clientX - lastPointer.x;
+    const dy = event.clientY - lastPointer.y;
+    lastPointer = { x: event.clientX, y: event.clientY };
+
+    if (dragKind === "pan" && mode === "local") {
+      const scale = camera.distance * 0.0024;
+      const right = [Math.cos(camera.yaw), 0, -Math.sin(camera.yaw)];
+      const forward = [-Math.sin(camera.yaw), 0, -Math.cos(camera.yaw)];
+      camera.target[0] += (-dx * right[0] + dy * forward[0]) * scale;
+      camera.target[2] += (-dx * right[2] + dy * forward[2]) * scale;
+    } else {
+      camera.yaw -= dx * 0.006;
+      camera.pitch = clamp(camera.pitch + dy * 0.006, -1.34, 1.34);
+    }
+  });
+
+  const finishDrag = event => {
+    dragging = false;
+    canvas.classList.remove("dragging");
+    try {
+      canvas.releasePointerCapture(event.pointerId);
+    } catch {
+      // Pointer may already have been released by the browser.
+    }
+  };
+
+  canvas.addEventListener("pointerup", finishDrag);
+  canvas.addEventListener("pointercancel", finishDrag);
+
+  canvas.addEventListener("wheel", event => {
+    event.preventDefault();
+    cameraTween = null;
+    const factor = Math.exp(event.deltaY * 0.001);
+    camera.distance = clamp(camera.distance * factor, minCameraDistance(), maxCameraDistance());
+  }, { passive: false });
+
+  for (const button of modeButtons) {
+    button.addEventListener("click", () => setMode(button.dataset.mode, false));
+  }
+
+  resetCameraButton.addEventListener("click", resetCamera);
+
+  window.addEventListener("keydown", event => {
+    if (event.target && ["INPUT", "TEXTAREA"].includes(event.target.tagName)) return;
+    if (event.key === "1") setMode("planet", false);
+    if (event.key === "2") setMode("region", false);
+    if (event.key === "3") setMode("local", false);
+    if (event.key.toLowerCase() === "r") resetCamera();
+    if (event.key.toLowerCase() === "f") focusSelected();
+  });
+
+  window.addEventListener("resize", updateCanvasSize);
+
+  fetchWorldState();
+  window.setInterval(fetchWorldState, 4000);
+  frameHandle = requestAnimationFrame(renderFrame);
+
+  window.addEventListener("beforeunload", () => {
+    if (frameHandle != null) cancelAnimationFrame(frameHandle);
+  });
+})();
