@@ -1,6 +1,6 @@
 {
-  "version": "0.9.11",
-  "notes": "Authoritative GitHub Update Feed: fixes repeated stale release detection from raw.githubusercontent.com branch URLs. When the configured update feed is a GitHub raw branch URL, Agent City now resolves the same repository/ref/file through GitHub's repository contents API and requests the raw file directly from repository state. The previous cache-busted raw request remains as a fallback for temporary API failures or non-GitHub feeds. Saved feed URLs remain unchanged. This release includes all v0.9.10 3D world-space cluster behavior.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/1b4398b5642fe4d0b821bf58e773c1626c26dc58",
+  "version": "0.9.12",
+  "notes": "Cato Pre-Blender World Body: promotes Cato from a circular Local-map token to the first full-body citizen presentation in Agent City. Cato now uses a transparent equipment-free chunky body sprite anchored at his authoritative Local position, inherits the existing real route-travel interpolation and camera-depth scaling, receives a body-shaped selection glow and subtle travel-only bob, and gets a separate empty equipment layer reserved for future validated gear. Other citizens remain token-based for now. This is a 2.5D pre-Blender body pilot, not a real mesh; Simulation remains the sole authority over position, travel, equipment, cargo, and capability.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/e40870e2550a9b211eee77308661be701368ae68",
   "sha256": ""
 }
