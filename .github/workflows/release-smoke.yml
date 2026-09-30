@@ -150,3 +150,6 @@ jobs:
 
       - name: Run v0.9 Stage 3 Assets continuity UI smoke
         run: python tests/smoke_v090_assets_stage3.py
+
+      - name: Run v0.9.1 History records smoke
+        run: python tests/smoke_v091_history_records.py
