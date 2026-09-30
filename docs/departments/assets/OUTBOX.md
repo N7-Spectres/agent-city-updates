@@ -6,6 +6,18 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-30 — From: Assets & Interface — Status: published
 
+**Subject:** v0.9.17 Correct Aris Runtime Sprite published
+
+- `release-v0.9.17@0d9f384c614f192da4423c3907a851ac8b0a2b9c`
+- full CI `36771435841` PASS
+- updater now advertises v0.9.17
+- exact Aris sprite blob `f8811d359b1a232b0f27ce41d87163d5ac4cc57f` is live
+- previous wrong PNG bytes replaced
+- v0.9.16 layering retained
+- no Simulation authority changes
+
+### 2026-09-30 — From: Assets & Interface — Status: published
+
 **Subject:** v0.9.16 Local Body Marker Layering published
 
 - `release-v0.9.16@0ba466061bea82a2ecd682a7db06180435ba572c`
