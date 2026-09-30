@@ -184,6 +184,86 @@ def get_state():
     return state
 
 
+@app.get("/api/records/history")
+def get_records_history(
+    conversation_page: int = 1,
+    chronology_page: int = 1,
+    conversation_page_size: int = 8,
+    chronology_page_size: int = 12,
+):
+    conversation_page_size = max(1, min(int(conversation_page_size), 20))
+    chronology_page_size = max(1, min(int(chronology_page_size), 30))
+
+    with connect() as conn:
+        conversation_total = int(
+            conn.execute("SELECT COUNT(*) AS n FROM citizen_conversations").fetchone()["n"]
+        )
+        conversation_pages = max(1, (conversation_total + conversation_page_size - 1) // conversation_page_size)
+        conversation_page = max(1, min(int(conversation_page), conversation_pages))
+        conversation_offset = (conversation_page - 1) * conversation_page_size
+
+        conversations = [
+            dict(row)
+            for row in conn.execute(
+                """
+                SELECT cc.*,
+                       'citizen_conversation' AS source_type,
+                       cc.id AS source_id,
+                       cc.id AS transfer_event_id,
+                       ci.name AS initiator_name,
+                       ct.name AS target_name,
+                       l.name AS location_name,
+                       j.end_minute AS completed_minute
+                FROM citizen_conversations cc
+                JOIN citizens ci ON ci.id = cc.initiator_id
+                JOIN citizens ct ON ct.id = cc.target_id
+                JOIN locations l ON l.id = cc.location_id
+                LEFT JOIN jobs j ON j.id = cc.source_job_id
+                ORDER BY cc.id DESC
+                LIMIT ? OFFSET ?
+                """,
+                (conversation_page_size, conversation_offset),
+            )
+        ]
+
+        chronology_total = int(
+            conn.execute("SELECT COUNT(*) AS n FROM history").fetchone()["n"]
+        )
+        chronology_pages = max(1, (chronology_total + chronology_page_size - 1) // chronology_page_size)
+        chronology_page = max(1, min(int(chronology_page), chronology_pages))
+        chronology_offset = (chronology_page - 1) * chronology_page_size
+
+        chronology = [
+            dict(row)
+            for row in conn.execute(
+                """
+                SELECT *
+                FROM history
+                ORDER BY id DESC
+                LIMIT ? OFFSET ?
+                """,
+                (chronology_page_size, chronology_offset),
+            )
+        ]
+
+    return {
+        "conversations": {
+            "items": conversations,
+            "page": conversation_page,
+            "page_size": conversation_page_size,
+            "total": conversation_total,
+            "total_pages": conversation_pages,
+        },
+        "chronology": {
+            "items": chronology,
+            "page": chronology_page,
+            "page_size": chronology_page_size,
+            "total": chronology_total,
+            "total_pages": chronology_pages,
+        },
+    }
+
+
 @app.get("/api/knowledge/citizens/{citizen_id}")
 def get_citizen_knowledge(
     citizen_id: str,
