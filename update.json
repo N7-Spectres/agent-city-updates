@@ -1,6 +1,6 @@
 {
-  "version": "0.9.3",
-  "notes": "Citizen Sheet Navigation: the Citizens page now prioritizes an at-a-glance profile dashboard with physical state, current work, maintenance, cargo, equipped gear, projects, and active-plan summary. Deeper continuity data moves into a right-side on-demand navigator for Continuity, Memories, Experience, Patterns & Places, Social, and Knowledge. The selected detail view persists across auto-refresh and reload; desktop keeps the deep panel sticky and internally scrollable, while smaller screens collapse to a single-column layout with horizontally scrollable detail controls. Existing Memory, competence, and pattern-truth boundaries are preserved.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/2826784e2bde768e7388535820e217361d234cc9",
+  "version": "0.9.4",
+  "notes": "Zero-Energy Charger Recovery: fixes an impossible deadlock where an idle citizen could reach 0% energy while still inside a location that contains an operational charger but remain more than 5 m from the charger’s local coordinate. Agent City now performs a narrow diagnostic/admin recovery on startup and world ticks: it aligns only that stranded citizen to the nearest operational charger at the same location, grants no energy, creates no fictional citizen action, records the intervention as diagnostic recovery, and makes the citizen planner-eligible so the existing critical-energy rule can resume ordinary charging. Citizens at other locations are never teleported to a charger.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/ed73598148e0f23b64834e9f716f3fab6ba2364e",
   "sha256": ""
 }
