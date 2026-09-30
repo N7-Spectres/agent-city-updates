@@ -4,7 +4,7 @@ _Last updated: 2026-09-30_
 
 ## Current Release
 
-**v0.9.6 — Home 3D World**
+**v0.9.7 — Wider Local Marker Spread**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,31 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.7 Published Patch — Wider Local Marker Spread
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.7`
+- exact green head: `c783ff6875136de1edd5852676246ef69a442fd0`
+- full CI: `36663515487` — PASS
+- published updater: `v0.9.7`
+- `update.json` downloads the exact green v0.9.7 runtime
+
+Delivered:
+- co-located citizen tokens fan out into a wider screen-space ring in Local 3D
+- shared authoritative meter coordinates remain untouched
+- visitor marker is offset farther below crowded citizen clusters
+- tokens leave the fan-out automatically when authoritative citizen coordinates diverge
+- hover/focus readability improved for spread tokens
+- no frontend movement authority added
+- no Simulation state writes
+
+Validation:
+- complete regression matrix through v0.9.6
+- Planet Lab JavaScript syntax
+- Home 3D integration smoke
+- `tests/smoke_v097_local_marker_spread.py`
 
 ## v0.9.6 Published Patch — Home 3D World
 
