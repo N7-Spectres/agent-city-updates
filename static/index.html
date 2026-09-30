@@ -33,7 +33,7 @@
     <button class="primary-tab" data-view="citizens">Citizens</button>
     <button class="primary-tab" data-view="locations">Locations</button>
     <button class="primary-tab" data-view="records">Records</button>
-    <a class="primary-tab prototype-link" href="/planet-lab" title="Experimental interactive 3D world prototype">3D Planet Lab</a>
+    <a class="primary-tab prototype-link" href="/planet-lab" title="Open the full-screen 3D planet view">Planet</a>
   </nav>
 
   <main>
@@ -60,12 +60,21 @@
           <div class="panel-head world-head">
             <div>
               <div class="eyebrow">WORLD VIEW</div>
-              <h2>Known region</h2>
+              <h2>Live local world</h2>
             </div>
             <span id="map-spatial-status" class="muted">Confirmed information only.</span>
           </div>
 
-          <div class="world-stage">
+          <div id="home-world-stage" class="world-stage world-stage-3d">
+            <iframe
+              id="home-world-3d"
+              class="home-world-3d"
+              src="/planet-lab?embed=1&mode=local"
+              title="Live interactive 3D Agent City world"
+              loading="eager"
+            ></iframe>
+            <button id="world-view-fallback-toggle" class="world-view-fallback-toggle" type="button">2D fallback</button>
+
             <svg id="route-layer" class="route-layer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
             <div id="map-layer" class="map-layer"></div>
 
@@ -347,5 +356,31 @@
   </main>
 
   <script src="/static/app.js"></script>
+  <script>
+    (() => {
+      const stage = document.getElementById("home-world-stage");
+      const frame = document.getElementById("home-world-3d");
+      const toggle = document.getElementById("world-view-fallback-toggle");
+      if (stage && frame && toggle) {
+        toggle.addEventListener("click", () => {
+          const legacy = stage.classList.toggle("show-legacy-map");
+          toggle.textContent = legacy ? "3D world" : "2D fallback";
+          toggle.setAttribute("aria-pressed", legacy ? "true" : "false");
+        });
+
+        window.addEventListener("message", event => {
+          if (event.origin !== window.location.origin || event.source !== frame.contentWindow) return;
+          const message = event.data || {};
+          if (
+            message.type === "agent-city-world-select" &&
+            message.entityType === "citizen" &&
+            typeof window.selectCitizen === "function"
+          ) {
+            window.selectCitizen(String(message.id || ""));
+          }
+        });
+      }
+    })();
+  </script>
 </body>
 </html>
