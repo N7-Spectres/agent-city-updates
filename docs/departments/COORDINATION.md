@@ -24,18 +24,18 @@ _None._
 
 ### READY
 
-_None._
+- [Coordinator / v0.9.2 Publication] conversation-summary polish + critical-energy social protection are green on `release-v0.9.2@ea4a838fa10a557ac6d3f032a55e1dc94a84012f`; CI `36654523357` PASS. `update.json` still advertises v0.9.1.
 
 ### REVIEW
 
-_None._
+- [Communication & Perception] name-based human-facing conversation summaries with defensive backend-role cleanup complete.
+- [World & Simulation] autonomous social targeting no longer starves critically low citizens of recharge/planner priority.
 
 ### DONE
 
-- [Coordinator] **v0.9.1 History Records Polish published** via `update.json` on `main` commit `d4a9d46c32cd967d5cd3b95dd5f83e1b43c8a0d8`.
+- [Coordinator] v0.9.1 History Records Polish published.
 - [v0.9.1 Runtime] `release-v0.9.1@371911bd9b337924ba1b960cb794caccd991c150`; full CI `36652854090` PASS.
 - [Coordinator] v0.9.0 Civilization Continuity published.
-- [v0.9.0 Runtime] `release-v0.9.0@10e866fd693af7b8ba24d34331a19dde281ee670`; definitive CI `36649456577` PASS.
 
 ## v0.9.1 Published Patch
 
