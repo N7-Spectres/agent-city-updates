@@ -1,9 +1,9 @@
 # Assets & Interface — State
 
 _Last updated: 2026-09-30_
-_Current published release: v0.9.6 @ `8407870349a4331c19bc9b36554e45dd151733ba`_
+_Current published release: v0.9.7 @ `c783ff6875136de1edd5852676246ef69a442fd0`_
 _Current Assets activity: Home 3D World / RTS-style local world foundation_
-_Current runtime branch: `release-v0.9.6` @ `8407870349a4331c19bc9b36554e45dd151733ba`_
+_Current runtime branch: `release-v0.9.7` @ `c783ff6875136de1edd5852676246ef69a442fd0`_
 _Current review surface: published updater v0.9.6_
 _Current status: DONE / PUBLISHED_
 
@@ -595,3 +595,21 @@ Validation:
 Next visual direction:
 - treat Home as an RTS-style **living-world viewer**, not an RTS command interface
 - improve local camera feel, live movement interpolation, structure geometry, terrain readability, and day/night presentation without moving physical authority into Assets
+
+
+## v0.9.7 Wider Local Marker Spread — Published
+
+Status:
+**DONE / PUBLISHED**
+
+- release branch: `release-v0.9.7`
+- exact green runtime: `c783ff6875136de1edd5852676246ef69a442fd0`
+- full CI: `36663515487` — PASS
+- updater: v0.9.7
+
+Delivered:
+- co-located citizen tokens fan out into a wider screen-space ring
+- visitor marker moves farther below crowded shared points
+- physical Simulation x/y remains authoritative and unchanged
+- fan-out disappears naturally when citizens move to distinct authoritative coordinates
+- hover/focus readability improved for spread citizen tokens
