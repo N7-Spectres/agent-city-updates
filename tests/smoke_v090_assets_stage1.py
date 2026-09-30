@@ -11,8 +11,11 @@ def main() -> None:
     main_py = (ROOT / "main.py").read_text(encoding="utf-8")
     memory = (ROOT / "agent_city" / "causal_memory.py").read_text(encoding="utf-8")
 
-    # Citizen continuity stays attached to the citizen sheet.
-    assert "citizenContinuityMarkup(citizen.id)" in app
+    # Citizen continuity stays attached to the citizen sheet, now through
+    # explicit on-demand detail views rather than one long stacked section.
+    assert 'citizenContinuityMarkup(citizen.id, "continuity")' in app
+    assert 'citizenContinuityMarkup(citizen.id, "memories")' in app
+    assert 'citizenContinuityMarkup(citizen.id, "experience")' in app
     assert "Ongoing plans" in app
     assert "Recorded practice" in app
     assert "Relevant memories" in app
