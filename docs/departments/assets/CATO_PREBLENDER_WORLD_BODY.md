@@ -86,6 +86,20 @@ A true model may replace the sprite presentation while continuing to consume the
 
 The renderer must not infer physical facing, gear, cargo, or capability from the mesh.
 
+## v0.9.13 Grounding Polish
+
+The first post-pilot polish pass keeps the same authoritative world position and sprite-body contract while improving presentation:
+
+- body screen box widened slightly for Cato's approved heavy silhouette
+- ground anchor moved closer to the sprite's foot line
+- neutral ground-contact ellipse added beneath the body
+- selected / hover states emphasize the ground contact as well as the body
+- route-travel bob reduced to read as a heavy body rather than a floating token
+- route-travel shadow compresses in sync with the presentation bob
+- reduced-motion disables both travel animations
+
+These are presentation measurements only. They do not define Cato's physical height, width, mass, collision body, or locomotion model.
+
 ## Next Pre-Blender Opportunities
 
 Before Blender is required, Assets can still add:
