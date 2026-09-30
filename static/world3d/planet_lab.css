@@ -620,3 +620,17 @@ body[data-day-phase="night"] .citizen-marker,
 body[data-day-phase="night"] .structure-marker {
   box-shadow: 0 0 0 5px rgba(100,221,236,.07), 0 0 18px rgba(100,221,236,.16);
 }
+
+
+/* v0.9.7 — wider shared-point citizen fan-out */
+.citizen-marker:hover,
+.citizen-marker:focus-visible {
+  z-index: 26;
+  border-color: rgba(237,247,251,.92);
+  box-shadow: 0 0 0 7px rgba(100,221,236,.11), 0 0 24px rgba(100,221,236,.22);
+  outline: none;
+}
+
+.visitor-marker {
+  z-index: 24;
+}
