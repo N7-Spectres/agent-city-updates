@@ -1,9 +1,9 @@
 # Assets & Interface — State
 
 _Last updated: 2026-09-30_
-_Current published release: v0.9.7 @ `c783ff6875136de1edd5852676246ef69a442fd0`_
+_Current published release: v0.9.9 @ `d942d38ea0f82d056a6494a2f7be64041974d5c8`_
 _Current Assets activity: Home 3D World / RTS-style local world foundation_
-_Current runtime branch: `release-v0.9.7` @ `c783ff6875136de1edd5852676246ef69a442fd0`_
+_Current runtime branch: `release-v0.9.9` @ `d942d38ea0f82d056a6494a2f7be64041974d5c8`_
 _Current review surface: published updater v0.9.6_
 _Current status: DONE / PUBLISHED_
 
@@ -613,3 +613,23 @@ Delivered:
 - physical Simulation x/y remains authoritative and unchanged
 - fan-out disappears naturally when citizens move to distinct authoritative coordinates
 - hover/focus readability improved for spread citizen tokens
+
+
+## v0.9.9 3D Route Motion + Perspective — Published
+
+Status:
+**DONE / PUBLISHED**
+
+- release branch: `release-v0.9.9`
+- exact green runtime: `d942d38ea0f82d056a6494a2f7be64041974d5c8`
+- full CI: `36664664989` — PASS
+- updater: v0.9.9
+
+Delivered:
+- Local 3D continuously renders real Simulation travel jobs between authoritative route endpoints
+- timing comes from real job start/end minutes and Simulation time ratio
+- pause freezes visual travel
+- marker scale responds to camera depth
+- shared-point citizen/visitor fan-out scales with perspective
+- selected-citizen focus follows rendered travel position
+- renderer performs no coordinate/state writes
