@@ -574,3 +574,49 @@ h1 {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* v0.9.6 — embedded Home world mode */
+body.embedded {
+  min-height: 100%;
+  overflow: hidden;
+  background: #071018;
+}
+
+body.embedded .lab-shell {
+  height: 100vh;
+  grid-template-rows: minmax(0, 1fr);
+}
+
+body.embedded .lab-topbar,
+body.embedded .left-panel,
+body.embedded .right-panel {
+  display: none;
+}
+
+body.embedded .viewport-shell {
+  min-height: 100%;
+}
+
+body.embedded .prototype-banner {
+  top: 12px;
+}
+
+body.embedded .camera-help {
+  left: 14px;
+  bottom: 16px;
+}
+
+body.embedded .mode-switch {
+  bottom: 14px;
+}
+
+body.embedded .reset-camera {
+  right: 14px;
+  bottom: 14px;
+}
+
+body[data-day-phase="night"] .citizen-marker,
+body[data-day-phase="night"] .structure-marker {
+  box-shadow: 0 0 0 5px rgba(100,221,236,.07), 0 0 18px rgba(100,221,236,.16);
+}
