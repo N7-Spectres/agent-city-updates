@@ -4,7 +4,7 @@ _Last updated: 2026-09-29_
 
 ## Current Release
 
-**v0.8.7 — Route Travel Visualization**
+**v0.9.0 — Civilization Continuity**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -18,15 +18,16 @@ Information law:
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
 
-## v0.9.0 Release Candidate — Civilization Continuity
+## v0.9.0 Published Release — Civilization Continuity
 
-**Status: fully integrated, definitive CI green, ready for publication review**
+**Status: published from the definitive green runtime**
 
-- release candidate branch: `release-v0.9.0`
+- release branch: `release-v0.9.0`
 - exact green runtime head: `10e866fd693af7b8ba24d34331a19dde281ee670`
 - definitive full CI: `36649456577` — PASS
-- published updater still remains `v0.8.7` until explicit release publication
-- `update.json` has not been changed
+- published updater: `v0.9.0`
+- publication manifest commit on `main`: `7c080eda9678ad6f5a6368a9af101f4460af29c0`
+- `update.json` package points directly to the exact green runtime commit
 
 v0.9 now includes the complete three-stage continuity architecture:
 
@@ -66,17 +67,17 @@ v0.9 remains governed by:
 
 > **Persistent behavior must have a traceable history.**
 
-The next developmental milestone remains v1.0, but no v1.0 comparison/inquiry/general-preference machinery is included in this release candidate.
+The next developmental milestone remains v1.0, but no v1.0 comparison/inquiry/general-preference machinery is included in v0.9.0.
 
 ## v0.9 Stage 1 Integrated Baseline
 
-**Status: integrated and green; not yet published as v0.9.0**
+**Status: historical Stage 1 baseline incorporated into published v0.9.0**
 
 - branch: `release-v0.9.0-stage1-integration`
 - immutable green head: `de5f2d87b0f77610c95e0016efdb7ca5a9206e22`
 - combined CI: `36615685005` — PASS
 - VERSION on integration branch: `0.9.0` for test/release-line preparation only
-- `update.json` remains on the published v0.8.7 runtime
+- publication later advanced `update.json` to the final v0.9.0 runtime
 
 Integrated:
 - Memory causal archive / bounded active recall
@@ -110,12 +111,12 @@ Stage 1 does **not** yet add:
 
 ## v0.9 Stage 2 Upstream Integrated Baseline
 
-**Status: Simulation + Memory + Communication integrated and green; Assets runtime UI now authorized**
+**Status: historical Stage 2 upstream baseline incorporated into published v0.9.0**
 
 - branch: `release-v0.9.0-stage2-integration`
 - green head: `ac548b06ea8a88a66a763902ab01a6567c3a2e79`
 - combined CI: `36633452433` — PASS
-- `update.json` remains on published v0.8.7
+- publication later advanced `update.json` to the final v0.9.0 runtime
 
 Integrated Stage 2 upstream systems:
 - family-bounded practice-derived competence
@@ -140,7 +141,7 @@ Next:
 
 ## v0.9 Stage 2 Fully Integrated Baseline
 
-**Status: complete and green; not yet published as v0.9.0**
+**Status: complete and incorporated into published v0.9.0**
 
 - branch: `release-v0.9.0-stage2-integration`
 - immutable green head: `f680275a78b9da71a43f3c79217f292796b7843d`
