@@ -4,7 +4,7 @@ _Last updated: 2026-09-30_
 
 ## Current Release
 
-**v0.9.3 — Citizen Sheet Navigation**
+**v0.9.4 — Zero-Energy Charger Recovery**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,37 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.4 Published Patch — Zero-Energy Charger Recovery
+
+**Status: published from the fully regression-tested patch line**
+
+- branch: `release-v0.9.4`
+- exact green head: `ed73598148e0f23b64834e9f716f3fab6ba2364e`
+- full CI: `36657268659` — PASS
+- published updater: `v0.9.4`
+- publication manifest commit on `main`: `ee51c23a7ece7d787e30b9871ae2a38c3c6a5393`
+- `update.json` downloads the exact green v0.9.4 runtime
+
+Delivered:
+- detects idle citizens at absolute 0% energy who are stranded outside a charger's 5 m radius while already inside the same location as an operational charger
+- recovery is Simulation-owned diagnostic/admin correction, not a visitor action or fictional citizen action
+- recovery grants no energy and creates no job
+- only the citizen's local coordinate is aligned to the nearest operational charger at that same location
+- the citizen is made planner-eligible so the existing critical-energy autonomy rule resumes ordinary charging
+- citizens at other locations are never teleported to a charger
+- recovery runs once at startup and during world ticks, then becomes a no-op once the citizen is within real charger range
+- every correction is recorded in settlement history as a diagnostic admin recovery
+
+Observed target case:
+- Bex was observed at Seed Site with 0% energy after earlier social-drain behavior
+- v0.9.2 prevents future social starvation
+- v0.9.4 repairs the remaining impossible zero-energy local-offset deadlock so the existing save can recover naturally on startup
+
+Validation:
+- complete regression matrix through v0.9.3
+- `tests/smoke_v094_zero_energy_recovery.py`
+- Python compile and JavaScript syntax checks
 
 ## v0.9.3 Published Patch — Citizen Sheet Navigation
 
