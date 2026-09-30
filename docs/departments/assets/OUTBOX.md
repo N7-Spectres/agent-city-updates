@@ -4,6 +4,27 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
+### 2026-09-30 — From: Assets & Interface — Status: published
+
+**Subject:** v0.9.6 Home 3D World published
+
+**Release:**
+- `release-v0.9.6@8407870349a4331c19bc9b36554e45dd151733ba`
+- full CI `36662871853` PASS
+- updater now advertises v0.9.6
+
+**Delivered:**
+- Home World View defaults to embedded 3D Local mode
+- Local / Region / Planet controls remain in-place
+- 3D citizen clicks hand selection back to Home
+- local visual lighting follows Simulation-time day phases
+- old 2D map retained as explicit fallback
+- 3D renderer remains read-only
+
+**Next direction:**
+Evolve the Home world panel toward an RTS-style living diorama with better camera feel, movement interpolation, structure geometry, terrain readability, and richer day/night visuals while preserving Simulation authority.
+
+
 ### 2026-09-29 — From: Assets & Interface — Status: closed
 
 **Subject:** v0.9 Stage 2 Assets runtime UI session closed
