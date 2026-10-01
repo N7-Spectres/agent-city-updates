@@ -964,11 +964,11 @@ After each published body rollout:
 4. tune presentation if needed,
 5. only then begin the next citizen.
 
-Current sequence after Cato:
-1. Aris — published v0.9.14
-2. Bex
-3. Iri
-4. Noma
-5. Vale
+Published sequence:
+1. Cato — published v0.9.12
+2. Aris — published v0.9.14
+3. Iri — published v0.9.18
+
+The remaining citizen order is user-directed after each visual review. Do not assume Bex, Noma, or Vale must be next.
 
 This cadence is a presentation/review rule. It does not give Assets authority over citizen physics, equipment, movement, or capability.
