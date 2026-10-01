@@ -6,6 +6,22 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-09-30 — From: Assets & Interface — Status: published
 
+**Subject:** v0.9.18 Iri Local World Body published
+
+- `release-v0.9.18@d30231229af9c157e8fe98a3b35bfaab962e865b`
+- full CI `36807758825` PASS
+- updater now advertises v0.9.18
+- PR #39 merged
+- Iri is now the third Local full-body citizen beside Cato and Aris
+- Iri uses a slender pearl/lilac/cyan researcher presentation with ~1.78 m visual scale cue
+- existing Iri body source is cleaned only at the connected backdrop during presentation
+- shared Local body layering and authoritative travel pipeline preserved
+- Region / Planet remain free of citizen bodies
+- Bex, Noma, and Vale remain tokens
+- next action is live visual review of Iri
+
+### 2026-09-30 — From: Assets & Interface — Status: published
+
 **Subject:** v0.9.17 Correct Aris Runtime Sprite published
 
 - `release-v0.9.17@0d9f384c614f192da4423c3907a851ac8b0a2b9c`
