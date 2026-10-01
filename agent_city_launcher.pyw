@@ -264,6 +264,7 @@ def _start_tray() -> subprocess.Popen | None:
         process = subprocess.Popen(
             [
                 executable,
+                "-STA",
                 "-NoProfile",
                 "-ExecutionPolicy",
                 "Bypass",
