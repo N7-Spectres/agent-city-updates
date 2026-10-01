@@ -240,3 +240,7 @@ jobs:
 
       - name: Run v0.9.23 application icon smoke
         run: python tests/smoke_v0923_app_icon.py
+
+
+      - name: Run v0.9.24 shortcut icon-refresh smoke
+        run: python tests/smoke_v0924_shortcut_icon_refresh.py
