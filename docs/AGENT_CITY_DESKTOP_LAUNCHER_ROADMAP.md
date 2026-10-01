@@ -14,7 +14,7 @@ Agent City should feel like a normal local desktop application:
 
 ## Phase 1 — One-click hidden launch
 
-Status: **IMPLEMENTATION IN PROGRESS for v0.9.20**
+Status: **PUBLISHED in v0.9.20**
 
 Target behavior:
 
@@ -38,7 +38,7 @@ Phase 1 deliberately does **not** add:
 
 ## Phase 2 — Managed update + relaunch
 
-Planned after Phase 1 is proven locally.
+Planned after Phase 1 receives local Windows use/feedback.
 
 Desired behavior:
 
