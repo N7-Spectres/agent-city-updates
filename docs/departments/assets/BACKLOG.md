@@ -595,3 +595,17 @@ Immediate next action:
 - visually confirm desktop shortcut icon on Windows
 - visually confirm tray icon at native notification-area size
 - resume only for visual tuning, another citizen body packet, or a new coordinator request
+
+
+## Completed — v0.9.24 Windows Shortcut Icon Refresh
+
+- diagnosed stale pre-icon desktop shortcut / Explorer icon cache
+- added quiet shortcut rebuild
+- rebinds the canonical Agent City ICO
+- explicitly refreshes Explorer shell icon metadata
+- refresh runs automatically after managed update resume
+- dedicated `tests/smoke_v0924_shortcut_icon_refresh.py`
+- full release regression `36879400073` PASS
+
+Immediate next action:
+- visually verify the desktop shortcut after updating from v0.9.23 to v0.9.24
