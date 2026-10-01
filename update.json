@@ -1,6 +1,6 @@
 {
-  "version": "0.9.22",
-  "notes": "Desktop Tray Supervisor (Launcher Phase 3): Agent City now keeps a lightweight single-instance desktop supervisor running in the Windows notification area. The tray shows operational state and provides Open Agent City, Restart Agent City, Quit Agent City, and an optional Start with Windows toggle. Updates coordinate cleanly with the persistent supervisor so the old tray exits before program files are replaced and the new launcher/tray returns afterward. No new Python packages are required. The tray uses the reserved custom Agent City ICO when available and safely falls back to the Windows application icon until Assets supplies it.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/2dc814e341ee6db05305e159a997f379b78194e4",
+  "version": "0.9.23",
+  "notes": "Official Agent City Application Icon: adds the shared multi-resolution Windows ICO used by both the desktop shortcut and notification-area tray. The icon contains 16, 24, 32, 48, 64, 128, and 256 px RGBA frames, with a simplified city/network silhouette designed to stay readable at tray size, transparent outer corners, and strong contrast on both light and dark Windows UI. The existing launcher and tray already consume static/assets/app/agent-city.ico, so no launcher behavior changes are required. This is application branding only and introduces no Simulation, Memory, Communication, or physical-authority changes.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/2aab875cdedc4d26f17582c00c58d0add41f5cdf",
   "sha256": ""
 }
