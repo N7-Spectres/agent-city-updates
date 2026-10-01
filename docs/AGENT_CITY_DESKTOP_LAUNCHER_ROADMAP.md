@@ -38,7 +38,20 @@ Phase 1 deliberately does **not** add:
 
 ## Phase 2 — Managed update + relaunch
 
-Planned after Phase 1 receives local Windows use/feedback.
+Status: **PUBLISHED in v0.9.21**
+
+Delivered:
+- automatic update-availability refresh while Agent City is open
+- installation remains user-approved to avoid surprise restarts
+- existing backup/stage/update flow retained
+- updater waits for the old runtime to exit before replacing files
+- failed shutdown aborts replacement rather than touching live program files
+- post-update relaunch routes through `agent_city_launcher.pyw`
+- direct `main.py` relaunch remains a fallback if the launcher is unavailable
+- browser reconnect/reload behavior remains automatic
+- update-runner operations log to `data/update_runner.log`
+
+Future unattended auto-install remains an optional later policy choice; it is not enabled by default.
 
 Desired behavior:
 
