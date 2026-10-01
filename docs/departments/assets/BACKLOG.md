@@ -488,11 +488,15 @@ Potential next slices:
 
 Per user direction, proceed one citizen at a time and visually review each published Local body before promoting the next.
 
-Planned order:
-1. Bex
-2. Iri
-3. Noma
-4. Vale
+Published so far:
+1. Cato
+2. Aris
+3. Iri
+
+Remaining citizens are intentionally **not pre-ordered**. The user may choose the next citizen after each live visual review:
+- Bex
+- Noma
+- Vale
 
 Immediate next action:
 - user live-reviews Aris in Local, including normal zoom and maximum Local zoom-out
@@ -536,3 +540,24 @@ Immediate next action:
 Immediate next action:
 - confirm Aris is visibly rendered in Local
 - if correct, proceed to Bex
+
+
+## Completed — v0.9.18 Iri Local World Body
+
+- Iri promoted as third full-body Local citizen
+- presentation scale `0.848` from approved ~1.78 m visual cue
+- Local minimum readable scale `0.50`
+- pearl / lilac / cyan researcher identity
+- connected-border backdrop cleanup for existing Iri body source
+- shared full-body layering protection
+- Local-only body visibility
+- Region / Planet exclusion preserved
+- authoritative route-travel pipeline preserved
+- `tests/smoke_v0918_iri_world_body.py`
+- full release regression `36807758825` PASS
+
+Immediate next action:
+- visually review Iri at ordinary Local zoom
+- visually review Iri at maximum Local zoom-out
+- verify Region / Planet remain body-free
+- then let the user choose Bex, Noma, or Vale next
