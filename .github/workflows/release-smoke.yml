@@ -232,3 +232,7 @@ jobs:
 
       - name: Run v0.9.21 managed update/relaunch smoke
         run: python tests/smoke_v0921_managed_update.py
+
+
+      - name: Run v0.9.22 desktop tray/supervisor smoke
+        run: python tests/smoke_v0922_desktop_tray.py

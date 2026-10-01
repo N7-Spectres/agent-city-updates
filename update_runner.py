@@ -96,24 +96,43 @@ def main() -> None:
     project_root = Path(job["project_root"]).resolve()
     staging_dir = Path(job["staging_dir"]).resolve()
     parent_pid = int(job["parent_pid"])
+    launcher_pid = int(job.get("launcher_pid") or 0)
     python_exe = job["python_exe"]
     target_version = str(job.get("target_version") or "unknown")
+    update_flag = project_root / "update_staging" / "launcher_exit_for_update.flag"
 
     _log(project_root, f"Update runner started for {target_version}; waiting for runtime PID {parent_pid}.")
 
     if not wait_for_process_exit(parent_pid):
+        update_flag.unlink(missing_ok=True)
         _log(
             project_root,
             f"Update aborted: runtime PID {parent_pid} did not exit within the safety timeout.",
         )
         raise SystemExit(2)
 
-    time.sleep(0.5)
-    _log(project_root, "Runtime stopped. Replacing program files.")
-    replace_program_files(project_root, staging_dir)
+    if launcher_pid > 0 and launcher_pid != os.getpid():
+        _log(project_root, f"Runtime stopped; waiting for desktop supervisor PID {launcher_pid}.")
+        if not wait_for_process_exit(launcher_pid, timeout=15.0):
+            update_flag.unlink(missing_ok=True)
+            _log(
+                project_root,
+                f"Update aborted: desktop supervisor PID {launcher_pid} did not exit.",
+            )
+            raise SystemExit(3)
 
-    mode = relaunch(project_root, python_exe)
-    _log(project_root, f"Update files installed. Relaunched through {mode}.")
+    time.sleep(0.5)
+    _log(project_root, "Runtime and desktop supervisor stopped. Replacing program files.")
+    try:
+        replace_program_files(project_root, staging_dir)
+        update_flag.unlink(missing_ok=True)
+        job_path.unlink(missing_ok=True)
+        mode = relaunch(project_root, python_exe)
+        _log(project_root, f"Update files installed. Relaunched through {mode}.")
+    except Exception as exc:
+        update_flag.unlink(missing_ok=True)
+        _log(project_root, f"Update failed during replacement/relaunch: {exc}")
+        raise
 
 
 if __name__ == "__main__":
