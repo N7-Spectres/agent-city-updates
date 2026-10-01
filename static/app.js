@@ -23,7 +23,8 @@ const knowledgeLoading = new Set();
 const KNOWLEDGE_REFRESH_MS = 12000;
 const citizenContinuityCache = new Map();
 const continuityLoading = new Set();
-const CONTINUITY_REFRESH_MS = 12000;\nconst UPDATE_REFRESH_MS = 300000;
+const CONTINUITY_REFRESH_MS = 12000;
+const UPDATE_REFRESH_MS = 300000;
 
 let historyRecords = null;
 let historyRecordsLoading = false;
@@ -3661,4 +3662,5 @@ loadState();
 checkOllama();
 refreshUpdateStatus();
 setInterval(loadState, 4000);
-setInterval(checkOllama, 15000);\nsetInterval(refreshUpdateStatus, UPDATE_REFRESH_MS);
+setInterval(checkOllama, 15000);
+setInterval(refreshUpdateStatus, UPDATE_REFRESH_MS);
