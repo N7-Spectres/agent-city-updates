@@ -1,6 +1,6 @@
 {
-  "version": "0.9.24",
-  "notes": "Windows Shortcut Icon Refresh: fixes existing Agent City desktop shortcuts that can remain stuck on the generic white-paper icon after the official ICO arrives. The shortcut installer now supports a silent refresh mode, re-saves Agent City.lnk against static/assets/app/agent-city.ico, and notifies Explorer that shell icon metadata changed. The new launcher automatically performs this refresh when resuming after a managed update, so upgrading from v0.9.23 to v0.9.24 repairs the existing shortcut without a manual reinstall. Tray behavior and all Simulation/Memory/Communication authority remain unchanged.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/3a43025738adabd6aeb684e9e05ca618dcb4e92d",
+  "version": "0.9.25",
+  "notes": "Ollama Auto-Start: the Agent City desktop supervisor now treats Ollama as a companion local service. On launch or tray Restart it probes 127.0.0.1:11434/api/tags; if Ollama is already running it leaves it alone, otherwise it finds ollama.exe via PATH or normal Windows install locations and starts `ollama serve` hidden with output in data/ollama.log. Agent City waits for Ollama readiness when possible before opening. If Ollama cannot be found or started, the city still launches and reports Ollama offline instead of failing the app.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/780da84eb05467fc8bccf337cbd84e8bf6224e2c",
   "sha256": ""
 }
