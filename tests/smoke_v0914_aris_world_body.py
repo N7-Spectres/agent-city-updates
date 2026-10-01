@@ -28,13 +28,13 @@ def main() -> None:
     # PNG color type 6 = RGBA, required so the Local body has real transparency.
     assert sprite_bytes[25] == 6
 
-    # Aris joins Cato, and only Aris joins Cato in this rollout.
+    # Aris remains correctly configured even as later citizens are separately promoted.
     assert 'aris: Object.freeze({' in js
     assert 'cato: Object.freeze({' in js
     assert 'baseBody: "/static/assets/citizens/aris/world/front.png"' in js
     assert 'futureModelSlot: "/static/assets/citizens/aris/world/model.glb"' in js
-    for citizen in ("bex", "iri", "noma", "vale"):
-        assert f'/static/assets/citizens/{citizen}/world/front.webp' not in js
+    for citizen in ("bex", "noma", "vale"):
+        assert f'{citizen}: Object.freeze({{' not in js
 
     # Relative character scale is presentation-only and keeps Aris readable
     # at full Local zoom-out.
