@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.19 Iri Backdrop Box Fix published** from `release-v0.9.19@d25df836d59d00ea4a9e48c4434e53272517803a`; full CI `36852571411` PASS.
+- [Assets & Interface] Iri's Local source matte is now removed with stronger border-connected cleanup and post-cleanup alpha cropping.
+
 - [Coordinator] **v0.9.18 Iri Local World Body published** from `release-v0.9.18@d30231229af9c157e8fe98a3b35bfaab962e865b`; full CI `36807758825` PASS.
 - [Assets & Interface] Iri is now the third full-body Local citizen beside Cato and Aris; Region/Planet remain body-free and Bex/Noma/Vale remain tokens.
 
