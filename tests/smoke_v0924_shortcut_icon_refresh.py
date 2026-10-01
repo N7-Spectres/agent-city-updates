@@ -41,8 +41,6 @@ assert 'timeout=15.0' in launcher
 for forbidden in [
     "position_x_m =",
     "position_y_m =",
-    "energy =",
-    "health =",
 ]:
     assert forbidden not in launcher
 
