@@ -1,4 +1,6 @@
-param()
+param(
+    [switch]$Quiet
+)
 
 $ErrorActionPreference = "Stop"
 
@@ -63,10 +65,40 @@ $shortcut.WindowStyle = 7
 $shortcut.IconLocation = $customIconPath + ",0"
 $shortcut.Save()
 
-Add-Type -AssemblyName PresentationFramework
-[System.Windows.MessageBox]::Show(
-    "Agent City is ready on your desktop. Double-click the Agent City icon to start or reopen it.",
-    "Agent City",
-    "OK",
-    "Information"
-) | Out-Null
+# Tell Explorer that shell icon metadata changed. This is especially important
+# when the shortcut existed before the custom ICO was shipped and Windows
+# cached the generic document/python icon.
+try {
+    Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+
+public static class AgentCityShellRefresh {
+    [DllImport("shell32.dll")]
+    public static extern void SHChangeNotify(
+        uint wEventId,
+        uint uFlags,
+        IntPtr dwItem1,
+        IntPtr dwItem2
+    );
+}
+"@
+    [AgentCityShellRefresh]::SHChangeNotify(
+        0x08000000,
+        0x0000,
+        [IntPtr]::Zero,
+        [IntPtr]::Zero
+    )
+} catch {
+    # The shortcut is already valid even if Explorer refresh notification fails.
+}
+
+if (-not $Quiet) {
+    Add-Type -AssemblyName PresentationFramework
+    [System.Windows.MessageBox]::Show(
+        "Agent City is ready on your desktop. Double-click the Agent City icon to start or reopen it.",
+        "Agent City",
+        "OK",
+        "Information"
+    ) | Out-Null
+}
