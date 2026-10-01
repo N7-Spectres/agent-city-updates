@@ -23,7 +23,7 @@ function Write-LauncherCommand([string]$command) {
     @{
         command = $command
         requested_at = (Get-Date).ToString("o")
-    } | ConvertTo-Json | Set-Content -Encoding UTF8 $temp
+    } | ConvertTo-Json | Set-Content -Encoding ASCII $temp
     Move-Item -Force $temp $commandPath
 }
 
