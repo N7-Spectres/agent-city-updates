@@ -1,6 +1,6 @@
 {
-  "version": "0.9.19",
-  "notes": "Iri Backdrop Box Fix: replaces Iri's first-pass corner-color backdrop cleanup with a stronger edge-connected flood that removes dark/backdrop-like pixels connected to the source image border, then crops the result to the remaining alpha content. This removes the visible rectangular source matte while preserving enclosed dark visor and joint details. Iri's v0.9.18 scale, Local-only body presentation, travel interpolation, selection styling, and shared body layering remain unchanged. Cato and Aris are unchanged; Region and Planet remain body-free. No Simulation authority changes.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/d25df836d59d00ea4a9e48c4434e53272517803a",
+  "version": "0.9.20",
+  "notes": "Desktop Launcher Phase 1: adds a Windows one-click hidden launcher, desktop shortcut installer, duplicate-server protection, readiness wait, automatic browser opening, and local launcher/server logs. The launcher reserves static/assets/app/agent-city.ico for a future custom Assets icon. Automatic update installation, automatic restart supervision, tray controls, and launch-at-startup remain planned for later phases.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/a05361177139885a9410bad1273a1b270984cecc",
   "sha256": ""
 }
