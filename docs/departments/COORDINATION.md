@@ -1,6 +1,6 @@
 # Agent City — Department Coordination Board
 
-_Last updated: 2026-09-30_
+_Last updated: 2026-10-01_
 
 This file is the shared project task board.
 
@@ -31,6 +31,9 @@ _None._
 _None._
 
 ### DONE
+
+- [Coordinator] **v0.9.20 Desktop Launcher Phase 1 published** from `release-v0.9.20@a05361177139885a9410bad1273a1b270984cecc`; full CI `36867429553` PASS.
+- [Launcher] One-click hidden Windows start, desktop shortcut installer, duplicate-server protection, readiness wait, browser auto-open, and local logs are live; phases 2/3 are preserved in the launcher roadmap.
 
 - [Coordinator] **v0.9.19 Iri Backdrop Box Fix published** from `release-v0.9.19@d25df836d59d00ea4a9e48c4434e53272517803a`; full CI `36852571411` PASS.
 - [Assets & Interface] Iri's Local source matte is now removed with stronger border-connected cleanup and post-cleanup alpha cropping.
