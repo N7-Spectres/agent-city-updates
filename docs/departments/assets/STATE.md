@@ -1,10 +1,10 @@
 # Assets & Interface — State
 
 _Last updated: 2026-09-30_
-_Current published release: v0.9.18 @ `d30231229af9c157e8fe98a3b35bfaab962e865b`_
-_Current Assets activity: pre-Blender citizen body pipeline / Iri rollout complete_
-_Current runtime branch: `release-v0.9.18` @ `d30231229af9c157e8fe98a3b35bfaab962e865b`_
-_Current review surface: published updater v0.9.18_
+_Current published release: v0.9.19 @ `d25df836d59d00ea4a9e48c4434e53272517803a`_
+_Current Assets activity: Iri backdrop presentation fix complete_
+_Current runtime branch: `release-v0.9.19` @ `d25df836d59d00ea4a9e48c4434e53272517803a`_
+_Current review surface: published updater v0.9.19_
 _Current status: DONE / PUBLISHED_
 
 ## Mission
@@ -839,3 +839,21 @@ Authority boundary preserved:
 
 Next step:
 **Live visual review of Iri before another citizen rollout.**
+
+
+## v0.9.19 Iri Backdrop Box Fix — Published
+
+- release branch: `release-v0.9.19`
+- exact green runtime: `d25df836d59d00ea4a9e48c4434e53272517803a`
+- full CI: `36852571411` — PASS
+- updater: v0.9.19
+- PR #40 merged
+- visible rectangular matte around Iri addressed
+- edge-connected backdrop cleanup strengthened
+- cleaned sprite cropped to alpha bounds
+- enclosed dark visor / joint details preserved by connectivity rule
+- Iri scale / travel / selection / layering unchanged
+- no Simulation authority changes
+
+Next action:
+**Live visual review of Iri in Local.**
