@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.21 Managed Update + Relaunch published** from `release-v0.9.21@35fbc86dd6d92ab431bed0c2b0b289197526949b`; full CI `36870357322` PASS.
+- [Launcher] App now refreshes update availability automatically; approved installs safely stop the old runtime, replace files, relaunch through the desktop launcher, and reconnect the browser.
+
 - [Coordinator] **v0.9.20 Desktop Launcher Phase 1 published** from `release-v0.9.20@a05361177139885a9410bad1273a1b270984cecc`; full CI `36867429553` PASS.
 - [Launcher] One-click hidden Windows start, desktop shortcut installer, duplicate-server protection, readiness wait, browser auto-open, and local logs are live; phases 2/3 are preserved in the launcher roadmap.
 
