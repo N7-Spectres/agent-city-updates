@@ -6,6 +6,20 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-10-01 — From: Assets & Interface — Status: published
 
+**Subject:** v0.9.24 Windows Shortcut Icon Refresh published
+
+- `release-v0.9.24@3a43025738adabd6aeb684e9e05ca618dcb4e92d`
+- full CI `36879400073` PASS
+- updater now advertises v0.9.24
+- PR #45 merged
+- existing `Agent City.lnk` is silently rebuilt after managed update resume
+- shortcut rebinds `static/assets/app/agent-city.ico`
+- Explorer receives a shell icon refresh notification
+- tray behavior unchanged
+- no Simulation/Memory/Communication authority changes
+
+### 2026-10-01 — From: Assets & Interface — Status: published
+
 **Subject:** v0.9.23 Agent City Application Icon published
 
 - `release-v0.9.23@2aab875cdedc4d26f17582c00c58d0add41f5cdf`
