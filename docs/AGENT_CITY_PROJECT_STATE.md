@@ -4,7 +4,7 @@ _Last updated: 2026-10-01_
 
 ## Current Release
 
-**v0.9.23 — Agent City Application Icon**
+**v0.9.24 — Windows Shortcut Icon Refresh**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,32 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.24 Published Patch — Windows Shortcut Icon Refresh
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.24`
+- exact green head: `3a43025738adabd6aeb684e9e05ca618dcb4e92d`
+- full CI: `36879400073` — PASS
+- published updater: `v0.9.24`
+- PR #45 merged
+
+Delivered:
+- fixes existing Agent City desktop shortcuts that remain on the generic white-paper icon after v0.9.23
+- shortcut installer now supports silent `-Quiet` refresh mode
+- existing `Agent City.lnk` is re-saved against the canonical `static/assets/app/agent-city.ico`
+- Explorer receives an explicit `SHChangeNotify` icon-metadata refresh
+- the **new launcher** runs the shortcut refresh on `--resume-after-update`
+- v0.9.23 → v0.9.24 is covered even though the old update runner performs the file replacement
+- tray icon loading is unchanged
+- no Simulation, Memory, Communication, or physical-authority changes
+
+Validation:
+- complete historical regression matrix
+- `tests/smoke_v0924_shortcut_icon_refresh.py`
+- Python launcher compile
+- existing v0.9.20 through v0.9.23 launcher/icon contracts remain green
 
 ## v0.9.23 Published Patch — Agent City Application Icon
 
