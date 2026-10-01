@@ -561,3 +561,16 @@ Immediate next action:
 - visually review Iri at maximum Local zoom-out
 - verify Region / Planet remain body-free
 - then let the user choose Bex, Noma, or Vale next
+
+
+## Completed — v0.9.19 Iri Backdrop Box Fix
+
+- replaced weak corner-color backdrop removal
+- added robust border-connected dark/background flood
+- added post-cleanup alpha-bounds crop
+- added `tests/smoke_v0919_iri_backdrop_fix.py`
+- full release regression `36852571411` PASS
+
+Immediate next action:
+- confirm Iri's rectangular matte is gone in Local
+- if visually correct, continue with the next user-selected citizen
