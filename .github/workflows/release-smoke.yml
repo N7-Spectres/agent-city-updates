@@ -220,3 +220,7 @@ jobs:
 
       - name: Run v0.9.18 Iri Local world-body smoke
         run: python tests/smoke_v0918_iri_world_body.py
+
+
+      - name: Run v0.9.19 Iri backdrop smoke
+        run: python tests/smoke_v0919_iri_backdrop_fix.py
