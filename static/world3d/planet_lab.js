@@ -37,7 +37,10 @@
       presentationScale: 0.848,
       minReadableScale: 0.50,
       removeConnectedBackdrop: true,
-      backdropTolerance: 54,
+      backdropTolerance: 72,
+      backdropFringe: 126,
+      backdropDarkLuma: 108,
+      backdropCropPadding: 3,
     }),
   });
 
@@ -65,10 +68,10 @@
       }
 
       try {
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        const context = canvas.getContext("2d", { willReadFrequently: true });
+        const sourceCanvas = document.createElement("canvas");
+        sourceCanvas.width = width;
+        sourceCanvas.height = height;
+        const context = sourceCanvas.getContext("2d", { willReadFrequently: true });
         if (!context) throw new Error("No 2D canvas context");
 
         context.drawImage(img, 0, 0, width, height);
@@ -86,8 +89,10 @@
           Math.round(corners.reduce((sum, offset) => sum + pixels[offset + channel], 0) / corners.length)
         );
 
-        const tolerance = Number(visual.backdropTolerance || 50);
-        const fringe = tolerance + 22;
+        const tolerance = Number(visual.backdropTolerance || 60);
+        const fringe = Number(visual.backdropFringe || (tolerance + 48));
+        const darkLuma = Number(visual.backdropDarkLuma || 96);
+        const cropPadding = Math.max(0, Number(visual.backdropCropPadding || 2));
         const count = width * height;
         const connected = new Uint8Array(count);
         const queued = new Uint8Array(count);
@@ -95,16 +100,37 @@
         let head = 0;
         let tail = 0;
 
-        const distanceAt = index => {
+        const pixelChannels = index => {
           const offset = index * 4;
-          const dr = pixels[offset] - backdrop[0];
-          const dg = pixels[offset + 1] - backdrop[1];
-          const db = pixels[offset + 2] - backdrop[2];
-          return Math.hypot(dr, dg, db);
+          const r = pixels[offset];
+          const g = pixels[offset + 1];
+          const b = pixels[offset + 2];
+          return { r, g, b };
+        };
+
+        const distanceAt = index => {
+          const { r, g, b } = pixelChannels(index);
+          return Math.hypot(r - backdrop[0], g - backdrop[1], b - backdrop[2]);
+        };
+
+        const lumaAt = index => {
+          const { r, g, b } = pixelChannels(index);
+          return (0.2126 * r) + (0.7152 * g) + (0.0722 * b);
+        };
+
+        const isBackdropCandidate = index => {
+          const { r, g, b } = pixelChannels(index);
+          const luma = (0.2126 * r) + (0.7152 * g) + (0.0722 * b);
+          const chroma = Math.max(r, g, b) - Math.min(r, g, b);
+          const distance = Math.hypot(r - backdrop[0], g - backdrop[1], b - backdrop[2]);
+
+          return distance <= fringe
+            || luma <= darkLuma
+            || (luma <= (darkLuma + 30) && chroma <= 72 && distance <= (fringe + 42));
         };
 
         const enqueue = index => {
-          if (queued[index] || distanceAt(index) > fringe) return;
+          if (index < 0 || index >= count || queued[index] || !isBackdropCandidate(index)) return;
           queued[index] = 1;
           queue[tail++] = index;
         };
@@ -123,27 +149,64 @@
           connected[index] = 1;
           const x = index % width;
           const y = Math.floor(index / width);
-          if (x > 0) enqueue(index - 1);
-          if (x + 1 < width) enqueue(index + 1);
-          if (y > 0) enqueue(index - width);
-          if (y + 1 < height) enqueue(index + width);
+
+          for (let dy = -1; dy <= 1; dy += 1) {
+            for (let dx = -1; dx <= 1; dx += 1) {
+              if (!dx && !dy) continue;
+              const nx = x + dx;
+              const ny = y + dy;
+              if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue;
+              enqueue((ny * width) + nx);
+            }
+          }
         }
 
         for (let index = 0; index < count; index += 1) {
           if (!connected[index]) continue;
-          const distance = distanceAt(index);
-          const offset = (index * 4) + 3;
-          if (distance <= tolerance) {
-            pixels[offset] = 0;
-          } else {
-            const ratio = clamp((distance - tolerance) / Math.max(1, fringe - tolerance), 0, 1);
-            pixels[offset] = Math.round(pixels[offset] * ratio);
-          }
+          pixels[(index * 4) + 3] = 0;
         }
 
         context.putImageData(frame, 0, 0);
+
+        let minX = width;
+        let minY = height;
+        let maxX = -1;
+        let maxY = -1;
+
+        for (let y = 0; y < height; y += 1) {
+          for (let x = 0; x < width; x += 1) {
+            const alpha = pixels[((y * width) + x) * 4 + 3];
+            if (alpha <= 6) continue;
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+
+        if (maxX < minX || maxY < minY) throw new Error("Backdrop cleanup removed the entire sprite");
+
+        minX = Math.max(0, Math.floor(minX - cropPadding));
+        minY = Math.max(0, Math.floor(minY - cropPadding));
+        maxX = Math.min(width - 1, Math.ceil(maxX + cropPadding));
+        maxY = Math.min(height - 1, Math.ceil(maxY + cropPadding));
+
+        const croppedWidth = Math.max(1, maxX - minX + 1);
+        const croppedHeight = Math.max(1, maxY - minY + 1);
+        const outputCanvas = document.createElement("canvas");
+        outputCanvas.width = croppedWidth;
+        outputCanvas.height = croppedHeight;
+        const outputContext = outputCanvas.getContext("2d");
+        if (!outputContext) throw new Error("No output canvas context");
+
+        outputContext.drawImage(
+          sourceCanvas,
+          minX, minY, croppedWidth, croppedHeight,
+          0, 0, croppedWidth, croppedHeight
+        );
+
         img.dataset.worldBodyCleaned = "1";
-        img.src = canvas.toDataURL("image/png");
+        img.src = outputCanvas.toDataURL("image/png");
       } catch (_error) {
         img.dataset.worldBodyCleaned = "1";
         img.classList.remove("world-body-cleaning");

@@ -35,7 +35,7 @@ Local 3D uses the existing Iri body source:
 
 `static/assets/citizens/iri/full.webp`
 
-The source artwork contains a connected dark presentation backdrop. The Local renderer removes only the backdrop connected to the image border at presentation time, producing a transparent body silhouette without rewriting or inventing body pixels.
+The source artwork contains a connected dark presentation backdrop. The Local renderer removes only dark/backdrop-like pixels that are connected to the image border, then crops the transparent canvas to the remaining sprite bounds. This prevents the rectangular source matte from appearing around Iri while preserving enclosed dark visor/joint details.
 
 This cleanup is presentation-only. If the cleanup cannot run, the original asset remains the fallback source rather than creating new state.
 
