@@ -4,7 +4,7 @@ _Last updated: 2026-09-30_
 
 ## Current Release
 
-**v0.9.18 — Iri Local World Body**
+**v0.9.19 — Iri Backdrop Box Fix**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,32 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.19 Published Patch — Iri Backdrop Box Fix
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.19`
+- exact green head: `d25df836d59d00ea4a9e48c4434e53272517803a`
+- full CI: `36852571411` — PASS
+- published updater: `v0.9.19`
+
+Delivered:
+- removed Iri's visible rectangular source matte in Local
+- strengthened backdrop cleanup from simple corner-color matching to border-connected flood removal
+- added luma/color-distance backdrop criteria and 8-neighbor connectivity
+- crops the cleaned sprite to its remaining alpha bounds
+- preserves enclosed dark visor / joint detail
+- keeps Iri's v0.9.18 scale, travel, selection, and layering behavior
+- Cato and Aris unchanged
+- Region and Planet remain body-free
+- no Simulation authority changes
+
+Validation:
+- complete historical regression matrix
+- updated v0.9.18 Iri smoke
+- new `tests/smoke_v0919_iri_backdrop_fix.py`
+- JavaScript syntax checks
 
 ## v0.9.18 Published Patch — Iri Local World Body
 
