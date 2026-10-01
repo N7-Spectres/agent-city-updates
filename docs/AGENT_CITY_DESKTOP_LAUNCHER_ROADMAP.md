@@ -73,19 +73,26 @@ Open design choice:
 
 ## Phase 3 — Desktop polish
 
-Planned only after Phase 2 is stable.
+Status: **PUBLISHED in v0.9.22**
 
-Possible scope:
+Delivered:
+- persistent single-instance desktop supervisor
+- Windows notification-area tray host
+- tray status states: Starting / Running / Restarting / Updating / Error / Stopping / Stopped
+- tray actions: Open Agent City, Restart Agent City, Quit Agent City
+- optional **Start with Windows** toggle using the current-user Windows startup registry
+- double-click tray icon opens Agent City
+- local launcher shutdown endpoint for controlled Restart/Quit
+- update handoff waits for both runtime and old desktop supervisor before replacing files
+- new launcher/tray returns after an update
+- no new Python dependencies required
+- custom ICO path remains `static/assets/app/agent-city.ico`; Windows application icon is used as a safe fallback until Assets supplies the custom art
 
-- system tray icon
-- status states such as Starting / Running / Updating / Restarting / Error
-- tray actions: Open Agent City, Restart, Quit
-- optional launch-at-Windows-startup preference
-- polished splash/startup state if startup delay is noticeable
-- custom desktop/tray icon set from Assets
-- packaged launcher executable if replacing the Python shortcut provides meaningful reliability/distribution benefits
+Deferred intentionally:
+- packaged launcher EXE, because the current Python/Windows launcher is working and packaging would add update complexity without a current reliability benefit
+- splash screen, because startup is short and a modal startup surface would add clutter rather than useful feedback
 
-Do not add decorative complexity unless it improves actual local operation.
+Phase 3 functionality is complete. The custom icon remains a presentation-polish follow-up only.
 
 ## Assets contract
 
