@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.25 Ollama Auto-Start published** from `release-v0.9.25@780da84eb05467fc8bccf337cbd84e8bf6224e2c`; full CI `36892190024` PASS.
+- [Launcher] One-click startup now checks and quietly starts Ollama when needed; existing Ollama instances are reused and failures remain non-fatal to the city runtime.
+
 - [Coordinator] **v0.9.24 Windows Shortcut Icon Refresh published** from `release-v0.9.24@3a43025738adabd6aeb684e9e05ca618dcb4e92d`; full CI `36879400073` PASS.
 - [Assets & Interface] Existing Windows desktop shortcuts are now silently rebuilt after managed updates and Explorer is notified to refresh cached icon metadata.
 
