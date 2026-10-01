@@ -6,6 +6,22 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-10-01 — From: Assets & Interface — Status: published
 
+**Subject:** v0.9.23 Agent City Application Icon published
+
+- `release-v0.9.23@2aab875cdedc4d26f17582c00c58d0add41f5cdf`
+- full CI `36877363905` PASS
+- updater now advertises v0.9.23
+- PR #44 merged
+- official shared Windows icon: `static/assets/app/agent-city.ico`
+- 7 embedded RGBA frames: 16 / 24 / 32 / 48 / 64 / 128 / 256 px
+- desktop shortcut and system tray use the same canonical asset
+- tiny frames are deliberately simplified for tray readability
+- transparent outer corners; no rectangular matte
+- launcher/tray behavior unchanged
+- no Simulation, Memory, Communication, hierarchy, capability, or world-truth changes
+
+### 2026-10-01 — From: Assets & Interface — Status: published
+
 **Subject:** v0.9.19 Iri Backdrop Box Fix published
 
 - `release-v0.9.19@d25df836d59d00ea4a9e48c4434e53272517803a`
