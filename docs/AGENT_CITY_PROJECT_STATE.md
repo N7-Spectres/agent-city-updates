@@ -1,10 +1,10 @@
 # Agent City — Project State
 
-_Last updated: 2026-09-30_
+_Last updated: 2026-10-01_
 
 ## Current Release
 
-**v0.9.19 — Iri Backdrop Box Fix**
+**v0.9.20 — Desktop Launcher Phase 1**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,28 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.20 Published Patch — Desktop Launcher Phase 1
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.20`
+- exact green head: `a05361177139885a9410bad1273a1b270984cecc`
+- full CI: `36867429553` — PASS
+- published updater: `v0.9.20`
+
+Delivered:
+- hidden Windows launcher via `pythonw.exe`
+- one-click desktop shortcut setup helper
+- duplicate-server detection
+- readiness wait before browser open
+- automatic browser open to local Agent City
+- local launcher/server logs under `data/`
+- reserved Assets icon path `static/assets/app/agent-city.ico`
+- no auto-update supervision, tray controls, or launch-at-startup yet
+
+Roadmap:
+- `docs/AGENT_CITY_DESKTOP_LAUNCHER_ROADMAP.md`
 
 ## v0.9.19 Published Patch — Iri Backdrop Box Fix
 
