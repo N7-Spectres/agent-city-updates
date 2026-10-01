@@ -3,6 +3,7 @@ from __future__ import annotations
 import ctypes
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -18,9 +19,11 @@ DATA_DIR = PROJECT_ROOT / "data"
 APP_URL = "http://127.0.0.1:8000/"
 STATE_URL = "http://127.0.0.1:8000/api/state"
 SHUTDOWN_URL = "http://127.0.0.1:8000/api/launcher/shutdown"
+OLLAMA_TAGS_URL = "http://127.0.0.1:11434/api/tags"
 
 LAUNCHER_LOG = DATA_DIR / "launcher.log"
 SERVER_LOG = DATA_DIR / "server.log"
+OLLAMA_LOG = DATA_DIR / "ollama.log"
 STATUS_PATH = DATA_DIR / "launcher_status.json"
 COMMAND_PATH = DATA_DIR / "launcher_command.json"
 LAUNCHER_PID_PATH = DATA_DIR / "launcher.pid"
@@ -31,6 +34,7 @@ SHORTCUT_INSTALLER = PROJECT_ROOT / "install_desktop_shortcut.ps1"
 APP_ICON = PROJECT_ROOT / "static" / "assets" / "app" / "agent-city.ico"
 
 STARTUP_TIMEOUT_SECONDS = 30.0
+OLLAMA_STARTUP_TIMEOUT_SECONDS = 45.0
 STOP_TIMEOUT_SECONDS = 12.0
 UPDATE_FLAG_FRESH_SECONDS = 300.0
 MUTEX_NAME = "Local\\AgentCityDesktopLauncher"
@@ -84,6 +88,90 @@ def _agent_city_is_ready() -> bool:
             return isinstance(payload, dict) and "citizens" in payload and "sim_minute" in payload
     except Exception:
         return False
+
+
+def _ollama_is_ready() -> bool:
+    try:
+        with urllib.request.urlopen(OLLAMA_TAGS_URL, timeout=0.9) as response:
+            return response.status == 200
+    except Exception:
+        return False
+
+
+def _find_ollama_executable() -> str | None:
+    for name in ("ollama.exe", "ollama"):
+        resolved = shutil.which(name)
+        if resolved:
+            return resolved
+
+    if os.name == "nt":
+        local_app_data = Path(os.environ.get("LOCALAPPDATA", ""))
+        program_files = Path(os.environ.get("ProgramFiles", r"C:\\Program Files"))
+        candidates = (
+            local_app_data / "Programs" / "Ollama" / "ollama.exe",
+            local_app_data / "Ollama" / "ollama.exe",
+            program_files / "Ollama" / "ollama.exe",
+        )
+        for candidate in candidates:
+            if candidate.exists():
+                return str(candidate)
+
+    return None
+
+
+def _start_ollama() -> subprocess.Popen | None:
+    executable = _find_ollama_executable()
+    if not executable:
+        _log("Ollama is offline and ollama executable could not be found.")
+        return None
+
+    creationflags = 0
+    if os.name == "nt":
+        creationflags |= getattr(subprocess, "CREATE_NO_WINDOW", 0)
+        creationflags |= getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+
+    OLLAMA_LOG.parent.mkdir(parents=True, exist_ok=True)
+    log_handle = OLLAMA_LOG.open("a", encoding="utf-8")
+    try:
+        process = subprocess.Popen(
+            [executable, "serve"],
+            cwd=str(PROJECT_ROOT),
+            stdin=subprocess.DEVNULL,
+            stdout=log_handle,
+            stderr=log_handle,
+            creationflags=creationflags,
+            start_new_session=(os.name != "nt"),
+            env=os.environ.copy(),
+        )
+    finally:
+        log_handle.close()
+
+    _log(f"Started Ollama service PID {process.pid} with {executable}.")
+    return process
+
+
+def _ensure_ollama(timeout: float = OLLAMA_STARTUP_TIMEOUT_SECONDS) -> bool:
+    if _ollama_is_ready():
+        _log("Ollama is already running.")
+        return True
+
+    _set_status("Starting", "Starting Ollama.")
+    process = _start_ollama()
+    if process is None:
+        return False
+
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if _ollama_is_ready():
+            _log("Ollama is ready.")
+            return True
+        if process.poll() is not None:
+            _log(f"Ollama service exited early with code {process.returncode}.")
+            break
+        time.sleep(0.4)
+
+    _log("Ollama did not become ready before the startup timeout.")
+    return False
 
 
 def _post_local(url: str) -> bool:
@@ -242,7 +330,8 @@ def _restart_runtime(server_process: subprocess.Popen | None) -> subprocess.Pope
         return server_process
 
     SERVER_PID_PATH.unlink(missing_ok=True)
-    _set_status("Starting", "Starting the local runtime.")
+    _set_status("Starting", "Starting Ollama and the local runtime.")
+    _ensure_ollama()
     process = _start_server()
     if _wait_until_ready():
         _set_status("Running", "Agent City is running.")
@@ -450,7 +539,13 @@ def main() -> None:
         if resume_after_update:
             _refresh_desktop_shortcut()
 
-        _set_status("Starting", "Starting Agent City.")
+        _set_status("Starting", "Starting Ollama and Agent City.")
+        ollama_ready = _ensure_ollama()
+        if not ollama_ready:
+            _log(
+                "Ollama could not be started automatically; Agent City will continue "
+                "and its UI will report Ollama offline until the service becomes available."
+            )
 
         if _agent_city_is_ready():
             _set_status("Running", "Agent City is running.")
