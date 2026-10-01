@@ -1005,3 +1005,17 @@ Truth boundary:
 
 Editable design reference:
 `static/assets/app/agent-city-source.svg`
+
+
+## Windows Shortcut Icon Refresh Rule
+
+When the canonical Agent City ICO changes or first becomes available, an existing Windows desktop shortcut must not be assumed to refresh automatically.
+
+For managed updates:
+- the new launcher owns the post-update shortcut refresh
+- `Agent City.lnk` is re-saved against `static/assets/app/agent-city.ico`
+- Explorer is explicitly notified of changed shell icon metadata
+- the refresh runs silently and must not show installer dialogs
+- failure to refresh the shortcut is presentation-only and must not block runtime startup
+
+This exists because Windows may keep the generic document/python icon cached when the shortcut was originally created before the custom ICO shipped.
