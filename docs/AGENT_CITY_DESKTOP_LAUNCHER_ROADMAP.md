@@ -119,3 +119,22 @@ The launcher may **not**:
 - bypass normal persistence or update validation
 
 The city remains autonomous whether launched from CMD, launcher, or future packaged app.
+
+
+## Post-Phase 3 — Ollama companion auto-start
+
+Status: **PUBLISHED in v0.9.25**
+
+Agent City now treats the local Ollama service as part of the one-click desktop experience.
+
+Delivered:
+- launcher probes `http://127.0.0.1:11434/api/tags`
+- an already-running Ollama instance is reused rather than duplicated
+- if Ollama is offline, launcher searches PATH and normal Windows install locations
+- `ollama serve` starts hidden with no CMD window
+- Ollama output is logged to `data/ollama.log`
+- launcher waits for Ollama readiness when possible before opening the city
+- tray **Restart Agent City** also re-checks/starts Ollama
+- if Ollama is missing or cannot start, Agent City still launches and the existing UI reports Ollama offline
+
+The launcher does not stop an already-running Ollama instance when Agent City quits, because Ollama may be shared with other local applications.
