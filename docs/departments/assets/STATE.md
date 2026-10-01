@@ -1,10 +1,10 @@
 # Assets & Interface — State
 
 _Last updated: 2026-09-30_
-_Current published release: v0.9.17 @ `0d9f384c614f192da4423c3907a851ac8b0a2b9c`_
-_Current Assets activity: Local body marker layering fix complete_
-_Current runtime branch: `release-v0.9.17` @ `0d9f384c614f192da4423c3907a851ac8b0a2b9c`_
-_Current review surface: published updater v0.9.16_
+_Current published release: v0.9.18 @ `d30231229af9c157e8fe98a3b35bfaab962e865b`_
+_Current Assets activity: pre-Blender citizen body pipeline / Iri rollout complete_
+_Current runtime branch: `release-v0.9.18` @ `d30231229af9c157e8fe98a3b35bfaab962e865b`_
+_Current review surface: published updater v0.9.18_
 _Current status: DONE / PUBLISHED_
 
 ## Mission
@@ -804,3 +804,38 @@ Next action:
 
 Next action:
 **Live visual check of Aris, then Bex if correct.**
+
+
+## v0.9.18 Iri Local World Body — Published
+
+Status:
+**DONE / PUBLISHED**
+
+- release branch: `release-v0.9.18`
+- exact green runtime: `d30231229af9c157e8fe98a3b35bfaab962e865b`
+- full CI: `36807758825` — PASS
+- updater: v0.9.18
+- PR #39 merged
+
+Delivered:
+- Iri is the third full-body Local citizen alongside Cato and Aris
+- slender pearl / lilac / cyan researcher presentation
+- relative presentation scale `0.848`
+- Local minimum readable scale `0.50`
+- connected-border backdrop cleanup for Iri's existing repository body source
+- lilac/cyan grounding, selection, travel bob, and reduced-motion fallback
+- v0.9.16 body layering inherited
+- authoritative Local position and real travel interpolation preserved
+- Region / Planet remain body-free
+- Bex, Noma, and Vale remain token-based
+- durable Iri contract: `docs/departments/assets/IRI_PREBLENDER_WORLD_BODY.md`
+
+Authority boundary preserved:
+- no Simulation coordinate writes
+- no physical dimensions / collision truth
+- no locomotion, equipment, cargo, sensing range, or capability authority
+- sensor-halo remains a visual identity cue only
+- presentation remains read-only
+
+Next step:
+**Live visual review of Iri before another citizen rollout.**
