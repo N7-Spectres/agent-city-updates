@@ -6,23 +6,85 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ### 2026-10-01 — From: Main Coordinator — Status: ready
 
-**Subject:** Desktop/tray custom icon for v0.9.22 polish
+**Subject:** Agent City desktop + system tray icon deliverable for v0.9.22
 
-Agent City desktop-launch Phase 1 reserves this canonical icon path:
+Phase 3 of the desktop launcher is published in **v0.9.22**. The launcher and Windows notification-area tray are fully functional, but both currently fall back to the generic Windows application icon.
 
+Assets is requested to create the official **Agent City application icon** for both:
+
+- the Windows desktop shortcut
+- the Windows notification-area / system tray
+
+**Canonical runtime path:**
 `static/assets/app/agent-city.ico`
 
-Please create a distinctive Agent City application icon suitable for:
-- Windows desktop shortcut
-- future system tray use
-- small-size readability
+### Required deliverable
 
-Preferred ICO sizes:
-- 16, 24, 32, 48, 64, 128, 256 px
+Create one Windows multi-resolution `.ico` containing, preferably:
 
-Keep this presentation-only. The icon must not imply citizen equipment, capability, hierarchy, or world truth.
+- 16 × 16
+- 24 × 24
+- 32 × 32
+- 48 × 48
+- 64 × 64
+- 128 × 128
+- 256 × 256
 
-Phase 3 is now published in v0.9.22 with a Windows system tray and generic fallback icon. This custom ICO is presentation polish only and does not block launcher/tray functionality.
+The same canonical ICO is consumed by both the desktop shortcut and the tray host, so the design must survive both large desktop presentation and very small notification-area rendering.
+
+### Visual priorities
+
+1. **Readable at 16–24 px.** Tiny-size recognition is the highest priority.
+2. **Distinctly Agent City.** It should represent the application/city system rather than one specific citizen.
+3. **Simple silhouette and strong negative space.** Avoid detail that turns to visual noise in the tray.
+4. **Works against both light and dark Windows UI backgrounds.**
+5. **Calm sci-fi / systems identity.** City, node, network, world, or simulation motifs are welcome if they remain clean and recognizable.
+
+A possible direction is a compact city/node/network emblem or geometric settlement/world mark. This is guidance, not a locked art direction. Assets owns the visual solution.
+
+### Do not imply in-world truth
+
+This icon is application branding only. Do not visually establish:
+
+- citizen hierarchy or leadership
+- equipment/inventory
+- profession/class/rank
+- political or organizational authority
+- undiscovered world/resource facts
+- physical capability
+
+The icon represents **Agent City the application**, not an authoritative object inside the simulation.
+
+### Runtime context already live
+
+v0.9.22 currently supports:
+
+- one-click desktop launch
+- persistent single-instance desktop supervisor
+- system tray host
+- tray status states: Starting / Running / Restarting / Updating / Error / Stopping / Stopped
+- tray actions:
+  - Open Agent City
+  - Restart Agent City
+  - Start with Windows
+  - Quit Agent City
+- double-click tray icon to open the app
+- managed update handoff and automatic relaunch
+
+No additional launcher code should be necessary if the final ICO is placed at the canonical path above.
+
+### Validation after asset handoff
+
+After committing the ICO, please verify:
+
+- desktop shortcut shows the custom icon
+- tray shows the custom icon
+- icon remains recognizable at Windows tray size
+- no visible matte/background box
+- transparency/edge treatment works on both light and dark UI
+- launcher/tray behavior is otherwise unchanged
+
+This is **presentation polish only** and does not require Simulation, Memory, or Communication changes.
 
 Roadmap:
 `docs/AGENT_CITY_DESKTOP_LAUNCHER_ROADMAP.md`
