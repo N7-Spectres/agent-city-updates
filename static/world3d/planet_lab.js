@@ -30,10 +30,125 @@
       presentationScale: 1.0,
       minReadableScale: 0.58,
     }),
+    iri: Object.freeze({
+      kind: "sprite_body",
+      baseBody: "/static/assets/citizens/iri/full.webp",
+      futureModelSlot: "/static/assets/citizens/iri/world/model.glb",
+      presentationScale: 0.848,
+      minReadableScale: 0.50,
+      removeConnectedBackdrop: true,
+      backdropTolerance: 54,
+    }),
   });
 
   function worldVisualFor(citizenId) {
     return CITIZEN_WORLD_VISUALS[String(citizenId)] || null;
+  }
+
+
+  function prepareWorldBodyImage(img, visual) {
+    if (!visual?.removeConnectedBackdrop) return;
+
+    img.classList.add("world-body-cleaning");
+
+    img.addEventListener("load", () => {
+      if (img.dataset.worldBodyCleaned === "1") {
+        img.classList.remove("world-body-cleaning");
+        return;
+      }
+
+      const width = img.naturalWidth;
+      const height = img.naturalHeight;
+      if (!width || !height) {
+        img.classList.remove("world-body-cleaning");
+        return;
+      }
+
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext("2d", { willReadFrequently: true });
+        if (!context) throw new Error("No 2D canvas context");
+
+        context.drawImage(img, 0, 0, width, height);
+        const frame = context.getImageData(0, 0, width, height);
+        const pixels = frame.data;
+
+        const corners = [
+          0,
+          (width - 1) * 4,
+          ((height - 1) * width) * 4,
+          (((height - 1) * width) + (width - 1)) * 4,
+        ];
+
+        const backdrop = [0, 1, 2].map(channel =>
+          Math.round(corners.reduce((sum, offset) => sum + pixels[offset + channel], 0) / corners.length)
+        );
+
+        const tolerance = Number(visual.backdropTolerance || 50);
+        const fringe = tolerance + 22;
+        const count = width * height;
+        const connected = new Uint8Array(count);
+        const queued = new Uint8Array(count);
+        const queue = new Int32Array(count);
+        let head = 0;
+        let tail = 0;
+
+        const distanceAt = index => {
+          const offset = index * 4;
+          const dr = pixels[offset] - backdrop[0];
+          const dg = pixels[offset + 1] - backdrop[1];
+          const db = pixels[offset + 2] - backdrop[2];
+          return Math.hypot(dr, dg, db);
+        };
+
+        const enqueue = index => {
+          if (queued[index] || distanceAt(index) > fringe) return;
+          queued[index] = 1;
+          queue[tail++] = index;
+        };
+
+        for (let x = 0; x < width; x += 1) {
+          enqueue(x);
+          enqueue(((height - 1) * width) + x);
+        }
+        for (let y = 0; y < height; y += 1) {
+          enqueue(y * width);
+          enqueue((y * width) + width - 1);
+        }
+
+        while (head < tail) {
+          const index = queue[head++];
+          connected[index] = 1;
+          const x = index % width;
+          const y = Math.floor(index / width);
+          if (x > 0) enqueue(index - 1);
+          if (x + 1 < width) enqueue(index + 1);
+          if (y > 0) enqueue(index - width);
+          if (y + 1 < height) enqueue(index + width);
+        }
+
+        for (let index = 0; index < count; index += 1) {
+          if (!connected[index]) continue;
+          const distance = distanceAt(index);
+          const offset = (index * 4) + 3;
+          if (distance <= tolerance) {
+            pixels[offset] = 0;
+          } else {
+            const ratio = clamp((distance - tolerance) / Math.max(1, fringe - tolerance), 0, 1);
+            pixels[offset] = Math.round(pixels[offset] * ratio);
+          }
+        }
+
+        context.putImageData(frame, 0, 0);
+        img.dataset.worldBodyCleaned = "1";
+        img.src = canvas.toDataURL("image/png");
+      } catch (_error) {
+        img.dataset.worldBodyCleaned = "1";
+        img.classList.remove("world-body-cleaning");
+      }
+    });
   }
 
   const query = new URLSearchParams(window.location.search);
@@ -639,6 +754,7 @@
         button.classList.add("world-body-marker", "citizen-world-body", bodyClass);
         button.dataset.worldVisual = visual.kind;
         img.className = "world-body-image";
+        prepareWorldBodyImage(img, visual);
         img.src = visual.baseBody;
 
         const gearLayer = document.createElement("span");
