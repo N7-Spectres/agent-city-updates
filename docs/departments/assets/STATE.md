@@ -1,10 +1,10 @@
 # Assets & Interface — State
 
-_Last updated: 2026-09-30_
-_Current published release: v0.9.19 @ `d25df836d59d00ea4a9e48c4434e53272517803a`_
-_Current Assets activity: Iri backdrop presentation fix complete_
-_Current runtime branch: `release-v0.9.19` @ `d25df836d59d00ea4a9e48c4434e53272517803a`_
-_Current review surface: published updater v0.9.19_
+_Last updated: 2026-10-01_
+_Current published release: v0.9.23 @ `2aab875cdedc4d26f17582c00c58d0add41f5cdf`_
+_Current Assets activity: Agent City application icon complete_
+_Current runtime branch: `release-v0.9.23` @ `2aab875cdedc4d26f17582c00c58d0add41f5cdf`_
+_Current review surface: published updater v0.9.23_
 _Current status: DONE / PUBLISHED_
 
 ## Mission
@@ -857,3 +857,40 @@ Next step:
 
 Next action:
 **Live visual review of Iri in Local.**
+
+
+## v0.9.23 Agent City Application Icon — Published
+
+Status:
+**DONE / PUBLISHED**
+
+- release branch: `release-v0.9.23`
+- exact green runtime: `2aab875cdedc4d26f17582c00c58d0add41f5cdf`
+- full CI: `36877363905` — PASS
+- updater: v0.9.23
+- PR #44 merged
+- canonical asset: `static/assets/app/agent-city.ico`
+- editable source: `static/assets/app/agent-city-source.svg`
+- durable identity contract: `docs/departments/assets/APP_ICON_BRAND.md`
+
+Delivered:
+- one official icon shared by desktop shortcut and Windows notification-area tray
+- 7 embedded 32-bit RGBA PNG frames: 16 / 24 / 32 / 48 / 64 / 128 / 256 px
+- tiny-size composition simplified for 16–24 px readability
+- dark rounded tile supports light and dark Windows UI
+- cyan city/network arch + three-building city mark + Agent City gold center tower
+- transparent outer corners with no rectangular matte
+- existing launcher/tray fallback remains safe if the asset cannot be loaded
+- no launcher behavior change
+- no Simulation, Memory, Communication, inventory, capability, hierarchy, or world-truth changes
+
+Validation:
+- `tests/smoke_v0923_app_icon.py`
+- exact ICO size/hash lock
+- frame/dimension/bit-depth checks
+- RGBA transparency checks on every embedded frame
+- canonical desktop/tray path checks
+- full historical release matrix PASS
+
+Next action:
+**User can update to v0.9.23 and visually confirm the Windows desktop/tray presentation.**
