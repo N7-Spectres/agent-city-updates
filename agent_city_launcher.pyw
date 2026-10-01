@@ -150,7 +150,7 @@ def _read_command() -> str | None:
         return None
 
     try:
-        payload = json.loads(COMMAND_PATH.read_text(encoding="utf-8"))
+        payload = json.loads(COMMAND_PATH.read_text(encoding="utf-8-sig"))
         command = str(payload.get("command") or "").strip().lower()
     except Exception:
         command = ""
