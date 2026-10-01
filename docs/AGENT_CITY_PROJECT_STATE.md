@@ -4,7 +4,7 @@ _Last updated: 2026-10-01_
 
 ## Current Release
 
-**v0.9.20 — Desktop Launcher Phase 1**
+**v0.9.21 — Managed Update + Relaunch**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,25 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.21 Published Patch — Managed Update + Relaunch
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.21`
+- exact green head: `35fbc86dd6d92ab431bed0c2b0b289197526949b`
+- full CI: `36870357322` — PASS
+- published updater: `v0.9.21`
+
+Delivered:
+- automatic update-availability refresh while the app is open
+- user-approved installs remain the safety gate
+- update runner now refuses to replace files until the old runtime exits
+- successful updates relaunch through the desktop launcher
+- direct runtime relaunch remains a compatibility fallback
+- browser reconnect/reload remains automatic
+- update-runner logs are retained under `data/update_runner.log`
+- no Simulation authority changes
 
 ## v0.9.20 Published Patch — Desktop Launcher Phase 1
 
