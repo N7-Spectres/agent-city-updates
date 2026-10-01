@@ -4,7 +4,7 @@ _Last updated: 2026-10-01_
 
 ## Current Release
 
-**v0.9.24 — Windows Shortcut Icon Refresh**
+**v0.9.25 — Ollama Auto-Start**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,27 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.25 Published Patch — Ollama Auto-Start
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.25`
+- exact green head: `780da84eb05467fc8bccf337cbd84e8bf6224e2c`
+- full CI: `36892190024` — PASS
+- published updater: `v0.9.25`
+- PR #46 merged
+
+Delivered:
+- desktop supervisor probes the local Ollama API before city startup
+- existing Ollama instances are reused
+- missing/offline Ollama is started hidden through `ollama serve`
+- executable discovery supports PATH and normal Windows install locations
+- launcher waits for Ollama readiness when possible
+- tray Restart re-establishes Ollama before restarting Agent City
+- Ollama service output is logged under `data/ollama.log`
+- failure to start Ollama does not prevent the simulation/UI from launching
+- no Simulation, Memory, Communication, or physical-authority changes
 
 ## v0.9.24 Published Patch — Windows Shortcut Icon Refresh
 
