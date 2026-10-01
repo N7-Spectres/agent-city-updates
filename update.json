@@ -1,6 +1,6 @@
 {
-  "version": "0.9.20",
-  "notes": "Desktop Launcher Phase 1: adds a Windows one-click hidden launcher, desktop shortcut installer, duplicate-server protection, readiness wait, automatic browser opening, and local launcher/server logs. The launcher reserves static/assets/app/agent-city.ico for a future custom Assets icon. Automatic update installation, automatic restart supervision, tray controls, and launch-at-startup remain planned for later phases.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/a05361177139885a9410bad1273a1b270984cecc",
+  "version": "0.9.21",
+  "notes": "Managed Update + Relaunch (Desktop Launcher Phase 2): Agent City now refreshes update availability automatically while the app is open. When you approve an update, the updater backs up and stages as before, waits safely for the old runtime to exit, replaces program files, then relaunches through the desktop launcher instead of directly through main.py. The browser reconnect flow remains automatic. Update-runner events are logged to data/update_runner.log, and a direct-runtime fallback remains if the launcher file is unavailable.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/35fbc86dd6d92ab431bed0c2b0b289197526949b",
   "sha256": ""
 }
