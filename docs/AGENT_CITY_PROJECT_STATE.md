@@ -4,7 +4,7 @@ _Last updated: 2026-10-01_
 
 ## Current Release
 
-**v0.9.22 — Desktop Tray Supervisor**
+**v0.9.23 — Agent City Application Icon**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,35 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.23 Published Patch — Agent City Application Icon
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.23`
+- exact green head: `2aab875cdedc4d26f17582c00c58d0add41f5cdf`
+- full CI: `36877363905` — PASS
+- published updater: `v0.9.23`
+- PR #44 merged
+
+Delivered:
+- official shared Windows application icon at `static/assets/app/agent-city.ico`
+- desktop shortcut and system tray consume the same canonical ICO
+- embedded RGBA frames: 16, 24, 32, 48, 64, 128, and 256 px
+- tiny frames intentionally simplify the mark for tray readability
+- dark rounded tile, cyan city/network arch, ivory side towers, and Agent City gold center tower
+- transparent outer corners; no rectangular matte
+- editable design reference at `static/assets/app/agent-city-source.svg`
+- durable branding contract at `docs/departments/assets/APP_ICON_BRAND.md`
+- launcher / tray behavior unchanged
+- no Simulation, Memory, Communication, or physical-authority changes
+
+Validation:
+- exact full historical regression matrix
+- `tests/smoke_v0923_app_icon.py`
+- ICO frame count / dimensions / 32-bit RGBA validation
+- transparency and opaque-content validation for every embedded size
+- shortcut / tray canonical-path contract validation
 
 ## v0.9.22 Published Patch — Desktop Tray Supervisor
 
