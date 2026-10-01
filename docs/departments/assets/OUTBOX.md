@@ -4,6 +4,19 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
+### 2026-10-01 — From: Assets & Interface — Status: published
+
+**Subject:** v0.9.19 Iri Backdrop Box Fix published
+
+- `release-v0.9.19@d25df836d59d00ea4a9e48c4434e53272517803a`
+- full CI `36852571411` PASS
+- updater now advertises v0.9.19
+- PR #40 merged
+- Iri's rectangular Local source matte addressed with stronger border-connected cleanup
+- cleaned output is cropped to alpha bounds
+- v0.9.18 scale / travel / selection / layering preserved
+- no Simulation authority changes
+
 ### 2026-09-30 — From: Assets & Interface — Status: published
 
 **Subject:** v0.9.18 Iri Local World Body published
