@@ -4,7 +4,7 @@ _Last updated: 2026-10-01_
 
 ## Current Release
 
-**v0.9.21 — Managed Update + Relaunch**
+**v0.9.22 — Desktop Tray Supervisor**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,29 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.22 Published Patch — Desktop Tray Supervisor
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.22`
+- exact green head: `2dc814e341ee6db05305e159a997f379b78194e4`
+- full CI: `36873295366` — PASS
+- published updater: `v0.9.22`
+
+Delivered:
+- persistent single-instance Windows desktop supervisor
+- notification-area tray status
+- Open / Restart / Quit tray actions
+- optional Start with Windows toggle
+- double-click tray open behavior
+- local controlled shutdown route for launcher operations
+- persistent-launcher-aware update handoff
+- updater waits for old runtime and old supervisor before replacement
+- desktop launcher/tray resumes after successful updates
+- no new third-party runtime dependencies
+- custom Agent City ICO remains an Assets-only visual follow-up
+- no Simulation authority changes
 
 ## v0.9.21 Published Patch — Managed Update + Relaunch
 
