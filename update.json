@@ -1,6 +1,6 @@
 {
-  "version": "0.9.18",
-  "notes": "Iri Local World Body: promotes Iri as the third full-body Local citizen alongside Cato and Aris. Iri keeps her slender researcher/analyst identity with pearl, lilac, and cyan presentation, a 1.78 m-inspired relative scale, and a Local zoom-out readability floor. The renderer uses Iri's existing repository body source and removes only its border-connected presentation backdrop at render time, preserving internal dark mechanical details. Iri follows the same authoritative Simulation position and real route-travel interpolation, inherits full-body layering protection, and remains Local-only. Region and Planet stay body-free. Bex, Noma, and Vale remain token-based. No Simulation authority changes.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/d30231229af9c157e8fe98a3b35bfaab962e865b",
+  "version": "0.9.19",
+  "notes": "Iri Backdrop Box Fix: replaces Iri's first-pass corner-color backdrop cleanup with a stronger edge-connected flood that removes dark/backdrop-like pixels connected to the source image border, then crops the result to the remaining alpha content. This removes the visible rectangular source matte while preserving enclosed dark visor and joint details. Iri's v0.9.18 scale, Local-only body presentation, travel interpolation, selection styling, and shared body layering remain unchanged. Cato and Aris are unchanged; Region and Planet remain body-free. No Simulation authority changes.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/d25df836d59d00ea4a9e48c4434e53272517803a",
   "sha256": ""
 }
