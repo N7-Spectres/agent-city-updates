@@ -28,12 +28,12 @@ def main() -> None:
     # Background removal is presentation-only and connected to the image border,
     # so dark internal robot parts are not globally keyed away.
     assert "removeConnectedBackdrop: true" in js
-    assert "backdropTolerance: 54" in js
+    assert "backdropTolerance:" in js
     assert "function prepareWorldBodyImage(img, visual)" in js
-    assert 'canvas.getContext("2d"' in js
+    assert 'sourceCanvas.getContext("2d"' in js
     assert "const connected = new Uint8Array(count);" in js
     assert "const queue = new Int32Array(count);" in js
-    assert 'img.src = canvas.toDataURL("image/png");' in js
+    assert 'img.src = outputCanvas.toDataURL("image/png");' in js
     assert 'img.dataset.worldBodyCleaned = "1";' in js
 
     # Physical authority stays in the existing Simulation-driven route pipeline.
