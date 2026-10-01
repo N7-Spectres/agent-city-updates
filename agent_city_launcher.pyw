@@ -27,6 +27,8 @@ LAUNCHER_PID_PATH = DATA_DIR / "launcher.pid"
 SERVER_PID_PATH = DATA_DIR / "server.pid"
 UPDATE_FLAG = PROJECT_ROOT / "update_staging" / "launcher_exit_for_update.flag"
 TRAY_SCRIPT = PROJECT_ROOT / "agent_city_tray.ps1"
+SHORTCUT_INSTALLER = PROJECT_ROOT / "install_desktop_shortcut.ps1"
+APP_ICON = PROJECT_ROOT / "static" / "assets" / "app" / "agent-city.ico"
 
 STARTUP_TIMEOUT_SECONDS = 30.0
 STOP_TIMEOUT_SECONDS = 12.0
@@ -251,6 +253,44 @@ def _restart_runtime(server_process: subprocess.Popen | None) -> subprocess.Pope
     return process
 
 
+def _refresh_desktop_shortcut() -> None:
+    if os.name != "nt" or not SHORTCUT_INSTALLER.exists() or not APP_ICON.exists():
+        return
+
+    powershell = Path(os.environ.get("WINDIR", r"C:\\Windows")) / "System32" / "WindowsPowerShell" / "v1.0" / "powershell.exe"
+    executable = str(powershell) if powershell.exists() else "powershell.exe"
+    flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+
+    try:
+        completed = subprocess.run(
+            [
+                executable,
+                "-STA",
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-WindowStyle",
+                "Hidden",
+                "-File",
+                str(SHORTCUT_INSTALLER),
+                "-Quiet",
+            ],
+            cwd=str(PROJECT_ROOT),
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            creationflags=flags,
+            timeout=15.0,
+            check=False,
+        )
+        if completed.returncode == 0:
+            _log("Refreshed Agent City desktop shortcut and shell icon state.")
+        else:
+            _log(f"Desktop shortcut refresh exited with code {completed.returncode}.")
+    except Exception as exc:
+        _log(f"Desktop shortcut refresh could not run: {exc}")
+
+
 def _start_tray() -> subprocess.Popen | None:
     if os.name != "nt" or not TRAY_SCRIPT.exists():
         return None
@@ -406,6 +446,10 @@ def main() -> None:
     try:
         COMMAND_PATH.unlink(missing_ok=True)
         LAUNCHER_PID_PATH.write_text(str(os.getpid()), encoding="utf-8")
+
+        if resume_after_update:
+            _refresh_desktop_shortcut()
+
         _set_status("Starting", "Starting Agent City.")
 
         if _agent_city_is_ready():
