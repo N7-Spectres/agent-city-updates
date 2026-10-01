@@ -32,9 +32,12 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.23 Agent City Application Icon published** from `release-v0.9.23@2aab875cdedc4d26f17582c00c58d0add41f5cdf`; full CI `36877363905` PASS.
+- [Assets & Interface] Official multi-resolution `static/assets/app/agent-city.ico` is now live for both the desktop shortcut and system tray; generic Windows fallback remains available only if the asset cannot be loaded.
+
 - [Coordinator] **v0.9.22 Desktop Tray Supervisor published** from `release-v0.9.22@2dc814e341ee6db05305e159a997f379b78194e4`; full CI `36873295366` PASS.
 - [Launcher] Persistent tray supervisor, Open/Restart/Quit controls, Start with Windows toggle, status reporting, and supervisor-aware update handoff are live.
-- [Assets & Interface] Custom `agent-city.ico` remains presentation polish only; generic Windows icon fallback is functional.
+- [Assets & Interface] v0.9.22 launcher/tray plumbing is preserved; v0.9.23 now supplies the official shared Agent City icon.
 
 - [Coordinator] **v0.9.21 Managed Update + Relaunch published** from `release-v0.9.21@35fbc86dd6d92ab431bed0c2b0b289197526949b`; full CI `36870357322` PASS.
 - [Launcher] App now refreshes update availability automatically; approved installs safely stop the old runtime, replace files, relaunch through the desktop launcher, and reconnect the browser.
