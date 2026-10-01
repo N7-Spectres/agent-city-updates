@@ -594,10 +594,17 @@ def _delayed_exit():
     os._exit(0)
 
 
+@app.post("/api/launcher/shutdown")
+def launcher_shutdown():
+    threading.Thread(target=_delayed_exit, daemon=True).start()
+    return {"ok": True, "message": "Agent City is stopping."}
+
+
 @app.post("/api/update/install")
 async def install_update():
     settings = load_settings()
     manifest_url = settings.get("manifest_url", "")
+    update_flag_path = PROJECT_ROOT / "update_staging" / "launcher_exit_for_update.flag"
     if not manifest_url:
         raise HTTPException(400, "No update feed is configured.")
 
@@ -613,10 +620,17 @@ async def install_update():
         backup_dir = make_backup()
         staged = await stage_update(manifest)
 
+        launcher_pid_raw = os.environ.get("AGENT_CITY_LAUNCHER_PID", "").strip()
+        try:
+            launcher_pid = int(launcher_pid_raw) if launcher_pid_raw else 0
+        except ValueError:
+            launcher_pid = 0
+
         job = {
             "project_root": str(PROJECT_ROOT),
             "staging_dir": staged["staging_dir"],
             "parent_pid": os.getpid(),
+            "launcher_pid": launcher_pid,
             "python_exe": sys.executable,
             "backup_dir": str(backup_dir),
             "target_version": manifest["version"],
@@ -624,6 +638,17 @@ async def install_update():
         job_path = PROJECT_ROOT / "update_staging" / "update_job.json"
         job_path.parent.mkdir(parents=True, exist_ok=True)
         job_path.write_text(json.dumps(job, indent=2), encoding="utf-8")
+        update_flag_path.write_text(
+            json.dumps(
+                {
+                    "target_version": manifest["version"],
+                    "launcher_pid": launcher_pid,
+                    "created_at": time.time(),
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
 
         flags = 0
         if os.name == "nt":
@@ -650,8 +675,10 @@ async def install_update():
         }
 
     except HTTPException:
+        update_flag_path.unlink(missing_ok=True)
         raise
     except Exception as exc:
+        update_flag_path.unlink(missing_ok=True)
         raise HTTPException(500, f"Update failed safely. Nothing was installed. {exc}")
 
 
