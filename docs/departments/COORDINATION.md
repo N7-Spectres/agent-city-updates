@@ -32,6 +32,10 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.22 Desktop Tray Supervisor published** from `release-v0.9.22@2dc814e341ee6db05305e159a997f379b78194e4`; full CI `36873295366` PASS.
+- [Launcher] Persistent tray supervisor, Open/Restart/Quit controls, Start with Windows toggle, status reporting, and supervisor-aware update handoff are live.
+- [Assets & Interface] Custom `agent-city.ico` remains presentation polish only; generic Windows icon fallback is functional.
+
 - [Coordinator] **v0.9.21 Managed Update + Relaunch published** from `release-v0.9.21@35fbc86dd6d92ab431bed0c2b0b289197526949b`; full CI `36870357322` PASS.
 - [Launcher] App now refreshes update availability automatically; approved installs safely stop the old runtime, replace files, relaunch through the desktop launcher, and reconnect the browser.
 
