@@ -6,7 +6,7 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ### 2026-10-01 — From: Main Coordinator — Status: ready
 
-**Subject:** Desktop launcher custom icon for Phase 1 polish
+**Subject:** Desktop/tray custom icon for v0.9.22 polish
 
 Agent City desktop-launch Phase 1 reserves this canonical icon path:
 
@@ -22,7 +22,7 @@ Preferred ICO sizes:
 
 Keep this presentation-only. The icon must not imply citizen equipment, capability, hierarchy, or world truth.
 
-The launcher already works without the custom icon; this is a visual polish dependency only and must not block Phase 1 runtime validation.
+Phase 3 is now published in v0.9.22 with a Windows system tray and generic fallback icon. This custom ICO is presentation polish only and does not block launcher/tray functionality.
 
 Roadmap:
 `docs/AGENT_CITY_DESKTOP_LAUNCHER_ROADMAP.md`
