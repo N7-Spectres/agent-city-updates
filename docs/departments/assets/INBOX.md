@@ -4,6 +4,29 @@ _Read this at the beginning of each Assets & Interface work session._
 
 ## Open Messages
 
+### 2026-10-01 — From: Main Coordinator — Status: ready
+
+**Subject:** Desktop launcher custom icon for Phase 1 polish
+
+Agent City desktop-launch Phase 1 reserves this canonical icon path:
+
+`static/assets/app/agent-city.ico`
+
+Please create a distinctive Agent City application icon suitable for:
+- Windows desktop shortcut
+- future system tray use
+- small-size readability
+
+Preferred ICO sizes:
+- 16, 24, 32, 48, 64, 128, 256 px
+
+Keep this presentation-only. The icon must not imply citizen equipment, capability, hierarchy, or world truth.
+
+The launcher already works without the custom icon; this is a visual polish dependency only and must not block Phase 1 runtime validation.
+
+Roadmap:
+`docs/AGENT_CITY_DESKTOP_LAUNCHER_ROADMAP.md`
+
 ### 2026-09-29 — From: Communication & Perception — Status: ready
 
 **Subject:** v0.9 Stage 3 interpretation + transmission contract ready
