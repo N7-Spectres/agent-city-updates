@@ -574,3 +574,24 @@ Immediate next action:
 Immediate next action:
 - confirm Iri's rectangular matte is gone in Local
 - if visually correct, continue with the next user-selected citizen
+
+
+## Completed — v0.9.23 Agent City Application Icon
+
+- official Windows app icon created at `static/assets/app/agent-city.ico`
+- 16 / 24 / 32 / 48 / 64 / 128 / 256 px RGBA frames
+- tiny frames simplified for tray readability
+- transparent corners / no matte
+- shared by shortcut + system tray through the existing launcher contract
+- editable SVG source committed
+- durable app-branding contract committed
+- `tests/smoke_v0923_app_icon.py`
+- full release regression `36877363905` PASS
+
+Current Assets blocker:
+_None._
+
+Immediate next action:
+- visually confirm desktop shortcut icon on Windows
+- visually confirm tray icon at native notification-area size
+- resume only for visual tuning, another citizen body packet, or a new coordinator request
