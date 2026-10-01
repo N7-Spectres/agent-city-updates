@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.24 Windows Shortcut Icon Refresh published** from `release-v0.9.24@3a43025738adabd6aeb684e9e05ca618dcb4e92d`; full CI `36879400073` PASS.
+- [Assets & Interface] Existing Windows desktop shortcuts are now silently rebuilt after managed updates and Explorer is notified to refresh cached icon metadata.
+
 - [Coordinator] **v0.9.23 Agent City Application Icon published** from `release-v0.9.23@2aab875cdedc4d26f17582c00c58d0add41f5cdf`; full CI `36877363905` PASS.
 - [Assets & Interface] Official multi-resolution `static/assets/app/agent-city.ico` is now live for both the desktop shortcut and system tray; generic Windows fallback remains available only if the asset cannot be loaded.
 
