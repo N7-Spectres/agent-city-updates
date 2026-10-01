@@ -1,10 +1,10 @@
 # Assets & Interface — State
 
 _Last updated: 2026-10-01_
-_Current published release: v0.9.23 @ `2aab875cdedc4d26f17582c00c58d0add41f5cdf`_
-_Current Assets activity: Agent City application icon complete_
-_Current runtime branch: `release-v0.9.23` @ `2aab875cdedc4d26f17582c00c58d0add41f5cdf`_
-_Current review surface: published updater v0.9.23_
+_Current published release: v0.9.24 @ `3a43025738adabd6aeb684e9e05ca618dcb4e92d`_
+_Current Assets activity: Windows shortcut icon refresh complete_
+_Current runtime branch: `release-v0.9.24` @ `3a43025738adabd6aeb684e9e05ca618dcb4e92d`_
+_Current review surface: published updater v0.9.24_
 _Current status: DONE / PUBLISHED_
 
 ## Mission
@@ -894,3 +894,23 @@ Validation:
 
 Next action:
 **User can update to v0.9.23 and visually confirm the Windows desktop/tray presentation.**
+
+
+## v0.9.24 Windows Shortcut Icon Refresh — Published
+
+- release branch: `release-v0.9.24`
+- exact green runtime: `3a43025738adabd6aeb684e9e05ca618dcb4e92d`
+- full CI: `36879400073` — PASS
+- updater: v0.9.24
+- PR #45 merged
+
+Delivered:
+- existing Agent City desktop shortcut is silently rebuilt after a managed update
+- canonical ICO is re-bound to `Agent City.lnk`
+- Explorer shell icon state is explicitly refreshed with `SHChangeNotify`
+- refresh runs from the new launcher on `--resume-after-update`
+- tray behavior unchanged
+- no Simulation/Memory/Communication authority changes
+
+Next action:
+**Update from v0.9.23 to v0.9.24 and visually confirm the desktop shortcut icon refreshes.**
