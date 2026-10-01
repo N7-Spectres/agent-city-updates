@@ -972,3 +972,36 @@ Published sequence:
 The remaining citizen order is user-directed after each visual review. Do not assume Bex, Noma, or Vale must be next.
 
 This cadence is a presentation/review rule. It does not give Assets authority over citizen physics, equipment, movement, or capability.
+
+
+## Application Icon Identity Rule
+
+User-facing Agent City desktop/tray branding uses one canonical Windows icon:
+
+`static/assets/app/agent-city.ico`
+
+The icon represents **Agent City the application / city system**, not an individual citizen or an in-world authoritative object.
+
+Locked design principles:
+- recognize the mark at 16–24 px before adding larger-size detail
+- use a simple city/network silhouette with strong negative space
+- maintain contrast on both light and dark Windows UI
+- keep transparent outer edges; do not ship a rectangular matte
+- use the existing Agent City visual language rather than a citizen-specific palette or silhouette
+- keep desktop shortcut and tray on the same canonical asset
+
+Current visual identity:
+- dark rounded tile
+- cyan network/city arch
+- three-tower city silhouette
+- warm Agent City gold center tower
+- ivory support towers
+- optional node details only where resolution supports them
+
+Truth boundary:
+- icon color / scale / tower placement does not encode citizen hierarchy
+- no profession, class, rank, equipment, capability, resource, location, political authority, or Simulation fact may be inferred from the application mark
+- branding changes do not alter runtime authority
+
+Editable design reference:
+`static/assets/app/agent-city-source.svg`
