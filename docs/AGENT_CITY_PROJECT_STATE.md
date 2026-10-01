@@ -4,7 +4,7 @@ _Last updated: 2026-09-30_
 
 ## Current Release
 
-**v0.9.17 — Correct Aris Runtime Sprite**
+**v0.9.18 — Iri Local World Body**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,41 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.18 Published Patch — Iri Local World Body
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.18`
+- exact green head: `d30231229af9c157e8fe98a3b35bfaab962e865b`
+- full CI: `36807758825` — PASS
+- published updater: `v0.9.18`
+- `update.json` downloads the exact green v0.9.18 runtime
+
+Delivered:
+- Iri is the third Local citizen promoted from a circular token to a full-body presentation
+- slender researcher / analyst silhouette with pearl, lilac, and cyan presentation language
+- relative presentation scale `0.848` from the approved approximately 1.78 m visual cue
+- minimum Local zoom-out readability floor `0.50`
+- existing Iri repository body source receives connected-border backdrop cleanup at render time
+- cleanup preserves internal dark mechanical detail rather than globally color-keying dark pixels
+- lilac/cyan ground contact, selection, and travel-only presentation
+- v0.9.16 body stacking protection inherited
+- same authoritative Simulation position and real route-travel interpolation as Cato and Aris
+- Region and Planet remain free of citizen body markers
+- Bex, Noma, and Vale remain token-based pending separate reviewed rollouts
+
+Truth boundary:
+- Iri's height/scale values and sensor-halo motif are presentation canon only
+- concept equipment does not become inventory or capability
+- no physical dimension, coordinate, collision body, locomotion, equipment, cargo, or capability is created by Assets
+- Simulation remains authoritative
+
+Validation:
+- complete historical regression matrix through v0.9.17
+- JavaScript syntax checks
+- `tests/smoke_v0918_iri_world_body.py`
+- durable handoff: `docs/departments/assets/IRI_PREBLENDER_WORLD_BODY.md`
 
 ## v0.9.17 Published Patch — Correct Aris Runtime Sprite
 
