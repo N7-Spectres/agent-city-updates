@@ -6,20 +6,31 @@ import shutil
 import subprocess
 import sys
 import time
+from datetime import datetime
 from pathlib import Path
 
 
 PRESERVE_NAMES = {".venv", "data", "backups", "update_staging"}
 
 
-def wait_for_process_exit(pid: int, timeout: float = 30.0) -> None:
+def _log(project_root: Path, message: str) -> None:
+    data_dir = project_root / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    path = data_dir / "update_runner.log"
+    stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(f"[{stamp}] {message}\n")
+
+
+def wait_for_process_exit(pid: int, timeout: float = 30.0) -> bool:
     deadline = time.time() + timeout
     while time.time() < deadline:
         try:
             os.kill(pid, 0)
         except OSError:
-            return
+            return True
         time.sleep(0.5)
+    return False
 
 
 def replace_program_files(project_root: Path, staging_dir: Path) -> None:
@@ -46,13 +57,25 @@ def replace_program_files(project_root: Path, staging_dir: Path) -> None:
             shutil.copy2(src, dst)
 
 
-def relaunch(project_root: Path, python_exe: str) -> None:
+def relaunch(project_root: Path, python_exe: str) -> str:
     flags = 0
     if os.name == "nt":
-        flags = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
+        flags = (
+            subprocess.CREATE_NEW_PROCESS_GROUP
+            | subprocess.DETACHED_PROCESS
+            | getattr(subprocess, "CREATE_NO_WINDOW", 0)
+        )
+
+    launcher = project_root / "agent_city_launcher.pyw"
+    if launcher.exists():
+        command = [python_exe, str(launcher), "--resume-after-update"]
+        mode = "desktop launcher"
+    else:
+        command = [python_exe, "main.py"]
+        mode = "direct runtime fallback"
 
     subprocess.Popen(
-        [python_exe, "main.py"],
+        command,
         cwd=str(project_root),
         creationflags=flags,
         close_fds=(os.name != "nt"),
@@ -60,6 +83,7 @@ def relaunch(project_root: Path, python_exe: str) -> None:
         stderr=subprocess.DEVNULL,
         stdin=subprocess.DEVNULL,
     )
+    return mode
 
 
 def main() -> None:
@@ -73,11 +97,23 @@ def main() -> None:
     staging_dir = Path(job["staging_dir"]).resolve()
     parent_pid = int(job["parent_pid"])
     python_exe = job["python_exe"]
+    target_version = str(job.get("target_version") or "unknown")
 
-    wait_for_process_exit(parent_pid)
+    _log(project_root, f"Update runner started for {target_version}; waiting for runtime PID {parent_pid}.")
+
+    if not wait_for_process_exit(parent_pid):
+        _log(
+            project_root,
+            f"Update aborted: runtime PID {parent_pid} did not exit within the safety timeout.",
+        )
+        raise SystemExit(2)
+
     time.sleep(0.5)
+    _log(project_root, "Runtime stopped. Replacing program files.")
     replace_program_files(project_root, staging_dir)
-    relaunch(project_root, python_exe)
+
+    mode = relaunch(project_root, python_exe)
+    _log(project_root, f"Update files installed. Relaunched through {mode}.")
 
 
 if __name__ == "__main__":
