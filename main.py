@@ -299,6 +299,22 @@ def troubleshooting_snapshot():
         for row in state["maintenance_events"][:12]
     ]
 
+    recent_production = [
+        {
+            "id": int(row["id"]),
+            "job_id": int(row["job_id"]),
+            "sim_minute": int(row["sim_minute"]),
+            "citizen_id": str(row["citizen_id"]),
+            "process_key": str(row["process_key"]),
+            "process_name": str(row["process_name"]),
+            "inputs": json.loads(row["inputs_json"] or "{}"),
+            "outputs": json.loads(row["outputs_json"] or "{}"),
+            "outcome": str(row["outcome"]),
+            "summary": str(row["summary"]),
+        }
+        for row in state.get("production_events", [])[:12]
+    ]
+
     return {
         "snapshot_type": "agent_city_troubleshooting",
         "version": current_version(),
@@ -310,6 +326,7 @@ def troubleshooting_snapshot():
         "structures": structures,
         "equipment": equipment,
         "recent_maintenance_events": recent_maintenance,
+        "recent_production_events": recent_production,
         "privacy": {
             "local_only_until_copied": True,
             "hidden_world_seed_included": False,

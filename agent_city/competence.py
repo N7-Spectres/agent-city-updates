@@ -10,7 +10,7 @@ COMPETENCE_FAMILIES: dict[str, set[str]] = {
     "surveying": {"survey"},
     "extraction": {"extract"},
     "experimentation": {"experiment"},
-    "fabrication": {"fabricate"},
+    "fabrication": {"fabricate", "process_material"},
     "construction": {"construct"},
     "maintenance": {
         "service_chassis",

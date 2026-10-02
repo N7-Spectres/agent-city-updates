@@ -260,3 +260,7 @@ jobs:
 
       - name: Run v0.9.28 resource-sustainability / grounding smoke
         run: python tests/smoke_v0928_resource_sustainability.py
+
+
+      - name: Run v1.0 material-independence smoke
+        run: python tests/smoke_v100_material_independence.py

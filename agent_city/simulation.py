@@ -27,6 +27,11 @@ from .competence import (
     duration_effect_for_action,
     start_guided_practice,
 )
+from .material_independence import (
+    PRODUCTION_PROCESSES,
+    citizen_knows_production_process,
+    sync_citizen_production_processes,
+)
 
 BASE_CARRY_CAPACITY = 20.0
 RETURN_ENERGY_MARGIN = 5.0
@@ -47,6 +52,7 @@ VOLUNTARY_PATTERN_ACTIONS = {
     "extract",
     "experiment",
     "fabricate",
+    "process_material",
     "plan_project",
     "construct",
     "talk",
@@ -461,6 +467,10 @@ def _apply_citizen_job_wear(conn, citizen: Any, job: Any, now: int) -> None:
         process = FABRICATION_PROCESSES.get(str(job["target"]))
         energy_cost = float(process["energy_cost"]) if process else 4.0
         joint_added = 0.12
+    elif action == "process_material":
+        process = PRODUCTION_PROCESSES.get(str(job["target"]))
+        energy_cost = float(process["energy_cost"]) if process else 4.0
+        joint_added = 0.15
     elif action == "construct":
         project = conn.execute(
             "SELECT blueprint_id FROM projects WHERE id = ?",
@@ -532,6 +542,16 @@ def _apply_post_job_asset_wear(conn, citizen: Any, job: Any, now: int) -> None:
         )
     elif action == "fabricate":
         _wear_structure(conn, "Basic Workbench", str(citizen["location_id"]), 0.35, now)
+    elif action == "process_material":
+        process = PRODUCTION_PROCESSES.get(str(job["target"]))
+        if process:
+            _wear_structure(
+                conn,
+                str(process["structure"]),
+                str(citizen["location_id"]),
+                0.35,
+                now,
+            )
     elif action == "experiment":
         _wear_structure(conn, "Basic Workbench", str(citizen["location_id"]), 0.25, now)
     elif action == "charge":
@@ -1126,11 +1146,27 @@ def local_resource_sustainability_attention(citizen_id: str) -> list[dict[str, A
                 "SELECT amount FROM resources WHERE name = ?",
                 (material,),
             ).fetchone()
+
+            supported_processes = [
+                {
+                    "process_key": process_key,
+                    "name": str(process["name"]),
+                }
+                for process_key, process in PRODUCTION_PROCESSES.items()
+                if material in process["outputs"]
+                and citizen_knows_production_process(conn, citizen_id, process_key)
+            ]
+
             rows.append(
                 {
                     "material": material,
                     "stored": float(stock["amount"]) if stock else 0.0,
-                    "replenishment_status": "no_validated_production_process",
+                    "replenishment_status": (
+                        "validated_production_process_available"
+                        if supported_processes
+                        else "no_validated_production_process"
+                    ),
+                    "validated_processes": supported_processes,
                 }
             )
         return rows
@@ -1289,6 +1325,7 @@ def apply_daily_rhythm_to_actions(
             "extract",
             "experiment",
             "fabricate",
+            "process_material",
             "construct",
             "plan_project",
             "reserve_project",
@@ -1463,6 +1500,39 @@ def possible_actions(citizen_id: str) -> list[dict[str, Any]]:
                         ),
                     })
                     break
+
+            for process_key, process in PRODUCTION_PROCESSES.items():
+                if not citizen_knows_production_process(conn, citizen_id, process_key):
+                    continue
+                required_structure = str(process["structure"])
+                if not structure_operational(conn, required_structure, location_id):
+                    continue
+                if not resources_available(conn, process["inputs"]):
+                    continue
+                if not action_energy_safe(
+                    conn,
+                    location_id,
+                    energy,
+                    float(process["energy_cost"]),
+                ):
+                    continue
+
+                inputs_text = ", ".join(
+                    f"{amount:g} {material}"
+                    for material, amount in process["inputs"].items()
+                )
+                outputs_text = ", ".join(
+                    f"{amount:g} {material}"
+                    for material, amount in process["outputs"].items()
+                )
+                actions.append({
+                    "action": "process_material",
+                    "target": process_key,
+                    "label": (
+                        f"{process['name']} at {required_structure}: "
+                        f"{inputs_text} -> {outputs_text}."
+                    ),
+                })
 
             workbench_ok = structure_operational(conn, "Basic Workbench", location_id)
             if workbench_ok:
@@ -2054,6 +2124,52 @@ def start_action(
             )
             detail = "fabricate:" + json.dumps({"process_id": target}, separators=(",", ":"))
             activity = f"Fabricating {process['name']}"
+
+        elif action == "process_material":
+            process = PRODUCTION_PROCESSES.get(str(target))
+            if (
+                not process
+                or c["location_id"] != "seed_site"
+                or not citizen_knows_production_process(conn, citizen_id, str(target))
+            ):
+                return False, "That material process is not known or physically available here."
+            required_structure = str(process["structure"])
+            efficiency = structure_efficiency(conn, required_structure, c["location_id"])
+            if efficiency <= 0:
+                return False, f"The {required_structure} is not operational."
+            if not action_energy_safe(
+                conn,
+                c["location_id"],
+                float(c["energy"]),
+                float(process["energy_cost"]),
+            ):
+                return False, "Material processing would leave insufficient return-energy reserve."
+            if not consume_resources(conn, process["inputs"]):
+                return False, "Required production inputs are no longer available."
+            raw_duration = max(
+                int(process["duration"]),
+                int(round(float(process["duration"]) / efficiency)),
+            )
+            if efficiency < 0.90:
+                competence_multiplier = 1.0
+                guidance_session_id = None
+            duration = max(1, int(round(raw_duration * competence_multiplier)))
+            conn.execute(
+                "UPDATE citizens SET energy = MAX(0, energy - ?) WHERE id = ?",
+                (float(process["energy_cost"]), citizen_id),
+            )
+            detail = "process_material:" + json.dumps(
+                {
+                    "process_key": str(target),
+                    "process_name": str(process["name"]),
+                    "structure": required_structure,
+                    "inputs": process["inputs"],
+                    "outputs": process["outputs"],
+                },
+                separators=(",", ":"),
+                sort_keys=True,
+            )
+            activity = str(process["name"])
 
         elif action == "plan_project":
             project_id = create_project(conn, citizen_id, str(target), now)
@@ -2732,11 +2848,26 @@ def complete_due_jobs(now: int) -> None:
                             now,
                         ),
                     )
+                    newly_learned = sync_citizen_production_processes(
+                        conn,
+                        str(c["id"]),
+                        learned_minute=now,
+                    )
                     summary = (
                         f"{c['name']} discovered {new_property['property_key']} in {material_name}: "
                         f"{new_property['value_text']}."
                     )
                     message = summary + f" Discovery #{discovery_id} is now a validated knowledge anchor."
+                    if newly_learned:
+                        process_names = [
+                            str(PRODUCTION_PROCESSES[key]["name"])
+                            for key in newly_learned
+                        ]
+                        message += (
+                            " The validated evidence now supports: "
+                            + ", ".join(process_names)
+                            + "."
+                        )
                 elif matching:
                     outcome = "verified"
                     summary = (
@@ -2801,6 +2932,59 @@ def complete_due_jobs(now: int) -> None:
                     outcome = "failed"
                     message = f"{c['name']}'s fabrication job could not resolve its physical process."
                 conn.execute("UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?", (c["id"],))
+
+            elif action == "process_material":
+                process = PRODUCTION_PROCESSES.get(str(job["target"]))
+                if process:
+                    for output_material, output_amount in process["outputs"].items():
+                        conn.execute(
+                            """
+                            INSERT INTO resources(name, amount) VALUES (?, ?)
+                            ON CONFLICT(name) DO UPDATE SET amount = amount + excluded.amount
+                            """,
+                            (str(output_material), float(output_amount)),
+                        )
+
+                    inputs_text = ", ".join(
+                        f"{amount:g} {material}"
+                        for material, amount in process["inputs"].items()
+                    )
+                    outputs_text = ", ".join(
+                        f"{amount:g} {material}"
+                        for material, amount in process["outputs"].items()
+                    )
+                    message = (
+                        f"{c['name']} completed {process['name']}: "
+                        f"{inputs_text} -> {outputs_text}."
+                    )
+                    conn.execute(
+                        """
+                        INSERT INTO production_events
+                        (job_id, citizen_id, process_key, process_name,
+                         inputs_json, outputs_json, outcome, sim_minute, summary)
+                        VALUES (?, ?, ?, ?, ?, ?, 'success', ?, ?)
+                        """,
+                        (
+                            int(job["id"]),
+                            str(c["id"]),
+                            str(job["target"]),
+                            str(process["name"]),
+                            json.dumps(process["inputs"], sort_keys=True),
+                            json.dumps(process["outputs"], sort_keys=True),
+                            now,
+                            message,
+                        ),
+                    )
+                else:
+                    outcome = "failed"
+                    message = (
+                        f"{c['name']}'s material-processing job could not resolve "
+                        "its validated production process."
+                    )
+                conn.execute(
+                    "UPDATE citizens SET current_activity = 'Available', active_job_id = NULL WHERE id = ?",
+                    (c["id"],),
+                )
 
             elif action == "plan_project":
                 project_id = int(job["project_id"] or 0)

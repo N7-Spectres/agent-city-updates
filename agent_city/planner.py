@@ -113,10 +113,22 @@ def citizen_context(citizen: dict[str, Any], state: dict[str, Any], actions: lis
     sustainability_rows = local_resource_sustainability_attention(citizen["id"])
     sustainability_lines: list[str] = []
     for item in sustainability_rows:
+        if item["replenishment_status"] == "validated_production_process_available":
+            process_names = ", ".join(
+                str(process["name"])
+                for process in item.get("validated_processes", [])
+            )
+            replenishment_text = (
+                f"validated replenishment process available: {process_names}"
+            )
+        else:
+            replenishment_text = (
+                "no validated production process currently available to you"
+            )
         sustainability_lines.append(
             (
                 f"- {item['material']}: {item['stored']:g} units stored; "
-                "no validated production process currently available to you"
+                f"{replenishment_text}"
             )
         )
     resource_sustainability_text = "\n".join(sustainability_lines) or (
@@ -271,7 +283,8 @@ CURRENT LOCALLY OBSERVABLE RESOURCE SUSTAINABILITY:
 RESOURCE SUSTAINABILITY RULES:
 - These finished starter supplies are finite physical stock, but finite does not mean urgent or scarce enough to override your own judgment.
 - "No validated production process currently available to you" means only that you cannot presently make more through a known Simulation-supported process.
-- Do not infer that a particular region, deposit, plant, stone, or raw material can replenish any finished part.
+- "Validated replenishment process available" means a real evidence-backed process has been learned; it still requires its listed physical inputs, energy, and operational structure before the action becomes legal.
+- Do not infer that a particular region, deposit, plant, stone, or raw material can replenish any finished part unless the relevant validated process explicitly names that input.
 - Do not invent smelting, refining, machining, chemistry, recycling, substitution, or manufacturing steps that are not in your validated capability/knowledge context.
 - Travel, surveying, inspection, conversation, and experiments may be reasonable ways to investigate unknowns only when they are already legal actions. None guarantees a useful result.
 - A survey may reveal a real deposit or produce no new finding. Never state what you expect to find as fact.

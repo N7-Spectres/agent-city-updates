@@ -19,6 +19,7 @@ PRACTICE_ACTIONS = {
     "deposit_cargo",
     "experiment",
     "fabricate",
+    "process_material",
     "construct",
     "service_chassis",
     "replace_battery",
