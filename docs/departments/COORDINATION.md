@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v1.1.1 Embedded World Cache Refresh published** from `release-v1.1.1@79f82b4b4b6a2d6278c59d81a9fc0ff649c27c9b`; full CI `37065557238` PASS.
+- [Assets & Interface] The Home iframe/world assets now refresh cleanly after in-place updates, preventing stale flat/pre-terrain Planet Lab code from surviving a release.
+
 - [Coordinator] **v1.1.0 Seeded Local Terrain Mesh published** from `release-v1.1.0@56e4a7d1c2ac4d1adeede08bf3222cd727ea8c73`; full CI `37064066318` PASS.
 - [Assets & Interface] Local 3D now consumes a coarse seed-stable elevation mesh, grounds known world markers/routes to it, and expands Local presentation range while preserving flat fallback.
 - [World & Simulation] Private `planet_seed`, geology, richness, and hidden deposit geometry remain server-side; the public terrain endpoint exposes surface elevation only and does not bypass discovery.
