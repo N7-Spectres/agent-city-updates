@@ -267,6 +267,7 @@
   let localLocationPadRingVertexCount = 0;
   let localTerrainRequestKey = "";
   let localSurfaceStatus = "loading surface…";
+  const LEGACY_FLAT_FALLBACK_LABEL = "Local flat fallback • seeded terrain unavailable";
 
   const LOCAL_SURFACE_HALF_EXTENT = 3.45;
   const LOCAL_TERRAIN_PADDING_FACTOR = 1.55;
@@ -1362,7 +1363,7 @@
     } catch (error) {
       // The old flat Local plane remains a deliberate fallback.
       localSurfaceStatus = "flat fallback";
-      console.warn("Seeded Local terrain unavailable; using flat fallback.", error);
+      console.warn(LEGACY_FLAT_FALLBACK_LABEL, error);
     }
   }
 
