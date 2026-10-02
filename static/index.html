@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Agent City</title>
-  <link rel="stylesheet" href="/static/styles.css" />
+  <link rel="stylesheet" href="/static/styles.css?build=1.1.1" />
 </head>
 <body>
   <header class="topbar">
@@ -69,7 +69,7 @@
             <iframe
               id="home-world-3d"
               class="home-world-3d"
-              src="/planet-lab?embed=1&mode=local"
+              src="/planet-lab?embed=1&mode=local&build=1.1.1"
               title="Live interactive 3D Agent City world"
               loading="eager"
             ></iframe>
@@ -359,7 +359,7 @@
     </section>
   </main>
 
-  <script src="/static/app.js"></script>
+  <script src="/static/app.js?build=1.1.1"></script>
   <script>
     (() => {
       const stage = document.getElementById("home-world-stage");
