@@ -32,6 +32,10 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v1.1.0 Seeded Local Terrain Mesh published** from `release-v1.1.0@56e4a7d1c2ac4d1adeede08bf3222cd727ea8c73`; full CI `37064066318` PASS.
+- [Assets & Interface] Local 3D now consumes a coarse seed-stable elevation mesh, grounds known world markers/routes to it, and expands Local presentation range while preserving flat fallback.
+- [World & Simulation] Private `planet_seed`, geology, richness, and hidden deposit geometry remain server-side; the public terrain endpoint exposes surface elevation only and does not bypass discovery.
+
 - [Coordinator] **v1.0.0 Material Independence published** from `release-v1.0.0@b8119734ff5d0793fd2e07f45e3be3b20ff20c6f`; full CI `37032876262` PASS.
 - [World & Simulation] Verified discovery evidence can now unlock real citizen-owned production processes; raw materials can physically become all seven manufactured starter-stock categories through auditable jobs.
 - [Civilization] The release regression scenario proves a zero-starter-stock settlement can reproduce maintenance supplies and service a real due Charging Station without hidden-resource leakage or a scripted tech tree.
