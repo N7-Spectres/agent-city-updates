@@ -15,6 +15,7 @@ from .provenance import knowledge_context_for as provenance_context_for
 from .simulation import (
     autonomous_actions,
     daily_phase_label,
+    local_maintenance_attention,
     start_action,
     voluntary_choice_context_key,
 )
@@ -74,6 +75,40 @@ def citizen_context(citizen: dict[str, Any], state: dict[str, Any], actions: lis
         citizen["id"],
         limit=4,
     )
+
+    maintenance_rows = local_maintenance_attention(citizen["id"])
+    maintenance_lines: list[str] = []
+    for item in maintenance_rows:
+        requirements = ", ".join(
+            f"{amount:g} {material}"
+            for material, amount in item["requirements"].items()
+        )
+        shortfalls = item["shortfalls"]
+        if item["service_state"] == "in_progress":
+            supply_state = "service is already in progress"
+        elif shortfalls:
+            shortage_text = ", ".join(
+                (
+                    f"{material}: {detail['required']:g} required, "
+                    f"{detail['available']:g} stored, {detail['short']:g} short"
+                )
+                for material, detail in shortfalls.items()
+            )
+            supply_state = f"blocked by local stock shortfall ({shortage_text})"
+        else:
+            supply_state = "required local stock is currently available"
+
+        maintenance_lines.append(
+            (
+                f"- {item['name']} | {item['condition_label']} "
+                f"{item['condition_value']:.1f}% | procedure requires {requirements} | "
+                f"{supply_state}"
+            )
+        )
+    maintenance_attention_text = "\n".join(maintenance_lines) or (
+        "- no service-due maintenance is directly observable at your current position"
+    )
+
     nearby_exploration_memory = nearby_spatial_context_for(
         citizen["id"],
         x_m=citizen.get("position_x_m"),
@@ -203,6 +238,18 @@ DURABLE SOCIAL HISTORY FROM YOUR OWN RECORDED ENCOUNTERS:
 
 RETAINED KNOWLEDGE ABOUT YOUR CURRENT LOCATION:
 {local_knowledge}
+
+CURRENT LOCALLY OBSERVABLE MAINTENANCE ATTENTION:
+{maintenance_attention_text}
+
+MAINTENANCE ATTENTION RULES:
+- This section is authoritative local physical state you can assess here; it is not a command, assigned role, or priority override.
+- Procedure requirements describe known starter maintenance procedures. Local stock counts are only supplied while you are physically at the Seed Site landmark.
+- If required stock is missing, the corresponding service action will not become legal until the named supplies actually exist in storage.
+- Do not invent a source, conversion, fabrication recipe, or substitute for a missing named supply.
+- A raw deposit is not automatically a source of Fasteners, Mechanical components, Battery cells, Lubricant, or any other finished part.
+- You may choose an existing legal action because of a maintenance shortage only when your current knowledge and that legal action genuinely support the connection. Talking, inspecting, waiting, or pursuing a separately validated supply path are all allowed choices; none is mandatory.
+- If service is already in progress, do not act as though a second simultaneous repair is needed.
 
 SELECTED MEANINGFUL MAINTENANCE EXPERIENCES YOU PARTICIPATED IN:
 {maintenance_history}
