@@ -15,7 +15,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from agent_city.db import connect, get_meta, init_db, set_meta, snapshot
+from agent_city.db import STARTING_RESOURCES, connect, get_meta, init_db, set_meta, snapshot
 from agent_city.comms import known_deposits_for, recent_dialogues_for, visible_citizens
 from agent_city.continuity_language import (
     continuity_language_snapshot,
@@ -191,6 +191,132 @@ def get_state():
                 citizen["location_id"],
             )
     return state
+
+
+@app.get("/api/diagnostics/troubleshooting-snapshot")
+def troubleshooting_snapshot():
+    """Local-only, copy-friendly public-state snapshot for support/debugging."""
+    state = snapshot()
+    citizen_names = {
+        str(citizen["id"]): str(citizen["name"])
+        for citizen in state["citizens"]
+    }
+
+    stored_by_name = {
+        str(row["name"]): float(row["amount"])
+        for row in state["resources"]
+    }
+    resource_names = sorted(set(STARTING_RESOURCES) | set(stored_by_name))
+    storage = []
+    for material in resource_names:
+        current = float(stored_by_name.get(material, 0.0))
+        starter_value = STARTING_RESOURCES.get(material)
+        starter = float(starter_value) if starter_value is not None else None
+        storage.append(
+            {
+                "material": material,
+                "stored": current,
+                "starter": starter,
+                "change_from_starter": (
+                    current - starter if starter is not None else None
+                ),
+                "starter_stock": starter is not None,
+            }
+        )
+
+    field_cargo = [
+        {
+            "citizen_id": str(row["citizen_id"]),
+            "citizen_name": citizen_names.get(
+                str(row["citizen_id"]),
+                str(row["citizen_id"]),
+            ),
+            "material": str(row["material"]),
+            "amount": float(row["amount"]),
+        }
+        for row in state["inventory"]
+        if float(row["amount"] or 0) > 0
+    ]
+
+    citizens = [
+        {
+            "id": str(citizen["id"]),
+            "name": str(citizen["name"]),
+            "location": str(citizen["location"]),
+            "current_activity": str(citizen["current_activity"]),
+            "energy": float(citizen["energy"]),
+            "battery_health": float(citizen.get("battery_health", 100.0)),
+            "joint_wear": float(citizen.get("joint_wear", 0.0)),
+            "integrity": float(citizen["integrity"]),
+        }
+        for citizen in state["citizens"]
+    ]
+
+    structures = [
+        {
+            "id": int(row["id"]),
+            "name": str(row["name"]),
+            "kind": str(row["kind"]),
+            "location_id": str(row["location_id"]),
+            "condition": float(row["condition"]),
+            "condition_state": str(row.get("condition_state", "")),
+            "operational": bool(row.get("operational", True)),
+            "service_due": bool(row.get("service_due", False)),
+            "use_count": int(row.get("use_count", 0) or 0),
+        }
+        for row in state["structures"]
+    ]
+
+    equipment = [
+        {
+            "id": int(row["id"]),
+            "name": str(row["name"]),
+            "kind": str(row["kind"]),
+            "owner_citizen_id": row.get("owner_citizen_id"),
+            "location_id": row.get("location_id"),
+            "condition": float(row["condition"]),
+            "condition_state": str(row.get("condition_state", "")),
+            "operational": bool(row.get("operational", True)),
+            "service_due": bool(row.get("service_due", False)),
+            "use_count": int(row.get("use_count", 0) or 0),
+        }
+        for row in state["equipment"]
+    ]
+
+    recent_maintenance = [
+        {
+            "id": int(row["id"]),
+            "sim_minute": int(row["sim_minute"]),
+            "citizen_id": str(row["citizen_id"]),
+            "event_type": str(row["event_type"]),
+            "target_type": str(row["target_type"]),
+            "target_id": str(row["target_id"]),
+            "before_value": float(row["before_value"]),
+            "after_value": float(row["after_value"]),
+            "outcome": str(row["outcome"]),
+            "summary": str(row["summary"]),
+        }
+        for row in state["maintenance_events"][:12]
+    ]
+
+    return {
+        "snapshot_type": "agent_city_troubleshooting",
+        "version": current_version(),
+        "sim_minute": int(state["sim_minute"]),
+        "sim_label": format_sim_time(state["sim_minute"]),
+        "storage": storage,
+        "field_cargo": field_cargo,
+        "citizens": citizens,
+        "structures": structures,
+        "equipment": equipment,
+        "recent_maintenance_events": recent_maintenance,
+        "privacy": {
+            "local_only_until_copied": True,
+            "hidden_world_seed_included": False,
+            "undiscovered_world_truth_included": False,
+            "conversation_content_included": False,
+        },
+    }
 
 
 @app.get("/api/records/history")
