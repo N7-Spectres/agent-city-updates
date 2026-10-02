@@ -44,6 +44,13 @@ def main() -> None:
     assert '"/api/world/local-terrain?radius_m="' in lab_js
     assert "let localTerrainBuffer = null;" in lab_js
 
+    # v1.1.2 keeps the cache-refresh contract while polishing the loaded mesh.
+    assert "let localTerrainHighlightBuffer = null;" in lab_js
+    assert "let localTerrainShadowBuffer = null;" in lab_js
+    assert "const minorStride = 2;" in lab_js
+    assert "const majorStride = 6;" in lab_js
+    assert "function rebuildLocalLocationPads()" in lab_js
+
     print("Agent City v1.1.1 world cache-refresh smoke passed.")
 
 
