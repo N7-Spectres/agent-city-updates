@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.27 Troubleshooting Snapshot published** from `release-v0.9.27@3b708a7da1f7b655244da94a90d67db68b733b9e`; full CI `37019939752` PASS.
+- [Diagnostics/UI] Records → Stores now provides a local-only copyable support snapshot with live storage baselines/deltas and maintenance-relevant physical state; hidden world truth and conversation content remain excluded.
+
 - [Coordinator] **v0.9.26 Maintenance Awareness published** from `release-v0.9.26@937f300e8870f6baed2031e6f69b68b7da667a08`; full CI `37017820397` PASS.
 - [World & Simulation] Seed Site citizens now receive bounded local maintenance attention and real stock shortfalls without changing service legality or leaking remote physical state.
 - [Planner] Missing maintenance supplies may inform reasoning, but citizens are forbidden from inventing sources, substitutions, conversions, or unsupported fabrication paths.
