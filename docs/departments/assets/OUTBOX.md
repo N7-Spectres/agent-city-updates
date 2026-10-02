@@ -6,6 +6,20 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-10-02 — From: Assets & Interface — Status: published
 
+**Subject:** v1.1.2 Terrain Visual Polish published
+
+- `release-v1.1.2@84bd50fccd9c21b2714b84d46a6b9deccd2373dd`
+- full CI `37067644082` PASS
+- updater now advertises v1.1.2
+- PR #56 merged
+- terrain wire density reduced
+- elevation/relief shading added from the public surface heightfield only
+- known locations receive terrain-following visual pads
+- desktop Home world is modestly taller
+- Simulation/discovery authority unchanged
+
+### 2026-10-02 — From: Assets & Interface — Status: published
+
 **Subject:** v1.1.1 Embedded World Cache Refresh published
 
 - `release-v1.1.1@79f82b4b4b6a2d6278c59d81a9fc0ff649c27c9b`
