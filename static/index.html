@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Agent City</title>
-  <link rel="stylesheet" href="/static/styles.css?build=1.1.1" />
+  <link rel="stylesheet" href="/static/styles.css?build=1.1.2" />
 </head>
 <body>
   <header class="topbar">
@@ -359,15 +359,15 @@
     </section>
   </main>
 
-  <script src="/static/app.js?build=1.1.1"></script>
+  <script src="/static/app.js?build=1.1.2"></script>
   <script>
     (() => {
       const stage = document.getElementById("home-world-stage");
       const frame = document.getElementById("home-world-3d");
       const toggle = document.getElementById("world-view-fallback-toggle");
       if (stage && frame && toggle) {
-        const freshWorldSrc = "/planet-lab?embed=1&mode=local&build=1.1.1";
-        if (!frame.src.includes("build=1.1.1")) {
+        const freshWorldSrc = "/planet-lab?embed=1&mode=local&build=1.1.2";
+        if (!frame.src.includes("build=1.1.2")) {
           frame.src = freshWorldSrc;
         }
 
