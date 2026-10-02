@@ -1,6 +1,6 @@
 {
-  "version": "0.9.27",
-  "notes": "Troubleshooting Snapshot: Records → Stores now includes a one-click Copy troubleshooting snapshot control. It captures current Seed Site storage with starter baselines/deltas, field cargo, citizen energy/battery/joint/integrity state, structures, equipment, recent maintenance, sim time, and version. The snapshot stays local until copied and excludes hidden world seed/generated world truth and conversation content.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/3b708a7da1f7b655244da94a90d67db68b733b9e",
+  "version": "0.9.28",
+  "notes": "Resource Sustainability + Dialogue Grounding: citizens physically at Seed Site can now reason from finite manufactured starter stock and the fact that no validated production process currently replenishes it, without being told where resources are or what raw materials can become. This is strategic context only, not an emergency or assigned objective. Hidden deposits remain hidden until real surveys discover them. Autonomous dialogue and guided-practice language now also avoid inventing official-sounding procedures, protocols, inspections, tools, or repair methods from generic activity labels.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/a530afb661e9a1cd6f1820551c73d3b944b9b36c",
   "sha256": ""
 }
