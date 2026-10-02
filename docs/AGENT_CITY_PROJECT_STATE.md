@@ -4,7 +4,7 @@ _Last updated: 2026-10-02_
 
 ## Current Release
 
-**v1.1.2 — Terrain Visual Polish**
+**v1.1.3 — Shared Sun / Day-Night Lighting**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,36 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v1.1.3 Published Patch — Shared Sun / Day-Night Lighting
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v1.1.3`
+- exact green head: `4227fb7e4ae1aff99e9dae2b0fa2ff9cac27d8f9`
+- full CI: `37079795922` — PASS
+- published updater: `v1.1.3`
+- PR #57 merged
+
+Delivered:
+- one shared presentation sun driven continuously by the authoritative Simulation clock
+- Local terrain now carries surface normals and receives directional sunlight
+- Region and Planet use the same sun converted into globe coordinates
+- Seed Site local day/night state agrees with the globe's lit hemisphere
+- Planet uses a soft day/night terminator instead of a uniformly lit shell
+- Region keeps a higher night readability floor while preserving the same sun direction
+- Local/Region/Planet captions report dawn / daylight / dusk / night state
+- citizen bodies, labels, markers, and selection UI remain outside world-light attenuation for readability
+- Local flat fallback remains intact
+- build keys advanced to 1.1.3
+- no Simulation time writes, coordinate writes, discovery changes, geology exposure, or resource exposure
+
+Validation:
+- complete historical regression matrix
+- Python compile
+- Planet Lab JavaScript syntax
+- `tests/smoke_v113_shared_sun_cycle.py`
+- v0.9.6 / v1.1.0 / v1.1.1 compatibility contracts retained
 
 ## v1.1.2 Published Patch — Terrain Visual Polish
 
