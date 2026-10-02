@@ -6,6 +6,20 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-10-02 — From: Assets & Interface — Status: published
 
+**Subject:** v1.1.1 Embedded World Cache Refresh published
+
+- `release-v1.1.1@79f82b4b4b6a2d6278c59d81a9fc0ff649c27c9b`
+- full CI `37065557238` PASS
+- updater now advertises v1.1.1
+- PR #55 merged
+- screenshot proved stale pre-terrain Planet Lab JS remained in the Home iframe after v1.1.0
+- mutable local UI/world assets now use no-store/no-cache
+- embedded world gets a fresh build URL after reload
+- Local banner exposes terrain loading / loaded / fallback state
+- seeded terrain logic and discovery boundaries unchanged
+
+### 2026-10-02 — From: Assets & Interface — Status: published
+
 **Subject:** v1.1.0 Seeded Local Terrain Mesh published
 
 - `release-v1.1.0@56e4a7d1c2ac4d1adeede08bf3222cd727ea8c73`
