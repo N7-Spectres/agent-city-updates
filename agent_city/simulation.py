@@ -4,7 +4,7 @@ import json
 import math
 from typing import Any
 
-from .db import add_history, connect, get_meta, set_meta
+from .db import STARTING_RESOURCES, add_history, connect, get_meta, set_meta
 from .knowledge import citizen_knows_property, record_discovery
 from .spatial import query_hidden_world, record_validated_observation
 from .exploration import (
@@ -1098,6 +1098,42 @@ def local_maintenance_attention(citizen_id: str) -> list[dict[str, Any]]:
             )
 
         return needs
+
+
+def local_resource_sustainability_attention(citizen_id: str) -> list[dict[str, Any]]:
+    """
+    Return finite finished starter-stock state a citizen can directly assess at Seed Site.
+
+    This is strategic context only. It does not reveal hidden deposits, imply a
+    resource source exists, create a fabrication recipe, or change legal actions.
+    """
+    with connect() as conn:
+        citizen = conn.execute(
+            "SELECT * FROM citizens WHERE id = ?",
+            (citizen_id,),
+        ).fetchone()
+        if not citizen or citizen["active_job_id"] is not None:
+            return []
+
+        if str(citizen["location_id"]) != "seed_site":
+            return []
+        if location_anchor_distance(conn, citizen) > 5.0:
+            return []
+
+        rows: list[dict[str, Any]] = []
+        for material in sorted(STARTING_RESOURCES):
+            stock = conn.execute(
+                "SELECT amount FROM resources WHERE name = ?",
+                (material,),
+            ).fetchone()
+            rows.append(
+                {
+                    "material": material,
+                    "stored": float(stock["amount"]) if stock else 0.0,
+                    "replenishment_status": "no_validated_production_process",
+                }
+            )
+        return rows
 
 
 def consume_resources(conn, requirements: dict[str, float]) -> bool:
