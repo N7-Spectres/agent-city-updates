@@ -1,7 +1,7 @@
 # World & Simulation — State
 
 _Last updated: 2026-10-02_
-_Current published release: v0.9.28_
+_Current published release: v1.0.0_
 _Definitive v0.9 Stage 2 base: `release-v0.9.0-stage2-integration` @ `f680275a78b9da71a43f3c79217f292796b7843d`_
 _Active branch: `simulation/v0.9-habits-stage3`_
 _Final Stage 3 branch head: `fb17d3a2fb0776c490cdd4805feae8ab97c763ac`_
@@ -13,6 +13,46 @@ Own physical truth, plan/practice identity, and any objective physical competenc
 > **The AI may decide intent. The simulation decides reality.**
 
 > **Persistent behavior must have a traceable history.**
+
+## v1.0.0 — Material Independence
+
+Published integration:
+- `release-v1.0.0@b8119734ff5d0793fd2e07f45e3be3b20ff20c6f`
+- full CI `37032876262` PASS
+
+### Independence Law
+
+A production capability must descend from real evidence:
+
+`validated material-property discoveries -> citizen learned_processes -> legal process_material action -> jobs.id -> production_events.id -> physical resource outputs`
+
+No link may be replaced by planner prose or hidden-world convenience.
+
+### First-Generation Production Surface
+
+Current validated production processes can yield:
+- Crude Metal Stock from Ferrite Stone
+- Fasteners from tested Crude Metal Stock
+- Mechanical components from tested Crude Metal Stock + Fasteners
+- Processed structural material from validated Silicate behavior
+- Lubricant from a validated Native Resin fraction
+- Conductive wire from validated Copper-like Ore conductivity/workability
+- Basic electronics from a multi-property material evidence chain
+- Battery cells from a multi-property material evidence chain
+
+Every process:
+- requires the learning citizen to own the prerequisite verified discoveries
+- requires its named physical inputs
+- requires an operational Seed Site structure
+- consumes energy and time
+- wears the relevant structure
+- creates a real job and durable production event
+- may receive the existing bounded fabrication-practice timing effect
+- never creates material from prose, conversation, or UI state
+
+### Existing-Save Backfill
+
+On migration, production knowledge is backfilled only from existing verified `citizen_knowledge` discovery ownership. New hidden properties are not revealed by migration.
 
 ## v0.9.28 — Finite Starter-Stock Sustainability Context
 
