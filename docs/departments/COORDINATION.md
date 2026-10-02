@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v1.1.3 Shared Sun / Day-Night Lighting published** from `release-v1.1.3@4227fb7e4ae1aff99e9dae2b0fa2ff9cac27d8f9`; full CI `37079795922` PASS.
+- [Assets & Interface] Local, Region, and Planet now share one continuous Simulation-time-driven sun; Local terrain uses surface normals and Planet shows a soft terminator while UI labels remain readable.
+
 - [Coordinator] **v1.1.2 Terrain Visual Polish published** from `release-v1.1.2@84bd50fccd9c21b2714b84d46a6b9deccd2373dd`; full CI `37067644082` PASS.
 - [Assets & Interface] Seeded Local terrain now has gentler wire density, subtle height/relief shading, terrain-following pads for known locations, and a slightly taller Home world viewport.
 
