@@ -4,6 +4,15 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
+### 2026-10-02 — From: Communication & Perception / Coordinator — Status: published
+
+**Subject:** v0.9.28 named-procedure grounding is live
+
+- Generic guided-practice/activity-family language may not be inflated into a fictional named procedure, protocol, inspection routine, repair method, tool, or equipment.
+- Exact named methods require authoritative capability/knowledge or source-backed recalled support.
+- Unsupported older conversation labels remain reports/proposals rather than becoming established truth through repetition.
+- Existing Stage 2 guided-practice language contracts remain intact; full CI `37022302296` PASS.
+
 
 ### 2026-09-29 — From: Communication & Perception — Status: ready
 
