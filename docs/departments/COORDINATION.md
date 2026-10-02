@@ -1,6 +1,6 @@
 # Agent City — Department Coordination Board
 
-_Last updated: 2026-10-01_
+_Last updated: 2026-10-02_
 
 This file is the shared project task board.
 
@@ -31,6 +31,10 @@ _None._
 _None._
 
 ### DONE
+
+- [Coordinator] **v0.9.26 Maintenance Awareness published** from `release-v0.9.26@937f300e8870f6baed2031e6f69b68b7da667a08`; full CI `37017820397` PASS.
+- [World & Simulation] Seed Site citizens now receive bounded local maintenance attention and real stock shortfalls without changing service legality or leaking remote physical state.
+- [Planner] Missing maintenance supplies may inform reasoning, but citizens are forbidden from inventing sources, substitutions, conversions, or unsupported fabrication paths.
 
 - [Coordinator] **v0.9.25 Ollama Auto-Start published** from `release-v0.9.25@780da84eb05467fc8bccf337cbd84e8bf6224e2c`; full CI `36892190024` PASS.
 - [Launcher] One-click startup now checks and quietly starts Ollama when needed; existing Ollama instances are reused and failures remain non-fatal to the city runtime.
