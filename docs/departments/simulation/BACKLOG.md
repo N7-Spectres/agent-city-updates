@@ -97,3 +97,15 @@ Remaining Stage 3 sequence:
 5. Review v0.9.0 release readiness only after green integration.
 
 World & Simulation should remain stopped unless merge feedback or a new physical Stage 3 issue is routed.
+
+
+## Post-v1.0 candidate — Integrity hazards / structural body repair
+
+Material Independence now removes the major finite-starter-stock soft-lock risk.
+
+Future Integrity work may therefore model actual structural damage and body repair, but should still be introduced conservatively:
+- Integrity should represent real structural damage, not duplicate ordinary joint/battery wear.
+- damage needs a concrete physical cause such as a validated hazard/incident/failure
+- repair must consume real locally reproducible maintenance stock
+- citizens must retain a physically legal recovery path; do not create unavoidable civilization-ending soft locks
+- test the full damage -> awareness -> repair -> restored integrity chain before publishing
