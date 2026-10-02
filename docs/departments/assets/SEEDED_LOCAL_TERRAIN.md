@@ -85,16 +85,17 @@ Future safe extensions may include:
 Do not add geology/resource coloring directly from hidden seed fields. A resource or material becomes visible only through the existing discovery pipeline.
 
 
-## v1.1.2 readability pass
+## v1.1.3 shared sun / day-night lighting
 
-The seeded surface data and authority model are unchanged.
+Local, Region, and Planet now share one presentation light source driven only by the authoritative simulation clock.
 
-Presentation refinements:
-- high areas receive a very subtle overlay based on public elevation
-- locally steeper cells receive a subtle shadow overlay based on neighboring public elevations
-- minor mesh wires are drawn every second sample instead of every sample
-- every sixth sample remains a slightly stronger reference line
-- known locations receive small pads that follow the sampled terrain surface
-- the desktop Home world viewport receives a modest vertical expansion
+- Local uses a tangent-space sun direction and terrain surface normals.
+- Region and Planet use the same sun converted into globe coordinates.
+- The Seed Site local day/night state therefore agrees with the lit hemisphere on the globe.
+- Planet uses a soft terminator rather than a hard half-sphere cutoff.
+- Region keeps a higher readability floor while preserving the same light direction.
+- Night retains an ambient floor so terrain and markers remain usable.
+- DOM labels, citizen markers, and selection UI remain outside world-light attenuation.
+- The sun/light model never changes time, coordinates, travel, visibility authority, discovery, or resources.
 
-These changes improve terrain readability only. They do not modify seeded elevation, discovery, travel, coordinates, or resource knowledge.
+The light cycle interpolates continuously between state refreshes using the existing simulation time ratio. It is a presentation of Simulation time, not a second clock.
