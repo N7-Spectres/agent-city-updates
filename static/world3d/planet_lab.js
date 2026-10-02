@@ -548,10 +548,8 @@
       "attribute vec3 aNormal;",
       "uniform mat4 uMVP;",
       "varying vec3 vNormal;",
-      "varying vec3 vPosition;",
       "void main() {",
       "  vNormal = aNormal;",
-      "  vPosition = aPosition;",
       "  gl_Position = uMVP * vec4(aPosition, 1.0);",
       "}",
     ].join("\n"),
@@ -559,16 +557,22 @@
       "precision mediump float;",
       "uniform vec3 uLightDir;",
       "uniform vec3 uBaseColor;",
+      "uniform vec3 uSunColor;",
+      "uniform vec3 uNightColor;",
+      "uniform float uAmbient;",
+      "uniform float uDirect;",
+      "uniform float uTerminatorWidth;",
       "varying vec3 vNormal;",
-      "varying vec3 vPosition;",
       "void main() {",
       "  vec3 n = normalize(vNormal);",
-      "  float daylight = max(dot(n, normalize(uLightDir)), 0.0);",
+      "  float incidence = dot(n, normalize(uLightDir));",
+      "  float dayMask = smoothstep(-uTerminatorWidth, uTerminatorWidth, incidence);",
+      "  float directLight = max(incidence, 0.0);",
       "  float polar = 0.5 + 0.5 * abs(n.y);",
-      "  vec3 deep = uBaseColor * (0.28 + daylight * 0.72);",
-      "  vec3 cyan = vec3(0.03, 0.20, 0.25) * (1.0 - daylight) * 0.7;",
-      "  vec3 polarTint = vec3(0.10, 0.16, 0.18) * polar * 0.16;",
-      "  gl_FragColor = vec4(deep + cyan + polarTint, 1.0);",
+      "  vec3 dayColor = uBaseColor * (uAmbient + directLight * uDirect);",
+      "  dayColor += uSunColor * directLight * 0.18;",
+      "  vec3 nightColor = uNightColor + uBaseColor * (0.07 + polar * 0.06);",
+      "  gl_FragColor = vec4(mix(nightColor, dayColor, dayMask), 1.0);",
       "}",
     ].join("\n")
   );
@@ -713,6 +717,55 @@
     gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
     gl.uniformMatrix4fv(gl.getUniformLocation(colorProgram, "uMVP"), false, new Float32Array(mvp));
     gl.uniform4fv(gl.getUniformLocation(colorProgram, "uColor"), new Float32Array(color));
+    gl.drawArrays(primitive, 0, count);
+  }
+
+  function bindLitArrayBuffer(
+    positionBuffer,
+    normalBuffer,
+    mvp,
+    baseColor,
+    lighting,
+    primitive,
+    count,
+    options = {},
+  ) {
+    gl.useProgram(litProgram);
+    const posLoc = gl.getAttribLocation(litProgram, "aPosition");
+    const normalLoc = gl.getAttribLocation(litProgram, "aNormal");
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.enableVertexAttribArray(posLoc);
+    gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    gl.enableVertexAttribArray(normalLoc);
+    gl.vertexAttribPointer(normalLoc, 3, gl.FLOAT, false, 0, 0);
+
+    gl.uniformMatrix4fv(gl.getUniformLocation(litProgram, "uMVP"), false, new Float32Array(mvp));
+    gl.uniform3fv(
+      gl.getUniformLocation(litProgram, "uLightDir"),
+      new Float32Array(options.lightDir || lighting.localDirection),
+    );
+    gl.uniform3fv(gl.getUniformLocation(litProgram, "uBaseColor"), new Float32Array(baseColor));
+    gl.uniform3fv(gl.getUniformLocation(litProgram, "uSunColor"), new Float32Array(lighting.sunColor));
+    gl.uniform3fv(
+      gl.getUniformLocation(litProgram, "uNightColor"),
+      new Float32Array(options.nightColor || lighting.nightColor),
+    );
+    gl.uniform1f(
+      gl.getUniformLocation(litProgram, "uAmbient"),
+      Number(options.ambient ?? lighting.ambient),
+    );
+    gl.uniform1f(
+      gl.getUniformLocation(litProgram, "uDirect"),
+      Number(options.direct ?? lighting.direct),
+    );
+    gl.uniform1f(
+      gl.getUniformLocation(litProgram, "uTerminatorWidth"),
+      Number(options.terminatorWidth ?? 0.08),
+    );
+
     gl.drawArrays(primitive, 0, count);
   }
 
