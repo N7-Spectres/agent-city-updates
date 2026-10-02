@@ -272,3 +272,7 @@ jobs:
 
       - name: Run v1.1.1 world cache-refresh smoke
         run: python tests/smoke_v111_world_cache_refresh.py
+
+
+      - name: Run v1.1.3 shared sun/day-night smoke
+        run: python tests/smoke_v113_shared_sun_cycle.py
