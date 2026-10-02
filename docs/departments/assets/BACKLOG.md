@@ -609,3 +609,23 @@ Immediate next action:
 
 Immediate next action:
 - visually verify the desktop shortcut after updating from v0.9.23 to v0.9.24
+
+
+## Completed — v1.1.0 Seeded Local Terrain Mesh
+
+- connected Local WebGL terrain to the existing persistent world seed
+- kept the seed itself server-side
+- exposed only coarse/quantized surface elevation
+- explicitly withheld geology, materials, richness, and hidden deposit geometry
+- added real terrain triangles + wire mesh
+- grounded world markers and segmented routes to terrain
+- expanded Local surface and camera breathing room
+- retained flat fallback
+- added `tests/smoke_v110_seeded_terrain_mesh.py`
+- full release regression `37064066318` PASS
+
+Immediate next action:
+- visually inspect whether relief is too strong/weak at ordinary Local camera
+- verify bodies and tokens appear planted on the terrain rather than floating/sinking
+- verify route lines follow the surface cleanly
+- inspect maximum Local zoom-out and decide whether terrain extent should grow further
