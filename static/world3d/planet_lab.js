@@ -400,8 +400,8 @@
     }[lighting.phase] || lighting.phase;
   }
 
-  function localPalette(now = performance.now()) {
-    const phase = visualDayPhase(state ? continuousSimMinute(now) : 720);
+  function localPalette(now = performance.now(), phaseOverride = null) {
+    const phase = phaseOverride || visualDayPhase(state ? continuousSimMinute(now) : 720);
     return {
       dawn: {
         clear: [0.055, 0.075, 0.105, 1],
@@ -826,43 +826,61 @@
   }
 
   function drawLocal(mvp, lighting) {
-    const palette = localPalette();
+    const palette = localPalette(performance.now(), lighting.phase);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-    if (localTerrainBuffer && localTerrainVertexCount) {
-      const terrainFill = [
-        palette.plane[0] * 1.08,
-        palette.plane[1] * 1.04,
-        palette.plane[2] * 0.98,
-        0.96,
+    if (
+      localTerrainBuffer
+      && localTerrainNormalBuffer
+      && localTerrainVertexCount
+    ) {
+      const terrainBase = [
+        palette.plane[0] * 1.12,
+        palette.plane[1] * 1.06,
+        palette.plane[2] * 1.00,
       ];
       const terrainHighlight = [
         Math.min(1, palette.plane[0] * 2.35),
         Math.min(1, palette.plane[1] * 1.55),
         Math.min(1, palette.plane[2] * 1.45),
-        0.14,
+        0.035 + lighting.daylight * 0.075,
       ];
       const terrainShadow = [
         palette.plane[0] * 0.28,
         palette.plane[1] * 0.34,
         palette.plane[2] * 0.42,
-        0.18,
+        0.065 + lighting.daylight * 0.07,
       ];
       const terrainWire = [
         palette.grid[0],
         palette.grid[1],
         palette.grid[2],
-        0.105,
+        0.075 + lighting.daylight * 0.035,
       ];
       const terrainMajorWire = [
         palette.grid[0] * 1.08,
         palette.grid[1] * 1.06,
         palette.grid[2] * 1.04,
-        0.19,
+        0.15 + lighting.daylight * 0.05,
       ];
 
-      bindColorBuffer(localTerrainBuffer, mvp, terrainFill, gl.TRIANGLES, localTerrainVertexCount);
+      bindLitArrayBuffer(
+        localTerrainBuffer,
+        localTerrainNormalBuffer,
+        mvp,
+        terrainBase,
+        lighting,
+        gl.TRIANGLES,
+        localTerrainVertexCount,
+        {
+          lightDir: lighting.localDirection,
+          nightColor: [0.007, 0.028, 0.046],
+          ambient: lighting.ambient,
+          direct: lighting.direct,
+          terminatorWidth: 0.10,
+        },
+      );
 
       if (localTerrainHighlightBuffer && localTerrainHighlightVertexCount) {
         bindColorBuffer(
@@ -900,7 +918,7 @@
         bindColorBuffer(
           localLocationPadBuffer,
           mvp,
-          [0.13, 0.39, 0.39, 0.19],
+          [0.13, 0.39, 0.39, 0.13 + lighting.daylight * 0.06],
           gl.TRIANGLES,
           localLocationPadVertexCount,
         );
@@ -909,18 +927,30 @@
         bindColorBuffer(
           localLocationPadRingBuffer,
           mvp,
-          [0.42, 0.76, 0.72, 0.32],
+          [0.42, 0.76, 0.72, 0.26 + lighting.daylight * 0.06],
           gl.LINES,
           localLocationPadRingVertexCount,
         );
       }
     } else {
-      bindColorBuffer(localPlane.buffer, mvp, palette.plane, gl.TRIANGLES, localPlane.count);
+      const fallbackPlane = [
+        palette.plane[0] * (0.72 + lighting.daylight * 0.28),
+        palette.plane[1] * (0.68 + lighting.daylight * 0.32),
+        palette.plane[2] * (0.72 + lighting.daylight * 0.28),
+        palette.plane[3],
+      ];
+      bindColorBuffer(localPlane.buffer, mvp, fallbackPlane, gl.TRIANGLES, localPlane.count);
       bindColorBuffer(localGrid.buffer, mvp, palette.grid, gl.LINES, localGrid.count);
     }
 
     if (localRouteBuffer && localRouteVertexCount) {
-      bindColorBuffer(localRouteBuffer, mvp, [0.85, 0.64, 0.28, 0.62], gl.LINES, localRouteVertexCount);
+      bindColorBuffer(
+        localRouteBuffer,
+        mvp,
+        [0.85, 0.64, 0.28, 0.56 + lighting.daylight * 0.08],
+        gl.LINES,
+        localRouteVertexCount,
+      );
     }
     gl.disable(gl.BLEND);
   }
