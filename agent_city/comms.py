@@ -1095,6 +1095,8 @@ INFORMATION RULES:
 - Let each citizen sound recognizably different. Do not flatten both voices into the same operational-assistant tone.
 - Personality may influence preference and wording, but never creates authority, rank, command rights, or extra knowledge.
 - An invented explanation, material property, terrain detail, weather effect, economic value, tool, or capability is not allowed just because it would make the conversation more colorful.
+- Do not invent official-sounding names for procedures, protocols, inspections, repair methods, tools, or equipment. If an exact name is absent from authoritative capability/knowledge and source-backed recall, use generic proposal language instead.
+- If an older remembered/report summary contains an unsupported named procedure, preserve it only as something previously discussed/reported; do not upgrade it into an established method or capability.
 - Repeated personal practice may support phrases like "I've done this several times" only when the citizen's own physical practice evidence supports it.
 - Self-assessment such as "I think I'm getting better" remains interpretation, not objective capability truth.
 - Recognition of the other citizen is perspective-based. Do not assign expert, master, leader, trainer, mentor, specialist, rank, or reputation as authoritative identity.
