@@ -4,7 +4,7 @@ _Last updated: 2026-10-02_
 
 ## Current Release
 
-**v1.0.0 — Material Independence**
+**v1.1.0 — Seeded Local Terrain Mesh**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,40 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v1.1.0 Published Feature — Seeded Local Terrain Mesh
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v1.1.0`
+- exact green head: `56e4a7d1c2ac4d1adeede08bf3222cd727ea8c73`
+- full CI: `37064066318` — PASS
+- published updater: `v1.1.0`
+- PR #54 merged
+
+Delivered:
+- Local 3D now renders a real WebGL triangle + wire terrain surface rather than always using a flat plane
+- terrain shape is deterministic from the existing persistent private `planet_seed`
+- the public renderer receives only a coarse 41×41, 2 m-quantized elevation heightfield
+- planet seed, geology/material fields, richness, hidden deposit identity, and deposit geometry remain server-side
+- public surface endpoint is explicitly marked `surface_only_no_geology_or_deposits`
+- citizens, structures, known locations, and visitor markers are visually grounded onto the terrain
+- known route lines are subdivided and draped across terrain rather than drawn flat between endpoints
+- Local presentation surface expands from ±3.0 to ±3.45 world units
+- terrain request radius extends approximately 1.55× beyond the farthest known Local anchor
+- Local default camera is widened to pitch 0.72 / distance 4.85; max Local zoom-out is 10.5
+- 3.2× terrain vertical exaggeration is presentation-only and does not create physical Z authority
+- the previous flat Local plane/grid remains a safe fallback if terrain loading fails
+- no Simulation coordinate writes, resource revelation, discovery bypass, or global geodesy claim
+
+Validation:
+- complete historical regression matrix through v1.0.0
+- Python compile + Planet Lab JavaScript syntax
+- `tests/smoke_v110_seeded_terrain_mesh.py`
+- deterministic same-seed / different-seed behavior
+- hidden world truth non-leak assertions
+- endpoint radius/resolution cost bounds
+- terrain grounding / route-draping / fallback contracts
 
 ## v1.0.0 Published Milestone — Material Independence
 
