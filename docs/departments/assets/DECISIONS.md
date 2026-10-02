@@ -1050,3 +1050,18 @@ Renderer rules:
 Expansion rule:
 - increasing Local visual extent does not create newly known locations, routes, deposits, biomes, resources, or travel permissions
 - future geology/biome tinting may use only already-validated public observations, never raw hidden seed fields
+
+
+## Mutable Local UI Cache Rule
+
+Agent City updates its own local files while browser tabs and embedded iframes may remain open.
+
+Therefore mutable local UI assets must not rely on ordinary browser caching across releases.
+
+Locked behavior:
+- `/`, `/planet-lab`, `/static/app.js`, `/static/styles.css`, and `/static/world3d/*` receive no-store/no-cache headers
+- release transitions may use a fresh build query key to invalidate already-populated old cache entries
+- the Home embedded world must be explicitly refreshed onto the current build after an update
+- terrain load/fallback state should be visible enough to distinguish a real renderer failure from stale client code
+
+This rule is presentation/runtime-cache hygiene only and carries no Simulation authority.
