@@ -1,10 +1,10 @@
 # Assets & Interface — State
 
 _Last updated: 2026-10-02_
-_Current published release: v1.1.2 @ `84bd50fccd9c21b2714b84d46a6b9deccd2373dd`_
-_Current Assets activity: terrain visual polish complete_
-_Current runtime branch: `release-v1.1.2` @ `84bd50fccd9c21b2714b84d46a6b9deccd2373dd`_
-_Current review surface: published updater v1.1.2_
+_Current published release: v1.1.3 @ `4227fb7e4ae1aff99e9dae2b0fa2ff9cac27d8f9`_
+_Current Assets activity: shared sun/day-night lighting complete_
+_Current runtime branch: `release-v1.1.3` @ `4227fb7e4ae1aff99e9dae2b0fa2ff9cac27d8f9`_
+_Current review surface: published updater v1.1.3_
 _Current status: DONE / PUBLISHED_
 
 ## Mission
@@ -985,3 +985,26 @@ Delivered:
 
 Next action:
 **Live visual review of terrain shading, pad scale, wire density, and taller viewport.**
+
+
+## v1.1.3 Shared Sun / Day-Night Lighting — Published
+
+- release branch: `release-v1.1.3`
+- exact green runtime: `4227fb7e4ae1aff99e9dae2b0fa2ff9cac27d8f9`
+- full CI: `37079795922` — PASS
+- updater: v1.1.3
+- PR #57 merged
+
+Delivered:
+- one continuous Simulation-time-driven sun shared across Local / Region / Planet
+- Local terrain surface normals + directional lighting
+- globe-space sun derived from the same Local tangent light vector
+- soft Planet day/night terminator
+- brighter Region night readability floor
+- explicit dawn / daylight / dusk / night captions
+- UI labels / citizen bodies / markers remain readable outside world shading
+- Local flat fallback preserved
+- no Simulation/discovery/resource authority changes
+
+Next action:
+**Live visual review across Local, Region, and Planet at the current sim time; later observe dawn/dusk/night transitions naturally or by ordinary simulation progression.**
