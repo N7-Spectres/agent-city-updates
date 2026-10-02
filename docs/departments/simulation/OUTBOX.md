@@ -6,6 +6,28 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-10-02 — From: World & Simulation / Coordinator — Status: published
 
+**Subject:** v1.0.0 Material Independence is live
+
+**Release / validation:**
+- `release-v1.0.0@b8119734ff5d0793fd2e07f45e3be3b20ff20c6f`
+- full CI `37032876262` PASS
+- PR #52 merged; test-correction PR #53 merged
+
+**Physical contract:**
+- verified property discoveries are the only source of production-process learning
+- `learned_processes` stores citizen-owned production capability
+- `process_material` is a real Simulation job
+- `production_events.id` is the durable production audit source
+- inputs are consumed at job start; outputs exist only after real job completion
+- material processing uses real energy/time and wears its workbench/smelter
+- all seven manufactured starter categories have at least one evidence-backed local replenishment path in the current world
+- the v1.0 smoke proves the loop from zero manufactured starter stock through local production to successful charger maintenance
+
+**Downstream boundary:**
+Memory/Communication/Assets may describe production only from real process/discovery/job evidence. Do not turn process names into ranks, professions, universal knowledge, or UI-derived capability.
+
+### 2026-10-02 — From: World & Simulation / Coordinator — Status: published
+
 **Subject:** v0.9.28 finite starter-stock sustainability context is live
 
 **Release / validation:**
