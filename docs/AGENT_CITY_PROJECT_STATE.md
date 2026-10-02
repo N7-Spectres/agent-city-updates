@@ -4,7 +4,7 @@ _Last updated: 2026-10-02_
 
 ## Current Release
 
-**v1.1.1 — Embedded World Cache Refresh**
+**v1.1.2 — Terrain Visual Polish**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,31 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v1.1.2 Published Patch — Terrain Visual Polish
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v1.1.2`
+- exact green head: `84bd50fccd9c21b2714b84d46a6b9deccd2373dd`
+- full CI: `37067644082` — PASS
+- published updater: `v1.1.2`
+- PR #56 merged
+
+Delivered:
+- subtle elevation highlights and local-relief shadows derived only from the existing public heightfield
+- minor terrain wire density reduced by half
+- every sixth terrain sample remains a stronger orientation/reference line
+- small terrain-following visual pads around already-known locations
+- modestly taller desktop Home world viewport
+- build keys advanced to 1.1.2
+- seeded terrain determinism, route draping, flat fallback, discovery boundary, and authoritative X/Y coordinates unchanged
+
+Validation:
+- full historical release regression
+- Planet Lab JavaScript syntax
+- v1.1.1 cache/terrain smoke extended with v1.1.2 polish assertions
+- dedicated `tests/smoke_v112_terrain_visual_polish.py` committed for future regression expansion
 
 ## v1.1.1 Published Patch — Embedded World Cache Refresh
 
