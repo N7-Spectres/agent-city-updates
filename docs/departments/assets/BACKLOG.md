@@ -629,3 +629,18 @@ Immediate next action:
 - verify bodies and tokens appear planted on the terrain rather than floating/sinking
 - verify route lines follow the surface cleanly
 - inspect maximum Local zoom-out and decide whether terrain extent should grow further
+
+
+## Completed — v1.1.1 Embedded World Cache Refresh
+
+- diagnosed screenshot as stale pre-v1.1 Planet Lab code, not terrain generation failure
+- added no-store/no-cache response policy for mutable UI/world assets
+- added fresh build cache keys
+- forces embedded world iframe onto fresh build URL
+- added visible terrain load/fallback status
+- full release regression `37065557238` PASS
+
+Immediate next action:
+- update to v1.1.1
+- confirm Local banner reports seeded terrain loaded
+- then visually judge terrain relief / grounding from a fresh renderer
