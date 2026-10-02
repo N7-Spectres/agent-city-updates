@@ -252,8 +252,18 @@
   let localTerrainData = null;
   let localTerrainBuffer = null;
   let localTerrainVertexCount = 0;
+  let localTerrainHighlightBuffer = null;
+  let localTerrainHighlightVertexCount = 0;
+  let localTerrainShadowBuffer = null;
+  let localTerrainShadowVertexCount = 0;
   let localTerrainWireBuffer = null;
   let localTerrainWireVertexCount = 0;
+  let localTerrainMajorWireBuffer = null;
+  let localTerrainMajorWireVertexCount = 0;
+  let localLocationPadBuffer = null;
+  let localLocationPadVertexCount = 0;
+  let localLocationPadRingBuffer = null;
+  let localLocationPadRingVertexCount = 0;
   let localTerrainRequestKey = "";
 
   const LOCAL_SURFACE_HALF_EXTENT = 3.45;
@@ -663,15 +673,82 @@
         palette.plane[2] * 0.98,
         0.96,
       ];
+      const terrainHighlight = [
+        Math.min(1, palette.plane[0] * 2.35),
+        Math.min(1, palette.plane[1] * 1.55),
+        Math.min(1, palette.plane[2] * 1.45),
+        0.14,
+      ];
+      const terrainShadow = [
+        palette.plane[0] * 0.28,
+        palette.plane[1] * 0.34,
+        palette.plane[2] * 0.42,
+        0.18,
+      ];
       const terrainWire = [
         palette.grid[0],
         palette.grid[1],
         palette.grid[2],
-        Math.max(0.22, palette.grid[3] * 1.55),
+        0.105,
       ];
+      const terrainMajorWire = [
+        palette.grid[0] * 1.08,
+        palette.grid[1] * 1.06,
+        palette.grid[2] * 1.04,
+        0.19,
+      ];
+
       bindColorBuffer(localTerrainBuffer, mvp, terrainFill, gl.TRIANGLES, localTerrainVertexCount);
+
+      if (localTerrainHighlightBuffer && localTerrainHighlightVertexCount) {
+        bindColorBuffer(
+          localTerrainHighlightBuffer,
+          mvp,
+          terrainHighlight,
+          gl.TRIANGLES,
+          localTerrainHighlightVertexCount,
+        );
+      }
+      if (localTerrainShadowBuffer && localTerrainShadowVertexCount) {
+        bindColorBuffer(
+          localTerrainShadowBuffer,
+          mvp,
+          terrainShadow,
+          gl.TRIANGLES,
+          localTerrainShadowVertexCount,
+        );
+      }
+
       if (localTerrainWireBuffer && localTerrainWireVertexCount) {
         bindColorBuffer(localTerrainWireBuffer, mvp, terrainWire, gl.LINES, localTerrainWireVertexCount);
+      }
+      if (localTerrainMajorWireBuffer && localTerrainMajorWireVertexCount) {
+        bindColorBuffer(
+          localTerrainMajorWireBuffer,
+          mvp,
+          terrainMajorWire,
+          gl.LINES,
+          localTerrainMajorWireVertexCount,
+        );
+      }
+
+      if (localLocationPadBuffer && localLocationPadVertexCount) {
+        bindColorBuffer(
+          localLocationPadBuffer,
+          mvp,
+          [0.13, 0.39, 0.39, 0.19],
+          gl.TRIANGLES,
+          localLocationPadVertexCount,
+        );
+      }
+      if (localLocationPadRingBuffer && localLocationPadRingVertexCount) {
+        bindColorBuffer(
+          localLocationPadRingBuffer,
+          mvp,
+          [0.42, 0.76, 0.72, 0.32],
+          gl.LINES,
+          localLocationPadRingVertexCount,
+        );
       }
     } else {
       bindColorBuffer(localPlane.buffer, mvp, palette.plane, gl.TRIANGLES, localPlane.count);
@@ -727,6 +804,7 @@
     );
     globeFrame.radiansPerMeter = 0.42 / maxRadius;
     rebuildLocalRoutes();
+    if (localTerrainData) rebuildLocalLocationPads();
   }
 
   function localHorizontalWorld(xMeters, yMeters) {
@@ -874,6 +952,50 @@
     localRouteVertexCount = vertices.length / 3;
   }
 
+  function rebuildLocalLocationPads() {
+    const triangles = [];
+    const rings = [];
+    const segmentCount = 18;
+    const padRadiusMeters = clamp(localFrame.metersPerWorld * 0.105, 52, 110);
+
+    for (const location of knownLocations()) {
+      const xMeters = finite(location.x_m);
+      const yMeters = finite(location.y_m);
+      if (xMeters == null || yMeters == null) continue;
+
+      const center = localWorld(xMeters, yMeters, 0.010);
+      let previous = null;
+      let first = null;
+
+      for (let step = 0; step < segmentCount; step += 1) {
+        const angle = (step / segmentCount) * Math.PI * 2;
+        const x = xMeters + Math.cos(angle) * padRadiusMeters;
+        const y = yMeters + Math.sin(angle) * padRadiusMeters;
+        const edge = localWorld(x, y, 0.012);
+
+        if (!first) first = edge;
+        if (previous) {
+          triangles.push(...center, ...previous, ...edge);
+          rings.push(...previous, ...edge);
+        }
+        previous = edge;
+      }
+
+      if (previous && first) {
+        triangles.push(...center, ...previous, ...first);
+        rings.push(...previous, ...first);
+      }
+    }
+
+    if (localLocationPadBuffer) gl.deleteBuffer(localLocationPadBuffer);
+    if (localLocationPadRingBuffer) gl.deleteBuffer(localLocationPadRingBuffer);
+
+    localLocationPadBuffer = triangles.length ? createBuffer(triangles) : null;
+    localLocationPadVertexCount = triangles.length / 3;
+    localLocationPadRingBuffer = rings.length ? createBuffer(rings) : null;
+    localLocationPadRingVertexCount = rings.length / 3;
+  }
+
   function rebuildLocalTerrain(payload) {
     const resolution = Number(payload && payload.resolution || 0);
     const radius = Number(payload && payload.radius_m || 0);
@@ -892,8 +1014,16 @@
     }
 
     const triangles = [];
+    const highlightTriangles = [];
+    const shadowTriangles = [];
     const wires = [];
+    const majorWires = [];
     const spacing = (radius * 2) / (resolution - 1);
+    const minElevation = Number(payload.min_elevation_m || 0);
+    const maxElevation = Number(payload.max_elevation_m || 0);
+    const elevationRange = Math.max(1, maxElevation - minElevation);
+    const highElevationThreshold = minElevation + elevationRange * 0.63;
+    const steepSlopeThreshold = 0.045;
 
     const point = (row, column, lift = 0) => {
       const xMeters = centerX - radius + (column * spacing);
@@ -905,35 +1035,88 @@
       return [x, y + lift, z];
     };
 
+    const cellTriangles = (a, b, c1, d) => [
+      ...a, ...b, ...c1,
+      ...a, ...c1, ...d,
+    ];
+
     for (let row = 0; row < resolution - 1; row += 1) {
       for (let column = 0; column < resolution - 1; column += 1) {
         const a = point(row, column);
         const b = point(row, column + 1);
         const c1 = point(row + 1, column + 1);
         const d = point(row + 1, column);
-        triangles.push(...a, ...b, ...c1, ...a, ...c1, ...d);
+        const cell = cellTriangles(a, b, c1, d);
+        triangles.push(...cell);
+
+        const h00 = Number(heights[row * resolution + column] || 0);
+        const h10 = Number(heights[row * resolution + column + 1] || 0);
+        const h11 = Number(heights[(row + 1) * resolution + column + 1] || 0);
+        const h01 = Number(heights[(row + 1) * resolution + column] || 0);
+        const averageElevation = (h00 + h10 + h11 + h01) / 4;
+        const localRelief = Math.max(h00, h10, h11, h01) - Math.min(h00, h10, h11, h01);
+        const slopeRatio = localRelief / Math.max(1, spacing);
+
+        if (averageElevation >= highElevationThreshold) {
+          highlightTriangles.push(...cell);
+        }
+        if (slopeRatio >= steepSlopeThreshold) {
+          shadowTriangles.push(...cell);
+        }
       }
     }
 
-    for (let row = 0; row < resolution; row += 1) {
+    // Half-density minor wires reduce foreground visual noise. Every sixth
+    // sample remains a slightly stronger major contour/grid reference.
+    const minorStride = 2;
+    const majorStride = 6;
+
+    for (let row = 0; row < resolution; row += minorStride) {
+      if (row % majorStride === 0) continue;
       for (let column = 0; column < resolution - 1; column += 1) {
         wires.push(...point(row, column, 0.004), ...point(row, column + 1, 0.004));
       }
     }
-    for (let column = 0; column < resolution; column += 1) {
+    for (let column = 0; column < resolution; column += minorStride) {
+      if (column % majorStride === 0) continue;
       for (let row = 0; row < resolution - 1; row += 1) {
         wires.push(...point(row, column, 0.004), ...point(row + 1, column, 0.004));
       }
     }
+    for (let row = 0; row < resolution; row += majorStride) {
+      for (let column = 0; column < resolution - 1; column += 1) {
+        majorWires.push(...point(row, column, 0.005), ...point(row, column + 1, 0.005));
+      }
+    }
+    for (let column = 0; column < resolution; column += majorStride) {
+      for (let row = 0; row < resolution - 1; row += 1) {
+        majorWires.push(...point(row, column, 0.005), ...point(row + 1, column, 0.005));
+      }
+    }
 
-    if (localTerrainBuffer) gl.deleteBuffer(localTerrainBuffer);
-    if (localTerrainWireBuffer) gl.deleteBuffer(localTerrainWireBuffer);
+    for (const buffer of [
+      localTerrainBuffer,
+      localTerrainHighlightBuffer,
+      localTerrainShadowBuffer,
+      localTerrainWireBuffer,
+      localTerrainMajorWireBuffer,
+    ]) {
+      if (buffer) gl.deleteBuffer(buffer);
+    }
 
     localTerrainData = payload;
     localTerrainBuffer = createBuffer(triangles);
     localTerrainVertexCount = triangles.length / 3;
-    localTerrainWireBuffer = createBuffer(wires);
+    localTerrainHighlightBuffer = highlightTriangles.length ? createBuffer(highlightTriangles) : null;
+    localTerrainHighlightVertexCount = highlightTriangles.length / 3;
+    localTerrainShadowBuffer = shadowTriangles.length ? createBuffer(shadowTriangles) : null;
+    localTerrainShadowVertexCount = shadowTriangles.length / 3;
+    localTerrainWireBuffer = wires.length ? createBuffer(wires) : null;
     localTerrainWireVertexCount = wires.length / 3;
+    localTerrainMajorWireBuffer = majorWires.length ? createBuffer(majorWires) : null;
+    localTerrainMajorWireVertexCount = majorWires.length / 3;
+
+    rebuildLocalLocationPads();
 
     if (mode === "local") {
       modeCaption.textContent =
