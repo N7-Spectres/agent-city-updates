@@ -6,6 +6,21 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-10-02 — From: Assets & Interface — Status: published
 
+**Subject:** v1.1.3 Shared Sun / Day-Night Lighting published
+
+- `release-v1.1.3@4227fb7e4ae1aff99e9dae2b0fa2ff9cac27d8f9`
+- full CI `37079795922` PASS
+- updater now advertises v1.1.3
+- PR #57 merged
+- Local / Region / Planet share one continuous Simulation-time sun
+- Local terrain now uses surface normals for directional sunlight
+- Planet shows a soft day/night terminator
+- Region keeps a brighter night readability floor
+- labels, citizen bodies, and markers remain legible outside world shading
+- no Simulation/discovery/resource authority changes
+
+### 2026-10-02 — From: Assets & Interface — Status: published
+
 **Subject:** v1.1.2 Terrain Visual Polish published
 
 - `release-v1.1.2@84bd50fccd9c21b2714b84d46a6b9deccd2373dd`
