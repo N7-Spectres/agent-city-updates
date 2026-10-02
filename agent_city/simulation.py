@@ -943,12 +943,161 @@ def extraction_speed_multiplier(conn, citizen_id: str, location_id: str) -> floa
     return max(multipliers, default=1.0)
 
 
-def resources_available(conn, requirements: dict[str, float]) -> bool:
+def resource_shortfalls(
+    conn,
+    requirements: dict[str, float],
+) -> dict[str, dict[str, float]]:
+    """Return authoritative Seed Site stock shortfalls for a known procedure."""
+    shortfalls: dict[str, dict[str, float]] = {}
     for material, amount in requirements.items():
-        row = conn.execute("SELECT amount FROM resources WHERE name = ?", (material,)).fetchone()
-        if not row or float(row["amount"]) + 1e-9 < float(amount):
-            return False
-    return True
+        required = float(amount)
+        row = conn.execute(
+            "SELECT amount FROM resources WHERE name = ?",
+            (material,),
+        ).fetchone()
+        available = float(row["amount"]) if row else 0.0
+        if available + 1e-9 < required:
+            shortfalls[material] = {
+                "required": required,
+                "available": available,
+                "short": max(0.0, required - available),
+            }
+    return shortfalls
+
+
+def resources_available(conn, requirements: dict[str, float]) -> bool:
+    return not resource_shortfalls(conn, requirements)
+
+
+def local_maintenance_attention(citizen_id: str) -> list[dict[str, Any]]:
+    """
+    Return service-due maintenance that this citizen can directly assess here.
+
+    Exact Seed Site stock is only exposed while the citizen is physically at
+    the Seed Site landmark. This is planner context, not a command and not an
+    action unlock: possible_actions remains the authority for what can actually
+    be attempted.
+    """
+    with connect() as conn:
+        citizen = conn.execute(
+            "SELECT * FROM citizens WHERE id = ?",
+            (citizen_id,),
+        ).fetchone()
+        if not citizen or citizen["active_job_id"] is not None:
+            return []
+
+        if str(citizen["location_id"]) != "seed_site":
+            return []
+        if location_anchor_distance(conn, citizen) > 5.0:
+            return []
+
+        needs: list[dict[str, Any]] = []
+
+        def add_need(
+            *,
+            target_type: str,
+            target_id: str,
+            name: str,
+            action: str,
+            condition_label: str,
+            condition_value: float,
+            requirements: dict[str, float],
+        ) -> None:
+            in_progress = _maintenance_in_progress(conn, action, target_id)
+            needs.append(
+                {
+                    "target_type": target_type,
+                    "target_id": str(target_id),
+                    "name": name,
+                    "action": action,
+                    "condition_label": condition_label,
+                    "condition_value": float(condition_value),
+                    "requirements": {
+                        material: float(amount)
+                        for material, amount in requirements.items()
+                    },
+                    "shortfalls": resource_shortfalls(conn, requirements),
+                    "service_state": (
+                        "in_progress"
+                        if in_progress
+                        else (
+                            "blocked_materials"
+                            if not resources_available(conn, requirements)
+                            else "ready"
+                        )
+                    ),
+                }
+            )
+
+        joint_wear = float(citizen["joint_wear"] or 0.0)
+        if joint_wear >= CHASSIS_SERVICE_WEAR:
+            add_need(
+                target_type="citizen",
+                target_id=citizen_id,
+                name=f"{citizen['name']} chassis joints",
+                action="service_chassis",
+                condition_label="joint wear",
+                condition_value=joint_wear,
+                requirements={"Lubricant": 1.0},
+            )
+
+        battery_health = float(citizen["battery_health"] or 100.0)
+        if battery_health < BATTERY_REPLACE_THRESHOLD:
+            add_need(
+                target_type="citizen",
+                target_id=citizen_id,
+                name=f"{citizen['name']} battery pack",
+                action="replace_battery",
+                condition_label="battery health",
+                condition_value=battery_health,
+                requirements={"Battery cells": 4.0, "Mechanical components": 2.0},
+            )
+
+        equipment_rows = conn.execute(
+            """
+            SELECT *
+            FROM equipment
+            WHERE condition < ?
+              AND (
+                  owner_citizen_id = ?
+                  OR (owner_citizen_id IS NULL AND location_id = 'seed_site')
+              )
+            ORDER BY condition, id
+            """,
+            (SERVICE_DUE_CONDITION, citizen_id),
+        ).fetchall()
+        for item in equipment_rows:
+            add_need(
+                target_type="equipment",
+                target_id=str(item["id"]),
+                name=str(item["name"]),
+                action="service_equipment",
+                condition_label="condition",
+                condition_value=float(item["condition"]),
+                requirements=equipment_service_requirements(float(item["condition"])),
+            )
+
+        structure_rows = conn.execute(
+            """
+            SELECT *
+            FROM structures
+            WHERE location_id = 'seed_site' AND condition < ?
+            ORDER BY condition, id
+            """,
+            (SERVICE_DUE_CONDITION,),
+        ).fetchall()
+        for structure in structure_rows:
+            add_need(
+                target_type="structure",
+                target_id=str(structure["id"]),
+                name=str(structure["name"]),
+                action="service_structure",
+                condition_label="condition",
+                condition_value=float(structure["condition"]),
+                requirements=structure_service_requirements(structure),
+            )
+
+        return needs
 
 
 def consume_resources(conn, requirements: dict[str, float]) -> bool:
