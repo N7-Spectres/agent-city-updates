@@ -1,7 +1,7 @@
 # World & Simulation — State
 
-_Last updated: 2026-09-29_
-_Current published release: v0.8.7_
+_Last updated: 2026-10-02_
+_Current published release: v0.9.26_
 _Definitive v0.9 Stage 2 base: `release-v0.9.0-stage2-integration` @ `f680275a78b9da71a43f3c79217f292796b7843d`_
 _Active branch: `simulation/v0.9-habits-stage3`_
 _Final Stage 3 branch head: `fb17d3a2fb0776c490cdd4805feae8ab97c763ac`_
@@ -13,6 +13,28 @@ Own physical truth, plan/practice identity, and any objective physical competenc
 > **The AI may decide intent. The simulation decides reality.**
 
 > **Persistent behavior must have a traceable history.**
+
+## v0.9.26 — Local Maintenance Awareness
+
+Published integration:
+- `release-v0.9.26@937f300e8870f6baed2031e6f69b68b7da667a08`
+- full CI `37017820397` PASS
+
+Simulation now exposes a bounded local maintenance-attention read model to the planner while preserving ordinary action legality.
+
+At the Seed Site landmark, an idle citizen may directly assess:
+- their own service-due chassis/battery state
+- accessible owned/shared service-due equipment
+- service-due Seed Site structures
+- the known starter procedure requirements for those service operations
+- current local Seed Site stock shortfalls for those named requirements
+- whether another real service job is already in progress
+
+This context never makes a blocked service action legal. `possible_actions` remains the physical gate.
+
+Exact Seed Site maintenance/stock state is not exposed through this planner context to citizens physically elsewhere.
+
+No supply source, material conversion, substitution, fabrication recipe, technology, role, or maintenance priority is created by this feature.
 
 ## v0.9 Stage 2 — Bounded Practice-Derived Competence
 
