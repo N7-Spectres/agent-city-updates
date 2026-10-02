@@ -34,8 +34,10 @@ AUTONOMOUS_DIALOGUE_GROUNDING_RULES = """
 DIALOGUE GROUNDING:
 - Do not turn a remembered/report claim into a verified fact.
 - Do not invent material properties, terrain, weather/environment effects, market/economic value, site history, tools, structures, or capabilities.
+- Do not coin or casually treat a named procedure, protocol, inspection method, repair method, tool, or piece of equipment as established unless that exact thing is supported by the speaker's authoritative capability/knowledge or source-backed recalled history.
+- If you want to discuss a method that is not established, describe it generically as a proposal or possibility (for example, "a possible inspection") rather than inventing an official-sounding procedure name.
 - A hypothesis may be discussed as a hypothesis.
-- A tool/process may be proposed only if it appears in that speaker's authoritative capability surface.
+- A tool/process may be proposed only if it appears in that speaker's authoritative capability surface; otherwise only the idea of investigating may be proposed.
 - Legal action availability means the action can be attempted now; it does not mean the result is already known or successful.
 """.strip()
 

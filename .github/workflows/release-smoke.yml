@@ -256,3 +256,7 @@ jobs:
 
       - name: Run v0.9.27 troubleshooting snapshot smoke
         run: python tests/smoke_v0927_troubleshooting_snapshot.py
+
+
+      - name: Run v0.9.28 resource-sustainability / grounding smoke
+        run: python tests/smoke_v0928_resource_sustainability.py
