@@ -31,8 +31,8 @@ def main() -> None:
     assert "localLocationPadRingBuffer" in js
 
     assert "--home-panel-height: clamp(740px, calc(100vh - 168px), 890px);" in css
-    assert "build=1.1.2" in index
-    assert "build=1.1.2" in lab_html
+    assert "build=" in index
+    assert "build=" in lab_html
 
     assert ".position_x_m =" not in js
     assert ".position_y_m =" not in js

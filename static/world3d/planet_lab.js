@@ -251,6 +251,7 @@
   let localRouteVertexCount = 0;
   let localTerrainData = null;
   let localTerrainBuffer = null;
+  let localTerrainNormalBuffer = null;
   let localTerrainVertexCount = 0;
   let localTerrainHighlightBuffer = null;
   let localTerrainHighlightVertexCount = 0;
@@ -265,6 +266,9 @@
   let localLocationPadRingBuffer = null;
   let localLocationPadRingVertexCount = 0;
   let localTerrainRequestKey = "";
+  let localSurfaceStatus = "loading surface…";
+  const LEGACY_FLAT_FALLBACK_LABEL = "Local flat fallback • seeded terrain unavailable";
+  const SEEDED_TERRAIN_FALLBACK_WARNING = "Seeded Local terrain unavailable; using flat fallback.";
 
   const LOCAL_SURFACE_HALF_EXTENT = 3.45;
   const LOCAL_TERRAIN_PADDING_FACTOR = 1.55;
@@ -315,8 +319,91 @@
     return "night";
   }
 
-  function localPalette() {
-    const phase = visualDayPhase(state?.sim_minute || 0);
+  function smoothstep01(edge0, edge1, value) {
+    const t = clamp((value - edge0) / Math.max(0.000001, edge1 - edge0), 0, 1);
+    return t * t * (3 - 2 * t);
+  }
+
+  function mix3(a, b, amount) {
+    const t = clamp(amount, 0, 1);
+    return [
+      a[0] + (b[0] - a[0]) * t,
+      a[1] + (b[1] - a[1]) * t,
+      a[2] + (b[2] - a[2]) * t,
+    ];
+  }
+
+  function solarLighting(now = performance.now()) {
+    const simMinute = state ? continuousSimMinute(now) : 720;
+    const minute = ((Number(simMinute) % 1440) + 1440) % 1440;
+
+    // 06:00 = east horizon, 12:00 = overhead, 18:00 = west horizon,
+    // 00:00 = below the Local tangent plane.
+    const solarPhase = ((minute - 360) / 1440) * Math.PI * 2;
+    const localDirection = vec3Normalize([
+      Math.cos(solarPhase),
+      Math.sin(solarPhase),
+      -0.10,
+    ]);
+
+    const altitude = localDirection[1];
+    const daylight = smoothstep01(-0.10, 0.22, altitude);
+    const twilight = 1 - smoothstep01(0.08, 0.55, Math.abs(altitude));
+    const sunColor = mix3(
+      [1.0, 0.56, 0.32],
+      [1.0, 0.94, 0.82],
+      smoothstep01(0.02, 0.62, altitude),
+    );
+
+    // Convert the Local tangent sun direction into globe coordinates so Local,
+    // Region, and Planet share one light source and the Seed Site day/night
+    // state agrees with the globe hemisphere.
+    const lat = globeFrame.anchorLat;
+    const lon = globeFrame.anchorLon;
+    const up = [
+      Math.cos(lat) * Math.sin(lon),
+      Math.sin(lat),
+      Math.cos(lat) * Math.cos(lon),
+    ];
+    const east = [Math.cos(lon), 0, -Math.sin(lon)];
+    const north = [
+      -Math.sin(lat) * Math.sin(lon),
+      Math.cos(lat),
+      -Math.sin(lat) * Math.cos(lon),
+    ];
+    const globeDirection = vec3Normalize([
+      east[0] * localDirection[0] + up[0] * localDirection[1] - north[0] * localDirection[2],
+      east[1] * localDirection[0] + up[1] * localDirection[1] - north[1] * localDirection[2],
+      east[2] * localDirection[0] + up[2] * localDirection[1] - north[2] * localDirection[2],
+    ]);
+
+    return {
+      simMinute,
+      minute,
+      phase: visualDayPhase(minute),
+      localDirection,
+      globeDirection,
+      altitude,
+      daylight,
+      twilight,
+      ambient: 0.18 + daylight * 0.34 + twilight * 0.045,
+      direct: 0.40 + daylight * 0.78,
+      sunColor,
+      nightColor: mix3([0.008, 0.020, 0.040], [0.020, 0.075, 0.090], daylight),
+    };
+  }
+
+  function lightingPhaseLabel(lighting) {
+    return {
+      dawn: "dawn light",
+      day: "daylight",
+      dusk: "dusk light",
+      night: "night",
+    }[lighting.phase] || lighting.phase;
+  }
+
+  function localPaletteFor(now = performance.now(), phaseOverride = null) {
+    const phase = phaseOverride || visualDayPhase(state ? continuousSimMinute(now) : 720);
     return {
       dawn: {
         clear: [0.055, 0.075, 0.105, 1],
@@ -339,6 +426,10 @@
         grid: [0.22, 0.46, 0.58, 0.15],
       },
     }[phase];
+  }
+
+  function localPalette() {
+    return localPaletteFor(performance.now(), null);
   }
 
   function vec3Length(v) {
@@ -463,10 +554,8 @@
       "attribute vec3 aNormal;",
       "uniform mat4 uMVP;",
       "varying vec3 vNormal;",
-      "varying vec3 vPosition;",
       "void main() {",
       "  vNormal = aNormal;",
-      "  vPosition = aPosition;",
       "  gl_Position = uMVP * vec4(aPosition, 1.0);",
       "}",
     ].join("\n"),
@@ -474,16 +563,22 @@
       "precision mediump float;",
       "uniform vec3 uLightDir;",
       "uniform vec3 uBaseColor;",
+      "uniform vec3 uSunColor;",
+      "uniform vec3 uNightColor;",
+      "uniform float uAmbient;",
+      "uniform float uDirect;",
+      "uniform float uTerminatorWidth;",
       "varying vec3 vNormal;",
-      "varying vec3 vPosition;",
       "void main() {",
       "  vec3 n = normalize(vNormal);",
-      "  float daylight = max(dot(n, normalize(uLightDir)), 0.0);",
+      "  float incidence = dot(n, normalize(uLightDir));",
+      "  float dayMask = smoothstep(-uTerminatorWidth, uTerminatorWidth, incidence);",
+      "  float directLight = max(incidence, 0.0);",
       "  float polar = 0.5 + 0.5 * abs(n.y);",
-      "  vec3 deep = uBaseColor * (0.28 + daylight * 0.72);",
-      "  vec3 cyan = vec3(0.03, 0.20, 0.25) * (1.0 - daylight) * 0.7;",
-      "  vec3 polarTint = vec3(0.10, 0.16, 0.18) * polar * 0.16;",
-      "  gl_FragColor = vec4(deep + cyan + polarTint, 1.0);",
+      "  vec3 dayColor = uBaseColor * (uAmbient + directLight * uDirect);",
+      "  dayColor += uSunColor * directLight * 0.18;",
+      "  vec3 nightColor = uNightColor + uBaseColor * (0.07 + polar * 0.06);",
+      "  gl_FragColor = vec4(mix(nightColor, dayColor, dayMask), 1.0);",
       "}",
     ].join("\n")
   );
@@ -631,7 +726,56 @@
     gl.drawArrays(primitive, 0, count);
   }
 
-  function drawSphere(mvp) {
+  function bindLitArrayBuffer(
+    positionBuffer,
+    normalBuffer,
+    mvp,
+    baseColor,
+    lighting,
+    primitive,
+    count,
+    options = {},
+  ) {
+    gl.useProgram(litProgram);
+    const posLoc = gl.getAttribLocation(litProgram, "aPosition");
+    const normalLoc = gl.getAttribLocation(litProgram, "aNormal");
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.enableVertexAttribArray(posLoc);
+    gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    gl.enableVertexAttribArray(normalLoc);
+    gl.vertexAttribPointer(normalLoc, 3, gl.FLOAT, false, 0, 0);
+
+    gl.uniformMatrix4fv(gl.getUniformLocation(litProgram, "uMVP"), false, new Float32Array(mvp));
+    gl.uniform3fv(
+      gl.getUniformLocation(litProgram, "uLightDir"),
+      new Float32Array(options.lightDir || lighting.localDirection),
+    );
+    gl.uniform3fv(gl.getUniformLocation(litProgram, "uBaseColor"), new Float32Array(baseColor));
+    gl.uniform3fv(gl.getUniformLocation(litProgram, "uSunColor"), new Float32Array(lighting.sunColor));
+    gl.uniform3fv(
+      gl.getUniformLocation(litProgram, "uNightColor"),
+      new Float32Array(options.nightColor || lighting.nightColor),
+    );
+    gl.uniform1f(
+      gl.getUniformLocation(litProgram, "uAmbient"),
+      Number(options.ambient ?? lighting.ambient),
+    );
+    gl.uniform1f(
+      gl.getUniformLocation(litProgram, "uDirect"),
+      Number(options.direct ?? lighting.direct),
+    );
+    gl.uniform1f(
+      gl.getUniformLocation(litProgram, "uTerminatorWidth"),
+      Number(options.terminatorWidth ?? 0.08),
+    );
+
+    gl.drawArrays(primitive, 0, count);
+  }
+
+  function drawSphere(mvp, lighting) {
     gl.useProgram(litProgram);
     const posLoc = gl.getAttribLocation(litProgram, "aPosition");
     const normalLoc = gl.getAttribLocation(litProgram, "aNormal");
@@ -646,59 +790,103 @@
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphere.index);
     gl.uniformMatrix4fv(gl.getUniformLocation(litProgram, "uMVP"), false, new Float32Array(mvp));
-
-    const minute = Number(state && state.sim_minute || 0);
-    const dayAngle = ((minute % 1440) / 1440) * Math.PI * 2;
-    const lightDir = [Math.cos(dayAngle), 0.42, Math.sin(dayAngle)];
-    gl.uniform3fv(gl.getUniformLocation(litProgram, "uLightDir"), new Float32Array(lightDir));
-    gl.uniform3fv(gl.getUniformLocation(litProgram, "uBaseColor"), new Float32Array([0.08, 0.22, 0.27]));
+    gl.uniform3fv(
+      gl.getUniformLocation(litProgram, "uLightDir"),
+      new Float32Array(lighting.globeDirection),
+    );
+    gl.uniform3fv(
+      gl.getUniformLocation(litProgram, "uBaseColor"),
+      new Float32Array(mode === "region" ? [0.09, 0.245, 0.27] : [0.075, 0.205, 0.235]),
+    );
+    gl.uniform3fv(gl.getUniformLocation(litProgram, "uSunColor"), new Float32Array(lighting.sunColor));
+    gl.uniform3fv(
+      gl.getUniformLocation(litProgram, "uNightColor"),
+      new Float32Array(mode === "region" ? [0.012, 0.038, 0.060] : [0.005, 0.014, 0.032]),
+    );
+    gl.uniform1f(
+      gl.getUniformLocation(litProgram, "uAmbient"),
+      mode === "region" ? 0.50 : 0.42,
+    );
+    gl.uniform1f(
+      gl.getUniformLocation(litProgram, "uDirect"),
+      mode === "region" ? 0.92 : 1.04,
+    );
+    gl.uniform1f(
+      gl.getUniformLocation(litProgram, "uTerminatorWidth"),
+      mode === "region" ? 0.11 : 0.075,
+    );
 
     gl.drawElements(gl.TRIANGLES, sphere.count, gl.UNSIGNED_SHORT, 0);
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    bindColorBuffer(globeGrid.buffer, mvp, [0.20, 0.75, 0.82, 0.16], gl.LINES, globeGrid.count);
+    const gridAlpha = mode === "region" ? 0.19 : 0.13;
+    bindColorBuffer(
+      globeGrid.buffer,
+      mvp,
+      [0.20, 0.75, 0.82, gridAlpha],
+      gl.LINES,
+      globeGrid.count,
+    );
     gl.disable(gl.BLEND);
   }
 
-  function drawLocal(mvp) {
-    const palette = localPalette();
+  function drawLocal(mvp, lighting) {
+    const palette = localPaletteFor(performance.now(), lighting.phase);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-    if (localTerrainBuffer && localTerrainVertexCount) {
-      const terrainFill = [
-        palette.plane[0] * 1.08,
-        palette.plane[1] * 1.04,
-        palette.plane[2] * 0.98,
-        0.96,
+    if (
+      localTerrainBuffer
+      && localTerrainNormalBuffer
+      && localTerrainVertexCount
+    ) {
+      const terrainBase = [
+        palette.plane[0] * 1.12,
+        palette.plane[1] * 1.06,
+        palette.plane[2] * 1.00,
       ];
       const terrainHighlight = [
         Math.min(1, palette.plane[0] * 2.35),
         Math.min(1, palette.plane[1] * 1.55),
         Math.min(1, palette.plane[2] * 1.45),
-        0.14,
+        0.035 + lighting.daylight * 0.075,
       ];
       const terrainShadow = [
         palette.plane[0] * 0.28,
         palette.plane[1] * 0.34,
         palette.plane[2] * 0.42,
-        0.18,
+        0.065 + lighting.daylight * 0.07,
       ];
       const terrainWire = [
         palette.grid[0],
         palette.grid[1],
         palette.grid[2],
-        0.105,
+        0.075 + lighting.daylight * 0.035,
       ];
       const terrainMajorWire = [
         palette.grid[0] * 1.08,
         palette.grid[1] * 1.06,
         palette.grid[2] * 1.04,
-        0.19,
+        0.15 + lighting.daylight * 0.05,
       ];
 
-      bindColorBuffer(localTerrainBuffer, mvp, terrainFill, gl.TRIANGLES, localTerrainVertexCount);
+      bindLitArrayBuffer(
+        localTerrainBuffer,
+        localTerrainNormalBuffer,
+        mvp,
+        terrainBase,
+        lighting,
+        gl.TRIANGLES,
+        localTerrainVertexCount,
+        {
+          lightDir: lighting.localDirection,
+          nightColor: [0.007, 0.028, 0.046],
+          ambient: lighting.ambient,
+          direct: lighting.direct,
+          terminatorWidth: 0.10,
+        },
+      );
 
       if (localTerrainHighlightBuffer && localTerrainHighlightVertexCount) {
         bindColorBuffer(
@@ -736,7 +924,7 @@
         bindColorBuffer(
           localLocationPadBuffer,
           mvp,
-          [0.13, 0.39, 0.39, 0.19],
+          [0.13, 0.39, 0.39, 0.13 + lighting.daylight * 0.06],
           gl.TRIANGLES,
           localLocationPadVertexCount,
         );
@@ -745,18 +933,30 @@
         bindColorBuffer(
           localLocationPadRingBuffer,
           mvp,
-          [0.42, 0.76, 0.72, 0.32],
+          [0.42, 0.76, 0.72, 0.26 + lighting.daylight * 0.06],
           gl.LINES,
           localLocationPadRingVertexCount,
         );
       }
     } else {
-      bindColorBuffer(localPlane.buffer, mvp, palette.plane, gl.TRIANGLES, localPlane.count);
+      const fallbackPlane = [
+        palette.plane[0] * (0.72 + lighting.daylight * 0.28),
+        palette.plane[1] * (0.68 + lighting.daylight * 0.32),
+        palette.plane[2] * (0.72 + lighting.daylight * 0.28),
+        palette.plane[3],
+      ];
+      bindColorBuffer(localPlane.buffer, mvp, fallbackPlane, gl.TRIANGLES, localPlane.count);
       bindColorBuffer(localGrid.buffer, mvp, palette.grid, gl.LINES, localGrid.count);
     }
 
     if (localRouteBuffer && localRouteVertexCount) {
-      bindColorBuffer(localRouteBuffer, mvp, [0.85, 0.64, 0.28, 0.62], gl.LINES, localRouteVertexCount);
+      bindColorBuffer(
+        localRouteBuffer,
+        mvp,
+        [0.85, 0.64, 0.28, 0.56 + lighting.daylight * 0.08],
+        gl.LINES,
+        localRouteVertexCount,
+      );
     }
     gl.disable(gl.BLEND);
   }
@@ -1014,6 +1214,7 @@
     }
 
     const triangles = [];
+    const normals = [];
     const highlightTriangles = [];
     const shadowTriangles = [];
     const wires = [];
@@ -1040,6 +1241,13 @@
       ...a, ...c1, ...d,
     ];
 
+    const addLitTriangle = (p0, p1, p2) => {
+      triangles.push(...p0, ...p1, ...p2);
+      let normal = vec3Normalize(vec3Cross(vec3Sub(p1, p0), vec3Sub(p2, p0)));
+      if (normal[1] < 0) normal = [-normal[0], -normal[1], -normal[2]];
+      normals.push(...normal, ...normal, ...normal);
+    };
+
     for (let row = 0; row < resolution - 1; row += 1) {
       for (let column = 0; column < resolution - 1; column += 1) {
         const a = point(row, column);
@@ -1047,7 +1255,8 @@
         const c1 = point(row + 1, column + 1);
         const d = point(row + 1, column);
         const cell = cellTriangles(a, b, c1, d);
-        triangles.push(...cell);
+        addLitTriangle(a, b, c1);
+        addLitTriangle(a, c1, d);
 
         const h00 = Number(heights[row * resolution + column] || 0);
         const h10 = Number(heights[row * resolution + column + 1] || 0);
@@ -1096,6 +1305,7 @@
 
     for (const buffer of [
       localTerrainBuffer,
+      localTerrainNormalBuffer,
       localTerrainHighlightBuffer,
       localTerrainShadowBuffer,
       localTerrainWireBuffer,
@@ -1106,6 +1316,7 @@
 
     localTerrainData = payload;
     localTerrainBuffer = createBuffer(triangles);
+    localTerrainNormalBuffer = createBuffer(normals);
     localTerrainVertexCount = triangles.length / 3;
     localTerrainHighlightBuffer = highlightTriangles.length ? createBuffer(highlightTriangles) : null;
     localTerrainHighlightVertexCount = highlightTriangles.length / 3;
@@ -1118,14 +1329,7 @@
 
     rebuildLocalLocationPads();
 
-    if (mode === "local") {
-      modeCaption.textContent =
-        "Seeded terrain mesh • "
-        + resolution
-        + "×"
-        + resolution
-        + " surface loaded";
-    }
+    localSurfaceStatus = resolution + "×" + resolution + " surface loaded";
 
     // Routes and markers use localWorld(), so rebuild route geometry once the
     // surface exists and let marker projection pick up terrain height live.
@@ -1133,6 +1337,7 @@
   }
 
   async function refreshLocalTerrain() {
+    localSurfaceStatus = localTerrainBuffer ? localSurfaceStatus : "loading surface…";
     const requestedRadius = Math.round(localFrame.terrainRadiusMeters / 50) * 50;
     const requestKey = [
       localFrame.seedX.toFixed(2),
@@ -1158,10 +1363,8 @@
       localTerrainRequestKey = requestKey;
     } catch (error) {
       // The old flat Local plane remains a deliberate fallback.
-      if (mode === "local") {
-        modeCaption.textContent = "Local flat fallback • seeded terrain unavailable";
-      }
-      console.warn("Seeded Local terrain unavailable; using flat fallback.", error);
+      localSurfaceStatus = "flat fallback";
+      console.warn(SEEDED_TERRAIN_FALLBACK_WARNING, LEGACY_FLAT_FALLBACK_LABEL, error);
     }
   }
 
@@ -1645,6 +1848,21 @@
     if (focus) focusSelected();
   }
 
+  function updateLightingCaption(lighting) {
+    const phaseLabel = lightingPhaseLabel(lighting);
+    let text;
+
+    if (mode === "planet") {
+      text = "Planet globe • shared sun • " + phaseLabel;
+    } else if (mode === "region") {
+      text = "Regional globe • shared sun • " + phaseLabel;
+    } else {
+      text = "Seeded terrain mesh • " + localSurfaceStatus + " • " + phaseLabel;
+    }
+
+    if (modeCaption.textContent !== text) modeCaption.textContent = text;
+  }
+
   function setMode(nextMode, focus) {
     if (!["planet", "region", "local"].includes(nextMode)) return;
     mode = nextMode;
@@ -1709,17 +1927,23 @@
     updateTween(now);
     updateCanvasSize();
 
+    const lighting = solarLighting(now);
+    document.body.dataset.dayPhase = lighting.phase;
+    updateLightingCaption(lighting);
+
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
-    const clear = mode === "local" ? localPalette().clear : [0.012, 0.027, 0.039, 1];
+    const clear = mode === "local"
+      ? localPaletteFor(now, lighting.phase).clear
+      : [0.006, 0.014, 0.026, 1];
     gl.clearColor(clear[0], clear[1], clear[2], clear[3]);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     const matrix = viewProjection();
     if (mode === "local") {
-      drawLocal(matrix);
+      drawLocal(matrix, lighting);
     } else {
-      drawSphere(matrix);
+      drawSphere(matrix, lighting);
     }
 
     updateMarkers(matrix, now);
