@@ -252,3 +252,7 @@ jobs:
 
       - name: Run v0.9.26 maintenance-awareness smoke
         run: python tests/smoke_v0926_maintenance_awareness.py
+
+
+      - name: Run v0.9.27 troubleshooting snapshot smoke
+        run: python tests/smoke_v0927_troubleshooting_snapshot.py

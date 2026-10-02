@@ -4381,3 +4381,23 @@ input:focus, textarea:focus { border-color: var(--accent); }
     right: 8px;
   }
 }
+
+
+.troubleshooting-tools {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px 14px;
+  flex-wrap: wrap;
+}
+
+.troubleshooting-tools button {
+  white-space: nowrap;
+}
+
+.troubleshooting-tools .muted {
+  flex: 1 1 320px;
+  font-size: 0.88rem;
+}
