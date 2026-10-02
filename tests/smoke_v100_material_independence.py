@@ -243,6 +243,10 @@ def main() -> None:
         run_process("cato", "assemble_battery_cells")
         run_process("cato", "assemble_basic_electronics")
 
+        # Advanced production consumed the first structural batch completely;
+        # make another batch to prove the supply can be replenished again on demand.
+        run_process("cato", "cast_structural_material")
+
         # Every manufactured starter category can now be physically replenished
         # from non-starter stock through learned, source-backed processes.
         with connect() as conn:
