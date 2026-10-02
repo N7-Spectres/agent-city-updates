@@ -2784,7 +2784,7 @@ input:focus, textarea:focus { border-color: var(--accent); }
 
 @media (min-width: 1221px) {
   .home-shell {
-    --home-panel-height: clamp(720px, calc(100vh - 190px), 860px);
+    --home-panel-height: clamp(740px, calc(100vh - 168px), 890px);
     align-items: stretch;
   }
 
@@ -2813,6 +2813,7 @@ input:focus, textarea:focus { border-color: var(--accent); }
 
   .home-shell .world-panel {
     grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 10px;
     overflow: hidden;
   }
 
