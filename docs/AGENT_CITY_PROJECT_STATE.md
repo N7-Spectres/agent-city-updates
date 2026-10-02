@@ -1,10 +1,10 @@
 # Agent City — Project State
 
-_Last updated: 2026-10-01_
+_Last updated: 2026-10-02_
 
 ## Current Release
 
-**v0.9.25 — Ollama Auto-Start**
+**v0.9.26 — Maintenance Awareness**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,32 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.26 Published Patch — Maintenance Awareness
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.26`
+- exact green head: `937f300e8870f6baed2031e6f69b68b7da667a08`
+- full CI: `37017820397` — PASS
+- published updater: `v0.9.26`
+- PR #47 merged
+
+Delivered:
+- citizens physically at the Seed Site landmark can perceive service-due chassis, battery, equipment, and structures as current local maintenance attention
+- known starter maintenance procedures expose their exact required supplies
+- locally observable Seed Site stock shortfalls remain visible to the planner even when the corresponding service action is blocked
+- Simulation still decides whether a service action is physically legal
+- an in-progress repair is represented explicitly and suppresses duplicate simultaneous service
+- planner instructions forbid invented supply sources, substitutions, conversions, or fabrication recipes
+- raw deposits are never treated as finished maintenance parts without an actual validated process
+- exact Seed Site maintenance/stock state is withheld from remote citizens
+- no new crafting recipes, technology unlocks, roles, priorities, or forced maintenance choices
+
+Validation:
+- complete historical regression matrix
+- `tests/smoke_v0926_maintenance_awareness.py`
+- explicit remote-information boundary test for Seed Site maintenance/stock state
 
 ## v0.9.25 Published Patch — Ollama Auto-Start
 
