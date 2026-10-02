@@ -1,6 +1,6 @@
 {
-  "version": "0.9.26",
-  "notes": "Maintenance Awareness: citizens physically at the Seed Site can now reason from service-due infrastructure even when a repair is blocked by missing parts. The planner receives the known starter maintenance requirements and locally observable stock shortfalls, while Simulation still decides whether service is legal. Citizens are explicitly forbidden from inventing supply sources, substitutions, conversions, or fabrication recipes, and exact Seed Site maintenance/stock state does not leak to citizens elsewhere.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/937f300e8870f6baed2031e6f69b68b7da667a08",
+  "version": "0.9.27",
+  "notes": "Troubleshooting Snapshot: Records → Stores now includes a one-click Copy troubleshooting snapshot control. It captures current Seed Site storage with starter baselines/deltas, field cargo, citizen energy/battery/joint/integrity state, structures, equipment, recent maintenance, sim time, and version. The snapshot stays local until copied and excludes hidden world seed/generated world truth and conversation content.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/3b708a7da1f7b655244da94a90d67db68b733b9e",
   "sha256": ""
 }
