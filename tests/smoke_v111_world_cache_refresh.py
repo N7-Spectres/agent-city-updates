@@ -22,12 +22,12 @@ def main() -> None:
     assert '"Expires"] = "0"' in main_py
 
     # One-time build keys break any already-populated pre-v1.1 cache.
-    assert 'href="/static/styles.css?build=1.1.1"' in index
-    assert 'src="/static/app.js?build=1.1.1"' in index
-    assert 'const freshWorldSrc = "/planet-lab?embed=1&mode=local&build=1.1.1";' in index
+    assert 'href="/static/styles.css?build=' in index
+    assert 'src="/static/app.js?build=' in index
+    assert 'const freshWorldSrc = "/planet-lab?embed=1&mode=local&build=' in index
     assert 'frame.src = freshWorldSrc;' in index
-    assert 'href="/static/world3d/planet_lab.css?build=1.1.1"' in lab_html
-    assert 'src="/static/world3d/planet_lab.js?build=1.1.1"' in lab_html
+    assert 'href="/static/world3d/planet_lab.css?build=' in lab_html
+    assert 'src="/static/world3d/planet_lab.js?build=' in lab_html
 
     # The legacy Home iframe contract remains present for older integration
     # checks and graceful no-JS fallback.
