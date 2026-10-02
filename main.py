@@ -79,6 +79,7 @@ from agent_city.spatial_memory import (
 from agent_city.exploration_memory import shared_exploration_context_for
 from agent_city.personality import personality_context, dialogue_style_rules
 from agent_city.world import WorldClock, format_sim_time
+from agent_city.spatial import public_terrain_heightfield
 from agent_city.continuity import plan_snapshot_for, practice_snapshot_for
 from agent_city.competence import competence_snapshot, guided_practice_snapshot
 from agent_city.causal_memory import display_recall_snapshot
@@ -191,6 +192,23 @@ def get_state():
                 citizen["location_id"],
             )
     return state
+
+
+@app.get("/api/world/local-terrain")
+def get_local_terrain(radius_m: float = 3200.0, resolution: int = 41):
+    """
+    Read-only coarse Local heightfield for the WebGL presentation mesh.
+
+    The server keeps planet_seed private and returns only quantized elevation.
+    No geology, material, richness, or hidden deposit geometry crosses this
+    boundary.
+    """
+    with connect() as conn:
+        return public_terrain_heightfield(
+            conn,
+            radius_m=radius_m,
+            resolution=resolution,
+        )
 
 
 @app.get("/api/diagnostics/troubleshooting-snapshot")
