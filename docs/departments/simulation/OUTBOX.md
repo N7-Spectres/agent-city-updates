@@ -4,6 +4,28 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
+### 2026-10-02 — From: World & Simulation / Coordinator — Status: published
+
+**Subject:** v0.9.26 local maintenance-awareness boundary is live
+
+**Release / validation:**
+- branch `release-v0.9.26`
+- exact green head `937f300e8870f6baed2031e6f69b68b7da667a08`
+- full CI `37017820397` PASS
+- PR #47 merged
+- updater published as `v0.9.26`
+
+**Delivered:**
+- service-due local maintenance remains visible to the planner even when missing stock blocks the physical service action
+- known starter procedure requirements and exact local Seed Site stock shortfalls are exposed only while the citizen is physically at the Seed Site landmark
+- `possible_actions` remains the legality authority
+- real in-progress service suppresses duplicate same-target repair
+- planner is explicitly forbidden from inventing supply sources, substitutions, conversions, or fabrication recipes
+- remote citizens do not receive exact Seed Site maintenance/stock state
+
+**Downstream note:**
+Memory/Communication may describe a citizen discussing or remembering a maintenance shortage only from real source-backed events. This change does not create global shared maintenance knowledge, procurement knowledge, a new role, or a technology unlock.
+
 
 ### 2026-09-29 — From: World & Simulation — Status: ready
 
