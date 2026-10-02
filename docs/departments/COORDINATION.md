@@ -32,6 +32,10 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v0.9.28 Resource Sustainability + Dialogue Grounding published** from `release-v0.9.28@a530afb661e9a1cd6f1820551c73d3b944b9b36c`; full CI `37022302296` PASS.
+- [World & Simulation] Seed Site citizens may reason from finite manufactured starter stock without gaining hidden deposit knowledge, procurement recipes, or forced objectives.
+- [Communication & Perception] Generic practice families and unsupported remembered labels may no longer be promoted into invented established procedures/tools; unsupported methods must remain proposals/reports.
+
 - [Coordinator] **v0.9.27 Troubleshooting Snapshot published** from `release-v0.9.27@3b708a7da1f7b655244da94a90d67db68b733b9e`; full CI `37019939752` PASS.
 - [Diagnostics/UI] Records → Stores now provides a local-only copyable support snapshot with live storage baselines/deltas and maintenance-relevant physical state; hidden world truth and conversation content remain excluded.
 
