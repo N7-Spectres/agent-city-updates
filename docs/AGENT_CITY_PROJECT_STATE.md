@@ -4,7 +4,7 @@ _Last updated: 2026-10-02_
 
 ## Current Release
 
-**v0.9.27 — Troubleshooting Snapshot**
+**v0.9.28 — Resource Sustainability + Dialogue Grounding**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,35 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.28 Published Patch — Resource Sustainability + Dialogue Grounding
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.28`
+- exact green head: `a530afb661e9a1cd6f1820551c73d3b944b9b36c`
+- full CI: `37022302296` — PASS
+- published updater: `v0.9.28`
+- PRs #49, #50, and #51 merged
+
+Delivered:
+- Seed Site citizens can directly assess current finite manufactured starter stock
+- planner receives the truthful fact that no validated production process currently replenishes those finished starter supplies
+- sustainability context is strategic information only, not an emergency, command, priority, role, or action unlock
+- exact Seed Site stock context is withheld from citizens physically elsewhere
+- no region, deposit, plant, stone, or raw material is implied to replenish a finished part
+- no smelting, refining, machining, recycling, substitution, chemistry, or manufacturing recipe is invented
+- existing travel/survey/inspection/experiment actions remain the only investigation paths and may still produce no useful finding
+- hidden deposit names remain absent from planner sustainability context until a real Simulation survey creates discovery evidence
+- autonomous conversation grounding now blocks invented official-sounding procedure/protocol/inspection/tool names
+- generic guided-practice activity families remain generic rather than becoming fictional named procedures
+
+Validation:
+- complete historical regression matrix
+- `tests/smoke_v0928_resource_sustainability.py`
+- explicit pre-survey hidden-resource non-leak assertion
+- explicit real-survey discovery assertion
+- existing Stage 2 guided-practice communication contract preserved under its bounded context cap
 
 ## v0.9.27 Published Patch — Troubleshooting Snapshot
 
