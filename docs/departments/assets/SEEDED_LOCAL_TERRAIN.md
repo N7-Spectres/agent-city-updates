@@ -83,3 +83,18 @@ Future safe extensions may include:
 - true 3D citizen/building assets grounded through the same terrain sampler
 
 Do not add geology/resource coloring directly from hidden seed fields. A resource or material becomes visible only through the existing discovery pipeline.
+
+
+## v1.1.2 readability pass
+
+The seeded surface data and authority model are unchanged.
+
+Presentation refinements:
+- high areas receive a very subtle overlay based on public elevation
+- locally steeper cells receive a subtle shadow overlay based on neighboring public elevations
+- minor mesh wires are drawn every second sample instead of every sample
+- every sixth sample remains a slightly stronger reference line
+- known locations receive small pads that follow the sampled terrain surface
+- the desktop Home world viewport receives a modest vertical expansion
+
+These changes improve terrain readability only. They do not modify seeded elevation, discovery, travel, coordinates, or resource knowledge.
