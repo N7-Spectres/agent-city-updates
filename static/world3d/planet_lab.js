@@ -1208,6 +1208,7 @@
     }
 
     const triangles = [];
+    const normals = [];
     const highlightTriangles = [];
     const shadowTriangles = [];
     const wires = [];
@@ -1234,6 +1235,13 @@
       ...a, ...c1, ...d,
     ];
 
+    const addLitTriangle = (p0, p1, p2) => {
+      triangles.push(...p0, ...p1, ...p2);
+      let normal = vec3Normalize(vec3Cross(vec3Sub(p1, p0), vec3Sub(p2, p0)));
+      if (normal[1] < 0) normal = [-normal[0], -normal[1], -normal[2]];
+      normals.push(...normal, ...normal, ...normal);
+    };
+
     for (let row = 0; row < resolution - 1; row += 1) {
       for (let column = 0; column < resolution - 1; column += 1) {
         const a = point(row, column);
@@ -1241,7 +1249,8 @@
         const c1 = point(row + 1, column + 1);
         const d = point(row + 1, column);
         const cell = cellTriangles(a, b, c1, d);
-        triangles.push(...cell);
+        addLitTriangle(a, b, c1);
+        addLitTriangle(a, c1, d);
 
         const h00 = Number(heights[row * resolution + column] || 0);
         const h10 = Number(heights[row * resolution + column + 1] || 0);
@@ -1290,6 +1299,7 @@
 
     for (const buffer of [
       localTerrainBuffer,
+      localTerrainNormalBuffer,
       localTerrainHighlightBuffer,
       localTerrainShadowBuffer,
       localTerrainWireBuffer,
@@ -1300,6 +1310,7 @@
 
     localTerrainData = payload;
     localTerrainBuffer = createBuffer(triangles);
+    localTerrainNormalBuffer = createBuffer(normals);
     localTerrainVertexCount = triangles.length / 3;
     localTerrainHighlightBuffer = highlightTriangles.length ? createBuffer(highlightTriangles) : null;
     localTerrainHighlightVertexCount = highlightTriangles.length / 3;
@@ -1312,14 +1323,7 @@
 
     rebuildLocalLocationPads();
 
-    if (mode === "local") {
-      modeCaption.textContent =
-        "Seeded terrain mesh • "
-        + resolution
-        + "×"
-        + resolution
-        + " surface loaded";
-    }
+    localSurfaceStatus = resolution + "×" + resolution + " surface loaded";
 
     // Routes and markers use localWorld(), so rebuild route geometry once the
     // surface exists and let marker projection pick up terrain height live.
@@ -1327,6 +1331,7 @@
   }
 
   async function refreshLocalTerrain() {
+    localSurfaceStatus = localTerrainBuffer ? localSurfaceStatus : "loading surface…";
     const requestedRadius = Math.round(localFrame.terrainRadiusMeters / 50) * 50;
     const requestKey = [
       localFrame.seedX.toFixed(2),
@@ -1352,9 +1357,7 @@
       localTerrainRequestKey = requestKey;
     } catch (error) {
       // The old flat Local plane remains a deliberate fallback.
-      if (mode === "local") {
-        modeCaption.textContent = "Local flat fallback • seeded terrain unavailable";
-      }
+      localSurfaceStatus = "flat fallback";
       console.warn("Seeded Local terrain unavailable; using flat fallback.", error);
     }
   }
