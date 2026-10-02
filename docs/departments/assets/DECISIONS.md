@@ -1019,3 +1019,34 @@ For managed updates:
 - failure to refresh the shortcut is presentation-only and must not block runtime startup
 
 This exists because Windows may keep the generic document/python icon cached when the shortcut was originally created before the custom ICO shipped.
+
+
+## Seeded Terrain Presentation Boundary
+
+Local terrain may visually consume **surface elevation** derived from the existing persistent world seed, provided the renderer remains a read-only presentation layer.
+
+Locked boundary:
+- `planet_seed` remains server-side
+- client receives coarse, quantized elevation only
+- geology/material fields are not exposed merely to color or decorate terrain
+- deposit identity, richness, hidden geometry, and candidate-generation state remain hidden until the existing discovery pipeline validates them
+- a terrain mesh must not become a free prospecting/scanner surface
+
+Current public presentation contract:
+- default grid: 41 × 41
+- elevation quantization: 2 m
+- radius clamp: 800–4200 m
+- resolution clamp: 17–49 samples
+- surface response marker: `surface_only_no_geology_or_deposits`
+
+Renderer rules:
+- visual terrain height may be exaggerated for readability
+- current vertical exaggeration is 3.2× and has no physical authority
+- authoritative X/Y coordinates remain untouched
+- locations, citizens, structures, visitors, and known routes may be visually grounded to the sampled surface
+- route draping is presentation only
+- flat Local plane remains the fallback when the public terrain endpoint is unavailable
+
+Expansion rule:
+- increasing Local visual extent does not create newly known locations, routes, deposits, biomes, resources, or travel permissions
+- future geology/biome tinting may use only already-validated public observations, never raw hidden seed fields
