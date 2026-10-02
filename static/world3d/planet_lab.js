@@ -251,6 +251,7 @@
   let localRouteVertexCount = 0;
   let localTerrainData = null;
   let localTerrainBuffer = null;
+  let localTerrainNormalBuffer = null;
   let localTerrainVertexCount = 0;
   let localTerrainHighlightBuffer = null;
   let localTerrainHighlightVertexCount = 0;
@@ -265,6 +266,7 @@
   let localLocationPadRingBuffer = null;
   let localLocationPadRingVertexCount = 0;
   let localTerrainRequestKey = "";
+  let localSurfaceStatus = "loading surface…";
 
   const LOCAL_SURFACE_HALF_EXTENT = 3.45;
   const LOCAL_TERRAIN_PADDING_FACTOR = 1.55;
@@ -315,8 +317,91 @@
     return "night";
   }
 
-  function localPalette() {
-    const phase = visualDayPhase(state?.sim_minute || 0);
+  function smoothstep01(edge0, edge1, value) {
+    const t = clamp((value - edge0) / Math.max(0.000001, edge1 - edge0), 0, 1);
+    return t * t * (3 - 2 * t);
+  }
+
+  function mix3(a, b, amount) {
+    const t = clamp(amount, 0, 1);
+    return [
+      a[0] + (b[0] - a[0]) * t,
+      a[1] + (b[1] - a[1]) * t,
+      a[2] + (b[2] - a[2]) * t,
+    ];
+  }
+
+  function solarLighting(now = performance.now()) {
+    const simMinute = state ? continuousSimMinute(now) : 720;
+    const minute = ((Number(simMinute) % 1440) + 1440) % 1440;
+
+    // 06:00 = east horizon, 12:00 = overhead, 18:00 = west horizon,
+    // 00:00 = below the Local tangent plane.
+    const solarPhase = ((minute - 360) / 1440) * Math.PI * 2;
+    const localDirection = vec3Normalize([
+      Math.cos(solarPhase),
+      Math.sin(solarPhase),
+      -0.10,
+    ]);
+
+    const altitude = localDirection[1];
+    const daylight = smoothstep01(-0.10, 0.22, altitude);
+    const twilight = 1 - smoothstep01(0.08, 0.55, Math.abs(altitude));
+    const sunColor = mix3(
+      [1.0, 0.56, 0.32],
+      [1.0, 0.94, 0.82],
+      smoothstep01(0.02, 0.62, altitude),
+    );
+
+    // Convert the Local tangent sun direction into globe coordinates so Local,
+    // Region, and Planet share one light source and the Seed Site day/night
+    // state agrees with the globe hemisphere.
+    const lat = globeFrame.anchorLat;
+    const lon = globeFrame.anchorLon;
+    const up = [
+      Math.cos(lat) * Math.sin(lon),
+      Math.sin(lat),
+      Math.cos(lat) * Math.cos(lon),
+    ];
+    const east = [Math.cos(lon), 0, -Math.sin(lon)];
+    const north = [
+      -Math.sin(lat) * Math.sin(lon),
+      Math.cos(lat),
+      -Math.sin(lat) * Math.cos(lon),
+    ];
+    const globeDirection = vec3Normalize([
+      east[0] * localDirection[0] + up[0] * localDirection[1] - north[0] * localDirection[2],
+      east[1] * localDirection[0] + up[1] * localDirection[1] - north[1] * localDirection[2],
+      east[2] * localDirection[0] + up[2] * localDirection[1] - north[2] * localDirection[2],
+    ]);
+
+    return {
+      simMinute,
+      minute,
+      phase: visualDayPhase(minute),
+      localDirection,
+      globeDirection,
+      altitude,
+      daylight,
+      twilight,
+      ambient: 0.18 + daylight * 0.34 + twilight * 0.045,
+      direct: 0.40 + daylight * 0.78,
+      sunColor,
+      nightColor: mix3([0.008, 0.020, 0.040], [0.020, 0.075, 0.090], daylight),
+    };
+  }
+
+  function lightingPhaseLabel(lighting) {
+    return {
+      dawn: "dawn light",
+      day: "daylight",
+      dusk: "dusk light",
+      night: "night",
+    }[lighting.phase] || lighting.phase;
+  }
+
+  function localPalette(now = performance.now()) {
+    const phase = visualDayPhase(state ? continuousSimMinute(now) : 720);
     return {
       dawn: {
         clear: [0.055, 0.075, 0.105, 1],
