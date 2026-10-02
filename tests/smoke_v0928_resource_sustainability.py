@@ -151,8 +151,8 @@ def main() -> None:
             counterpart_id="bex",
             include_current_options=True,
         )
-        assert "Activity families such as surveying" in guidance
-        assert "Do not rename a generic family into a specific named procedure" in guidance
+        assert "Guided-practice families are generic" in guidance
+        assert "do not invent a named procedure" in guidance
 
         print("v0.9.28 resource-sustainability / grounding smoke passed")
 
