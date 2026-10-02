@@ -16,6 +16,7 @@ from .simulation import (
     autonomous_actions,
     daily_phase_label,
     local_maintenance_attention,
+    local_resource_sustainability_attention,
     start_action,
     voluntary_choice_context_key,
 )
@@ -107,6 +108,19 @@ def citizen_context(citizen: dict[str, Any], state: dict[str, Any], actions: lis
         )
     maintenance_attention_text = "\n".join(maintenance_lines) or (
         "- no service-due maintenance is directly observable at your current position"
+    )
+
+    sustainability_rows = local_resource_sustainability_attention(citizen["id"])
+    sustainability_lines: list[str] = []
+    for item in sustainability_rows:
+        sustainability_lines.append(
+            (
+                f"- {item['material']}: {item['stored']:g} units stored; "
+                "no validated production process currently available to you"
+            )
+        )
+    resource_sustainability_text = "\n".join(sustainability_lines) or (
+        "- no exact Seed Site starter-stock sustainability state is directly observable here"
     )
 
     nearby_exploration_memory = nearby_spatial_context_for(
@@ -250,6 +264,18 @@ MAINTENANCE ATTENTION RULES:
 - A raw deposit is not automatically a source of Fasteners, Mechanical components, Battery cells, Lubricant, or any other finished part.
 - You may choose an existing legal action because of a maintenance shortage only when your current knowledge and that legal action genuinely support the connection. Talking, inspecting, waiting, or pursuing a separately validated supply path are all allowed choices; none is mandatory.
 - If service is already in progress, do not act as though a second simultaneous repair is needed.
+
+CURRENT LOCALLY OBSERVABLE RESOURCE SUSTAINABILITY:
+{resource_sustainability_text}
+
+RESOURCE SUSTAINABILITY RULES:
+- These finished starter supplies are finite physical stock, but finite does not mean urgent or scarce enough to override your own judgment.
+- "No validated production process currently available to you" means only that you cannot presently make more through a known Simulation-supported process.
+- Do not infer that a particular region, deposit, plant, stone, or raw material can replenish any finished part.
+- Do not invent smelting, refining, machining, chemistry, recycling, substitution, or manufacturing steps that are not in your validated capability/knowledge context.
+- Travel, surveying, inspection, conversation, and experiments may be reasonable ways to investigate unknowns only when they are already legal actions. None guarantees a useful result.
+- A survey may reveal a real deposit or produce no new finding. Never state what you expect to find as fact.
+- This is strategic context, not an assigned objective. You may choose unrelated legal work, maintenance, rest, social activity, or exploration.
 
 SELECTED MEANINGFUL MAINTENANCE EXPERIENCES YOU PARTICIPATED IN:
 {maintenance_history}
