@@ -249,6 +249,17 @@
   let cameraTween = null;
   let localRouteBuffer = null;
   let localRouteVertexCount = 0;
+  let localTerrainData = null;
+  let localTerrainBuffer = null;
+  let localTerrainVertexCount = 0;
+  let localTerrainWireBuffer = null;
+  let localTerrainWireVertexCount = 0;
+  let localTerrainRequestKey = "";
+
+  const LOCAL_SURFACE_HALF_EXTENT = 3.45;
+  const LOCAL_TERRAIN_PADDING_FACTOR = 1.55;
+  const LOCAL_TERRAIN_RESOLUTION = 41;
+  const LOCAL_TERRAIN_VERTICAL_EXAGGERATION = 3.2;
 
   const camera = {
     yaw: -0.72,
@@ -262,6 +273,7 @@
     seedY: 0,
     metersPerWorld: 1000,
     radiusMeters: 1000,
+    terrainRadiusMeters: 1550,
   };
 
   const globeFrame = {
@@ -574,21 +586,27 @@
 
   const localPlane = {
     buffer: createBuffer([
-      -3, 0, -3,
-       3, 0, -3,
-       3, 0,  3,
-      -3, 0, -3,
-       3, 0,  3,
-      -3, 0,  3,
+      -LOCAL_SURFACE_HALF_EXTENT, 0, -LOCAL_SURFACE_HALF_EXTENT,
+       LOCAL_SURFACE_HALF_EXTENT, 0, -LOCAL_SURFACE_HALF_EXTENT,
+       LOCAL_SURFACE_HALF_EXTENT, 0,  LOCAL_SURFACE_HALF_EXTENT,
+      -LOCAL_SURFACE_HALF_EXTENT, 0, -LOCAL_SURFACE_HALF_EXTENT,
+       LOCAL_SURFACE_HALF_EXTENT, 0,  LOCAL_SURFACE_HALF_EXTENT,
+      -LOCAL_SURFACE_HALF_EXTENT, 0,  LOCAL_SURFACE_HALF_EXTENT,
     ]),
     count: 6,
   };
 
   const localGridData = [];
-  for (let i = -12; i <= 12; i += 1) {
+  for (let i = -14; i <= 14; i += 1) {
     const p = i * 0.25;
-    localGridData.push(-3, 0.008, p, 3, 0.008, p);
-    localGridData.push(p, 0.008, -3, p, 0.008, 3);
+    localGridData.push(
+      -LOCAL_SURFACE_HALF_EXTENT, 0.008, p,
+       LOCAL_SURFACE_HALF_EXTENT, 0.008, p,
+    );
+    localGridData.push(
+      p, 0.008, -LOCAL_SURFACE_HALF_EXTENT,
+      p, 0.008,  LOCAL_SURFACE_HALF_EXTENT,
+    );
   }
   const localGrid = { buffer: createBuffer(localGridData), count: localGridData.length / 3 };
 
@@ -637,10 +655,31 @@
     const palette = localPalette();
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    bindColorBuffer(localPlane.buffer, mvp, palette.plane, gl.TRIANGLES, localPlane.count);
-    bindColorBuffer(localGrid.buffer, mvp, palette.grid, gl.LINES, localGrid.count);
+
+    if (localTerrainBuffer && localTerrainVertexCount) {
+      const terrainFill = [
+        palette.plane[0] * 1.08,
+        palette.plane[1] * 1.04,
+        palette.plane[2] * 0.98,
+        0.96,
+      ];
+      const terrainWire = [
+        palette.grid[0],
+        palette.grid[1],
+        palette.grid[2],
+        Math.max(0.22, palette.grid[3] * 1.55),
+      ];
+      bindColorBuffer(localTerrainBuffer, mvp, terrainFill, gl.TRIANGLES, localTerrainVertexCount);
+      if (localTerrainWireBuffer && localTerrainWireVertexCount) {
+        bindColorBuffer(localTerrainWireBuffer, mvp, terrainWire, gl.LINES, localTerrainWireVertexCount);
+      }
+    } else {
+      bindColorBuffer(localPlane.buffer, mvp, palette.plane, gl.TRIANGLES, localPlane.count);
+      bindColorBuffer(localGrid.buffer, mvp, palette.grid, gl.LINES, localGrid.count);
+    }
+
     if (localRouteBuffer && localRouteVertexCount) {
-      bindColorBuffer(localRouteBuffer, mvp, [0.85, 0.64, 0.28, 0.52], gl.LINES, localRouteVertexCount);
+      bindColorBuffer(localRouteBuffer, mvp, [0.85, 0.64, 0.28, 0.62], gl.LINES, localRouteVertexCount);
     }
     gl.disable(gl.BLEND);
   }
@@ -681,14 +720,60 @@
 
     localFrame.radiusMeters = maxRadius;
     localFrame.metersPerWorld = maxRadius / 2.18;
+    localFrame.terrainRadiusMeters = clamp(
+      Math.max(800, maxRadius * LOCAL_TERRAIN_PADDING_FACTOR),
+      800,
+      4200,
+    );
     globeFrame.radiansPerMeter = 0.42 / maxRadius;
     rebuildLocalRoutes();
   }
 
-  function localWorld(xMeters, yMeters, lift) {
+  function localHorizontalWorld(xMeters, yMeters) {
     const x = ((finite(xMeters) || 0) - localFrame.seedX) / localFrame.metersPerWorld;
     const z = -(((finite(yMeters) || 0) - localFrame.seedY) / localFrame.metersPerWorld);
-    return [x, lift || 0.025, z];
+    return [x, z];
+  }
+
+  function terrainHeightMetersAt(xMeters, yMeters) {
+    if (!localTerrainData) return 0;
+
+    const resolution = Number(localTerrainData.resolution || 0);
+    const radius = Number(localTerrainData.radius_m || 0);
+    const centerX = Number(localTerrainData.center_x_m || 0);
+    const centerY = Number(localTerrainData.center_y_m || 0);
+    const heights = localTerrainData.heights_m || [];
+    if (resolution < 2 || radius <= 0 || heights.length !== resolution * resolution) return 0;
+
+    const u = ((Number(xMeters) - (centerX - radius)) / (radius * 2)) * (resolution - 1);
+    const v = (((centerY + radius) - Number(yMeters)) / (radius * 2)) * (resolution - 1);
+    if (u < 0 || v < 0 || u > resolution - 1 || v > resolution - 1) return 0;
+
+    const x0 = Math.floor(u);
+    const y0 = Math.floor(v);
+    const x1 = Math.min(resolution - 1, x0 + 1);
+    const y1 = Math.min(resolution - 1, y0 + 1);
+    const tx = u - x0;
+    const ty = v - y0;
+
+    const h00 = Number(heights[y0 * resolution + x0] || 0);
+    const h10 = Number(heights[y0 * resolution + x1] || 0);
+    const h01 = Number(heights[y1 * resolution + x0] || 0);
+    const h11 = Number(heights[y1 * resolution + x1] || 0);
+    const top = h00 + (h10 - h00) * tx;
+    const bottom = h01 + (h11 - h01) * tx;
+    return top + (bottom - top) * ty;
+  }
+
+  function terrainWorldHeightAt(xMeters, yMeters) {
+    return (terrainHeightMetersAt(xMeters, yMeters) / localFrame.metersPerWorld)
+      * LOCAL_TERRAIN_VERTICAL_EXAGGERATION;
+  }
+
+  function localWorld(xMeters, yMeters, lift) {
+    const [x, z] = localHorizontalWorld(xMeters, yMeters);
+    const offset = lift == null ? 0.025 : Number(lift);
+    return [x, terrainWorldHeightAt(xMeters, yMeters) + offset, z];
   }
 
   function globeWorld(xMeters, yMeters, radius) {
@@ -760,18 +845,129 @@
   function rebuildLocalRoutes() {
     const vertices = [];
     const byId = new Map(knownLocations().map(loc => [String(loc.id), loc]));
+
     for (const route of state && state.routes || []) {
       const a = byId.get(String(route.a));
       const b = byId.get(String(route.b));
       if (!a || !b) continue;
-      const p1 = localWorld(a.x_m, a.y_m, 0.018);
-      const p2 = localWorld(b.x_m, b.y_m, 0.018);
-      vertices.push(...p1, ...p2);
+
+      const ax = Number(a.x_m);
+      const ay = Number(a.y_m);
+      const bx = Number(b.x_m);
+      const by = Number(b.y_m);
+      const distanceMeters = Math.hypot(bx - ax, by - ay);
+      const segments = clamp(Math.ceil(distanceMeters / 140), 8, 32);
+      let previous = localWorld(ax, ay, 0.022);
+
+      for (let step = 1; step <= segments; step += 1) {
+        const t = step / segments;
+        const x = ax + (bx - ax) * t;
+        const y = ay + (by - ay) * t;
+        const current = localWorld(x, y, 0.022);
+        vertices.push(...previous, ...current);
+        previous = current;
+      }
     }
 
     if (localRouteBuffer) gl.deleteBuffer(localRouteBuffer);
     localRouteBuffer = vertices.length ? createBuffer(vertices) : null;
     localRouteVertexCount = vertices.length / 3;
+  }
+
+  function rebuildLocalTerrain(payload) {
+    const resolution = Number(payload && payload.resolution || 0);
+    const radius = Number(payload && payload.radius_m || 0);
+    const centerX = Number(payload && payload.center_x_m || 0);
+    const centerY = Number(payload && payload.center_y_m || 0);
+    const heights = payload && payload.heights_m || [];
+
+    if (
+      payload?.discovery_boundary !== "surface_only_no_geology_or_deposits"
+      || resolution < 2
+      || radius <= 0
+      || heights.length !== resolution * resolution
+    ) {
+      console.warn("Local terrain payload failed its safe-surface contract.");
+      return;
+    }
+
+    const triangles = [];
+    const wires = [];
+    const spacing = (radius * 2) / (resolution - 1);
+
+    const point = (row, column, lift = 0) => {
+      const xMeters = centerX - radius + (column * spacing);
+      const yMeters = centerY + radius - (row * spacing);
+      const [x, z] = localHorizontalWorld(xMeters, yMeters);
+      const elevationMeters = Number(heights[row * resolution + column] || 0);
+      const y = (elevationMeters / localFrame.metersPerWorld)
+        * LOCAL_TERRAIN_VERTICAL_EXAGGERATION;
+      return [x, y + lift, z];
+    };
+
+    for (let row = 0; row < resolution - 1; row += 1) {
+      for (let column = 0; column < resolution - 1; column += 1) {
+        const a = point(row, column);
+        const b = point(row, column + 1);
+        const c1 = point(row + 1, column + 1);
+        const d = point(row + 1, column);
+        triangles.push(...a, ...b, ...c1, ...a, ...c1, ...d);
+      }
+    }
+
+    for (let row = 0; row < resolution; row += 1) {
+      for (let column = 0; column < resolution - 1; column += 1) {
+        wires.push(...point(row, column, 0.004), ...point(row, column + 1, 0.004));
+      }
+    }
+    for (let column = 0; column < resolution; column += 1) {
+      for (let row = 0; row < resolution - 1; row += 1) {
+        wires.push(...point(row, column, 0.004), ...point(row + 1, column, 0.004));
+      }
+    }
+
+    if (localTerrainBuffer) gl.deleteBuffer(localTerrainBuffer);
+    if (localTerrainWireBuffer) gl.deleteBuffer(localTerrainWireBuffer);
+
+    localTerrainData = payload;
+    localTerrainBuffer = createBuffer(triangles);
+    localTerrainVertexCount = triangles.length / 3;
+    localTerrainWireBuffer = createBuffer(wires);
+    localTerrainWireVertexCount = wires.length / 3;
+
+    // Routes and markers use localWorld(), so rebuild route geometry once the
+    // surface exists and let marker projection pick up terrain height live.
+    rebuildLocalRoutes();
+  }
+
+  async function refreshLocalTerrain() {
+    const requestedRadius = Math.round(localFrame.terrainRadiusMeters / 50) * 50;
+    const requestKey = [
+      localFrame.seedX.toFixed(2),
+      localFrame.seedY.toFixed(2),
+      localFrame.metersPerWorld.toFixed(3),
+      requestedRadius,
+      LOCAL_TERRAIN_RESOLUTION,
+    ].join(":");
+
+    if (requestKey === localTerrainRequestKey) return;
+
+    try {
+      const response = await fetch(
+        "/api/world/local-terrain?radius_m="
+          + encodeURIComponent(requestedRadius)
+          + "&resolution="
+          + encodeURIComponent(LOCAL_TERRAIN_RESOLUTION),
+        { cache: "no-store" },
+      );
+      if (!response.ok) throw new Error("Terrain endpoint unavailable");
+      const payload = await response.json();
+      rebuildLocalTerrain(payload);
+      localTerrainRequestKey = requestKey;
+    } catch (error) {
+      // The old flat Local plane remains a deliberate fallback.
+      console.warn("Seeded Local terrain unavailable; using flat fallback.", error);
+    }
   }
 
   function project(world, matrix) {
@@ -1276,12 +1472,12 @@
       const world = globeWorld(seed.x_m, seed.y_m, 1);
       animateCamera(cameraForGlobePoint(world, 1.6), 850);
     } else {
-      modeCaption.textContent = "Local tangent surface • authoritative meter coordinates";
+      modeCaption.textContent = "Seeded terrain mesh • authoritative meter anchors";
       const target = selectedWorld() || [0, 0, 0];
       animateCamera({
         yaw: -0.72,
-        pitch: 0.82,
-        distance: 4.25,
+        pitch: 0.72,
+        distance: 4.85,
         target: [target[0], 0, target[2]],
       }, 900);
     }
@@ -1297,7 +1493,7 @@
       const seed = seedLocation();
       animateCamera(cameraForGlobePoint(globeWorld(seed.x_m, seed.y_m, 1), 1.6), 600);
     } else {
-      animateCamera({ yaw: -0.72, pitch: 0.82, distance: 4.25, target: [0, 0, 0] }, 600);
+      animateCamera({ yaw: -0.72, pitch: 0.72, distance: 4.85, target: [0, 0, 0] }, 600);
     }
   }
 
@@ -1353,6 +1549,7 @@
       document.body.dataset.dayPhase = visualDayPhase(state.sim_minute);
 
       refreshFrames();
+      await refreshLocalTerrain();
       renderLocationList();
       rebuildMarkers();
 
@@ -1380,7 +1577,7 @@
   }
 
   function maxCameraDistance() {
-    if (mode === "local") return 9;
+    if (mode === "local") return 10.5;
     return 8;
   }
 
