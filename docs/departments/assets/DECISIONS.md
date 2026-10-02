@@ -1065,3 +1065,24 @@ Locked behavior:
 - terrain load/fallback state should be visible enough to distinguish a real renderer failure from stale client code
 
 This rule is presentation/runtime-cache hygiene only and carries no Simulation authority.
+
+
+## Terrain Readability Polish Rule
+
+Seeded Local terrain may use presentation-only shading and local readability geometry when those effects are derived only from already-public surface elevation.
+
+Allowed:
+- subtle elevation-based highlights
+- local-relief shadowing from neighboring elevation differences
+- sparser reference wires
+- small terrain-following pads around already-known locations
+
+Not implied by those visuals:
+- construction
+- ownership
+- roads
+- flattened physical terrain
+- hidden geology/resources
+- new discovery state
+
+Known-location pads are interface markers laid onto the terrain. They do not alter Simulation elevation or location coordinates.
