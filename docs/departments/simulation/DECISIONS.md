@@ -1,5 +1,19 @@
 # World & Simulation — Decisions
 
+## Material Independence Is Evidence-Driven, Not a Tech Tree
+
+v1.0 production is a physical consequence of validated material evidence.
+
+Rules:
+- A raw material in storage does not itself grant a recipe.
+- A process is learned only after the citizen owns every required verified property discovery.
+- Process knowledge is citizen-owned capability, not global civilization omniscience.
+- Production inputs/outputs are fixed Simulation physics once learned; the planner cannot rewrite yields.
+- Advanced processes may require several independently validated properties so one convenient discovery cannot bootstrap an entire industry.
+- Intermediate materials may require their own experiments before downstream forming becomes legal.
+- Existing-save migration may reconstruct process knowledge from verified discoveries, but never from hidden world truth.
+- There is no visible fixed research ladder and no guarantee which citizen will discover a production route first.
+
 ## Finite Stock Is Context, Not a Quest
 
 Manufactured starter supplies are physically finite until a real validated production path exists.
