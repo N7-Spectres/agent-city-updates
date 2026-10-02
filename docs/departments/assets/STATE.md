@@ -1,10 +1,10 @@
 # Assets & Interface — State
 
 _Last updated: 2026-10-02_
-_Current published release: v1.1.1 @ `79f82b4b4b6a2d6278c59d81a9fc0ff649c27c9b`_
-_Current Assets activity: embedded world cache refresh complete_
-_Current runtime branch: `release-v1.1.1` @ `79f82b4b4b6a2d6278c59d81a9fc0ff649c27c9b`_
-_Current review surface: published updater v1.1.1_
+_Current published release: v1.1.2 @ `84bd50fccd9c21b2714b84d46a6b9deccd2373dd`_
+_Current Assets activity: terrain visual polish complete_
+_Current runtime branch: `release-v1.1.2` @ `84bd50fccd9c21b2714b84d46a6b9deccd2373dd`_
+_Current review surface: published updater v1.1.2_
 _Current status: DONE / PUBLISHED_
 
 ## Mission
@@ -963,3 +963,25 @@ Next action:
 
 Next action:
 **Update to v1.1.1 and confirm the Local banner says the seeded terrain surface is loaded.**
+
+
+## v1.1.2 Terrain Visual Polish — Published
+
+- release branch: `release-v1.1.2`
+- exact green runtime: `84bd50fccd9c21b2714b84d46a6b9deccd2373dd`
+- full CI: `37067644082` — PASS
+- updater: v1.1.2
+- PR #56 merged
+
+Delivered:
+- elevation highlight overlay from public heightfield values
+- local-relief shadow overlay from public height differences
+- half-density minor terrain wires plus sparse stronger reference lines
+- terrain-following visual pads around known locations only
+- modestly taller desktop Home world viewport
+- 1.1.2 world/UI build key refresh
+- no Simulation coordinate writes
+- no discovery/geology/resource authority changes
+
+Next action:
+**Live visual review of terrain shading, pad scale, wire density, and taller viewport.**
