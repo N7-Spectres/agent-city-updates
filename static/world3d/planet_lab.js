@@ -769,7 +769,7 @@
     gl.drawArrays(primitive, 0, count);
   }
 
-  function drawSphere(mvp) {
+  function drawSphere(mvp, lighting) {
     gl.useProgram(litProgram);
     const posLoc = gl.getAttribLocation(litProgram, "aPosition");
     const normalLoc = gl.getAttribLocation(litProgram, "aNormal");
@@ -784,22 +784,48 @@
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphere.index);
     gl.uniformMatrix4fv(gl.getUniformLocation(litProgram, "uMVP"), false, new Float32Array(mvp));
-
-    const minute = Number(state && state.sim_minute || 0);
-    const dayAngle = ((minute % 1440) / 1440) * Math.PI * 2;
-    const lightDir = [Math.cos(dayAngle), 0.42, Math.sin(dayAngle)];
-    gl.uniform3fv(gl.getUniformLocation(litProgram, "uLightDir"), new Float32Array(lightDir));
-    gl.uniform3fv(gl.getUniformLocation(litProgram, "uBaseColor"), new Float32Array([0.08, 0.22, 0.27]));
+    gl.uniform3fv(
+      gl.getUniformLocation(litProgram, "uLightDir"),
+      new Float32Array(lighting.globeDirection),
+    );
+    gl.uniform3fv(
+      gl.getUniformLocation(litProgram, "uBaseColor"),
+      new Float32Array(mode === "region" ? [0.09, 0.245, 0.27] : [0.075, 0.205, 0.235]),
+    );
+    gl.uniform3fv(gl.getUniformLocation(litProgram, "uSunColor"), new Float32Array(lighting.sunColor));
+    gl.uniform3fv(
+      gl.getUniformLocation(litProgram, "uNightColor"),
+      new Float32Array(mode === "region" ? [0.012, 0.038, 0.060] : [0.005, 0.014, 0.032]),
+    );
+    gl.uniform1f(
+      gl.getUniformLocation(litProgram, "uAmbient"),
+      mode === "region" ? 0.50 : 0.42,
+    );
+    gl.uniform1f(
+      gl.getUniformLocation(litProgram, "uDirect"),
+      mode === "region" ? 0.92 : 1.04,
+    );
+    gl.uniform1f(
+      gl.getUniformLocation(litProgram, "uTerminatorWidth"),
+      mode === "region" ? 0.11 : 0.075,
+    );
 
     gl.drawElements(gl.TRIANGLES, sphere.count, gl.UNSIGNED_SHORT, 0);
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    bindColorBuffer(globeGrid.buffer, mvp, [0.20, 0.75, 0.82, 0.16], gl.LINES, globeGrid.count);
+    const gridAlpha = mode === "region" ? 0.19 : 0.13;
+    bindColorBuffer(
+      globeGrid.buffer,
+      mvp,
+      [0.20, 0.75, 0.82, gridAlpha],
+      gl.LINES,
+      globeGrid.count,
+    );
     gl.disable(gl.BLEND);
   }
 
-  function drawLocal(mvp) {
+  function drawLocal(mvp, lighting) {
     const palette = localPalette();
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
