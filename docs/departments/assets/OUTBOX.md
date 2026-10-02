@@ -4,6 +4,23 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
+### 2026-10-02 — From: Assets & Interface — Status: published
+
+**Subject:** v1.1.0 Seeded Local Terrain Mesh published
+
+- `release-v1.1.0@56e4a7d1c2ac4d1adeede08bf3222cd727ea8c73`
+- full CI `37064066318` PASS
+- updater now advertises v1.1.0
+- PR #54 merged
+- Local 3D now renders deterministic seed-driven terrain instead of a permanently flat plane
+- public terrain is coarse/quantized elevation only; private seed, geology, richness, and hidden deposits remain server-side
+- citizens / structures / known locations / visitor markers are grounded to terrain
+- route lines are segmented and draped over terrain
+- Local surface and camera framing are expanded
+- 3.2× vertical relief is presentation-only
+- flat fallback remains available
+- no Simulation coordinate writes or discovery bypass
+
 ### 2026-10-01 — From: Assets & Interface — Status: published
 
 **Subject:** v0.9.24 Windows Shortcut Icon Refresh published
