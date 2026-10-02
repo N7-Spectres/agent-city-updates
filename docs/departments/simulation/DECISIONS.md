@@ -1,5 +1,18 @@
 # World & Simulation — Decisions
 
+## Finite Stock Is Context, Not a Quest
+
+Manufactured starter supplies are physically finite until a real validated production path exists.
+
+Rules:
+- Citizens at the Seed Site landmark may assess exact current starter-stock amounts.
+- A citizen may know that no validated production process is currently available to them without thereby knowing where a replacement source exists.
+- Finite stock is strategic context, not an emergency, command, assigned objective, profession, or planner weight.
+- No hidden deposit/location may be leaked to motivate exploration.
+- A raw material is not a finished part and does not imply a conversion recipe.
+- Surveying or experimenting may be chosen as investigation, but the result is unknown until Simulation completes the action.
+- Future replenishment must emerge from validated discoveries + explicit physical processes, never from planner plausibility.
+
 ## Maintenance Awareness Without Procurement Omniscience
 
 A service-due condition may remain planner-visible even when missing materials make the repair action illegal.
