@@ -1,5 +1,16 @@
 # Communication & Perception — Decisions
 
+## Unsupported Named Procedures Stay Proposals
+
+Autonomous dialogue must not turn generic activity labels or plausible ideas into authoritative named methods.
+
+Rules:
+- Generic families such as surveying, extraction, maintenance, fabrication, experimentation, and construction are category labels only.
+- Do not coin an official-sounding procedure, protocol, inspection method, repair method, tool, or equipment name and present it as established unless the speaker has source-backed support for that exact thing.
+- Unsupported methods may be discussed generically as hypotheses/proposals.
+- If an older remembered or reported conversation contains an unsupported named method, it remains a remembered/reported label; repetition does not promote it into validated capability.
+- Guided-practice legality proves only that the generic family can be practiced now. It does not create a specific procedure.
+
 ## Information Travel Rule
 
 > **A citizen only knows what information could actually have reached them.**
