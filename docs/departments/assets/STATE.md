@@ -1,10 +1,10 @@
 # Assets & Interface — State
 
 _Last updated: 2026-10-02_
-_Current published release: v1.1.0 @ `56e4a7d1c2ac4d1adeede08bf3222cd727ea8c73`_
-_Current Assets activity: seeded Local terrain mesh complete_
-_Current runtime branch: `release-v1.1.0` @ `56e4a7d1c2ac4d1adeede08bf3222cd727ea8c73`_
-_Current review surface: published updater v1.1.0_
+_Current published release: v1.1.1 @ `79f82b4b4b6a2d6278c59d81a9fc0ff649c27c9b`_
+_Current Assets activity: embedded world cache refresh complete_
+_Current runtime branch: `release-v1.1.1` @ `79f82b4b4b6a2d6278c59d81a9fc0ff649c27c9b`_
+_Current review surface: published updater v1.1.1_
 _Current status: DONE / PUBLISHED_
 
 ## Mission
@@ -946,3 +946,20 @@ Delivered:
 
 Next action:
 **Live visual review of Local terrain shape, character grounding, route drape, and maximum zoom-out.**
+
+
+## v1.1.1 Embedded World Cache Refresh — Published
+
+- release branch: `release-v1.1.1`
+- exact green runtime: `79f82b4b4b6a2d6278c59d81a9fc0ff649c27c9b`
+- full CI: `37065557238` — PASS
+- updater: v1.1.1
+- PR #55 merged
+- stale pre-terrain iframe assets no longer survive in-place updates
+- mutable shell/world assets are no-store/no-cache
+- embedded Planet Lab is reloaded on a fresh build URL
+- Local banner reports loading / loaded terrain / flat fallback
+- v1.1.0 terrain generation and discovery boundaries unchanged
+
+Next action:
+**Update to v1.1.1 and confirm the Local banner says the seeded terrain surface is loaded.**
