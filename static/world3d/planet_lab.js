@@ -400,7 +400,7 @@
     }[lighting.phase] || lighting.phase;
   }
 
-  function localPalette(now = performance.now(), phaseOverride = null) {
+  function localPaletteFor(now = performance.now(), phaseOverride = null) {
     const phase = phaseOverride || visualDayPhase(state ? continuousSimMinute(now) : 720);
     return {
       dawn: {
@@ -424,6 +424,10 @@
         grid: [0.22, 0.46, 0.58, 0.15],
       },
     }[phase];
+  }
+
+  function localPalette() {
+    return localPaletteFor(performance.now(), null);
   }
 
   function vec3Length(v) {
@@ -826,7 +830,7 @@
   }
 
   function drawLocal(mvp, lighting) {
-    const palette = localPalette(performance.now(), lighting.phase);
+    const palette = localPaletteFor(performance.now(), lighting.phase);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
@@ -1928,7 +1932,7 @@
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
     const clear = mode === "local"
-      ? localPalette(now, lighting.phase).clear
+      ? localPaletteFor(now, lighting.phase).clear
       : [0.006, 0.014, 0.026, 1];
     gl.clearColor(clear[0], clear[1], clear[2], clear[3]);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
