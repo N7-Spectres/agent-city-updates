@@ -32,6 +32,10 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v1.0.0 Material Independence published** from `release-v1.0.0@b8119734ff5d0793fd2e07f45e3be3b20ff20c6f`; full CI `37032876262` PASS.
+- [World & Simulation] Verified discovery evidence can now unlock real citizen-owned production processes; raw materials can physically become all seven manufactured starter-stock categories through auditable jobs.
+- [Civilization] The release regression scenario proves a zero-starter-stock settlement can reproduce maintenance supplies and service a real due Charging Station without hidden-resource leakage or a scripted tech tree.
+
 - [Coordinator] **v0.9.28 Resource Sustainability + Dialogue Grounding published** from `release-v0.9.28@a530afb661e9a1cd6f1820551c73d3b944b9b36c`; full CI `37022302296` PASS.
 - [World & Simulation] Seed Site citizens may reason from finite manufactured starter stock without gaining hidden deposit knowledge, procurement recipes, or forced objectives.
 - [Communication & Perception] Generic practice families and unsupported remembered labels may no longer be promoted into invented established procedures/tools; unsupported methods must remain proposals/reports.
