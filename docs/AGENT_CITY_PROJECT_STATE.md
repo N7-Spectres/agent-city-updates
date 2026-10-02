@@ -4,7 +4,7 @@ _Last updated: 2026-10-02_
 
 ## Current Release
 
-**v1.1.0 — Seeded Local Terrain Mesh**
+**v1.1.1 — Embedded World Cache Refresh**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,34 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v1.1.1 Published Patch — Embedded World Cache Refresh
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v1.1.1`
+- exact green head: `79f82b4b4b6a2d6278c59d81a9fc0ff649c27c9b`
+- full CI: `37065557238` — PASS
+- published updater: `v1.1.1`
+- PR #55 merged
+
+Delivered:
+- fixes stale pre-v1.1 Planet Lab HTML/JS/CSS surviving an in-place update in the already-open Home iframe
+- local app shell and mutable world assets now send no-store/no-cache headers
+- this transition uses fresh build query keys for parent/world assets
+- embedded Home world is explicitly re-pointed to a fresh build URL
+- Local banner now reports:
+  - seeded terrain loading
+  - seeded terrain surface loaded
+  - flat fallback when terrain cannot load
+- v1.1.0 seeded mesh, safe terrain endpoint, route draping, and grounding remain unchanged
+- no Simulation, discovery, Memory, or Communication authority changes
+
+Validation:
+- complete historical regression matrix
+- `tests/smoke_v110_seeded_terrain_mesh.py`
+- `tests/smoke_v111_world_cache_refresh.py`
+- Planet Lab JavaScript syntax
 
 ## v1.1.0 Published Feature — Seeded Local Terrain Mesh
 
