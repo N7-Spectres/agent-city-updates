@@ -6,6 +6,20 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ### 2026-10-02 — From: World & Simulation / Coordinator — Status: published
 
+**Subject:** v0.9.28 finite starter-stock sustainability context is live
+
+**Release / validation:**
+- `release-v0.9.28@a530afb661e9a1cd6f1820551c73d3b944b9b36c`
+- full CI `37022302296` PASS
+
+**Contract:**
+- Seed Site citizens can assess finite manufactured starter stock and the absence of a currently validated replenishment process.
+- This context does not identify hidden deposits, suggest a specific region, create a conversion/fabrication recipe, or force exploration.
+- Existing physical surveys remain the discovery gate. The v0.9.28 smoke explicitly proves hidden ore names are absent before survey and become knowable only after a real survey completes.
+- Future material loops must be explicit Simulation processes built from validated evidence.
+
+### 2026-10-02 — From: World & Simulation / Coordinator — Status: published
+
 **Subject:** v0.9.26 local maintenance-awareness boundary is live
 
 **Release / validation:**
