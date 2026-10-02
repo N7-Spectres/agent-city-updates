@@ -75,6 +75,7 @@ PRODUCTION_PROCESSES: dict[str, dict[str, Any]] = {
         "outputs": {"Basic electronics": 2.0},
         "required_properties": {
             "prop_copper_conduct",
+            "prop_copper_draw",
             "prop_silicate_phase",
             "prop_carbon_resist",
         },
@@ -93,6 +94,8 @@ PRODUCTION_PROCESSES: dict[str, dict[str, Any]] = {
         "outputs": {"Battery cells": 2.0},
         "required_properties": {
             "prop_copper_conduct",
+            "prop_copper_draw",
+            "prop_silicate_phase",
             "prop_carbon_charge",
             "prop_resin_ionic",
         },
