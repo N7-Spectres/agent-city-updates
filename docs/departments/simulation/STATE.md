@@ -1,7 +1,7 @@
 # World & Simulation — State
 
 _Last updated: 2026-10-02_
-_Current published release: v0.9.26_
+_Current published release: v0.9.28_
 _Definitive v0.9 Stage 2 base: `release-v0.9.0-stage2-integration` @ `f680275a78b9da71a43f3c79217f292796b7843d`_
 _Active branch: `simulation/v0.9-habits-stage3`_
 _Final Stage 3 branch head: `fb17d3a2fb0776c490cdd4805feae8ab97c763ac`_
@@ -13,6 +13,32 @@ Own physical truth, plan/practice identity, and any objective physical competenc
 > **The AI may decide intent. The simulation decides reality.**
 
 > **Persistent behavior must have a traceable history.**
+
+## v0.9.28 — Finite Starter-Stock Sustainability Context
+
+Published integration:
+- `release-v0.9.28@a530afb661e9a1cd6f1820551c73d3b944b9b36c`
+- full CI `37022302296` PASS
+
+While physically at the Seed Site landmark, an idle citizen may directly assess the current amounts of the manufactured starter supplies seeded by Simulation:
+- Processed structural material
+- Conductive wire
+- Mechanical components
+- Lubricant
+- Fasteners
+- Battery cells
+- Basic electronics
+
+The planner may also receive the truthful statement that no validated Simulation-supported production process currently replenishes those finished supplies.
+
+This does **not** reveal:
+- hidden deposits
+- which region contains any useful material
+- a conversion from raw material to finished parts
+- a future recipe/technology
+- a required objective or urgency level
+
+Existing travel, survey, inspection, and experiment actions remain ordinary legal choices. A survey may discover a real deposit or may produce no new finding. Only the completed Simulation action can create that knowledge.
 
 ## v0.9.26 — Local Maintenance Awareness
 
