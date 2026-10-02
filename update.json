@@ -1,6 +1,6 @@
 {
-  "version": "0.9.28",
-  "notes": "Resource Sustainability + Dialogue Grounding: citizens physically at Seed Site can now reason from finite manufactured starter stock and the fact that no validated production process currently replenishes it, without being told where resources are or what raw materials can become. This is strategic context only, not an emergency or assigned objective. Hidden deposits remain hidden until real surveys discover them. Autonomous dialogue and guided-practice language now also avoid inventing official-sounding procedures, protocols, inspections, tools, or repair methods from generic activity labels.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/a530afb661e9a1cd6f1820551c73d3b944b9b36c",
+  "version": "1.0.0",
+  "notes": "Material Independence: Agent City can now replace the finite manufactured starter stock through real discovery-backed production. Citizens must physically discover raw materials, validate the relevant material properties, and thereby learn specific Simulation-owned production processes before those actions exist. New real material-processing jobs can produce crude metal stock, Fasteners, Mechanical components, Processed structural material, Lubricant, Conductive wire, Basic electronics, and Battery cells using the Crude Smelter or Basic Workbench. Production consumes real inputs/energy/time, wears infrastructure, creates auditable production events, and counts as fabrication practice. Hidden world truth remains hidden until discovery. The release regression test sets all manufactured starter stock to zero, rebuilds every starter category from raw local materials, then services a real due Charging Station with locally reproduced parts.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/b8119734ff5d0793fd2e07f45e3be3b20ff20c6f",
   "sha256": ""
 }
