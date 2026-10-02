@@ -1,10 +1,10 @@
 # Assets & Interface — State
 
-_Last updated: 2026-10-01_
-_Current published release: v0.9.24 @ `3a43025738adabd6aeb684e9e05ca618dcb4e92d`_
-_Current Assets activity: Windows shortcut icon refresh complete_
-_Current runtime branch: `release-v0.9.24` @ `3a43025738adabd6aeb684e9e05ca618dcb4e92d`_
-_Current review surface: published updater v0.9.24_
+_Last updated: 2026-10-02_
+_Current published release: v1.1.0 @ `56e4a7d1c2ac4d1adeede08bf3222cd727ea8c73`_
+_Current Assets activity: seeded Local terrain mesh complete_
+_Current runtime branch: `release-v1.1.0` @ `56e4a7d1c2ac4d1adeede08bf3222cd727ea8c73`_
+_Current review surface: published updater v1.1.0_
 _Current status: DONE / PUBLISHED_
 
 ## Mission
@@ -914,3 +914,35 @@ Delivered:
 
 Next action:
 **Update from v0.9.23 to v0.9.24 and visually confirm the desktop shortcut icon refreshes.**
+
+
+## v1.1.0 Seeded Local Terrain Mesh — Published
+
+Status:
+**DONE / PUBLISHED**
+
+- release branch: `release-v1.1.0`
+- exact green runtime: `56e4a7d1c2ac4d1adeede08bf3222cd727ea8c73`
+- full CI: `37064066318` — PASS
+- updater: v1.1.0
+- PR #54 merged
+- durable contract: `docs/departments/assets/SEEDED_LOCAL_TERRAIN.md`
+
+Delivered:
+- Local 3D now has a deterministic seed-driven terrain triangle/wire mesh
+- mesh uses the same broad/local elevation basis as Simulation terrain
+- server retains the private `planet_seed`
+- renderer receives only coarse, 2 m-quantized elevation
+- no geology/material/richness/deposit geometry crosses the UI boundary
+- 41×41 default heightfield with request bounds of 800–4200 m / 17–49 samples
+- citizens, structures, known locations, visitor markers, and routes are visually grounded
+- known routes are subdivided and terrain-draped
+- Local surface expands from ±3.0 to ±3.45 world units
+- terrain extends ~1.55× beyond known Local extent
+- camera framing widens to pitch 0.72 / distance 4.85; max Local zoom-out 10.5
+- 3.2× vertical relief is presentation-only
+- old flat plane remains fallback
+- no Simulation coordinate writes or discovery bypass
+
+Next action:
+**Live visual review of Local terrain shape, character grounding, route drape, and maximum zoom-out.**
