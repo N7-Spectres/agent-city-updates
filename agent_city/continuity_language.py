@@ -509,8 +509,8 @@ def guided_practice_context(
         )
 
     lines.extend([
-        "- Teacher/learner are roles in one real guided-practice event, not permanent mentor/trainer/expert identities.",
-        "- Guided-practice families are generic; do not invent a named procedure, protocol, or tool from a family label.",
+        "- Teacher/learner are event roles, not permanent mentor/trainer/expert identities; activity-family labels are generic, not named procedures.",
+
         "- Asking a question or explaining something in ordinary conversation transfers information only; it creates no competence or practice.",
         "- You may ask another citizen about their experience even when you do not know the answer. Frame unknown experience as a question, not an assertion.",
         "- You may propose guided practice only when a legal guided-practice action appears above. The conversation proposal itself does not start the physical session.",
