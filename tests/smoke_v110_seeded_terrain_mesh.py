@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import sqlite3
+import sys
 from pathlib import Path
 
-from agent_city.spatial import public_terrain_heightfield
-
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from agent_city.spatial import public_terrain_heightfield
 
 
 def make_conn(seed: str = "mesh-seed-a") -> sqlite3.Connection:
