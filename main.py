@@ -132,6 +132,28 @@ app = FastAPI(title="Agent City", lifespan=lifespan)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
+@app.middleware("http")
+async def prevent_stale_local_ui_cache(request, call_next):
+    """
+    Agent City is a local app that updates in place. Long-lived browser tabs and
+    nested iframes must not retain pre-update HTML/JS/CSS after the runtime has
+    restarted onto a newer release.
+    """
+    response = await call_next(request)
+    path = request.url.path
+    mutable_ui = (
+        path in {"/", "/planet-lab"}
+        or path == "/static/app.js"
+        or path == "/static/styles.css"
+        or path.startswith("/static/world3d/")
+    )
+    if mutable_ui:
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
+
 class PauseRequest(BaseModel):
     paused: bool
 

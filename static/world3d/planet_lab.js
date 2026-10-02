@@ -935,6 +935,15 @@
     localTerrainWireBuffer = createBuffer(wires);
     localTerrainWireVertexCount = wires.length / 3;
 
+    if (mode === "local") {
+      modeCaption.textContent =
+        "Seeded terrain mesh • "
+        + resolution
+        + "×"
+        + resolution
+        + " surface loaded";
+    }
+
     // Routes and markers use localWorld(), so rebuild route geometry once the
     // surface exists and let marker projection pick up terrain height live.
     rebuildLocalRoutes();
@@ -966,6 +975,9 @@
       localTerrainRequestKey = requestKey;
     } catch (error) {
       // The old flat Local plane remains a deliberate fallback.
+      if (mode === "local") {
+        modeCaption.textContent = "Local flat fallback • seeded terrain unavailable";
+      }
       console.warn("Seeded Local terrain unavailable; using flat fallback.", error);
     }
   }
@@ -1472,7 +1484,9 @@
       const world = globeWorld(seed.x_m, seed.y_m, 1);
       animateCamera(cameraForGlobePoint(world, 1.6), 850);
     } else {
-      modeCaption.textContent = "Seeded terrain mesh • authoritative meter anchors";
+      modeCaption.textContent = localTerrainBuffer
+        ? "Seeded terrain mesh • surface loaded"
+        : "Seeded terrain mesh • loading surface…";
       const target = selectedWorld() || [0, 0, 0];
       animateCamera({
         yaw: -0.72,
