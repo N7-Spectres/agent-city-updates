@@ -1,5 +1,18 @@
 # World & Simulation — Decisions
 
+## Maintenance Awareness Without Procurement Omniscience
+
+A service-due condition may remain planner-visible even when missing materials make the repair action illegal.
+
+Rules:
+- Simulation owns the maintenance procedure, current physical condition, stock counts, and service legality.
+- A citizen may see exact Seed Site maintenance/stock state only while physically at the Seed Site landmark.
+- Missing named supplies may inform reasoning but do not imply a known source.
+- Raw deposits are not finished parts.
+- No substitution, conversion, fabrication recipe, or technology is inferred from plausibility alone.
+- In-progress service is explicit and suppresses duplicate simultaneous service of the same target.
+- Maintenance attention is context, not a command or role assignment.
+
 ## Physical Authority
 
 Simulation state is authoritative over narration.
