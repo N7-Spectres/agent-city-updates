@@ -4,7 +4,7 @@ _Last updated: 2026-10-02_
 
 ## Current Release
 
-**v0.9.26 — Maintenance Awareness**
+**v0.9.27 — Troubleshooting Snapshot**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,24 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v0.9.27 Published Patch — Troubleshooting Snapshot
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v0.9.27`
+- exact green head: `3b708a7da1f7b655244da94a90d67db68b733b9e`
+- full CI: `37019939752` — PASS
+- published updater: `v0.9.27`
+- PR #48 merged
+
+Delivered:
+- one-click local troubleshooting snapshot under Records → Stores
+- current storage with starter baselines and deltas
+- field cargo and citizen energy/battery/joint/integrity state
+- structure/equipment condition plus recent maintenance
+- local-only until copied; no automatic upload
+- hidden world seed/generated truth and conversation content excluded
 
 ## v0.9.26 Published Patch — Maintenance Awareness
 
