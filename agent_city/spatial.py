@@ -6,6 +6,11 @@ from typing import Any
 
 CHUNK_SIZE_M = 160.0
 TERRAIN_NOISE_SCALE_M = 320.0
+PUBLIC_TERRAIN_MIN_RADIUS_M = 800.0
+PUBLIC_TERRAIN_MAX_RADIUS_M = 4200.0
+PUBLIC_TERRAIN_MIN_RESOLUTION = 17
+PUBLIC_TERRAIN_MAX_RESOLUTION = 49
+PUBLIC_TERRAIN_ELEVATION_QUANTIZATION_M = 2.0
 SPATIAL_FRAME_ID = "seed_site_local"
 
 MATERIAL_FIELDS = (
@@ -68,13 +73,25 @@ def chunk_for_coordinate(x_m: float, y_m: float) -> tuple[int, int]:
     return (math.floor(x_m / CHUNK_SIZE_M), math.floor(y_m / CHUNK_SIZE_M))
 
 
-def _terrain_at(seed: str, x_m: float, y_m: float) -> dict[str, Any]:
+def _elevation_at(seed: str, x_m: float, y_m: float) -> float:
+    """
+    Deterministic elevation shared by Simulation terrain queries and the coarse
+    Local presentation mesh.
+
+    This helper intentionally contains no geology/deposit logic. Keeping the
+    surface calculation separate lets the UI receive broad topography without
+    exposing material fields, richness, hidden body geometry, or the seed.
+    """
     broad = _value_noise(seed, "terrain_broad", x_m, y_m, TERRAIN_NOISE_SCALE_M * 2.0)
     local = _value_noise(seed, "terrain_local", x_m, y_m, TERRAIN_NOISE_SCALE_M)
+    return (broad - 0.5) * 70.0 + (local - 0.5) * 24.0
+
+
+def _terrain_at(seed: str, x_m: float, y_m: float) -> dict[str, Any]:
     rough = _value_noise(seed, "terrain_rough", x_m, y_m, 120.0)
     moisture = _value_noise(seed, "surface_moisture", x_m, y_m, 420.0)
 
-    elevation_m = round((broad - 0.5) * 70.0 + (local - 0.5) * 24.0, 3)
+    elevation_m = round(_elevation_at(seed, x_m, y_m), 3)
     roughness = round(rough, 5)
 
     if rough > 0.72:
@@ -99,6 +116,79 @@ def _terrain_at(seed: str, x_m: float, y_m: float) -> dict[str, Any]:
         "roughness": roughness,
         "terrain_class": terrain_class,
         "geology_class": geology_class,
+    }
+
+
+def public_terrain_heightfield(
+    conn,
+    *,
+    radius_m: float = 3200.0,
+    resolution: int = 41,
+) -> dict[str, Any]:
+    """
+    Return a coarse, seed-stable elevation field for the Local 3D renderer.
+
+    This is deliberately narrower than query_hidden_world():
+    - the planet seed never leaves the server;
+    - no geology/material score is calculated or returned;
+    - no deposit candidate is materialized or exposed;
+    - elevations are spatially coarse and vertically quantized for presentation.
+
+    The mesh therefore follows the same broad seeded topography as Simulation
+    without becoming a free prospecting/scanning endpoint.
+    """
+    seed = _planet_seed(conn)
+
+    requested_radius = float(radius_m)
+    radius = max(
+        PUBLIC_TERRAIN_MIN_RADIUS_M,
+        min(PUBLIC_TERRAIN_MAX_RADIUS_M, requested_radius),
+    )
+
+    requested_resolution = int(resolution)
+    grid = max(
+        PUBLIC_TERRAIN_MIN_RESOLUTION,
+        min(PUBLIC_TERRAIN_MAX_RESOLUTION, requested_resolution),
+    )
+    if grid % 2 == 0:
+        grid = grid + 1 if grid < PUBLIC_TERRAIN_MAX_RESOLUTION else grid - 1
+
+    seed_site = conn.execute(
+        "SELECT x_m, y_m FROM locations WHERE id = 'seed_site'"
+    ).fetchone()
+    center_x = float(seed_site["x_m"] or 0.0) if seed_site else 0.0
+    center_y = float(seed_site["y_m"] or 0.0) if seed_site else 0.0
+    spacing = (radius * 2.0) / float(grid - 1)
+    quant = PUBLIC_TERRAIN_ELEVATION_QUANTIZATION_M
+
+    heights: list[float] = []
+    minimum = float("inf")
+    maximum = float("-inf")
+
+    # Row 0 is north (+y), column 0 is west (-x).
+    for row in range(grid):
+        y_m = center_y + radius - (row * spacing)
+        for column in range(grid):
+            x_m = center_x - radius + (column * spacing)
+            raw = _elevation_at(seed, x_m, y_m)
+            display_elevation = round(raw / quant) * quant
+            display_elevation = round(display_elevation, 3)
+            heights.append(display_elevation)
+            minimum = min(minimum, display_elevation)
+            maximum = max(maximum, display_elevation)
+
+    return {
+        "frame_id": SPATIAL_FRAME_ID,
+        "center_x_m": round(center_x, 4),
+        "center_y_m": round(center_y, 4),
+        "radius_m": round(radius, 3),
+        "resolution": grid,
+        "sample_spacing_m": round(spacing, 3),
+        "elevation_quantization_m": quant,
+        "min_elevation_m": minimum,
+        "max_elevation_m": maximum,
+        "heights_m": heights,
+        "discovery_boundary": "surface_only_no_geology_or_deposits",
     }
 
 
