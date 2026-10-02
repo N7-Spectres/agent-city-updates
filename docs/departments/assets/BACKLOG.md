@@ -644,3 +644,17 @@ Immediate next action:
 - update to v1.1.1
 - confirm Local banner reports seeded terrain loaded
 - then visually judge terrain relief / grounding from a fresh renderer
+
+
+## Completed — v1.1.2 Terrain Visual Polish
+
+- softened terrain wire density
+- added height/relief shading from public elevation only
+- added terrain-aware known-location pads
+- expanded desktop Local viewport modestly
+- advanced build key to 1.1.2
+- full release regression `37067644082` PASS
+
+Immediate next action:
+- visually judge the new Local terrain pass
+- tune only if wire density, pad radius, shading strength, or viewport height still need adjustment
