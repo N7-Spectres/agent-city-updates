@@ -4,7 +4,7 @@ _Last updated: 2026-10-02_
 
 ## Current Release
 
-**v0.9.28 — Resource Sustainability + Dialogue Grounding**
+**v1.0.0 — Material Independence**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,52 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v1.0.0 Published Milestone — Material Independence
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v1.0.0`
+- exact green head: `b8119734ff5d0793fd2e07f45e3be3b20ff20c6f`
+- full CI: `37032876262` — PASS
+- published updater: `v1.0.0`
+- PR #52 merged
+- follow-up test correction PR #53 merged
+
+Milestone meaning:
+
+> **Agent City now contains a real physical path for the civilization to maintain essential manufactured supplies without depending indefinitely on the finite starter crate.**
+
+Delivered:
+- hidden material properties that can support world-specific production routes only after real validated experiments
+- citizen-owned production-process learning derived from verified discovery evidence
+- existing saves backfill production knowledge only when that citizen already owns the required verified discoveries
+- real `process_material` Simulation jobs
+- real input consumption, output creation, time, energy cost, citizen wear, and workbench/smelter wear
+- durable `production_events` audit trail tied to real job IDs
+- production work contributes ordinary fabrication practice rather than a new XP/tech-tree system
+- sustainability context changes from “no validated production process” to the exact learned replenishment process only after the evidence chain exists
+- current first-generation production paths can replenish:
+  - Processed structural material
+  - Conductive wire
+  - Mechanical components
+  - Lubricant
+  - Fasteners
+  - Battery cells
+  - Basic electronics
+- intermediate Crude Metal Stock must itself be physically tested before fastener/component forming becomes known
+- advanced battery/electronics processes require multiple independently validated material properties rather than a single convenient discovery
+- no hidden deposit names, world properties, recipes, or future processes cross the ordinary read boundary before discovery
+- no visible technology tree and no user-assigned research objective
+
+Validation:
+- complete historical regression matrix
+- `tests/smoke_v100_material_independence.py`
+- regression scenario begins with **all seven manufactured starter resources at zero**
+- only raw local material stock is supplied
+- real experiments must unlock every production process
+- real production jobs must reproduce every starter category
+- locally reproduced maintenance stock must successfully service a real due Charging Station
 
 ## v0.9.28 Published Patch — Resource Sustainability + Dialogue Grounding
 
