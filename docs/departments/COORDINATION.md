@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v1.1.2 Terrain Visual Polish published** from `release-v1.1.2@84bd50fccd9c21b2714b84d46a6b9deccd2373dd`; full CI `37067644082` PASS.
+- [Assets & Interface] Seeded Local terrain now has gentler wire density, subtle height/relief shading, terrain-following pads for known locations, and a slightly taller Home world viewport.
+
 - [Coordinator] **v1.1.1 Embedded World Cache Refresh published** from `release-v1.1.1@79f82b4b4b6a2d6278c59d81a9fc0ff649c27c9b`; full CI `37065557238` PASS.
 - [Assets & Interface] The Home iframe/world assets now refresh cleanly after in-place updates, preventing stale flat/pre-terrain Planet Lab code from surviving a release.
 
