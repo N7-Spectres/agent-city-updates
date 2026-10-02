@@ -1,6 +1,6 @@
 {
-  "version": "0.9.25",
-  "notes": "Ollama Auto-Start: the Agent City desktop supervisor now treats Ollama as a companion local service. On launch or tray Restart it probes 127.0.0.1:11434/api/tags; if Ollama is already running it leaves it alone, otherwise it finds ollama.exe via PATH or normal Windows install locations and starts `ollama serve` hidden with output in data/ollama.log. Agent City waits for Ollama readiness when possible before opening. If Ollama cannot be found or started, the city still launches and reports Ollama offline instead of failing the app.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/780da84eb05467fc8bccf337cbd84e8bf6224e2c",
+  "version": "0.9.26",
+  "notes": "Maintenance Awareness: citizens physically at the Seed Site can now reason from service-due infrastructure even when a repair is blocked by missing parts. The planner receives the known starter maintenance requirements and locally observable stock shortfalls, while Simulation still decides whether service is legal. Citizens are explicitly forbidden from inventing supply sources, substitutions, conversions, or fabrication recipes, and exact Seed Site maintenance/stock state does not leak to citizens elsewhere.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/937f300e8870f6baed2031e6f69b68b7da667a08",
   "sha256": ""
 }
