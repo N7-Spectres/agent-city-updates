@@ -1,6 +1,6 @@
 {
-  "version": "1.1.1",
-  "notes": "Embedded World Cache Refresh: fixes the v1.1.0 seeded terrain appearing unchanged when the Home iframe retained pre-terrain Planet Lab assets across an in-place update. Agent City now sends no-store/no-cache headers for mutable local UI/world assets, bumps the v1.1 transition cache keys, refreshes the embedded Planet Lab onto a fresh build URL, and exposes explicit Local terrain status text for loading, loaded mesh, or flat fallback. The seeded terrain implementation itself is unchanged and all Simulation/discovery authority boundaries remain intact.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/79f82b4b4b6a2d6278c59d81a9fc0ff649c27c9b",
+  "version": "1.1.2",
+  "notes": "Terrain Visual Polish: refines the seeded Local mesh with subtle elevation highlights and local-relief shadows derived only from the already-public heightfield, halves minor wire density while preserving stronger reference lines, adds small terrain-following visual pads around already-known locations, and gives the desktop Home world modestly more vertical viewing room. Build keys advance to 1.1.2 so the visual pass cannot be hidden by stale iframe assets. Seed determinism, route draping, flat fallback, discovery boundaries, and Simulation coordinate authority are unchanged.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/84bd50fccd9c21b2714b84d46a6b9deccd2373dd",
   "sha256": ""
 }
