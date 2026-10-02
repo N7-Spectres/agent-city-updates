@@ -1086,3 +1086,22 @@ Not implied by those visuals:
 - new discovery state
 
 Known-location pads are interface markers laid onto the terrain. They do not alter Simulation elevation or location coordinates.
+
+
+## Shared Sun / Day-Night Presentation Rule
+
+Local, Region, and Planet may share one presentation light source derived from the authoritative Simulation clock.
+
+Locked behavior:
+- the renderer reads time; it never writes or advances Simulation time
+- one continuous sun model drives all three world scales
+- Local uses terrain normals and a tangent-space sun direction
+- Region and Planet use the same sun transformed into globe coordinates
+- Seed Site local day/night state must agree with the globe's lit hemisphere
+- Planet uses a soft terminator rather than a hard half-sphere cutoff
+- Region may use a higher ambient floor for map readability
+- Local night keeps enough ambient light to preserve terrain/navigation readability
+- labels, citizen bodies, markers, and selection UI remain legible and are not darkened into unusability by world lighting
+- lighting does not create weather, visibility rules, stealth, travel constraints, energy changes, discoveries, or resource facts
+
+The day/night cycle is presentation of existing Simulation time only.
