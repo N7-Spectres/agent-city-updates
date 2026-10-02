@@ -264,3 +264,7 @@ jobs:
 
       - name: Run v1.0 material-independence smoke
         run: python tests/smoke_v100_material_independence.py
+
+
+      - name: Run v1.1.0 seeded Local terrain mesh smoke
+        run: python tests/smoke_v110_seeded_terrain_mesh.py
