@@ -658,3 +658,20 @@ Immediate next action:
 Immediate next action:
 - visually judge the new Local terrain pass
 - tune only if wire density, pad radius, shading strength, or viewport height still need adjustment
+
+
+## Completed — v1.1.3 Shared Sun / Day-Night Lighting
+
+- shared authoritative-sim-time sun across all 3 world scales
+- Local terrain normals and moving sunlight
+- Region/Planet globe lighting from the same sun direction
+- soft planetary terminator
+- readable ambient night floor
+- lighting state captions
+- preserved flat fallback and marker legibility
+- dedicated `tests/smoke_v113_shared_sun_cycle.py`
+- full release regression `37079795922` PASS
+
+Immediate next action:
+- visually inspect Local / Region / Planet at the current simulation time
+- tune only if night floor, terminator softness, or Local sunlight strength need adjustment
