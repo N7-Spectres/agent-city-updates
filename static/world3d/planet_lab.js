@@ -1842,6 +1842,21 @@
     if (focus) focusSelected();
   }
 
+  function updateLightingCaption(lighting) {
+    const phaseLabel = lightingPhaseLabel(lighting);
+    let text;
+
+    if (mode === "planet") {
+      text = "Planet globe • shared sun • " + phaseLabel;
+    } else if (mode === "region") {
+      text = "Regional globe • shared sun • " + phaseLabel;
+    } else {
+      text = "Seeded terrain mesh • " + localSurfaceStatus + " • " + phaseLabel;
+    }
+
+    if (modeCaption.textContent !== text) modeCaption.textContent = text;
+  }
+
   function setMode(nextMode, focus) {
     if (!["planet", "region", "local"].includes(nextMode)) return;
     mode = nextMode;
@@ -1906,17 +1921,23 @@
     updateTween(now);
     updateCanvasSize();
 
+    const lighting = solarLighting(now);
+    document.body.dataset.dayPhase = lighting.phase;
+    updateLightingCaption(lighting);
+
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
-    const clear = mode === "local" ? localPalette().clear : [0.012, 0.027, 0.039, 1];
+    const clear = mode === "local"
+      ? localPalette(now, lighting.phase).clear
+      : [0.006, 0.014, 0.026, 1];
     gl.clearColor(clear[0], clear[1], clear[2], clear[3]);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     const matrix = viewProjection();
     if (mode === "local") {
-      drawLocal(matrix);
+      drawLocal(matrix, lighting);
     } else {
-      drawSphere(matrix);
+      drawSphere(matrix, lighting);
     }
 
     updateMarkers(matrix, now);
