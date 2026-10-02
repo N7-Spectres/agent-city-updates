@@ -1146,11 +1146,27 @@ def local_resource_sustainability_attention(citizen_id: str) -> list[dict[str, A
                 "SELECT amount FROM resources WHERE name = ?",
                 (material,),
             ).fetchone()
+
+            supported_processes = [
+                {
+                    "process_key": process_key,
+                    "name": str(process["name"]),
+                }
+                for process_key, process in PRODUCTION_PROCESSES.items()
+                if material in process["outputs"]
+                and citizen_knows_production_process(conn, citizen_id, process_key)
+            ]
+
             rows.append(
                 {
                     "material": material,
                     "stored": float(stock["amount"]) if stock else 0.0,
-                    "replenishment_status": "no_validated_production_process",
+                    "replenishment_status": (
+                        "validated_production_process_available"
+                        if supported_processes
+                        else "no_validated_production_process"
+                    ),
+                    "validated_processes": supported_processes,
                 }
             )
         return rows
