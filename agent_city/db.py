@@ -75,13 +75,19 @@ LOCATION_COORDINATES = {
 # only through a validated discovery record.
 WORLD_PROPERTIES = [
     ("prop_ferrite_field", "material", "Ferrite Stone", "field_response", "strong response to a simple magnetic field", None, "electrical_assay"),
+    ("prop_ferrite_smelt", "material", "Ferrite Stone", "smelting_response", "yields a workable metallic fraction under sustained crude smelting", None, "thermal_assay"),
     ("prop_veyra_thermal", "material", "Veyra Ore", "thermal_stability", "retains structural coherence through moderate heating", None, "thermal_assay"),
     ("prop_silicate_phase", "material", "Silicate", "heated_phase", "forms a glassy phase after sustained heating", None, "thermal_assay"),
     ("prop_copper_conduct", "material", "Copper-like Ore", "conductivity", "shows strong electrical conductivity after basic mechanical separation", None, "electrical_assay"),
+    ("prop_copper_draw", "material", "Copper-like Ore", "drawability", "can be separated and drawn into continuous conductive strands without brittle fracture", None, "mechanical_assay"),
     ("prop_carbon_resist", "material", "Carbonaceous Rock", "electrical_resistance", "shows high electrical resistance in a dry sample", None, "electrical_assay"),
+    ("prop_carbon_charge", "material", "Carbonaceous Rock", "charge_storage", "stores and releases electrical charge reversibly under simple low-voltage cell conditions", None, "electrical_assay"),
     ("prop_clay_form", "material", "Clay", "compressive_formability", "holds shaped form well under slow mechanical compression", None, "mechanical_assay"),
     ("prop_fiber_tensile", "material", "Plant Fiber", "tensile_behavior", "has high tensile strength for its mass", None, "mechanical_assay"),
     ("prop_resin_cure", "material", "Native Resin", "thermal_curing", "hardens significantly after controlled moderate heating", None, "thermal_assay"),
+    ("prop_resin_lube", "material", "Native Resin", "lubricant_fraction", "separates a stable low-friction fraction during controlled heating", None, "thermal_assay"),
+    ("prop_resin_ionic", "material", "Native Resin", "ionic_fraction", "contains a separable electrically insulating fraction that remains ionically mobile in a simple sealed cell", None, "electrical_assay"),
+    ("prop_crude_metal_form", "material", "Crude Metal Stock", "workability", "can be cold-formed, drilled, and cut without brittle fracture", None, "mechanical_assay"),
     ("prop_north_exposure", "location", "northern_ridge", "surface_exposure", "ridge surface is highly exposed with loose stone accumulation", None, "field_survey"),
     ("prop_basin_stability", "location", "rocky_basin", "surface_stability", "fractured basin includes stable shelves between loose rubble zones", None, "field_survey"),
     ("prop_flats_compaction", "location", "southern_flats", "surface_compaction", "broad sections of the flats are firm and consistently compacted", None, "field_survey"),
@@ -324,6 +330,22 @@ def init_db() -> None:
 
             CREATE INDEX IF NOT EXISTS idx_maintenance_events_target
             ON maintenance_events(target_type, target_id, id);
+
+            CREATE TABLE IF NOT EXISTS production_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                job_id INTEGER NOT NULL UNIQUE,
+                citizen_id TEXT NOT NULL,
+                process_key TEXT NOT NULL,
+                process_name TEXT NOT NULL,
+                inputs_json TEXT NOT NULL,
+                outputs_json TEXT NOT NULL,
+                outcome TEXT NOT NULL,
+                sim_minute INTEGER NOT NULL,
+                summary TEXT NOT NULL
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_production_events_citizen
+            ON production_events(citizen_id, sim_minute DESC, id DESC);
 
             CREATE TABLE IF NOT EXISTS generated_deposits (
                 id TEXT PRIMARY KEY,
@@ -672,6 +694,15 @@ def init_db() -> None:
                 """,
                 prop,
             )
+
+        # Existing saves may already contain the discoveries needed for a v1.0
+        # production process. Backfill only from verified citizen-owned evidence;
+        # no hidden property is exposed by this migration.
+        from .material_independence import sync_all_production_processes
+        sync_all_production_processes(
+            conn,
+            learned_minute=int(get_meta(conn, "sim_minute") or "360"),
+        )
 
         for lid, (x_km, y_km) in LOCATION_COORDINATES.items():
             conn.execute(
@@ -1089,6 +1120,11 @@ def snapshot() -> dict[str, Any]:
                 "SELECT * FROM maintenance_events ORDER BY id DESC LIMIT 80"
             )
         ]
+        production_events = [
+            dict(r) for r in conn.execute(
+                "SELECT * FROM production_events ORDER BY id DESC LIMIT 80"
+            )
+        ]
         from .spatial import SPATIAL_FRAME_ID, safe_observation_payload
         spatial_observations = [
             safe_observation_payload(r) for r in conn.execute(
@@ -1170,6 +1206,7 @@ def snapshot() -> dict[str, Any]:
             "experiment_results": experiment_results,
             "learned_processes": learned_processes,
             "maintenance_events": maintenance_events,
+            "production_events": production_events,
             "spatial_frame": {
                 "id": SPATIAL_FRAME_ID,
                 "units": "meters",
