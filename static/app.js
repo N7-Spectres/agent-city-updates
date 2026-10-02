@@ -229,6 +229,8 @@ const els = {
   locations: document.getElementById("locations"),
   resourceBalance: document.getElementById("resource-balance"),
   citizenCargo: document.getElementById("citizen-cargo"),
+  copyTroubleshootingSnapshot: document.getElementById("copy-troubleshooting-snapshot"),
+  troubleshootingSnapshotStatus: document.getElementById("troubleshooting-snapshot-status"),
   projects: document.getElementById("projects"),
   equipment: document.getElementById("equipment"),
   structures: document.getElementById("structures"),
@@ -3449,6 +3451,56 @@ els.toggleResources.addEventListener("click", () => openControlRoomView("resourc
 els.toggleStructures.addEventListener("click", () => openControlRoomView("structures", "Making & building", "PHYSICAL STATE"));
 els.toggleHistory.addEventListener("click", () => openControlRoomView("history", "Settlement history", "HISTORY"));
 els.toggleUpdates.addEventListener("click", () => openControlRoomView("updates", "Admin • Updates", "ADMIN"));
+
+async function writeClipboardText(text) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const area = document.createElement("textarea");
+  area.value = text;
+  area.setAttribute("readonly", "");
+  area.style.position = "fixed";
+  area.style.opacity = "0";
+  document.body.appendChild(area);
+  area.select();
+  const ok = document.execCommand("copy");
+  area.remove();
+  if (!ok) throw new Error("Browser clipboard access is unavailable.");
+}
+
+els.copyTroubleshootingSnapshot.addEventListener("click", async () => {
+  const button = els.copyTroubleshootingSnapshot;
+  const status = els.troubleshootingSnapshotStatus;
+  button.disabled = true;
+  status.textContent = "Building current local snapshot…";
+
+  try {
+    const response = await fetch("/api/diagnostics/troubleshooting-snapshot", {
+      cache: "no-store",
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.detail || "Could not build troubleshooting snapshot.");
+    }
+
+    const text = [
+      "AGENT CITY TROUBLESHOOTING SNAPSHOT",
+      JSON.stringify(data, null, 2),
+    ].join("\n");
+    await writeClipboardText(text);
+    button.textContent = "Copied!";
+    status.textContent = "Current public physical state copied. Paste it into ChatGPT when troubleshooting.";
+    window.setTimeout(() => {
+      button.textContent = "Copy troubleshooting snapshot";
+    }, 1800);
+  } catch (error) {
+    status.textContent = `Copy failed: ${error.message}`;
+  } finally {
+    button.disabled = false;
+  }
+});
 
 els.mapZoomIn.addEventListener("click", () => {
   setMapZoom(mapZoomLevel * 1.5);
