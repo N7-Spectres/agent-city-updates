@@ -234,6 +234,58 @@ def _find_package_root(extracted: Path) -> Path:
     raise ValueError("Update package does not contain main.py at its root.")
 
 
+def list_backups(limit: int = 30) -> list[dict[str, Any]]:
+    BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+    items: list[dict[str, Any]] = []
+
+    for path in sorted(
+        (p for p in BACKUP_DIR.iterdir() if p.is_dir()),
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    ):
+        info_path = path / "backup_info.json"
+        info: dict[str, Any] = {}
+        if info_path.exists():
+            try:
+                parsed = json.loads(info_path.read_text(encoding="utf-8"))
+                if isinstance(parsed, dict):
+                    info = parsed
+            except Exception:
+                info = {}
+
+        total_size = 0
+        file_count = 0
+        try:
+            for child in path.rglob("*"):
+                if child.is_file():
+                    file_count += 1
+                    total_size += int(child.stat().st_size)
+        except OSError:
+            pass
+
+        created_at = str(info.get("created_at") or "").strip()
+        if not created_at:
+            created_at = datetime.fromtimestamp(path.stat().st_mtime).isoformat(timespec="seconds")
+
+        items.append(
+            {
+                "name": path.name,
+                "created_at": created_at,
+                "version": str(info.get("version") or "unknown"),
+                "kind": str(info.get("kind") or ("manual" if path.name.startswith("manual_") else "before_update")),
+                "size_bytes": total_size,
+                "file_count": file_count,
+                "has_database": (path / "data" / "agent_city.db").exists(),
+                "has_program_archive": (path / "program_files.zip").exists(),
+            }
+        )
+
+        if len(items) >= max(1, min(int(limit), 100)):
+            break
+
+    return items
+
+
 def make_backup(*, prefix: str = "before_update") -> Path:
     BACKUP_DIR.mkdir(parents=True, exist_ok=True)
     safe_prefix = "".join(

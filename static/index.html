@@ -375,6 +375,35 @@
                   </p>
                   <button id="create-backup">Create Backup</button>
                 </div>
+
+                <div class="update-status-box operations-health-box">
+                  <div class="status-head">
+                    <strong>System health</strong>
+                    <button id="refresh-system-health" type="button">Refresh</button>
+                  </div>
+                  <div id="system-health-summary" class="system-health-summary">
+                    <div class="muted">Loading local system health…</div>
+                  </div>
+                  <div class="update-actions operations-actions">
+                    <button id="copy-support-bundle" type="button">Copy Support Bundle</button>
+                  </div>
+                  <p id="support-bundle-status" class="muted operations-note">
+                    Copies safe troubleshooting state plus recent local logs. Nothing uploads automatically.
+                  </p>
+                </div>
+
+                <div class="update-status-box backup-history-box">
+                  <div class="status-head">
+                    <strong>Backup history</strong>
+                    <button id="refresh-backups" type="button">Refresh</button>
+                  </div>
+                  <div id="backup-history-list" class="backup-history-list">
+                    <div class="muted">Loading backups…</div>
+                  </div>
+                  <p class="muted operations-note">
+                    Restore and delete stay intentionally unavailable until their destructive flow is separately reviewed.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

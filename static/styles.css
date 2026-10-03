@@ -4452,3 +4452,142 @@ input:focus, textarea:focus { border-color: var(--accent); }
     justify-self: start;
   }
 }
+
+
+/* v1.1.5 operations console */
+.system-health-summary {
+  display: grid;
+  gap: 7px;
+  margin: 10px 0 12px;
+}
+
+.system-health-row {
+  display: grid;
+  grid-template-columns: minmax(120px, .75fr) minmax(0, 1.25fr);
+  gap: 12px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.system-health-row:last-child {
+  border-bottom: 0;
+}
+
+.system-health-row > span {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.system-health-row > div {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+}
+
+.system-health-row small {
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.3;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.health-pill {
+  flex: 0 0 auto;
+  padding: 3px 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 8px;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+
+.health-pill.good {
+  color: #8eddb8;
+  border-color: rgba(142,221,184,.35);
+  background: rgba(142,221,184,.08);
+}
+
+.health-pill.bad {
+  color: #e5aa8d;
+  border-color: rgba(229,170,141,.35);
+  background: rgba(229,170,141,.08);
+}
+
+.health-pill.neutral {
+  color: var(--muted);
+}
+
+.operations-actions {
+  margin-top: 8px;
+}
+
+.operations-note {
+  margin-bottom: 0 !important;
+  font-size: 8px;
+}
+
+.backup-history-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.backup-history-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 9px 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  background: rgba(255,255,255,.018);
+}
+
+.backup-history-item strong {
+  display: block;
+  font-size: 9px;
+  overflow-wrap: anywhere;
+}
+
+.backup-history-item small {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 8px;
+}
+
+.backup-history-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.backup-history-meta span {
+  padding: 3px 5px;
+  border-radius: 6px;
+  background: rgba(213,166,91,.06);
+  color: var(--muted);
+  font-size: 8px;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .system-health-row,
+  .backup-history-item {
+    grid-template-columns: 1fr;
+  }
+
+  .system-health-row > div,
+  .backup-history-meta {
+    justify-content: flex-start;
+  }
+
+  .system-health-row small {
+    text-align: left;
+  }
+}
