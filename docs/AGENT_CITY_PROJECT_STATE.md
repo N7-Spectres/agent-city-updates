@@ -4,7 +4,7 @@ _Last updated: 2026-10-02_
 
 ## Current Release
 
-**v1.1.4 — Cleanup + QoL**
+**v1.1.5 — Operations Console QoL**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,46 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v1.1.5 Published Patch — Operations Console QoL
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v1.1.5`
+- exact green head: `583698d37b84a2b828291f3e860271a22645a22d`
+- full CI: `37083088798` — PASS
+- published updater: `v1.1.5`
+- PR #59 merged
+- fix PR #60 merged
+- test-correction PR #61 merged
+
+Delivered:
+- compact **System Health** panel under Admin
+- SQLite `PRAGMA quick_check` status and DB size
+- current simulation time / pause state
+- Ollama online state and required-model readiness
+- desktop supervisor state and server PID when available
+- backup count + latest backup
+- update-staging leftover visibility
+- launcher/server/Ollama/updater log availability
+- read-only **Backup history** with version, date, size, type, and file count
+- destructive backup restore/delete intentionally not exposed yet
+- **Copy Support Bundle** combines:
+  - system health
+  - the existing safe troubleshooting snapshot
+  - bounded tails of launcher/server/Ollama/update-runner logs
+- support bundle remains local until copied
+- hidden planet seed, undiscovered deposits, and hidden world-property tables remain excluded
+- logs are capped to avoid giant clipboard payloads
+- no Simulation authority, citizen-choice, world-truth, or autonomy changes
+
+Validation:
+- complete historical regression matrix
+- Python compile
+- app + Planet Lab JavaScript syntax
+- `tests/smoke_v115_operations_console.py`
+- health smoke covers healthy DB, offline Ollama, launcher status, backups, staging leftovers, and logs
+- support-bundle smoke asserts hidden-world keys remain absent
 
 ## v1.1.4 Published Patch — Cleanup + QoL
 
