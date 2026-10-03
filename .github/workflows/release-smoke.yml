@@ -284,3 +284,7 @@ jobs:
 
       - name: Run v1.1.5 operations-console smoke
         run: python tests/smoke_v115_operations_console.py
+
+
+      - name: Run v1.1.6 staging-cleanup smoke
+        run: python tests/smoke_v116_staging_cleanup.py

@@ -98,8 +98,9 @@ from agent_city.visitors import (
     visit_access_payload,
 )
 from agent_city.updater import (
-    PROJECT_ROOT, check_for_update, current_version, fetch_manifest,
-    list_backups, load_settings, make_backup, save_settings, stage_update
+    PROJECT_ROOT, check_for_update, cleanup_stale_update_staging,
+    current_version, fetch_manifest, list_backups, load_settings,
+    make_backup, save_settings, stage_update
 )
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -121,6 +122,7 @@ async def lifespan(app: FastAPI):
     ensure_information_schema()
     ensure_talk_diagnostic_schema()
     ensure_shared_action_schema()
+    cleanup_stale_update_staging()
     clock_task = asyncio.create_task(clock.run())
     planner_task = asyncio.create_task(planning_loop())
     yield
