@@ -6,6 +6,7 @@ import sys
 import threading
 import time
 from contextlib import asynccontextmanager
+from datetime import datetime
 from pathlib import Path
 
 import httpx
@@ -97,7 +98,7 @@ from agent_city.visitors import (
 )
 from agent_city.updater import (
     PROJECT_ROOT, check_for_update, current_version, fetch_manifest,
-    load_settings, make_backup, save_settings, stage_update
+    list_backups, load_settings, make_backup, save_settings, stage_update
 )
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -807,6 +808,199 @@ def create_manual_backup():
         }
     except Exception as exc:
         raise HTTPException(500, f"Backup failed safely. {exc}")
+
+
+@app.get("/api/admin/backups")
+def get_backups():
+    backups = list_backups(limit=50)
+    return {
+        "count": len(backups),
+        "backups": backups,
+        "note": "Backup deletion and restore are intentionally not exposed in this release.",
+    }
+
+
+def _read_json_file(path: Path) -> dict[str, Any] | None:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8-sig"))
+        return payload if isinstance(payload, dict) else None
+    except Exception:
+        return None
+
+
+def _tail_log(path: Path, *, max_lines: int = 100, max_chars: int = 12000) -> dict[str, Any]:
+    if not path.exists() or not path.is_file():
+        return {
+            "exists": False,
+            "size_bytes": 0,
+            "modified_at": None,
+            "tail": "",
+        }
+
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+        lines = text.splitlines()[-max(1, min(int(max_lines), 300)):]
+        tail = "\n".join(lines)
+        if len(tail) > max_chars:
+            tail = tail[-max_chars:]
+        stat = path.stat()
+        return {
+            "exists": True,
+            "size_bytes": int(stat.st_size),
+            "modified_at": datetime.fromtimestamp(stat.st_mtime).isoformat(timespec="seconds"),
+            "tail": tail,
+        }
+    except Exception as exc:
+        return {
+            "exists": True,
+            "size_bytes": 0,
+            "modified_at": None,
+            "tail": "",
+            "error": str(exc),
+        }
+
+
+async def _system_health_payload() -> dict[str, Any]:
+    db_status = "unavailable"
+    db_detail = ""
+    sim_minute = None
+    paused = None
+
+    try:
+        with connect() as conn:
+            quick = conn.execute("PRAGMA quick_check").fetchone()
+            db_detail = str(quick[0]) if quick else "no result"
+            db_status = "ok" if db_detail.lower() == "ok" else "attention"
+            sim_minute = int(get_meta(conn, "sim_minute") or "0")
+            paused = str(get_meta(conn, "paused") or "false").lower() == "true"
+    except Exception as exc:
+        db_detail = str(exc)
+
+    ollama_online = False
+    ollama_models: list[str] = []
+    ollama_error = ""
+    try:
+        async with httpx.AsyncClient(timeout=2.5) as client:
+            response = await client.get(f"{OLLAMA_URL}/api/tags")
+            response.raise_for_status()
+            ollama_models = [
+                str(model.get("name") or "")
+                for model in response.json().get("models", [])
+                if str(model.get("name") or "").strip()
+            ]
+            ollama_online = True
+    except Exception as exc:
+        ollama_error = str(exc)
+
+    data_dir = PROJECT_ROOT / "data"
+    launcher_status = _read_json_file(data_dir / "launcher_status.json")
+    server_pid = None
+    try:
+        raw_pid = (data_dir / "server.pid").read_text(encoding="utf-8").strip()
+        server_pid = int(raw_pid) if raw_pid else None
+    except Exception:
+        server_pid = None
+
+    backups = list_backups(limit=50)
+    latest_backup = backups[0] if backups else None
+    settings = load_settings()
+
+    staging_dir = PROJECT_ROOT / "update_staging"
+    staging_entries = []
+    if staging_dir.exists():
+        try:
+            staging_entries = sorted(
+                entry.name
+                for entry in staging_dir.iterdir()
+                if entry.name not in {"launcher_exit_for_update.flag", "update_job.json"}
+            )
+        except OSError:
+            staging_entries = []
+
+    log_paths = {
+        "launcher": data_dir / "launcher.log",
+        "server": data_dir / "server.log",
+        "ollama": data_dir / "ollama.log",
+        "updater": data_dir / "update_runner.log",
+    }
+    logs = {}
+    for name, path in log_paths.items():
+        info = _tail_log(path, max_lines=1, max_chars=1)
+        info.pop("tail", None)
+        logs[name] = info
+
+    return {
+        "version": current_version(),
+        "simulation": {
+            "sim_minute": sim_minute,
+            "sim_label": format_sim_time(sim_minute) if sim_minute is not None else None,
+            "paused": paused,
+        },
+        "database": {
+            "status": db_status,
+            "detail": db_detail,
+            "path_exists": (data_dir / "agent_city.db").exists(),
+            "size_bytes": (
+                int((data_dir / "agent_city.db").stat().st_size)
+                if (data_dir / "agent_city.db").exists()
+                else 0
+            ),
+        },
+        "ollama": {
+            "online": ollama_online,
+            "models": ollama_models,
+            "required_model_present": any(
+                model.startswith("qwen3.5:9b")
+                for model in ollama_models
+            ),
+            "error": ollama_error,
+        },
+        "launcher": {
+            "status": launcher_status,
+            "server_pid": server_pid,
+        },
+        "backups": {
+            "count": len(backups),
+            "latest": latest_backup,
+        },
+        "updates": {
+            "feed_configured": bool(settings.get("manifest_url")),
+            "staging_entries": staging_entries,
+        },
+        "logs": logs,
+    }
+
+
+@app.get("/api/admin/system-health")
+async def get_system_health():
+    return await _system_health_payload()
+
+
+@app.get("/api/admin/support-bundle")
+async def get_support_bundle():
+    data_dir = PROJECT_ROOT / "data"
+    log_paths = {
+        "launcher": data_dir / "launcher.log",
+        "server": data_dir / "server.log",
+        "ollama": data_dir / "ollama.log",
+        "updater": data_dir / "update_runner.log",
+    }
+    return {
+        "bundle_type": "agent_city_support",
+        "created_at": datetime.now().isoformat(timespec="seconds"),
+        "health": await _system_health_payload(),
+        "troubleshooting_snapshot": troubleshooting_snapshot(),
+        "recent_logs": {
+            name: _tail_log(path, max_lines=100, max_chars=12000)
+            for name, path in log_paths.items()
+        },
+        "privacy": {
+            "local_only_until_copied": True,
+            "hidden_world_seed_included": False,
+            "undiscovered_world_truth_included": False,
+            "logs_may_include_local_paths_and_process_details": True,
+        },
+    }
 
 
 @app.get("/api/update/status")
