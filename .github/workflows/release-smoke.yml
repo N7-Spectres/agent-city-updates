@@ -280,3 +280,7 @@ jobs:
 
       - name: Run v1.1.4 cleanup / QoL smoke
         run: python tests/smoke_v114_cleanup_qol.py
+
+
+      - name: Run v1.1.5 operations-console smoke
+        run: python tests/smoke_v115_operations_console.py
