@@ -32,6 +32,11 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v1.1.4 Cleanup + QoL published** from `release-v1.1.4@4a8d046493abb04105262c1912088515a39eccd2`; full CI `37081978211` PASS.
+- [Repository] Removed obsolete v0.2 bootstrap/patch/release scaffolding from `main`, aligned root VERSION/README, and closed superseded PRs #1/#2/#3/#32.
+- [Assets] Removed the unused duplicate Aris world-body WebP; verified PNG + canon reference remain intact.
+- [QoL] Added paginated server-side history search and one-click manual backups; backups now use SQLite's online backup mechanism for a consistent world database.
+
 - [Coordinator] **v1.1.3 Shared Sun / Day-Night Lighting published** from `release-v1.1.3@4227fb7e4ae1aff99e9dae2b0fa2ff9cac27d8f9`; full CI `37079795922` PASS.
 - [Assets & Interface] Local, Region, and Planet now share one continuous Simulation-time-driven sun; Local terrain uses surface normals and Planet shows a soft terminator while UI labels remain readable.
 
