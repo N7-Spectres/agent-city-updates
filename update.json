@@ -1,6 +1,6 @@
 {
-  "version": "1.1.4",
-  "notes": "Cleanup + QoL: removes an unused duplicate Aris world-body WebP while preserving the verified PNG and canon reference; adds server-side settlement-history search across citizen names, locations, summaries, transcript text, and chronology; adds one-click manual local backups under Admin; upgrades all backups to use SQLite's online backup API for a transactionally consistent world database while retaining the existing program archive. Repository housekeeping also removed obsolete v0.2 bootstrap/patch ZIP scaffolding from main, aligned main VERSION with the published runtime, refreshed the README, and closed four superseded historical PRs. No Simulation authority, citizen behavior, world truth, or autonomy changes.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/4a8d046493abb04105262c1912088515a39eccd2",
+  "version": "1.1.5",
+  "notes": "Operations Console QoL: Admin now includes a compact local System Health panel covering SQLite quick_check, simulation time/pause state, Ollama/model readiness, desktop supervisor/server status, backup state, update-staging leftovers, and local log availability. Backup history is visible with version/date/size/file counts, while destructive restore/delete remain intentionally unavailable. A new Copy Support Bundle action collects the safe troubleshooting snapshot, system health, and bounded tails of launcher/server/Ollama/updater logs for one-click troubleshooting; nothing uploads automatically and hidden world truth remains excluded. No Simulation authority, citizen behavior, world truth, or autonomy changes.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/583698d37b84a2b828291f3e860271a22645a22d",
   "sha256": ""
 }
