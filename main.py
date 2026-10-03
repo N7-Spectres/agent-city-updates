@@ -382,13 +382,52 @@ def get_records_history(
     chronology_page: int = 1,
     conversation_page_size: int = 8,
     chronology_page_size: int = 12,
+    q: str = "",
 ):
     conversation_page_size = max(1, min(int(conversation_page_size), 20))
     chronology_page_size = max(1, min(int(chronology_page_size), 30))
+    query = " ".join(str(q or "").split())[:120]
+    pattern = f"%{query}%"
+
+    conversation_from = """
+        FROM citizen_conversations cc
+        JOIN citizens ci ON ci.id = cc.initiator_id
+        JOIN citizens ct ON ct.id = cc.target_id
+        JOIN locations l ON l.id = cc.location_id
+        LEFT JOIN jobs j ON j.id = cc.source_job_id
+    """
+    conversation_where = """
+        WHERE ? = ''
+           OR ci.name LIKE ? COLLATE NOCASE
+           OR ct.name LIKE ? COLLATE NOCASE
+           OR l.name LIKE ? COLLATE NOCASE
+           OR COALESCE(cc.summary, '') LIKE ? COLLATE NOCASE
+           OR COALESCE(cc.initiator_text, '') LIKE ? COLLATE NOCASE
+           OR COALESCE(cc.target_text, '') LIKE ? COLLATE NOCASE
+    """
+    conversation_params = (
+        query,
+        pattern,
+        pattern,
+        pattern,
+        pattern,
+        pattern,
+        pattern,
+    )
+
+    chronology_where = """
+        WHERE ? = ''
+           OR COALESCE(category, '') LIKE ? COLLATE NOCASE
+           OR COALESCE(message, '') LIKE ? COLLATE NOCASE
+    """
+    chronology_params = (query, pattern, pattern)
 
     with connect() as conn:
         conversation_total = int(
-            conn.execute("SELECT COUNT(*) AS n FROM citizen_conversations").fetchone()["n"]
+            conn.execute(
+                "SELECT COUNT(*) AS n " + conversation_from + conversation_where,
+                conversation_params,
+            ).fetchone()["n"]
         )
         conversation_pages = max(1, (conversation_total + conversation_page_size - 1) // conversation_page_size)
         conversation_page = max(1, min(int(conversation_page), conversation_pages))
@@ -406,20 +445,22 @@ def get_records_history(
                        ct.name AS target_name,
                        l.name AS location_name,
                        j.end_minute AS completed_minute
-                FROM citizen_conversations cc
-                JOIN citizens ci ON ci.id = cc.initiator_id
-                JOIN citizens ct ON ct.id = cc.target_id
-                JOIN locations l ON l.id = cc.location_id
-                LEFT JOIN jobs j ON j.id = cc.source_job_id
+                """
+                + conversation_from
+                + conversation_where
+                + """
                 ORDER BY cc.id DESC
                 LIMIT ? OFFSET ?
                 """,
-                (conversation_page_size, conversation_offset),
+                (*conversation_params, conversation_page_size, conversation_offset),
             )
         ]
 
         chronology_total = int(
-            conn.execute("SELECT COUNT(*) AS n FROM history").fetchone()["n"]
+            conn.execute(
+                "SELECT COUNT(*) AS n FROM history " + chronology_where,
+                chronology_params,
+            ).fetchone()["n"]
         )
         chronology_pages = max(1, (chronology_total + chronology_page_size - 1) // chronology_page_size)
         chronology_page = max(1, min(int(chronology_page), chronology_pages))
@@ -431,14 +472,18 @@ def get_records_history(
                 """
                 SELECT *
                 FROM history
+                """
+                + chronology_where
+                + """
                 ORDER BY id DESC
                 LIMIT ? OFFSET ?
                 """,
-                (chronology_page_size, chronology_offset),
+                (*chronology_params, chronology_page_size, chronology_offset),
             )
         ]
 
     return {
+        "query": query,
         "conversations": {
             "items": conversations,
             "page": conversation_page,
@@ -747,6 +792,21 @@ async def ollama_status():
             return {"online": True, "models": names}
     except Exception as exc:
         return {"online": False, "error": str(exc)}
+
+
+@app.post("/api/admin/backup")
+def create_manual_backup():
+    try:
+        backup_dir = make_backup(prefix="manual")
+        return {
+            "ok": True,
+            "backup_name": backup_dir.name,
+            "backup_dir": str(backup_dir),
+            "version": current_version(),
+            "message": "Manual Agent City backup created.",
+        }
+    except Exception as exc:
+        raise HTTPException(500, f"Backup failed safely. {exc}")
 
 
 @app.get("/api/update/status")

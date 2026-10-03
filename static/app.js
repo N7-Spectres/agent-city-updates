@@ -30,6 +30,8 @@ let historyRecords = null;
 let historyRecordsLoading = false;
 let historyConversationPage = 1;
 let historyChronologyPage = 1;
+let historySearchQuery = "";
+let historySearchTimer = null;
 const HISTORY_CONVERSATIONS_PER_PAGE = 8;
 const HISTORY_CHRONOLOGY_PER_PAGE = 12;
 const openConversationIds = new Set();
@@ -241,6 +243,9 @@ const els = {
   chronologyPagination: document.getElementById("chronology-pagination"),
   conversationPageSummary: document.getElementById("conversation-page-summary"),
   chronologyPageSummary: document.getElementById("chronology-page-summary"),
+  historySearch: document.getElementById("history-search"),
+  clearHistorySearch: document.getElementById("clear-history-search"),
+  historySearchStatus: document.getElementById("history-search-status"),
   visitorStatus: document.getElementById("visitor-status"),
   selectedTitle: document.getElementById("selected-title"),
   selectedLabel: document.getElementById("selected-label"),
@@ -263,6 +268,8 @@ const els = {
   installUpdate: document.getElementById("install-update"),
   updateStatusTitle: document.getElementById("update-status-title"),
   updateStatusText: document.getElementById("update-status-text"),
+  createBackup: document.getElementById("create-backup"),
+  backupStatusText: document.getElementById("backup-status-text"),
   toggleRegion: document.getElementById("toggle-region"),
   toggleResources: document.getElementById("toggle-resources"),
   toggleStructures: document.getElementById("toggle-structures"),
@@ -2768,6 +2775,7 @@ async function loadHistoryRecords() {
       chronology_page: String(historyChronologyPage),
       conversation_page_size: String(HISTORY_CONVERSATIONS_PER_PAGE),
       chronology_page_size: String(HISTORY_CHRONOLOGY_PER_PAGE),
+      q: historySearchQuery,
     });
     const response = await fetch(`/api/records/history?${params.toString()}`, { cache: "no-store" });
     const data = await response.json();
@@ -2803,6 +2811,19 @@ function renderHistoryRecords() {
     els.conversationPageSummary.textContent = "Loading…";
     els.chronologyPageSummary.textContent = "Loading…";
     return;
+  }
+
+  const activeQuery = String(historyRecords?.query || historySearchQuery || "").trim();
+  if (els.historySearch && document.activeElement !== els.historySearch) {
+    els.historySearch.value = activeQuery;
+  }
+  if (els.clearHistorySearch) {
+    els.clearHistorySearch.disabled = !activeQuery;
+  }
+  if (els.historySearchStatus) {
+    els.historySearchStatus.textContent = activeQuery
+      ? `Showing matches for “${activeQuery}”.`
+      : "Searches conversations and chronology.";
   }
 
   const conversations = Array.isArray(conversationPage.items) ? conversationPage.items : [];
@@ -2847,7 +2868,11 @@ function renderHistoryRecords() {
         ` : '<div class="conversation-record-note">Exchange text is not available for this conversation record.</div>'}
       </article>
     `;
-  }).join("") : '<div class="muted conversation-empty">No citizen-to-citizen conversations recorded yet.</div>';
+  }).join("") : (
+    activeQuery
+      ? '<div class="muted conversation-empty">No conversations match this search.</div>'
+      : '<div class="muted conversation-empty">No citizen-to-citizen conversations recorded yet.</div>'
+  );
 
   els.citizenConversations
     .querySelectorAll("details.conversation-transcript[data-conversation-id]")
@@ -2863,8 +2888,8 @@ function renderHistoryRecords() {
   const conversationTotal = Number(conversationPage.total) || 0;
   const conversationPages = Number(conversationPage.total_pages) || 1;
   els.conversationPageSummary.textContent = conversationTotal
-    ? `Page ${historyConversationPage} of ${conversationPages} • ${conversationTotal} conversations`
-    : "No conversation records yet";
+    ? `Page ${historyConversationPage} of ${conversationPages} • ${conversationTotal} ${activeQuery ? "matching " : ""}conversations`
+    : (activeQuery ? "No matching conversations" : "No conversation records yet");
   els.conversationPagination.innerHTML = historyPaginationMarkup(
     historyConversationPage,
     conversationPages,
@@ -2880,18 +2905,51 @@ function renderHistoryRecords() {
         <p>${escapeHtml(h.message)}</p>
       </div>
     </div>
-  `).join("") : '<div class="muted">No settlement chronology recorded yet.</div>';
+  `).join("") : (
+    activeQuery
+      ? '<div class="muted">No chronology events match this search.</div>'
+      : '<div class="muted">No settlement chronology recorded yet.</div>'
+  );
 
   const chronologyTotal = Number(chronologyPage.total) || 0;
   const chronologyPages = Number(chronologyPage.total_pages) || 1;
   els.chronologyPageSummary.textContent = chronologyTotal
-    ? `Page ${historyChronologyPage} of ${chronologyPages} • ${chronologyTotal} events`
-    : "No chronology records yet";
+    ? `Page ${historyChronologyPage} of ${chronologyPages} • ${chronologyTotal} ${activeQuery ? "matching " : ""}events`
+    : (activeQuery ? "No matching chronology events" : "No chronology records yet");
   els.chronologyPagination.innerHTML = historyPaginationMarkup(
     historyChronologyPage,
     chronologyPages,
     "setChronologyHistoryPage"
   );
+}
+
+if (els.historySearch) {
+  els.historySearch.addEventListener("input", () => {
+    const nextQuery = els.historySearch.value.trim();
+    if (els.clearHistorySearch) {
+      els.clearHistorySearch.disabled = !nextQuery;
+    }
+    window.clearTimeout(historySearchTimer);
+    historySearchTimer = window.setTimeout(() => {
+      historySearchQuery = nextQuery;
+      historyConversationPage = 1;
+      historyChronologyPage = 1;
+      void loadHistoryRecords();
+    }, 250);
+  });
+}
+
+if (els.clearHistorySearch) {
+  els.clearHistorySearch.addEventListener("click", () => {
+    window.clearTimeout(historySearchTimer);
+    historySearchQuery = "";
+    if (els.historySearch) els.historySearch.value = "";
+    els.clearHistorySearch.disabled = true;
+    historyConversationPage = 1;
+    historyChronologyPage = 1;
+    void loadHistoryRecords();
+    els.historySearch?.focus();
+  });
 }
 
 window.setConversationHistoryPage = function(page) {
@@ -3655,6 +3713,30 @@ async function refreshUpdateStatus() {
     els.checkUpdate.disabled = false;
   }
 }
+
+els.createBackup?.addEventListener("click", async () => {
+  const button = els.createBackup;
+  button.disabled = true;
+  const previousText = button.textContent;
+  button.textContent = "Creating…";
+  els.backupStatusText.textContent = "Creating a consistent local world + program backup…";
+
+  try {
+    const response = await fetch("/api/admin/backup", { method: "POST" });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Could not create backup.");
+    els.backupStatusText.textContent = `Backup created: ${data.backup_name}`;
+    button.textContent = "Backup Created";
+    window.setTimeout(() => {
+      button.textContent = previousText;
+    }, 1800);
+  } catch (error) {
+    els.backupStatusText.textContent = `Backup failed: ${error.message}`;
+    button.textContent = previousText;
+  } finally {
+    button.disabled = false;
+  }
+});
 
 els.saveUpdateFeed.addEventListener("click", async () => {
   els.saveUpdateFeed.disabled = true;

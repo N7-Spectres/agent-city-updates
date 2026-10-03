@@ -299,6 +299,19 @@
             </div>
 
             <div id="detail-history" class="detail-view">
+              <div class="history-search-bar">
+                <label for="history-search">Search settlement history</label>
+                <div class="history-search-controls">
+                  <input
+                    id="history-search"
+                    type="search"
+                    placeholder="Citizen, place, summary, exchange text, event…"
+                    autocomplete="off"
+                  />
+                  <button id="clear-history-search" type="button" disabled>Clear</button>
+                </div>
+                <span id="history-search-status" class="muted">Searches conversations and chronology.</span>
+              </div>
               <div class="history-records-grid">
                 <section class="history-records-column conversation-history-column">
                   <div class="history-column-head">
@@ -350,6 +363,17 @@
                     Configure an HTTPS update feed once. After that, future releases can be installed here.
                   </p>
                   <button id="install-update" class="accent-button" hidden>Install & Restart</button>
+                </div>
+
+                <div class="update-status-box backup-status-box">
+                  <div class="status-head">
+                    <strong>Safety backup</strong>
+                    <span class="muted">Local only</span>
+                  </div>
+                  <p id="backup-status-text" class="muted">
+                    Create a full local world-data + program backup whenever you want.
+                  </p>
+                  <button id="create-backup">Create Backup</button>
                 </div>
               </div>
             </div>
