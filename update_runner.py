@@ -57,6 +57,30 @@ def replace_program_files(project_root: Path, staging_dir: Path) -> None:
             shutil.copy2(src, dst)
 
 
+def cleanup_installed_staging(project_root: Path, staging_dir: Path) -> None:
+    """Best-effort removal of the version workspace that was just installed."""
+    staging_root = (project_root / "update_staging").resolve()
+    candidate = staging_dir.resolve()
+
+    if candidate == staging_root or staging_root not in candidate.parents:
+        _log(project_root, f"Skipped staging cleanup for unexpected path: {candidate}")
+        return
+
+    while candidate.parent != staging_root:
+        candidate = candidate.parent
+
+    try:
+        shutil.rmtree(candidate)
+        _log(project_root, f"Removed completed staging workspace {candidate.name}.")
+    except FileNotFoundError:
+        pass
+    except Exception as exc:
+        _log(
+            project_root,
+            f"Could not remove completed staging workspace {candidate.name}: {exc}",
+        )
+
+
 def relaunch(project_root: Path, python_exe: str) -> str:
     flags = 0
     if os.name == "nt":
@@ -127,6 +151,7 @@ def main() -> None:
         replace_program_files(project_root, staging_dir)
         update_flag.unlink(missing_ok=True)
         job_path.unlink(missing_ok=True)
+        cleanup_installed_staging(project_root, staging_dir)
         mode = relaunch(project_root, python_exe)
         _log(project_root, f"Update files installed. Relaunched through {mode}.")
     except Exception as exc:
