@@ -32,6 +32,10 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v1.1.5 Operations Console QoL published** from `release-v1.1.5@583698d37b84a2b828291f3e860271a22645a22d`; full CI `37083088798` PASS.
+- [QoL] Admin now exposes read-only system health and backup history, plus one-click Copy Support Bundle with bounded local logs + safe troubleshooting state.
+- [Safety] Restore/delete remain deliberately unavailable; support data stays local until explicitly copied and hidden world truth remains excluded.
+
 - [Coordinator] **v1.1.4 Cleanup + QoL published** from `release-v1.1.4@4a8d046493abb04105262c1912088515a39eccd2`; full CI `37081978211` PASS.
 - [Repository] Removed obsolete v0.2 bootstrap/patch/release scaffolding from `main`, aligned root VERSION/README, and closed superseded PRs #1/#2/#3/#32.
 - [Assets] Removed the unused duplicate Aris world-body WebP; verified PNG + canon reference remain intact.
