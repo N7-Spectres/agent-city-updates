@@ -286,6 +286,61 @@ def list_backups(limit: int = 30) -> list[dict[str, Any]]:
     return items
 
 
+ACTIVE_STAGING_HANDOFF_NAMES = {
+    "launcher_exit_for_update.flag",
+    "update_job.json",
+}
+
+
+def cleanup_stale_update_staging() -> dict[str, Any]:
+    """
+    Remove completed/abandoned update payloads while never touching an active
+    updater handoff.
+
+    An active handoff is represented by either update_job.json or the launcher
+    exit flag. When either exists, cleanup is skipped entirely.
+    """
+    STAGING_DIR.mkdir(parents=True, exist_ok=True)
+    handoff_paths = [
+        STAGING_DIR / name
+        for name in ACTIVE_STAGING_HANDOFF_NAMES
+    ]
+    if any(path.exists() for path in handoff_paths):
+        return {
+            "skipped": True,
+            "reason": "active_update_handoff",
+            "removed": [],
+            "errors": [],
+        }
+
+    removed: list[str] = []
+    errors: list[dict[str, str]] = []
+
+    for entry in list(STAGING_DIR.iterdir()):
+        if entry.name in ACTIVE_STAGING_HANDOFF_NAMES:
+            continue
+        try:
+            if entry.is_dir():
+                shutil.rmtree(entry)
+            else:
+                entry.unlink()
+            removed.append(entry.name)
+        except FileNotFoundError:
+            pass
+        except Exception as exc:
+            errors.append({
+                "name": entry.name,
+                "error": str(exc),
+            })
+
+    return {
+        "skipped": False,
+        "reason": "",
+        "removed": removed,
+        "errors": errors,
+    }
+
+
 def make_backup(*, prefix: str = "before_update") -> Path:
     BACKUP_DIR.mkdir(parents=True, exist_ok=True)
     safe_prefix = "".join(
@@ -340,6 +395,10 @@ def make_backup(*, prefix: str = "before_update") -> Path:
 
 
 async def stage_update(manifest: dict[str, Any]) -> dict[str, str]:
+    # Clear debris from earlier completed/abandoned update downloads before
+    # allocating the new version workspace. Active handoffs are protected.
+    cleanup_stale_update_staging()
+
     version = manifest["version"]
     package_url = manifest["package_url"]
     expected_sha = manifest.get("sha256", "")
