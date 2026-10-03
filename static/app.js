@@ -270,6 +270,12 @@ const els = {
   updateStatusText: document.getElementById("update-status-text"),
   createBackup: document.getElementById("create-backup"),
   backupStatusText: document.getElementById("backup-status-text"),
+  refreshSystemHealth: document.getElementById("refresh-system-health"),
+  systemHealthSummary: document.getElementById("system-health-summary"),
+  copySupportBundle: document.getElementById("copy-support-bundle"),
+  supportBundleStatus: document.getElementById("support-bundle-status"),
+  refreshBackups: document.getElementById("refresh-backups"),
+  backupHistoryList: document.getElementById("backup-history-list"),
   toggleRegion: document.getElementById("toggle-region"),
   toggleResources: document.getElementById("toggle-resources"),
   toggleStructures: document.getElementById("toggle-structures"),
@@ -3508,7 +3514,10 @@ els.toggleRegion.addEventListener("click", () => openControlRoomView("region", "
 els.toggleResources.addEventListener("click", () => openControlRoomView("resources", "Seed Site stores", "STORES"));
 els.toggleStructures.addEventListener("click", () => openControlRoomView("structures", "Making & building", "PHYSICAL STATE"));
 els.toggleHistory.addEventListener("click", () => openControlRoomView("history", "Settlement history", "HISTORY"));
-els.toggleUpdates.addEventListener("click", () => openControlRoomView("updates", "Admin • Updates", "ADMIN"));
+els.toggleUpdates.addEventListener("click", () => {
+  openControlRoomView("updates", "Admin • Updates", "ADMIN");
+  void refreshOperationsConsole();
+});
 
 async function writeClipboardText(text) {
   if (navigator.clipboard?.writeText) {
@@ -3669,6 +3678,164 @@ async function checkOllama() {
   }
 }
 
+function formatByteCount(value) {
+  const bytes = Number(value) || 0;
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+}
+
+function healthState(label, ok, detail = "") {
+  const cls = ok === true ? "good" : ok === false ? "bad" : "neutral";
+  return `
+    <div class="system-health-row">
+      <span>${escapeHtml(label)}</span>
+      <div>
+        <strong class="health-pill ${cls}">${ok === true ? "OK" : ok === false ? "Attention" : "Info"}</strong>
+        ${detail ? `<small>${escapeHtml(detail)}</small>` : ""}
+      </div>
+    </div>
+  `;
+}
+
+function renderSystemHealth(data) {
+  if (!els.systemHealthSummary) return;
+  const database = data?.database || {};
+  const ollama = data?.ollama || {};
+  const launcher = data?.launcher || {};
+  const backups = data?.backups || {};
+  const updates = data?.updates || {};
+  const launcherState = launcher?.status?.state || "not reported";
+  const latest = backups?.latest;
+  const stagingCount = Array.isArray(updates?.staging_entries) ? updates.staging_entries.length : 0;
+
+  els.systemHealthSummary.innerHTML = [
+    healthState(
+      "Database",
+      database.status === "ok",
+      `${database.detail || "unknown"} • ${formatByteCount(database.size_bytes)}`
+    ),
+    healthState(
+      "Ollama",
+      ollama.online && ollama.required_model_present,
+      ollama.online
+        ? (ollama.required_model_present ? "qwen3.5:9b ready" : "online, required model missing")
+        : "offline"
+    ),
+    healthState(
+      "Desktop supervisor",
+      String(launcherState).toLowerCase() === "running",
+      `${launcherState}${launcher.server_pid ? ` • server PID ${launcher.server_pid}` : ""}`
+    ),
+    healthState(
+      "Backups",
+      backups.count > 0,
+      latest
+        ? `${backups.count} total • latest ${latest.name}`
+        : "no local backups yet"
+    ),
+    healthState(
+      "Update staging",
+      stagingCount === 0,
+      stagingCount ? `${stagingCount} leftover item${stagingCount === 1 ? "" : "s"}` : "clean"
+    ),
+  ].join("");
+}
+
+async function loadSystemHealth() {
+  if (!els.systemHealthSummary) return;
+  els.refreshSystemHealth && (els.refreshSystemHealth.disabled = true);
+  try {
+    const response = await fetch("/api/admin/system-health", { cache: "no-store" });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Could not load system health.");
+    renderSystemHealth(data);
+  } catch (error) {
+    els.systemHealthSummary.innerHTML = `<div class="muted">System health unavailable: ${escapeHtml(error.message)}</div>`;
+  } finally {
+    els.refreshSystemHealth && (els.refreshSystemHealth.disabled = false);
+  }
+}
+
+function renderBackupHistory(data) {
+  if (!els.backupHistoryList) return;
+  const backups = Array.isArray(data?.backups) ? data.backups : [];
+  if (!backups.length) {
+    els.backupHistoryList.innerHTML = '<div class="muted">No local backups recorded yet.</div>';
+    return;
+  }
+
+  els.backupHistoryList.innerHTML = backups.slice(0, 12).map(item => `
+    <div class="backup-history-item">
+      <div>
+        <strong>${escapeHtml(item.name)}</strong>
+        <small>${escapeHtml(item.created_at || "unknown time")} • v${escapeHtml(item.version || "unknown")}</small>
+      </div>
+      <div class="backup-history-meta">
+        <span>${escapeHtml(item.kind || "backup")}</span>
+        <span>${formatByteCount(item.size_bytes)}</span>
+        <span>${Number(item.file_count) || 0} files</span>
+      </div>
+    </div>
+  `).join("");
+}
+
+async function loadBackupHistory() {
+  if (!els.backupHistoryList) return;
+  els.refreshBackups && (els.refreshBackups.disabled = true);
+  try {
+    const response = await fetch("/api/admin/backups", { cache: "no-store" });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Could not load backups.");
+    renderBackupHistory(data);
+  } catch (error) {
+    els.backupHistoryList.innerHTML = `<div class="muted">Backup history unavailable: ${escapeHtml(error.message)}</div>`;
+  } finally {
+    els.refreshBackups && (els.refreshBackups.disabled = false);
+  }
+}
+
+async function refreshOperationsConsole() {
+  await Promise.all([
+    loadSystemHealth(),
+    loadBackupHistory(),
+  ]);
+}
+
+els.refreshSystemHealth?.addEventListener("click", () => void loadSystemHealth());
+els.refreshBackups?.addEventListener("click", () => void loadBackupHistory());
+
+els.copySupportBundle?.addEventListener("click", async () => {
+  const button = els.copySupportBundle;
+  const status = els.supportBundleStatus;
+  button.disabled = true;
+  const previousText = button.textContent;
+  button.textContent = "Building…";
+  status.textContent = "Collecting health, troubleshooting state, and recent local logs…";
+
+  try {
+    const response = await fetch("/api/admin/support-bundle", { cache: "no-store" });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Could not build support bundle.");
+    const text = [
+      "AGENT CITY SUPPORT BUNDLE",
+      JSON.stringify(data, null, 2),
+    ].join("\n");
+    await writeClipboardText(text);
+    button.textContent = "Copied!";
+    status.textContent = "Support bundle copied. Paste it into ChatGPT when troubleshooting.";
+    window.setTimeout(() => {
+      button.textContent = previousText;
+    }, 1800);
+  } catch (error) {
+    status.textContent = `Support bundle failed: ${error.message}`;
+    button.textContent = previousText;
+  } finally {
+    button.disabled = false;
+  }
+});
+
 async function refreshUpdateStatus() {
   els.checkUpdate.disabled = true;
   els.updateStatusTitle.textContent = "Checking…";
@@ -3727,6 +3894,7 @@ els.createBackup?.addEventListener("click", async () => {
     if (!response.ok) throw new Error(data.detail || "Could not create backup.");
     els.backupStatusText.textContent = `Backup created: ${data.backup_name}`;
     button.textContent = "Backup Created";
+    void refreshOperationsConsole();
     window.setTimeout(() => {
       button.textContent = previousText;
     }, 1800);
