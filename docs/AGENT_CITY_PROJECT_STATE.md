@@ -4,7 +4,7 @@ _Last updated: 2026-10-02_
 
 ## Current Release
 
-**v1.1.3 — Shared Sun / Day-Night Lighting**
+**v1.1.4 — Cleanup + QoL**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,50 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v1.1.4 Published Patch — Cleanup + QoL
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v1.1.4`
+- exact green head: `4a8d046493abb04105262c1912088515a39eccd2`
+- full CI: `37081978211` — PASS
+- published updater: `v1.1.4`
+- PR #58 merged
+
+Runtime cleanup:
+- removed unused duplicate `static/assets/citizens/aris/world/front.webp`
+- verified transparent Aris `front.png` remains authoritative
+- canon/reference art remains preserved
+
+QoL:
+- settlement-history search is now server-side and paginated
+- search covers citizen names, locations, conversation summaries, exchange text, chronology category, and chronology message
+- Admin now includes **Create Backup**
+- manual backups are local only
+- backup creation now uses SQLite's online backup API for a transactionally consistent `agent_city.db`
+- existing program-file ZIP backup is retained
+- backup metadata records creation time, version, and backup kind
+
+Repository housekeeping on `main`:
+- removed obsolete v0.2 bootstrap `main.py`
+- removed obsolete `patch/` payload
+- removed two ancient release ZIPs
+- removed stale example manifest
+- root `VERSION` now mirrors the published runtime
+- README now documents the modern release/coordination layout
+- closed superseded PRs #1, #2, #3, and #32
+- historical regression tests were intentionally retained
+
+Validation:
+- complete historical regression matrix
+- Python compile
+- JavaScript syntax
+- Planet Lab syntax
+- `tests/smoke_v114_cleanup_qol.py`
+- manual-backup fixture verifies readable SQLite backup + program archive
+- search regression verifies real server-side filtering
+- live-state fixture remains unchanged by backup creation
 
 ## v1.1.3 Published Patch — Shared Sun / Day-Night Lighting
 
