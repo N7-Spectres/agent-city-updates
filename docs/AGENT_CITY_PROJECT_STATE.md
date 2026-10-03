@@ -4,7 +4,7 @@ _Last updated: 2026-10-02_
 
 ## Current Release
 
-**v1.1.5 — Operations Console QoL**
+**v1.1.6 — Staging Cleanup QoL**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,37 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v1.1.6 Published Patch — Staging Cleanup QoL
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v1.1.6`
+- exact green head: `f47d7375aff80192a9d991c006b845dbadc1bec4`
+- full CI: `37087079649` — PASS
+- published updater: `v1.1.6`
+- PR #62 merged
+
+Delivered:
+- stale `update_staging` payloads are now safely removed
+- Agent City startup sweeps stale staging only when no active update handoff exists
+- starting a new update clears old staging debris before allocating the next workspace
+- successful update runner installs best-effort remove the exact completed version workspace
+- `update_job.json` and `launcher_exit_for_update.flag` freeze cleanup entirely while an update handoff is active
+- cleanup never removes paths outside `update_staging`
+- system health naturally returns to a clean staging state once leftovers are removed
+- no Simulation, Memory, Communication, world-truth, or autonomy changes
+
+Validation:
+- complete historical regression matrix
+- Python compile
+- JavaScript syntax
+- Planet Lab syntax
+- `tests/smoke_v116_staging_cleanup.py`
+- stale payload deletion verified
+- active-handoff protection verified
+- sibling workspace preservation verified
+- outside-path protection verified
 
 ## v1.1.5 Published Patch — Operations Console QoL
 
