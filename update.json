@@ -1,6 +1,6 @@
 {
-  "version": "1.1.5",
-  "notes": "Operations Console QoL: Admin now includes a compact local System Health panel covering SQLite quick_check, simulation time/pause state, Ollama/model readiness, desktop supervisor/server status, backup state, update-staging leftovers, and local log availability. Backup history is visible with version/date/size/file counts, while destructive restore/delete remain intentionally unavailable. A new Copy Support Bundle action collects the safe troubleshooting snapshot, system health, and bounded tails of launcher/server/Ollama/updater logs for one-click troubleshooting; nothing uploads automatically and hidden world truth remains excluded. No Simulation authority, citizen behavior, world truth, or autonomy changes.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/583698d37b84a2b828291f3e860271a22645a22d",
+  "version": "1.1.6",
+  "notes": "Staging Cleanup QoL: Agent City now safely removes stale update payloads instead of letting update_staging accumulate indefinitely. Normal startup sweeps stale staging only when no update handoff is active; staging a new update also clears prior debris; and the update runner best-effort removes the exact version workspace it just installed. Active update_job.json or launcher handoff flags freeze cleanup entirely. This should clear existing leftover staging folders on the first restart after installing v1.1.6 and keep future update staging clean. No Simulation authority, citizen behavior, world truth, or autonomy changes.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/f47d7375aff80192a9d991c006b845dbadc1bec4",
   "sha256": ""
 }
