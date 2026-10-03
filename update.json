@@ -1,6 +1,6 @@
 {
-  "version": "1.1.3",
-  "notes": "Shared Sun / Day-Night Lighting: Local, Region, and Planet now share one presentation light source driven continuously by the authoritative simulation clock. Local seeded terrain now carries surface normals and receives moving directional sunlight with a readable ambient night floor; Region and Planet use the same sun converted into globe coordinates, with a soft day/night terminator and a slightly brighter Region readability floor. World captions report dawn/daylight/dusk/night state, labels and citizen markers remain legible outside world-light attenuation, flat Local fallback remains intact, and build keys advance to 1.1.3. No Simulation time, coordinates, discovery, geology, or resource authority changes.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/4227fb7e4ae1aff99e9dae2b0fa2ff9cac27d8f9",
+  "version": "1.1.4",
+  "notes": "Cleanup + QoL: removes an unused duplicate Aris world-body WebP while preserving the verified PNG and canon reference; adds server-side settlement-history search across citizen names, locations, summaries, transcript text, and chronology; adds one-click manual local backups under Admin; upgrades all backups to use SQLite's online backup API for a transactionally consistent world database while retaining the existing program archive. Repository housekeeping also removed obsolete v0.2 bootstrap/patch ZIP scaffolding from main, aligned main VERSION with the published runtime, refreshed the README, and closed four superseded historical PRs. No Simulation authority, citizen behavior, world truth, or autonomy changes.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/4a8d046493abb04105262c1912088515a39eccd2",
   "sha256": ""
 }
