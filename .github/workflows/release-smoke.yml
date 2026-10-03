@@ -276,3 +276,7 @@ jobs:
 
       - name: Run v1.1.3 shared sun/day-night smoke
         run: python tests/smoke_v113_shared_sun_cycle.py
+
+
+      - name: Run v1.1.4 cleanup / QoL smoke
+        run: python tests/smoke_v114_cleanup_qol.py
