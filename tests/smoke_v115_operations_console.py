@@ -36,7 +36,7 @@ def main() -> None:
         "Copy Support Bundle",
         "formatByteCount",
     ]:
-        assert fragment in app_js or fragment in main_py
+        assert fragment in app_js or fragment in main_py or fragment in index
 
     assert ".system-health-summary" in styles
     assert ".backup-history-item" in styles
