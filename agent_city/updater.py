@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
+import sqlite3
 import tempfile
 import time
 import urllib.parse
@@ -233,15 +234,32 @@ def _find_package_root(extracted: Path) -> Path:
     raise ValueError("Update package does not contain main.py at its root.")
 
 
-def make_backup() -> Path:
+def make_backup(*, prefix: str = "before_update") -> Path:
     BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+    safe_prefix = "".join(
+        ch for ch in str(prefix or "backup")
+        if ch.isalnum() or ch in {"-", "_"}
+    ).strip("-_") or "backup"
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    backup = BACKUP_DIR / f"before_update_{stamp}"
+    backup = BACKUP_DIR / f"{safe_prefix}_{stamp}"
     backup.mkdir(parents=True, exist_ok=True)
 
-    # Always copy persistent world data.
+    # Copy persistent local data, then replace the primary SQLite file with an
+    # online SQLite backup. This produces a transactionally consistent database
+    # even while Agent City is still running.
+    backup_data = backup / "data"
     if DATA_DIR.exists():
-        shutil.copytree(DATA_DIR, backup / "data", dirs_exist_ok=True)
+        shutil.copytree(DATA_DIR, backup_data, dirs_exist_ok=True)
+
+    source_db = DATA_DIR / "agent_city.db"
+    backup_db = backup_data / "agent_city.db"
+    if source_db.exists():
+        backup_data.mkdir(parents=True, exist_ok=True)
+        if backup_db.exists():
+            backup_db.unlink()
+        with sqlite3.connect(source_db) as source_conn:
+            with sqlite3.connect(backup_db) as backup_conn:
+                source_conn.backup(backup_conn)
 
     # Create a lightweight source-code backup for rollback/debugging.
     code_zip = backup / "program_files.zip"
@@ -253,6 +271,18 @@ def make_backup() -> Path:
             if rel.parts and rel.parts[0] in {".venv", "data", "backups", "update_staging"}:
                 continue
             z.write(path, rel)
+
+    (backup / "backup_info.json").write_text(
+        json.dumps(
+            {
+                "created_at": datetime.now().isoformat(timespec="seconds"),
+                "version": current_version(),
+                "kind": safe_prefix,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
 
     return backup
 
