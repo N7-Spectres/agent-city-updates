@@ -6,6 +6,7 @@ import os
 import shutil
 import subprocess
 import sys
+import threading
 import time
 import urllib.request
 import webbrowser
@@ -39,14 +40,71 @@ STOP_TIMEOUT_SECONDS = 12.0
 UPDATE_FLAG_FRESH_SECONDS = 300.0
 MUTEX_NAME = "Local\\AgentCityDesktopLauncher"
 
+LOG_MAX_BYTES = 10 * 1024 * 1024
+LOG_BACKUP_COUNT = 3
+
 _MUTEX_HANDLE: int | None = None
+
+
+def _rotate_log_file(
+    path: Path,
+    *,
+    max_bytes: int = LOG_MAX_BYTES,
+    backup_count: int = LOG_BACKUP_COUNT,
+) -> bool:
+    try:
+        if not path.exists() or int(path.stat().st_size) < int(max_bytes):
+            return False
+
+        oldest = path.with_name(f"{path.name}.{backup_count}")
+        oldest.unlink(missing_ok=True)
+        for index in range(backup_count - 1, 0, -1):
+            source = path.with_name(f"{path.name}.{index}")
+            if source.exists():
+                source.replace(path.with_name(f"{path.name}.{index + 1}"))
+        path.replace(path.with_name(f"{path.name}.1"))
+        return True
+    except Exception:
+        # Rotation is housekeeping only; never prevent Agent City from starting.
+        return False
+
+
+def _append_log_line(path: Path, line: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    _rotate_log_file(path)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(line)
+
+
+def _relay_process_output(process: subprocess.Popen, path: Path) -> None:
+    stream = process.stdout
+    if stream is None:
+        return
+    try:
+        for line in stream:
+            _append_log_line(path, line)
+    except Exception as exc:
+        _log(f"Log relay for {path.name} stopped: {exc}")
+    finally:
+        try:
+            stream.close()
+        except Exception:
+            pass
+
+
+def _start_log_relay(process: subprocess.Popen, path: Path) -> None:
+    threading.Thread(
+        target=_relay_process_output,
+        args=(process, path),
+        name=f"AgentCityLogRelay-{path.stem}",
+        daemon=True,
+    ).start()
 
 
 def _log(message: str) -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with LAUNCHER_LOG.open("a", encoding="utf-8") as handle:
-        handle.write(f"[{stamp}] {message}\n")
+    _append_log_line(LAUNCHER_LOG, f"[{stamp}] {message}\n")
 
 
 def _write_json_atomic(path: Path, payload: dict[str, Any]) -> None:
@@ -131,6 +189,7 @@ def _start_ollama() -> subprocess.Popen | None:
         creationflags |= getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
 
     OLLAMA_LOG.parent.mkdir(parents=True, exist_ok=True)
+    _rotate_log_file(OLLAMA_LOG)
     log_handle = OLLAMA_LOG.open("a", encoding="utf-8")
     try:
         process = subprocess.Popen(
@@ -266,20 +325,22 @@ def _start_server() -> subprocess.Popen:
     env = os.environ.copy()
     env["AGENT_CITY_LAUNCHER_PID"] = str(os.getpid())
 
-    server_log = SERVER_LOG.open("a", encoding="utf-8")
-    try:
-        process = subprocess.Popen(
-            command,
-            cwd=str(PROJECT_ROOT),
-            stdin=subprocess.DEVNULL,
-            stdout=server_log,
-            stderr=server_log,
-            creationflags=creationflags,
-            start_new_session=(os.name != "nt"),
-            env=env,
-        )
-    finally:
-        server_log.close()
+    _rotate_log_file(SERVER_LOG)
+    process = subprocess.Popen(
+        command,
+        cwd=str(PROJECT_ROOT),
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        bufsize=1,
+        creationflags=creationflags,
+        start_new_session=(os.name != "nt"),
+        env=env,
+    )
+    _start_log_relay(process, SERVER_LOG)
 
     SERVER_PID_PATH.write_text(str(process.pid), encoding="utf-8")
     _log(f"Started Agent City runtime PID {process.pid} with {python_exe}")
