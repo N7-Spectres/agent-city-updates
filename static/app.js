@@ -276,6 +276,9 @@ const els = {
   supportBundleStatus: document.getElementById("support-bundle-status"),
   refreshBackups: document.getElementById("refresh-backups"),
   backupHistoryList: document.getElementById("backup-history-list"),
+  backupRetention: document.getElementById("backup-retention"),
+  saveBackupRetention: document.getElementById("save-backup-retention"),
+  backupRetentionStatus: document.getElementById("backup-retention-status"),
   toggleRegion: document.getElementById("toggle-region"),
   toggleResources: document.getElementById("toggle-resources"),
   toggleStructures: document.getElementById("toggle-structures"),
@@ -3732,7 +3735,7 @@ function renderSystemHealth(data) {
       "Backups",
       backups.count > 0,
       latest
-        ? `${backups.count} total • latest ${latest.name}`
+        ? `${backups.count} total • ${formatByteCount(backups.total_size_bytes)} • latest ${latest.name}`
         : "no local backups yet"
     ),
     healthState(
@@ -3761,6 +3764,17 @@ async function loadSystemHealth() {
 function renderBackupHistory(data) {
   if (!els.backupHistoryList) return;
   const backups = Array.isArray(data?.backups) ? data.backups : [];
+  if (els.backupRetention) {
+    els.backupRetention.value = String(Number(data?.retention) || 0);
+  }
+  if (els.backupRetentionStatus) {
+    const retention = Number(data?.retention) || 0;
+    const count = Number(data?.count) || 0;
+    const totalSize = formatByteCount(data?.total_size_bytes);
+    els.backupRetentionStatus.textContent = retention
+      ? `Keeping latest ${retention}. ${count} backups currently use ${totalSize}.`
+      : `Keep all is active. ${count} backups currently use ${totalSize}.`;
+  }
   if (!backups.length) {
     els.backupHistoryList.innerHTML = '<div class="muted">No local backups recorded yet.</div>';
     return;
@@ -3805,6 +3819,42 @@ async function refreshOperationsConsole() {
 
 els.refreshSystemHealth?.addEventListener("click", () => void loadSystemHealth());
 els.refreshBackups?.addEventListener("click", () => void loadBackupHistory());
+
+els.saveBackupRetention?.addEventListener("click", async () => {
+  const button = els.saveBackupRetention;
+  const keep = Number(els.backupRetention?.value || 0);
+  button.disabled = true;
+  if (els.backupRetentionStatus) {
+    els.backupRetentionStatus.textContent = keep
+      ? `Applying retention: keep latest ${keep}…`
+      : "Switching to Keep all…";
+  }
+
+  try {
+    const response = await fetch("/api/admin/backup-retention", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ keep }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Could not update backup retention.");
+
+    const removedCount = Array.isArray(data.removed) ? data.removed.length : 0;
+    const errorCount = Array.isArray(data.errors) ? data.errors.length : 0;
+    if (els.backupRetentionStatus) {
+      els.backupRetentionStatus.textContent = keep
+        ? `Retention saved: keep latest ${keep}. Removed ${removedCount} older backup${removedCount === 1 ? "" : "s"}${errorCount ? `; ${errorCount} could not be removed` : ""}.`
+        : "Retention saved: Keep all. No automatic backup deletion.";
+    }
+    await refreshOperationsConsole();
+  } catch (error) {
+    if (els.backupRetentionStatus) {
+      els.backupRetentionStatus.textContent = `Retention update failed: ${error.message}`;
+    }
+  } finally {
+    button.disabled = false;
+  }
+});
 
 els.copySupportBundle?.addEventListener("click", async () => {
   const button = els.copySupportBundle;

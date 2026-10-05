@@ -20,7 +20,10 @@ DATA_DIR = PROJECT_ROOT / "data"
 BACKUP_DIR = PROJECT_ROOT / "backups"
 STAGING_DIR = PROJECT_ROOT / "update_staging"
 SETTINGS_PATH = DATA_DIR / "update_settings.json"
+MAINTENANCE_SETTINGS_PATH = DATA_DIR / "maintenance_settings.json"
 VERSION_PATH = PROJECT_ROOT / "VERSION"
+
+BACKUP_RETENTION_OPTIONS = {0, 10, 20, 50, 100}
 
 PRESERVE_NAMES = {
     ".venv",
@@ -73,6 +76,36 @@ def save_settings(manifest_url: str) -> None:
         json.dumps({"manifest_url": manifest_url.strip()}, indent=2),
         encoding="utf-8",
     )
+
+
+def load_maintenance_settings() -> dict[str, Any]:
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    if not MAINTENANCE_SETTINGS_PATH.exists():
+        return {"backup_retention": 0}
+    try:
+        data = json.loads(MAINTENANCE_SETTINGS_PATH.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            return {"backup_retention": 0}
+        retention = int(data.get("backup_retention", 0) or 0)
+        if retention not in BACKUP_RETENTION_OPTIONS:
+            retention = 0
+        return {"backup_retention": retention}
+    except Exception:
+        return {"backup_retention": 0}
+
+
+def save_backup_retention(limit: int) -> int:
+    retention = int(limit)
+    if retention not in BACKUP_RETENTION_OPTIONS:
+        raise ValueError(
+            "Backup retention must be Keep all (0), 10, 20, 50, or 100."
+        )
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    MAINTENANCE_SETTINGS_PATH.write_text(
+        json.dumps({"backup_retention": retention}, indent=2),
+        encoding="utf-8",
+    )
+    return retention
 
 
 def _validate_https_url(url: str) -> None:
@@ -234,57 +267,107 @@ def _find_package_root(extracted: Path) -> Path:
     raise ValueError("Update package does not contain main.py at its root.")
 
 
-def list_backups(limit: int = 30) -> list[dict[str, Any]]:
+def _backup_paths() -> list[Path]:
     BACKUP_DIR.mkdir(parents=True, exist_ok=True)
-    items: list[dict[str, Any]] = []
-
-    for path in sorted(
+    return sorted(
         (p for p in BACKUP_DIR.iterdir() if p.is_dir()),
         key=lambda p: p.stat().st_mtime,
         reverse=True,
-    ):
-        info_path = path / "backup_info.json"
-        info: dict[str, Any] = {}
-        if info_path.exists():
-            try:
-                parsed = json.loads(info_path.read_text(encoding="utf-8"))
-                if isinstance(parsed, dict):
-                    info = parsed
-            except Exception:
-                info = {}
+    )
 
-        total_size = 0
-        file_count = 0
+
+def _backup_metadata(path: Path) -> dict[str, Any]:
+    info_path = path / "backup_info.json"
+    info: dict[str, Any] = {}
+    if info_path.exists():
         try:
-            for child in path.rglob("*"):
-                if child.is_file():
-                    file_count += 1
-                    total_size += int(child.stat().st_size)
+            parsed = json.loads(info_path.read_text(encoding="utf-8"))
+            if isinstance(parsed, dict):
+                info = parsed
+        except Exception:
+            info = {}
+
+    total_size = 0
+    file_count = 0
+    try:
+        for child in path.rglob("*"):
+            if child.is_file():
+                file_count += 1
+                total_size += int(child.stat().st_size)
+    except OSError:
+        pass
+
+    created_at = str(info.get("created_at") or "").strip()
+    if not created_at:
+        created_at = datetime.fromtimestamp(path.stat().st_mtime).isoformat(timespec="seconds")
+
+    return {
+        "name": path.name,
+        "created_at": created_at,
+        "version": str(info.get("version") or "unknown"),
+        "kind": str(info.get("kind") or ("manual" if path.name.startswith("manual_") else "before_update")),
+        "size_bytes": total_size,
+        "file_count": file_count,
+        "has_database": (path / "data" / "agent_city.db").exists(),
+        "has_program_archive": (path / "program_files.zip").exists(),
+    }
+
+
+def list_backups(limit: int = 30) -> list[dict[str, Any]]:
+    max_items = max(1, min(int(limit), 100))
+    return [
+        _backup_metadata(path)
+        for path in _backup_paths()[:max_items]
+    ]
+
+
+def backup_summary() -> dict[str, Any]:
+    paths = _backup_paths()
+    total_size = 0
+    for path in paths:
+        try:
+            total_size += sum(
+                int(child.stat().st_size)
+                for child in path.rglob("*")
+                if child.is_file()
+            )
         except OSError:
+            continue
+
+    return {
+        "count": len(paths),
+        "total_size_bytes": total_size,
+        "latest": _backup_metadata(paths[0]) if paths else None,
+        "retention": int(load_maintenance_settings()["backup_retention"]),
+    }
+
+
+def apply_backup_retention() -> dict[str, Any]:
+    limit = int(load_maintenance_settings()["backup_retention"])
+    paths = _backup_paths()
+    if limit <= 0 or len(paths) <= limit:
+        return {
+            "retention": limit,
+            "removed": [],
+            "errors": [],
+        }
+
+    removed: list[str] = []
+    errors: list[dict[str, str]] = []
+    for path in paths[limit:]:
+        try:
+            shutil.rmtree(path)
+            removed.append(path.name)
+        except FileNotFoundError:
             pass
+        except Exception as exc:
+            errors.append({"name": path.name, "error": str(exc)})
 
-        created_at = str(info.get("created_at") or "").strip()
-        if not created_at:
-            created_at = datetime.fromtimestamp(path.stat().st_mtime).isoformat(timespec="seconds")
-
-        items.append(
-            {
-                "name": path.name,
-                "created_at": created_at,
-                "version": str(info.get("version") or "unknown"),
-                "kind": str(info.get("kind") or ("manual" if path.name.startswith("manual_") else "before_update")),
-                "size_bytes": total_size,
-                "file_count": file_count,
-                "has_database": (path / "data" / "agent_city.db").exists(),
-                "has_program_archive": (path / "program_files.zip").exists(),
-            }
-        )
-
-        if len(items) >= max(1, min(int(limit), 100)):
-            break
-
-    return items
-
+    return {
+        "retention": limit,
+        "removed": removed,
+        "errors": errors,
+    }
 
 ACTIVE_STAGING_HANDOFF_NAMES = {
     "launcher_exit_for_update.flag",
@@ -391,6 +474,7 @@ def make_backup(*, prefix: str = "before_update") -> Path:
         encoding="utf-8",
     )
 
+    apply_backup_retention()
     return backup
 
 

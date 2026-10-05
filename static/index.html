@@ -397,11 +397,27 @@
                     <strong>Backup history</strong>
                     <button id="refresh-backups" type="button">Refresh</button>
                   </div>
+
+                  <div class="backup-retention-controls">
+                    <label for="backup-retention">Retention</label>
+                    <select id="backup-retention">
+                      <option value="0">Keep all</option>
+                      <option value="10">Keep latest 10</option>
+                      <option value="20">Keep latest 20</option>
+                      <option value="50">Keep latest 50</option>
+                      <option value="100">Keep latest 100</option>
+                    </select>
+                    <button id="save-backup-retention" type="button">Apply</button>
+                  </div>
+                  <p id="backup-retention-status" class="muted operations-note">
+                    Keep all is the default. Old backups are removed only after you choose a limit.
+                  </p>
+
                   <div id="backup-history-list" class="backup-history-list">
                     <div class="muted">Loading backups…</div>
                   </div>
                   <p class="muted operations-note">
-                    Restore and delete stay intentionally unavailable until their destructive flow is separately reviewed.
+                    Restore and individual delete stay intentionally unavailable until their destructive flow is separately reviewed.
                   </p>
                 </div>
               </div>

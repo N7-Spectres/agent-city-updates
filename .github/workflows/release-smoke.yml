@@ -288,3 +288,7 @@ jobs:
 
       - name: Run v1.1.6 staging-cleanup smoke
         run: python tests/smoke_v116_staging_cleanup.py
+
+
+      - name: Run v1.1.7 log-rotation / backup-retention smoke
+        run: python tests/smoke_v117_log_retention.py
