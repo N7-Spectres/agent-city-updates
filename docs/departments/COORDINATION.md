@@ -1,6 +1,6 @@
 # Agent City — Department Coordination Board
 
-_Last updated: 2026-10-02_
+_Last updated: 2026-10-04_
 
 This file is the shared project task board.
 
@@ -31,6 +31,10 @@ _None._
 _None._
 
 ### DONE
+
+- [Coordinator] **v1.1.7 Log Rotation + Backup Retention QoL published** from `release-v1.1.7@d9d77468c46166be7e3120a3b7655d3fe0321bca`; full CI `37249947654` PASS.
+- [Launcher/QoL] Launcher/server/update-runner logs are now bounded by 10 MiB × three retained generations; Agent City-owned Ollama logging rotates on managed start without taking over shared Ollama.
+- [Backups] Backup totals are accurate and retention is explicit opt-in only: Keep all / 10 / 20 / 50 / 100. Restore and individual delete remain unavailable.
 
 - [Coordinator] **v1.1.6 Staging Cleanup QoL published** from `release-v1.1.6@f47d7375aff80192a9d991c006b845dbadc1bec4`; full CI `37087079649` PASS.
 - [Updater/QoL] Stale update staging is now swept on safe startup/new staging, and completed version workspaces are removed after successful install.
