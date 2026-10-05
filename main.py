@@ -828,8 +828,8 @@ def get_backups():
         "retention": summary["retention"],
         "backups": list_backups(limit=50),
         "note": (
-            "Retention is opt-in. Restore and individual delete remain intentionally "
-            "unavailable in this release."
+            "Retention is opt-in. Restore and individual delete are intentionally not exposed "
+            "in this release."
         ),
     }
 
