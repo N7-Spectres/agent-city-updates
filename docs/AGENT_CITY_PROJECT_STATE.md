@@ -1,10 +1,10 @@
 # Agent City — Project State
 
-_Last updated: 2026-10-02_
+_Last updated: 2026-10-04_
 
 ## Current Release
 
-**v1.1.6 — Staging Cleanup QoL**
+**v1.1.7 — Log Rotation + Backup Retention QoL**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,46 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v1.1.7 Published Patch — Log Rotation + Backup Retention QoL
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v1.1.7`
+- exact green head: `d9d77468c46166be7e3120a3b7655d3fe0321bca`
+- full CI: `37249947654` — PASS
+- published updater: `v1.1.7`
+- PR #63 merged
+- compatibility fix PR #64 merged
+
+Delivered:
+- local launcher log rotates at 10 MiB with three retained generations
+- Agent City server output is continuously relayed through the desktop supervisor into the same bounded rotation policy
+- update-runner log uses the same bounded rotation policy
+- Agent City-owned Ollama log rotates when Agent City starts Ollama
+- an already-running Ollama service is never seized/restarted merely for log cleanup
+- Backup History now reports the true total backup count and aggregate size rather than a 50-item capped count
+- Admin now exposes explicit backup retention:
+  - Keep all (default)
+  - latest 10
+  - latest 20
+  - latest 50
+  - latest 100
+- backup pruning is opt-in only; Keep all never deletes anything
+- once a limit is explicitly chosen, older backups beyond that limit are pruned immediately and after future backup creation
+- restore and individual backup deletion remain intentionally unavailable
+- no Simulation, Memory, Communication, world-truth, or autonomy changes
+
+Validation:
+- complete historical regression matrix
+- Python compile
+- app + Planet Lab JavaScript syntax
+- `tests/smoke_v117_log_retention.py`
+- non-destructive Keep all behavior verified
+- explicit retention pruning verified
+- invalid retention values rejected
+- launcher log generation shifting verified
+- update-runner log rotation verified
 
 ## v1.1.6 Published Patch — Staging Cleanup QoL
 
