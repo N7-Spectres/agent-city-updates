@@ -98,9 +98,10 @@ from agent_city.visitors import (
     visit_access_payload,
 )
 from agent_city.updater import (
-    PROJECT_ROOT, check_for_update, cleanup_stale_update_staging,
-    current_version, fetch_manifest, list_backups, load_settings,
-    make_backup, save_settings, stage_update
+    PROJECT_ROOT, apply_backup_retention, backup_summary, check_for_update,
+    cleanup_stale_update_staging, current_version, fetch_manifest,
+    list_backups, load_maintenance_settings, load_settings, make_backup,
+    save_backup_retention, save_settings, stage_update
 )
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -164,6 +165,10 @@ class PauseRequest(BaseModel):
 
 class UpdateSettingsRequest(BaseModel):
     manifest_url: str = Field(default="", max_length=1000)
+
+
+class BackupRetentionRequest(BaseModel):
+    keep: int = Field(default=0, ge=0, le=100)
 
 
 class VisitorRequest(BaseModel):
@@ -815,12 +820,36 @@ def create_manual_backup():
 
 @app.get("/api/admin/backups")
 def get_backups():
-    backups = list_backups(limit=50)
+    summary = backup_summary()
     return {
-        "count": len(backups),
-        "backups": backups,
-        "note": "Backup deletion and restore are intentionally not exposed in this release.",
+        "count": summary["count"],
+        "total_size_bytes": summary["total_size_bytes"],
+        "latest": summary["latest"],
+        "retention": summary["retention"],
+        "backups": list_backups(limit=50),
+        "note": (
+            "Retention is opt-in. Restore and individual delete remain intentionally "
+            "unavailable in this release."
+        ),
     }
+
+
+@app.post("/api/admin/backup-retention")
+def set_backup_retention(req: BackupRetentionRequest):
+    try:
+        retention = save_backup_retention(req.keep)
+        result = apply_backup_retention()
+        return {
+            "ok": True,
+            "retention": retention,
+            "removed": result["removed"],
+            "errors": result["errors"],
+            "summary": backup_summary(),
+        }
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+    except Exception as exc:
+        raise HTTPException(500, f"Backup retention update failed safely. {exc}")
 
 
 def _read_json_file(path: Path) -> dict[str, Any] | None:
@@ -904,8 +933,7 @@ async def _system_health_payload() -> dict[str, Any]:
     except Exception:
         server_pid = None
 
-    backups = list_backups(limit=50)
-    latest_backup = backups[0] if backups else None
+    backups = backup_summary()
     settings = load_settings()
 
     staging_dir = PROJECT_ROOT / "update_staging"
@@ -962,10 +990,7 @@ async def _system_health_payload() -> dict[str, Any]:
             "status": launcher_status,
             "server_pid": server_pid,
         },
-        "backups": {
-            "count": len(backups),
-            "latest": latest_backup,
-        },
+        "backups": backups,
         "updates": {
             "feed_configured": bool(settings.get("manifest_url")),
             "staging_entries": staging_entries,
