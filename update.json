@@ -1,6 +1,6 @@
 {
-  "version": "1.1.6",
-  "notes": "Staging Cleanup QoL: Agent City now safely removes stale update payloads instead of letting update_staging accumulate indefinitely. Normal startup sweeps stale staging only when no update handoff is active; staging a new update also clears prior debris; and the update runner best-effort removes the exact version workspace it just installed. Active update_job.json or launcher handoff flags freeze cleanup entirely. This should clear existing leftover staging folders on the first restart after installing v1.1.6 and keep future update staging clean. No Simulation authority, citizen behavior, world truth, or autonomy changes.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/f47d7375aff80192a9d991c006b845dbadc1bec4",
+  "version": "1.1.7",
+  "notes": "Log Rotation + Backup Retention QoL: Agent City now bounds local log growth and makes backup pruning explicitly user-controlled. Launcher and update-runner logs rotate at 10 MiB with three retained generations; the Agent City server log is continuously captured through the desktop supervisor with the same rotation policy; Agent City-owned Ollama logs rotate when Agent City starts Ollama without taking control of an already-running shared Ollama service. Admin Backup History now reports true total backup count/size and includes an opt-in retention selector: Keep all (default), latest 10, 20, 50, or 100. No backup is automatically deleted until a retention limit is explicitly chosen. No Simulation authority, citizen behavior, world truth, or autonomy changes.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/d9d77468c46166be7e3120a3b7655d3fe0321bca",
   "sha256": ""
 }
