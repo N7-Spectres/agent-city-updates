@@ -11,12 +11,29 @@ from pathlib import Path
 
 
 PRESERVE_NAMES = {".venv", "data", "backups", "update_staging"}
+LOG_MAX_BYTES = 10 * 1024 * 1024
+LOG_BACKUP_COUNT = 3
+
+
+def _rotate_log(path: Path) -> None:
+    try:
+        if not path.exists() or int(path.stat().st_size) < LOG_MAX_BYTES:
+            return
+        path.with_name(f"{path.name}.{LOG_BACKUP_COUNT}").unlink(missing_ok=True)
+        for index in range(LOG_BACKUP_COUNT - 1, 0, -1):
+            source = path.with_name(f"{path.name}.{index}")
+            if source.exists():
+                source.replace(path.with_name(f"{path.name}.{index + 1}"))
+        path.replace(path.with_name(f"{path.name}.1"))
+    except Exception:
+        pass
 
 
 def _log(project_root: Path, message: str) -> None:
     data_dir = project_root / "data"
     data_dir.mkdir(parents=True, exist_ok=True)
     path = data_dir / "update_runner.log"
+    _rotate_log(path)
     stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with path.open("a", encoding="utf-8") as handle:
         handle.write(f"[{stamp}] {message}\n")
