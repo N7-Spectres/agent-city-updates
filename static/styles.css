@@ -4591,3 +4591,32 @@ input:focus, textarea:focus { border-color: var(--accent); }
     text-align: left;
   }
 }
+
+
+/* v1.1.7 backup retention */
+.backup-retention-controls {
+  display: grid;
+  grid-template-columns: auto minmax(160px, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  margin: 10px 0 8px;
+}
+
+.backup-retention-controls label {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.backup-retention-controls select {
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .backup-retention-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .backup-retention-controls button {
+    justify-self: start;
+  }
+}
