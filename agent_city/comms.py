@@ -47,6 +47,107 @@ UNSAFE_SUMMARY_TERMS = (
 )
 
 
+# ---------------------------------------------------------------------------
+# Context window budget
+#
+# A conversation prompt carries BOTH citizens' private knowledge, so it grows
+# twice as fast as a planner prompt. If it exceeds the model's context window,
+# Ollama silently cuts the oldest text - the participants' identities and the
+# information rules - so it is built against an explicit token budget, the
+# same way the planner prompt is. When the budget is tight, older memory lines
+# are shown in smaller numbers; rules, personalities, vitals and capabilities
+# are never cut. Condensing only ever removes a citizen's own older memories;
+# it never adds information that did not reach them.
+#
+# Dialogue and claim extraction use the same window as the planner by default,
+# because Ollama reloads the model whenever a request asks for a different
+# num_ctx. Set the "dialogue_num_ctx" setting to give talk its own window.
+# ---------------------------------------------------------------------------
+
+DIALOGUE_NUM_CTX_DEFAULT = 8192
+DIALOGUE_NUM_CTX_MIN = 4096
+DIALOGUE_NUM_CTX_MAX = 32768
+DIALOGUE_RESPONSE_RESERVE_TOKENS = 384
+CLAIM_RESPONSE_RESERVE_TOKENS = 300
+# Conservative: structured English prompt text averages a little under four
+# characters per token, so dividing by 3.3 over-estimates on purpose.
+PROMPT_CHARS_PER_TOKEN_ESTIMATE = 3.3
+
+DIALOGUE_SYSTEM_MESSAGE = (
+    "Return only one valid JSON object with exactly "
+    "initiator_text, target_text, and summary. "
+    "Preserve local information boundaries. "
+    "The summary is a social record of what was said, not physical evidence. "
+    "Write summary prose for a human reader and never expose participant-role or "
+    "backend schema terms such as initiator, target citizen, source job, action target, "
+    "or proposal state. Never upgrade reports or agreements into validated, confirmed, "
+    "verified, proved, demonstrated, or established physical facts."
+)
+
+CLAIM_SYSTEM_MESSAGE = "Return only valid JSON claim metadata for the supplied stored transcript."
+
+# Memory detail levels for each participant, from richest (0) to most compact (3).
+DIALOGUE_DETAIL_LEVELS: list[dict[str, int]] = [
+    {"deposits": 12, "dialogues": 4, "provenance": 8, "social": 3, "spatial": 6, "recognition": 6, "line_chars": 360},
+    {"deposits": 8, "dialogues": 3, "provenance": 6, "social": 2, "spatial": 4, "recognition": 4, "line_chars": 280},
+    {"deposits": 5, "dialogues": 2, "provenance": 4, "social": 2, "spatial": 3, "recognition": 3, "line_chars": 220},
+    {"deposits": 3, "dialogues": 1, "provenance": 2, "social": 1, "spatial": 2, "recognition": 2, "line_chars": 160},
+]
+
+
+def _ctx_setting(conn: sqlite3.Connection, key: str) -> int | None:
+    raw = get_meta(conn, key)
+    if not raw:
+        return None
+    try:
+        return int(float(raw))
+    except (TypeError, ValueError):
+        return None
+
+
+def dialogue_num_ctx() -> int:
+    """Context window for talk: dialogue_num_ctx, else the planner's window."""
+    try:
+        with connect() as conn:
+            value = _ctx_setting(conn, "dialogue_num_ctx")
+            if value is None:
+                value = _ctx_setting(conn, "planner_num_ctx")
+    except Exception:
+        value = None
+    if value is None:
+        value = DIALOGUE_NUM_CTX_DEFAULT
+    return max(DIALOGUE_NUM_CTX_MIN, min(DIALOGUE_NUM_CTX_MAX, value))
+
+
+def dialogue_prompt_token_budget(num_ctx: int) -> int:
+    """Tokens left for the system message plus prompt after the reply reserve."""
+    return num_ctx - DIALOGUE_RESPONSE_RESERVE_TOKENS
+
+
+def estimate_prompt_tokens(text: str) -> int:
+    return int(len(text) / PROMPT_CHARS_PER_TOKEN_ESTIMATE) + 1
+
+
+def _clamp_lines(text: str, max_chars: int) -> str:
+    lines = []
+    for line in str(text or "").splitlines():
+        if len(line) > max_chars:
+            line = line[: max_chars - 1].rstrip() + "…"
+        lines.append(line)
+    return "\n".join(lines)
+
+
+def _budget_detail(telemetry: dict[str, Any]) -> str:
+    text = (
+        f"prompt ~{telemetry.get('prompt_tokens_estimate')} est. tokens"
+        f" in a {telemetry.get('num_ctx')}-token window"
+        f", detail level {telemetry.get('detail_level')}"
+    )
+    if telemetry.get("prompt_tokens_actual") is not None:
+        text += f", Ollama counted {telemetry['prompt_tokens_actual']}"
+    return text
+
+
 def _summary_is_claim_safe(summary: str) -> bool:
     text = str(summary or "").lower()
     return not any(re.search(rf"\b{re.escape(term)}\b", text) for term in UNSAFE_SUMMARY_TERMS)
@@ -352,7 +453,14 @@ def recent_dialogues_for(citizen_id: str, limit: int = 6) -> list[dict[str, Any]
         return list(reversed([dict(r) for r in rows]))
 
 
-def _citizen_private_context(citizen_id: str, counterpart_id: str | None = None) -> str:
+def _citizen_private_context(
+    citizen_id: str,
+    counterpart_id: str | None = None,
+    detail_level: int = 0,
+) -> str:
+    limits = DIALOGUE_DETAIL_LEVELS[max(0, min(detail_level, len(DIALOGUE_DETAIL_LEVELS) - 1))]
+    line_chars = limits["line_chars"]
+
     with connect() as conn:
         c = conn.execute("SELECT * FROM citizens WHERE id = ?", (citizen_id,)).fetchone()
         if not c:
@@ -362,16 +470,30 @@ def _citizen_private_context(citizen_id: str, counterpart_id: str | None = None)
             (citizen_id,),
         ).fetchall()
 
-    discoveries = known_deposits_for(citizen_id)
-    dialogues = recent_dialogues_for(citizen_id, limit=4)
-    provenance_knowledge = knowledge_context_for(citizen_id, limit=8)
-    social_history = social_context_for(citizen_id, limit=3)
-    pattern_history = pattern_continuity_context(
-        citizen_id,
-        location_id=str(c["location_id"]),
+    all_discoveries = known_deposits_for(citizen_id)
+    discoveries = all_discoveries[-limits["deposits"]:]
+    older_discoveries = len(all_discoveries) - len(discoveries)
+    dialogues = recent_dialogues_for(citizen_id, limit=limits["dialogues"])
+    provenance_knowledge = _clamp_lines(
+        knowledge_context_for(citizen_id, limit=limits["provenance"]),
+        line_chars,
+    )
+    social_history = _clamp_lines(
+        social_context_for(citizen_id, limit=limits["social"]),
+        line_chars,
+    )
+    pattern_history = _clamp_lines(
+        pattern_continuity_context(
+            citizen_id,
+            location_id=str(c["location_id"]),
+        ),
+        line_chars,
     )
     capability_context = citizen_capability_context(citizen_id)
-    spatial_context = spatial_grounding_context(citizen_id)
+    spatial_context = _clamp_lines(
+        spatial_grounding_context(citizen_id, observation_limit=limits["spatial"]),
+        line_chars,
+    )
     self_context = self_assessment_context(citizen_id)
     plan_context = plan_discussion_context(citizen_id)
     teaching_context = teaching_boundary_context(citizen_id)
@@ -383,7 +505,10 @@ def _citizen_private_context(citizen_id: str, counterpart_id: str | None = None)
     )
     help_context = help_question_context(citizen_id, counterpart_id)
     recognition = (
-        recognition_context(citizen_id, counterpart_id)
+        _clamp_lines(
+            recognition_context(citizen_id, counterpart_id, limit=limits["recognition"]),
+            line_chars,
+        )
         if counterpart_id
         else "PERSPECTIVE-SAFE RECOGNITION:\n- no counterpart selected"
     )
@@ -391,9 +516,12 @@ def _citizen_private_context(citizen_id: str, counterpart_id: str | None = None)
     discovery_text = "; ".join(
         f"{d['material']} at {d['location_name']}" for d in discoveries
     ) or "none personally confirmed"
-    dialogue_text = "\n".join(
-        f"- {d['summary']}" for d in dialogues
-    ) or "- none"
+    if older_discoveries:
+        discovery_text += f" (+{older_discoveries} older confirmations not listed)"
+    dialogue_text = _clamp_lines(
+        "\n".join(f"- {d['summary']}" for d in dialogues) or "- none",
+        line_chars,
+    )
 
     return f"""
 Name: {c['name']}
@@ -639,6 +767,7 @@ async def _generate_raw_exchange(
     model: str,
     prompt: str,
     source_job_id: int,
+    telemetry: dict[str, Any] | None = None,
 ) -> dict[str, str]:
     """
     Generate only the physical conversation payload.
@@ -648,6 +777,8 @@ async def _generate_raw_exchange(
     """
     last_code = "dialogue_generation_failed"
     last_detail = ""
+    telemetry = telemetry if telemetry is not None else {}
+    num_ctx = int(telemetry.get("num_ctx") or dialogue_num_ctx())
 
     async with httpx.AsyncClient(timeout=90.0) as client:
         for attempt in range(2):
@@ -658,19 +789,7 @@ async def _generate_raw_exchange(
                     json={
                         "model": model,
                         "messages": [
-                            {
-                                "role": "system",
-                                "content": (
-                                    "Return only one valid JSON object with exactly "
-                                    "initiator_text, target_text, and summary. "
-                                    "Preserve local information boundaries. "
-                                    "The summary is a social record of what was said, not physical evidence. "
-                                    "Write summary prose for a human reader and never expose participant-role or "
-                                    "backend schema terms such as initiator, target citizen, source job, action target, "
-                                    "or proposal state. Never upgrade reports or agreements into validated, confirmed, "
-                                    "verified, proved, demonstrated, or established physical facts."
-                                ),
-                            },
+                            {"role": "system", "content": DIALOGUE_SYSTEM_MESSAGE},
                             {"role": "user", "content": prompt},
                         ],
                         "stream": False,
@@ -678,7 +797,7 @@ async def _generate_raw_exchange(
                         "format": "json",
                         "options": {
                             "temperature": 0.55 if attempt == 0 else 0.35,
-                            "num_ctx": 4096,
+                            "num_ctx": num_ctx,
                             "num_predict": 260 if attempt == 0 else 340,
                         },
                     },
@@ -728,6 +847,22 @@ async def _generate_raw_exchange(
                 if final_attempt:
                     raise RuntimeError("Ollama returned a malformed response envelope.")
                 continue
+
+            if envelope.get("prompt_eval_count") is not None:
+                try:
+                    telemetry["prompt_tokens_actual"] = int(envelope["prompt_eval_count"])
+                except (TypeError, ValueError):
+                    pass
+                if int(telemetry.get("prompt_tokens_actual") or 0) >= num_ctx:
+                    # Ollama keeps going after cutting the start of an
+                    # oversized prompt; record it so overflow is never silent.
+                    _diag(
+                        source_job_id,
+                        stage="dialogue_generation",
+                        outcome="degraded",
+                        code="prompt_window_overflow",
+                        detail=_budget_detail(telemetry),
+                    )
 
             message = envelope.get("message") or {}
             raw = str(message.get("content") or "").strip()
@@ -795,7 +930,7 @@ async def _generate_raw_exchange(
                 stage="dialogue_generation",
                 outcome="success",
                 code="dialogue_generated",
-                detail=f"Valid raw exchange on attempt {attempt + 1}.",
+                detail=f"Valid raw exchange on attempt {attempt + 1}; {_budget_detail(telemetry)}.",
             )
             return dialogue
 
@@ -873,6 +1008,23 @@ Rules:
 - An empty claims array is valid.
 """.strip()
 
+    num_ctx = dialogue_num_ctx()
+    claim_estimate = estimate_prompt_tokens(CLAIM_SYSTEM_MESSAGE) + estimate_prompt_tokens(prompt)
+    if claim_estimate + CLAIM_RESPONSE_RESERVE_TOKENS > num_ctx:
+        # Never send a prompt Ollama would silently cut: the stored transcript
+        # stays the information-transfer event even without claim metadata.
+        _diag(
+            source_job_id,
+            stage="claim_extraction",
+            outcome="degraded",
+            code="claim_prompt_over_budget",
+            detail=(
+                f"claim prompt ~{claim_estimate} est. tokens does not fit a {num_ctx}-token window; "
+                "raw exchange remains stored."
+            ),
+        )
+        return
+
     try:
         async with httpx.AsyncClient(timeout=60.0) as client:
             response = await client.post(
@@ -880,10 +1032,7 @@ Rules:
                 json={
                     "model": model,
                     "messages": [
-                        {
-                            "role": "system",
-                            "content": "Return only valid JSON claim metadata for the supplied stored transcript.",
-                        },
+                        {"role": "system", "content": CLAIM_SYSTEM_MESSAGE},
                         {"role": "user", "content": prompt},
                     ],
                     "stream": False,
@@ -891,8 +1040,8 @@ Rules:
                     "format": "json",
                     "options": {
                         "temperature": 0.15,
-                        "num_ctx": 2048,
-                        "num_predict": 300,
+                        "num_ctx": num_ctx,
+                        "num_predict": CLAIM_RESPONSE_RESERVE_TOKENS,
                     },
                 },
             )
@@ -1002,6 +1151,184 @@ Rules:
     )
 
 
+SHARED_LINE_MIN_CHARS = 60
+
+
+def _section_header(line: str) -> str | None:
+    text = line.strip()
+    if text and not text.startswith("-") and text.endswith(":"):
+        return text
+    return None
+
+
+def _share_repeated_lines(first_name: str, first_context: str, second_context: str) -> str:
+    """
+    State word-for-word repeated rule lines once.
+
+    Most of each citizen's packet is the same rule text, so the second packet
+    points back to the first instead of repeating it. Only a run of two or more
+    long lines that appears identically under the same heading in the first
+    packet is replaced, and the pointer says those lines apply equally, so no
+    rule is cut and no information moves from one citizen to the other.
+    """
+    first_sections: dict[str | None, set[str]] = {}
+    header: str | None = None
+    for line in first_context.splitlines():
+        header = _section_header(line) or header
+        first_sections.setdefault(header, set()).add(line)
+
+    output: list[str] = []
+    run: list[str] = []
+    header = None
+
+    def flush() -> None:
+        if len(run) >= 2:
+            where = f"{first_name}'s {header[:-1]} section" if header else f"{first_name}'s packet"
+            output.append(f"- (same {len(run)} lines, word for word, as in {where} above)")
+        else:
+            output.extend(run)
+        run.clear()
+
+    for line in second_context.splitlines():
+        new_header = _section_header(line)
+        if new_header is not None:
+            flush()
+            header = new_header
+            output.append(line)
+            continue
+        if (
+            line.startswith("- ")
+            and len(line) >= SHARED_LINE_MIN_CHARS
+            and line in first_sections.get(header, set())
+        ):
+            run.append(line)
+            continue
+        flush()
+        output.append(line)
+    flush()
+    return "\n".join(output)
+
+
+def _dialogue_prompt_text(
+    *,
+    initiator_name: str,
+    target_name: str,
+    initiator_context: str,
+    target_context: str,
+    purpose: str,
+    location_name: str,
+    now: int,
+) -> str:
+    return f"""
+Create ONE short face-to-face conversation between two Agent City citizens who are physically together.
+
+Time: {format_sim_time(now)}
+Location: {location_name}
+
+{initiator_name.upper()} PRIVATE KNOWLEDGE:
+{initiator_context}
+
+{target_name.upper()} PRIVATE KNOWLEDGE:
+{target_context}
+
+Why {initiator_name} chose to speak:
+{purpose}
+
+{grounding_policy_text(visitor_facing=False)}
+
+{dialogue_style_rules()}
+
+INFORMATION RULES:
+- A citizen may state their OWN current status, plans, personal discoveries, or things they actually heard in prior conversations.
+- They may directly observe the other citizen because they are at the same location.
+- They do NOT know current remote status unless that information actually reached them.
+- Do not invent completed work, discoveries, resources, remote events, or communication technology.
+- Keep it natural and brief: one statement from {initiator_name} and one response from {target_name}.
+- Let each citizen sound recognizably different. Do not flatten both voices into the same operational-assistant tone.
+- Personality may influence preference and wording, but never creates authority, rank, command rights, or extra knowledge.
+- An invented explanation, material property, terrain detail, weather effect, economic value, tool, or capability is not allowed just because it would make the conversation more colorful.
+- Do not invent official-sounding names for procedures, protocols, inspections, repair methods, tools, or equipment. If an exact name is absent from authoritative capability/knowledge and source-backed recall, use generic proposal language instead.
+- If an older remembered/report summary contains an unsupported named procedure, preserve it only as something previously discussed/reported; do not upgrade it into an established method or capability.
+- Repeated personal practice may support phrases like "I've done this several times" only when the citizen's own physical practice evidence supports it.
+- Self-assessment such as "I think I'm getting better" remains interpretation, not objective capability truth.
+- Recognition of the other citizen is perspective-based. Do not assign expert, master, leader, trainer, mentor, specialist, rank, or reputation as authoritative identity.
+- Do not compare another citizen's experience to your own unless information that legitimately reached the speaker supports that comparison.
+- Explaining or teaching through conversation does not create practice, competence, or skill for the listener.
+- Discussing a persistent plan does not create, revise, pause, resume, abandon, supersede, or complete the canonical plan.
+- A measured practice-derived task-time effect is an objective physical effect for the speaker only. It is not a title, rank, proficiency level, or social reputation.
+- Never expose another citizen's hidden/global competence snapshot as recognition evidence.
+- A real guided-practice session is a physical Simulation event. Ordinary explanation is not guided practice and grants zero competence.
+- A completed guided-practice session still creates no learner practice by itself; only the learner's later real matching task creates new practice evidence.
+- Teacher and learner describe one event, not permanent mentor/trainer/expert identities.
+- Recurring personal behavior may be described only from the source-backed recurring-history packet. "Current", "mixed", and "fading" describe evidence state, not a personality trait or preference.
+- Place continuity is personal remembered history, not an objective "favorite place", home, safe place, or sacred place label.
+- Social pattern candidates are perspective-specific evidence. Do not automatically call them customs, traditions, rules, rituals, or something everyone does.
+- Talking about a recurring/social pattern may transmit a claim to the listener, but speech cannot create the underlying repeated behavior or make the claim verified.
+
+SUMMARY TRUTH RULES:
+- The summary describes communication, not physical verification.
+- Write the summary for a human reader using {initiator_name} and {target_name} by name.
+- Never refer to either citizen as "the initiator", "initiator", "the target", "target citizen", or "conversation target".
+- Never expose backend terms such as "source job", "action target", "proposal state", or other schema/process labels in the summary.
+- Prefer ordinary verbs such as "said", "reported", "discussed", "brought up", "compared", "planned", or "agreed".
+- Do not use "validated", "confirmed", "verified", "proved", "proven", "demonstrated", or "established" for a physical claim in a conversation summary.
+- An agreement to inspect, travel, recharge, build, or test remains an intention until Simulation records the physical action/outcome.
+- A citizen reporting their own inventory/status may be summarized as a report; the listener hearing it does not independently verify it.
+
+Return JSON only:
+{{
+  "initiator_text": "1-2 natural sentences",
+  "target_text": "1-2 natural sentences",
+  "summary": "one concise claim-safe summary of what these two communicated"
+}}
+""".strip()
+
+
+def build_dialogue_prompt(
+    *,
+    initiator_id: str,
+    target_id: str,
+    initiator_name: str,
+    target_name: str,
+    purpose: str,
+    location_name: str,
+    now: int,
+    num_ctx: int,
+) -> tuple[str, int, int]:
+    """
+    Build the richest conversation prompt that fits the context budget.
+
+    Returns (prompt, detail_level, estimated_tokens). Both participants are
+    condensed together so neither voice loses its memories before the other.
+    If even the most compact level is over budget, the compact prompt is
+    returned and Ollama's reported prompt size records the overflow.
+    """
+    budget = dialogue_prompt_token_budget(num_ctx)
+    prompt = ""
+    estimate = 0
+    level = 0
+    for level in range(len(DIALOGUE_DETAIL_LEVELS)):
+        initiator_context = _citizen_private_context(initiator_id, target_id, detail_level=level)
+        target_context = _share_repeated_lines(
+            initiator_name.upper(),
+            initiator_context,
+            _citizen_private_context(target_id, initiator_id, detail_level=level),
+        )
+        prompt = _dialogue_prompt_text(
+            initiator_name=initiator_name,
+            target_name=target_name,
+            initiator_context=initiator_context,
+            target_context=target_context,
+            purpose=purpose,
+            location_name=location_name,
+            now=now,
+        )
+        estimate = estimate_prompt_tokens(DIALOGUE_SYSTEM_MESSAGE) + estimate_prompt_tokens(prompt)
+        if estimate <= budget:
+            break
+    return prompt, level, estimate
+
+
 async def generate_dialogue(
     initiator_id: str,
     target_id: str,
@@ -1063,78 +1390,30 @@ async def generate_dialogue(
 
     initiator_name = str(initiator["name"])
     target_name = str(target["name"])
-    initiator_context = _citizen_private_context(initiator_id, target_id)
-    target_context = _citizen_private_context(target_id, initiator_id)
     purpose = (reason or f"{initiator_name} wants to speak briefly.").strip()
-
-    prompt = f"""
-Create ONE short face-to-face conversation between two Agent City citizens who are physically together.
-
-Time: {format_sim_time(now)}
-Location: {location['name'] if location else location_id}
-
-{initiator_name.upper()} PRIVATE KNOWLEDGE:
-{initiator_context}
-
-{target_name.upper()} PRIVATE KNOWLEDGE:
-{target_context}
-
-Why {initiator_name} chose to speak:
-{purpose}
-
-{grounding_policy_text(visitor_facing=False)}
-
-{dialogue_style_rules()}
-
-INFORMATION RULES:
-- A citizen may state their OWN current status, plans, personal discoveries, or things they actually heard in prior conversations.
-- They may directly observe the other citizen because they are at the same location.
-- They do NOT know current remote status unless that information actually reached them.
-- Do not invent completed work, discoveries, resources, remote events, or communication technology.
-- Keep it natural and brief: one statement from {initiator_name} and one response from {target_name}.
-- Let each citizen sound recognizably different. Do not flatten both voices into the same operational-assistant tone.
-- Personality may influence preference and wording, but never creates authority, rank, command rights, or extra knowledge.
-- An invented explanation, material property, terrain detail, weather effect, economic value, tool, or capability is not allowed just because it would make the conversation more colorful.
-- Do not invent official-sounding names for procedures, protocols, inspections, repair methods, tools, or equipment. If an exact name is absent from authoritative capability/knowledge and source-backed recall, use generic proposal language instead.
-- If an older remembered/report summary contains an unsupported named procedure, preserve it only as something previously discussed/reported; do not upgrade it into an established method or capability.
-- Repeated personal practice may support phrases like "I've done this several times" only when the citizen's own physical practice evidence supports it.
-- Self-assessment such as "I think I'm getting better" remains interpretation, not objective capability truth.
-- Recognition of the other citizen is perspective-based. Do not assign expert, master, leader, trainer, mentor, specialist, rank, or reputation as authoritative identity.
-- Do not compare another citizen's experience to your own unless information that legitimately reached the speaker supports that comparison.
-- Explaining or teaching through conversation does not create practice, competence, or skill for the listener.
-- Discussing a persistent plan does not create, revise, pause, resume, abandon, supersede, or complete the canonical plan.
-- A measured practice-derived task-time effect is an objective physical effect for the speaker only. It is not a title, rank, proficiency level, or social reputation.
-- Never expose another citizen's hidden/global competence snapshot as recognition evidence.
-- A real guided-practice session is a physical Simulation event. Ordinary explanation is not guided practice and grants zero competence.
-- A completed guided-practice session still creates no learner practice by itself; only the learner's later real matching task creates new practice evidence.
-- Teacher and learner describe one event, not permanent mentor/trainer/expert identities.
-- Recurring personal behavior may be described only from the source-backed recurring-history packet. "Current", "mixed", and "fading" describe evidence state, not a personality trait or preference.
-- Place continuity is personal remembered history, not an objective "favorite place", home, safe place, or sacred place label.
-- Social pattern candidates are perspective-specific evidence. Do not automatically call them customs, traditions, rules, rituals, or something everyone does.
-- Talking about a recurring/social pattern may transmit a claim to the listener, but speech cannot create the underlying repeated behavior or make the claim verified.
-
-SUMMARY TRUTH RULES:
-- The summary describes communication, not physical verification.
-- Write the summary for a human reader using {initiator_name} and {target_name} by name.
-- Never refer to either citizen as "the initiator", "initiator", "the target", "target citizen", or "conversation target".
-- Never expose backend terms such as "source job", "action target", "proposal state", or other schema/process labels in the summary.
-- Prefer ordinary verbs such as "said", "reported", "discussed", "brought up", "compared", "planned", or "agreed".
-- Do not use "validated", "confirmed", "verified", "proved", "proven", "demonstrated", or "established" for a physical claim in a conversation summary.
-- An agreement to inspect, travel, recharge, build, or test remains an intention until Simulation records the physical action/outcome.
-- A citizen reporting their own inventory/status may be summarized as a report; the listener hearing it does not independently verify it.
-
-Return JSON only:
-{{
-  "initiator_text": "1-2 natural sentences",
-  "target_text": "1-2 natural sentences",
-  "summary": "one concise claim-safe summary of what these two communicated"
-}}
-""".strip()
+    num_ctx = dialogue_num_ctx()
+    prompt, level, estimate = build_dialogue_prompt(
+        initiator_id=initiator_id,
+        target_id=target_id,
+        initiator_name=initiator_name,
+        target_name=target_name,
+        purpose=purpose,
+        location_name=str(location["name"]) if location else location_id,
+        now=now,
+        num_ctx=num_ctx,
+    )
+    telemetry: dict[str, Any] = {
+        "num_ctx": num_ctx,
+        "detail_level": level,
+        "prompt_tokens_estimate": estimate,
+        "prompt_tokens_actual": None,
+    }
 
     dialogue = await _generate_raw_exchange(
         model=model,
         prompt=prompt,
         source_job_id=source_job_id,
+        telemetry=telemetry,
     )
     dialogue["summary"] = _naturalize_conversation_summary(
         dialogue["summary"],
