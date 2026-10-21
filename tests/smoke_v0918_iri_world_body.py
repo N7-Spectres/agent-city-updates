@@ -22,8 +22,9 @@ def main() -> None:
     assert 'iri: Object.freeze({' in js
     assert 'baseBody: "/static/assets/citizens/iri/full.webp"' in js
     assert 'futureModelSlot: "/static/assets/citizens/iri/world/model.glb"' in js
-    assert "presentationScale: 0.848" in js
-    assert "minReadableScale: 0.50" in js
+    # v1.1.11: scale now comes from the shared presentation-height table.
+    assert "iri: 1.78," in js
+    assert 'presentationScale: spritePresentationScale("iri", 98)' in js
 
     # Background removal is presentation-only and connected to the image border,
     # so dark internal robot parts are not globally keyed away.
