@@ -1,6 +1,6 @@
 # Agent City — Department Coordination Board
 
-_Last updated: 2026-10-04_
+_Last updated: 2026-10-20_
 
 This file is the shared project task board.
 
@@ -31,6 +31,11 @@ _None._
 _None._
 
 ### DONE
+
+- [Coordinator] **v1.1.8 Planner Health + Prompt Budget + Settlement Timeline published** from `release-v1.1.8@c02cc2fda7e1a3406c9e7e54256e4e244263c27f`; full CI `39532272218` PASS. PR #65 merged.
+- [Simulation/Planner] Planner context window 4096 → 8192 with an explicit prompt token budget; older memory condenses across four detail levels, while identity, rules, vitals, and legal actions are never cut. Confirmed-deposit and validated-property prompt lists are now bounded.
+- [Operations] Every planning attempt is recorded (chosen / refused by Simulation / lost turn with reason and real prompt size); lost turns go to the server log; System Health shows Citizen decisions.
+- [Assets/UI] Records gains a read-only Timeline tab built from public records only.
 
 - [Coordinator] **v1.1.7 Log Rotation + Backup Retention QoL published** from `release-v1.1.7@d9d77468c46166be7e3120a3b7655d3fe0321bca`; full CI `37249947654` PASS.
 - [Launcher/QoL] Launcher/server/update-runner logs are now bounded by 10 MiB × three retained generations; Agent City-owned Ollama logging rotates on managed start without taking over shared Ollama.
