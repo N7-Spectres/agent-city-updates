@@ -21,7 +21,8 @@ def main() -> None:
     # Iri is the third promoted Local body.
     assert 'iri: Object.freeze({' in js
     assert 'baseBody: "/static/assets/citizens/iri/full.webp"' in js
-    assert 'futureModelSlot: "/static/assets/citizens/iri/world/model.glb"' in js
+    # v1.1.13 filled the reserved slot with a rigged model (smoke_v1113_iri_world_model.py).
+    assert 'src: "/static/assets/citizens/iri/world/model.glb"' in js
     # v1.1.11: scale now comes from the shared presentation-height table.
     assert "iri: 1.78," in js
     assert 'presentationScale: spritePresentationScale("iri", 98)' in js
