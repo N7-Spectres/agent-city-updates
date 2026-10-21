@@ -1,10 +1,10 @@
 # Agent City — Project State
 
-_Last updated: 2026-10-04_
+_Last updated: 2026-10-20_
 
 ## Current Release
 
-**v1.1.7 — Log Rotation + Backup Retention QoL**
+**v1.1.8 — Planner Health + Prompt Budget + Settlement Timeline**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,39 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v1.1.8 Published Patch — Planner Health + Prompt Budget + Settlement Timeline
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v1.1.8`
+- exact green head: `c02cc2fda7e1a3406c9e7e54256e4e244263c27f`
+- full CI: `39532272218` — PASS (rc1 CI `39532171318` — PASS)
+- published updater: `v1.1.8`
+- PR #65 merged
+
+Delivered:
+- planner context window raised from 4096 to 8192 tokens (`planner_num_ctx` meta override, clamped 4096–32768)
+- planner prompt built against an explicit token budget; four memory detail levels condense older memory lines when tight
+- identity, rules, vitals, and legal actions are never condensed
+- confirmed-deposit and validated-property prompt lists are now bounded (newest 12 plus an older-count note)
+- planner rule text de-duplicated with every constraint preserved
+- reply length capped at 768 tokens
+- new `planner_attempts` record: chosen / rejected by Simulation / `ollama_error` / `invalid_json` / `truncated_reply` / `dialogue_error` / `error`
+- Ollama's real `prompt_eval_count` stored for near-overflow detection
+- lost turns written to the server log
+- Admin System Health shows a **Citizen decisions** row
+- Records gains a read-only **Timeline** tab: totals, completed jobs per period by kind, starter stores then vs now, per-citizen totals, filterable milestones
+- Timeline reads public records only; hidden world truth is never included
+- no Simulation authority, citizen behavior rule, world-truth, or autonomy changes
+
+Validation:
+- complete historical regression matrix
+- Python compile
+- app + Planet Lab JavaScript syntax
+- `tests/smoke_v118_planner_health_timeline.py`
+- 21-day headless world: previous prompts needed 3,600–4,400 tokens in a 4,096 window; new prompts ~4,500 of a 7,360-token budget
+- live server verified with Ollama offline: lost turn recorded and surfaced
 
 ## v1.1.7 Published Patch — Log Rotation + Backup Retention QoL
 
