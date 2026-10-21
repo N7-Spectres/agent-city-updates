@@ -12,6 +12,29 @@
   const resetCameraButton = document.getElementById("reset-camera");
   const modeButtons = [...document.querySelectorAll(".mode-button")];
 
+  // v1.1.11: one shared presentation scale. Every citizen body (sprite or 3D
+  // model) is drawn at its presentation-height cue times the same pixels per
+  // meter, so relative sizes always match the model notes. These heights are
+  // visual identity cues only, never Simulation physics.
+  const CITIZEN_HEIGHT_METERS = Object.freeze({
+    cato: 2.10,
+    vale: 2.00,
+    aris: 1.85,
+    iri: 1.78,
+    bex: 1.60,
+    noma: 1.60,
+  });
+  const PRESENTATION_PX_PER_METER = 45;
+  const BODY_PERSPECTIVE_MIN = 0.6;
+  const BODY_PERSPECTIVE_MAX = 1.35;
+
+  // Sprite bodies are scaled so the visible art (spriteArtHeightPx tall at
+  // marker scale 1, measured from each image inside its CSS box) matches the
+  // citizen's presentation height.
+  function spritePresentationScale(citizenId, spriteArtHeightPx) {
+    return (CITIZEN_HEIGHT_METERS[citizenId] * PRESENTATION_PX_PER_METER) / spriteArtHeightPx;
+  }
+
   // Pre-Blender Local citizen bodies. These are presentation-only art layered
   // over authoritative Simulation positions. Optional equipment remains separate.
   // Relative scale is visual canon/readability, not physical Simulation truth.
@@ -20,28 +43,25 @@
       kind: "sprite_body",
       baseBody: "/static/assets/citizens/aris/world/front.png",
       futureModelSlot: "/static/assets/citizens/aris/world/model.glb",
-      presentationScale: 0.881,
-      minReadableScale: 0.52,
+      presentationScale: spritePresentationScale("aris", 83),
     }),
     cato: Object.freeze({
       kind: "sprite_body",
       baseBody: "/static/assets/citizens/cato/world/front.webp",
       // v1.1.9: rigged Blender body. Drawn by citizen_models.js when it loads;
       // the sprite above stays as the fallback. Any citizen can gain a `model`.
+      // Models are authored in meters and drawn at PRESENTATION_PX_PER_METER.
       model: Object.freeze({
         src: "/static/assets/citizens/cato/world/model.glb",
         clips: Object.freeze({ idle: "Idle", walk: "Walk" }),
-        spritePixelHeight: 116,
       }),
-      presentationScale: 1.0,
-      minReadableScale: 0.58,
+      presentationScale: spritePresentationScale("cato", 106),
     }),
     iri: Object.freeze({
       kind: "sprite_body",
       baseBody: "/static/assets/citizens/iri/full.webp",
       futureModelSlot: "/static/assets/citizens/iri/world/model.glb",
-      presentationScale: 0.848,
-      minReadableScale: 0.50,
+      presentationScale: spritePresentationScale("iri", 98),
       removeConnectedBackdrop: true,
       backdropTolerance: 72,
       backdropFringe: 126,
@@ -1668,12 +1688,10 @@
 
       const perspectiveScale = markerPerspectiveScale(item, world, eye);
       const visual = item.type === "citizen" ? worldVisualFor(item.id) : null;
+      // Bodies share one readability clamp so their relative sizes never drift.
+      const bodyPerspective = clamp(perspectiveScale, BODY_PERSPECTIVE_MIN, BODY_PERSPECTIVE_MAX);
       const displayScale = visual?.kind === "sprite_body"
-        ? clamp(
-            perspectiveScale * Number(visual.presentationScale || 1),
-            Number(visual.minReadableScale || 0.5),
-            1.35 * Number(visual.presentationScale || 1)
-          )
+        ? bodyPerspective * Number(visual.presentationScale || 1)
         : perspectiveScale;
       const travelJob = item.type === "citizen" ? activeJobFor(item.data) : null;
       const routeTraveling = String(travelJob?.action || "") === "travel";
@@ -1694,7 +1712,7 @@
             world,
             heading: citizenHeading(item.data),
             walking: citizenIsWalking(item.data, now),
-            pixelHeight: Number(visual.model.spritePixelHeight || 116) * displayScale,
+            pixelsPerMeter: PRESENTATION_PX_PER_METER * bodyPerspective,
           });
         }
       }

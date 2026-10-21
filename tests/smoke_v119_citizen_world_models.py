@@ -59,6 +59,7 @@ def main() -> None:
     assert "visual?.model" in js
     assert "window.AgentCityModels.status(item.id, visual.model)" in js
     assert "window.AgentCityModels.render(" in js
+    assert "pixelsPerMeter: PRESENTATION_PX_PER_METER * bodyPerspective" in js
     # Citizens without a model (or whose model fails) keep their sprite.
     assert 'kind: "sprite_body"' in js
     assert 'item.element.classList.toggle("model-active", modelActive)' in js

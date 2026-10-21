@@ -1085,3 +1085,16 @@ body[data-day-phase="night"] .structure-marker {
 .citizen-world-body.model-active.route-traveling::after {
   animation: none !important;
 }
+
+
+/* v1.1.11 — body markers never draw a frame. The round-token night glow and
+   hover ring belong to token markers; on a full-body marker they showed up as
+   a box around the sprite or 3D model. */
+body[data-day-phase] .citizen-marker.citizen-world-body,
+.citizen-marker.citizen-world-body:hover,
+.citizen-marker.citizen-world-body:focus-visible,
+.citizen-marker.citizen-world-body.selected {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}

@@ -308,3 +308,7 @@ jobs:
 
       - name: Run v1.1.10 dialogue prompt budget smoke
         run: python tests/smoke_v1110_dialogue_prompt_budget.py
+
+
+      - name: Run v1.1.11 body scale consistency smoke
+        run: python tests/smoke_v1111_body_scale_consistency.py

@@ -39,7 +39,6 @@ function loadBody(id, model) {
     src: model.src,
     status: "loading",
     root: null,
-    height: 1,
     mixer: null,
     actions: {},
     current: null,
@@ -54,7 +53,8 @@ function loadBody(id, model) {
         if (node.isMesh) node.frustumCulled = false; // skinned bounds lag animation
       });
 
-      // Measure the bind pose so any model is foot-anchored and sized by height.
+      // Measure the bind pose so any model is foot-anchored and centered on its
+      // marker. Models are authored in meters, so their size is kept as is.
       // (Box3.setFromObject would skin the vertices with bones that have not
       // been posed yet, which collapses the box.)
       root.updateMatrixWorld(true);
@@ -64,8 +64,11 @@ function loadBody(id, model) {
         node.geometry.computeBoundingBox();
         box.union(node.geometry.boundingBox.clone().applyMatrix4(node.matrixWorld));
       });
-      body.height = Math.max(0.01, box.max.y - box.min.y);
-      root.position.y = -box.min.y;
+      root.position.set(
+        -(box.min.x + box.max.x) / 2,
+        -box.min.y,
+        -(box.min.z + box.max.z) / 2,
+      );
 
       const holder = new THREE.Group();
       holder.add(root);
@@ -118,7 +121,7 @@ window.AgentCityModels = Object.freeze({
   },
 
   // frame: { active, eye, target, fovY, near, far, width, height, pixelRatio,
-  //          lighting, citizens: [{ id, world, heading, walking, pixelHeight }] }
+  //          lighting, citizens: [{ id, world, heading, walking, pixelsPerMeter }] }
   render(frame) {
     if (!renderer) return;
     const delta = Math.min(clock.getDelta(), 0.1);
@@ -157,11 +160,17 @@ window.AgentCityModels = Object.freeze({
       holder.position.set(citizen.world[0], citizen.world[1], citizen.world[2]);
       holder.rotation.y = Number(citizen.heading || 0);
 
-      // Size the body in world units so it covers the same screen height the
-      // sprite would have, which keeps it readable at every zoom level.
+      // Convert the shared on-screen pixels-per-meter into world units at this
+      // distance, so models match sprite bodies and each other at every zoom.
       const distance = Math.max(0.05, camera.position.distanceTo(holder.position));
-      const worldHeight = (citizen.pixelHeight * 2 * distance * Math.tan(frame.fovY / 2)) / frame.height;
-      holder.scale.setScalar(worldHeight / body.height);
+      const worldPerPixel = (2 * distance * Math.tan(frame.fovY / 2)) / frame.height;
+      // Sprites are upright billboards, but a model seen from the raised Local
+      // camera is foreshortened. Its top surfaces also add some visible height,
+      // so undo about half of the foreshortening (square root) to keep models
+      // and sprites at the same on-screen pixels per meter.
+      const elevation = Math.asin(Math.min(1, Math.abs(camera.position.y - holder.position.y) / distance));
+      const foreshortening = 1 / Math.sqrt(Math.max(0.36, Math.cos(elevation)));
+      holder.scale.setScalar(citizen.pixelsPerMeter * worldPerPixel * foreshortening);
 
       playRole(body, citizen.walking ? "walk" : "idle");
       body.mixer.update(delta);

@@ -38,10 +38,11 @@ def main() -> None:
 
     # Relative character scale is presentation-only and keeps Aris readable
     # at full Local zoom-out.
-    assert "presentationScale: 0.881" in js
-    assert "minReadableScale: 0.52" in js
-    assert "perspectiveScale * Number(visual.presentationScale || 1)" in js
-    assert "Number(visual.minReadableScale || 0.5)" in js
+    # v1.1.11: scale now comes from the shared presentation-height table.
+    assert "aris: 1.85," in js
+    assert 'presentationScale: spritePresentationScale("aris", 83)' in js
+    assert "bodyPerspective * Number(visual.presentationScale || 1)" in js
+    assert "BODY_PERSPECTIVE_MIN" in js
     assert "1.85 m" in contract
     assert "renderer values only" in contract
 
