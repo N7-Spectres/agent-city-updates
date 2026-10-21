@@ -4,7 +4,7 @@ _Last updated: 2026-10-21_
 
 ## Current Release
 
-**v1.1.10 — Citizen Dialogue Prompt Budget**
+**v1.1.11 — Consistent Citizen Body Scale**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,28 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v1.1.11 Published Patch — Consistent Citizen Body Scale
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v1.1.11` (from `release-v1.1.10`)
+- exact green head: `938e498bfe432b16398e4a6d7d51f222c76f48a0`
+- full CI: `39537485292` — PASS (rc1 CI `39537385086` — PASS)
+- published updater: `v1.1.11`
+- PR #69 squash-merged
+
+Delivered:
+- one presentation-height table for all six citizens (`CITIZEN_HEIGHT_METERS`: Cato 2.10, Vale 2.00, Aris 1.85, Iri 1.78, Bex 1.60, Noma 1.60), matching the model notes
+- sprite and 3D bodies drawn at one shared `PRESENTATION_PX_PER_METER` with one shared readability clamp; per-citizen hand-tuned scales and `minReadableScale` removed
+- 3D models keep authored meters, are centered on their marker, and correct half of the raised-camera foreshortening so they match sprite heights on screen
+- the night glow / hover ring meant for round tokens no longer draws a box around full-body markers
+- presentation only: no Simulation authority, citizen behavior rule, world-truth, or autonomy changes
+
+Validation:
+- complete historical regression matrix
+- `tests/smoke_v1111_body_scale_consistency.py`; Aris/Iri smokes updated for the shared scale
+- headless Chromium day and night, all bodies at one site and spread out: no boxes, Cato tallest, Aris/Iri in proportion
 
 ## v1.1.10 Published Patch — Citizen Dialogue Prompt Budget
 

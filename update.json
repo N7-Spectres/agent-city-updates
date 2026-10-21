@@ -1,6 +1,6 @@
 {
-  "version": "1.1.10",
-  "notes": "Citizen Dialogue Prompt Budget: citizen-to-citizen conversations were still asking the local model for a 4,096-token window, but a single conversation prompt (both citizens' private knowledge plus the information rules) is larger than that even in a brand-new city, so the model was silently losing the start of every talk prompt: who the two citizens are and what they know. Conversations now use the same 8,192-token window as the planner, built against a token budget: older memories are condensed when space is tight, rules are never cut, and rule text repeated for both citizens is stated once. Each citizen still only speaks from information that actually reached them. Talk diagnostics now record each prompt's size and flag any overflow. No Simulation authority, world-truth, or autonomy changes.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/b66fb03990a3ff20057c09297e5d639b67d31826",
+  "version": "1.1.11",
+  "notes": "Consistent Citizen Body Scale: every citizen body in the Local world, sprite or 3D model, is now sized from one height table (Cato 2.10 m, Vale 2.00, Aris 1.85, Iri 1.78, Bex 1.60, Noma 1.60) at one shared scale, so Cato is the biggest and the others stand in proportion beside him. 3D Cato is centered on his spot and no longer drawn larger than everyone else. The box that appeared around citizen bodies at night is gone. Includes the v1.1.10 dialogue prompt budget fix. Presentation only: no Simulation authority, citizen behavior rules, world truth, or autonomy changes.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/938e498bfe432b16398e4a6d7d51f222c76f48a0",
   "sha256": ""
 }
