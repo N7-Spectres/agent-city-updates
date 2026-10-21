@@ -313,6 +313,8 @@ jobs:
       - name: Run v1.1.11 body scale consistency smoke
         run: python tests/smoke_v1111_body_scale_consistency.py
 
+      - name: Run v1.1.12 curiosity and stock trend smoke
+        run: python tests/smoke_v1112_curiosity_and_stock_trend.py
 
       - name: Run v1.1.13 Iri world model smoke
         run: python tests/smoke_v1113_iri_world_model.py

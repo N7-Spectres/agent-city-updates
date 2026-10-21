@@ -401,6 +401,44 @@ def _wear_structure(
     _note_condition_transition(conn, now, str(structure["name"]), before, after)
 
 
+STOCK_TREND_WINDOW_DAYS = 10
+
+
+def record_daily_stock(conn, now: int) -> None:
+    """Keep one stored-amount reading per simulation day for each starter supply."""
+    sim_day = int(now) // 1440
+    for material in STARTING_RESOURCES:
+        stock = conn.execute(
+            "SELECT amount FROM resources WHERE name = ?",
+            (material,),
+        ).fetchone()
+        conn.execute(
+            "INSERT OR IGNORE INTO resource_stock_log(sim_day, material, amount) VALUES (?, ?, ?)",
+            (sim_day, material, float(stock["amount"]) if stock else 0.0),
+        )
+
+
+def recent_stock_change(conn, material: str, stored: float, now: int) -> dict[str, float] | None:
+    """Change in stored amount since the oldest reading inside the trend window."""
+    today = int(now) // 1440
+    row = conn.execute(
+        """
+        SELECT sim_day, amount
+        FROM resource_stock_log
+        WHERE material = ? AND sim_day >= ? AND sim_day < ?
+        ORDER BY sim_day
+        LIMIT 1
+        """,
+        (material, today - STOCK_TREND_WINDOW_DAYS, today),
+    ).fetchone()
+    if not row:
+        return None
+    return {
+        "days": float(today - int(row["sim_day"])),
+        "change": stored - float(row["amount"]),
+    }
+
+
 def apply_passive_wear(now: int) -> None:
     """
     Gradual structure aging while the city clock runs.
@@ -413,6 +451,8 @@ def apply_passive_wear(now: int) -> None:
         elapsed = max(0, now - last)
         if elapsed < 60:
             return
+
+        record_daily_stock(conn, now)
 
         days = elapsed / 1440.0
         rows = conn.execute("SELECT * FROM structures ORDER BY id").fetchall()
@@ -1140,6 +1180,7 @@ def local_resource_sustainability_attention(citizen_id: str) -> list[dict[str, A
         if location_anchor_distance(conn, citizen) > 5.0:
             return []
 
+        now = int(get_meta(conn, "sim_minute") or "360")
         rows: list[dict[str, Any]] = []
         for material in sorted(STARTING_RESOURCES):
             stock = conn.execute(
@@ -1157,16 +1198,109 @@ def local_resource_sustainability_attention(citizen_id: str) -> list[dict[str, A
                 and citizen_knows_production_process(conn, citizen_id, process_key)
             ]
 
+            stored = float(stock["amount"]) if stock else 0.0
             rows.append(
                 {
                     "material": material,
-                    "stored": float(stock["amount"]) if stock else 0.0,
+                    "stored": stored,
+                    "recent_change": recent_stock_change(conn, material, stored, now),
                     "replenishment_status": (
                         "validated_production_process_available"
                         if supported_processes
                         else "no_validated_production_process"
                     ),
                     "validated_processes": supported_processes,
+                }
+            )
+        return rows
+
+
+def material_testing_attention(citizen_id: str) -> list[dict[str, Any]]:
+    """
+    Raw materials this citizen has personally encountered, with their own assay history.
+
+    Built only from the citizen's confirmed deposits, carried cargo, Seed Site
+    storage they can see while standing there, and their own experiment records.
+    It never says whether a material holds any hidden property.
+    """
+    with connect() as conn:
+        citizen = conn.execute(
+            "SELECT * FROM citizens WHERE id = ?",
+            (citizen_id,),
+        ).fetchone()
+        if not citizen:
+            return []
+
+        encountered: dict[str, list[str]] = {}
+
+        def note(material: str, source: str) -> None:
+            if material in STARTING_RESOURCES:
+                return
+            sources = encountered.setdefault(material, [])
+            if source not in sources:
+                sources.append(source)
+
+        for row in conn.execute(
+            """
+            SELECT DISTINCT d.material, l.name AS location_name
+            FROM citizen_knowledge ck
+            JOIN discoveries dx ON dx.id = ck.discovery_id
+            JOIN deposits d ON d.id = dx.subject_id
+            JOIN locations l ON l.id = d.location_id
+            WHERE ck.citizen_id = ? AND dx.discovery_kind = 'deposit'
+            ORDER BY d.material
+            """,
+            (citizen_id,),
+        ).fetchall():
+            note(str(row["material"]), f"confirmed a deposit at {row['location_name']}")
+
+        for row in conn.execute(
+            "SELECT material, amount FROM citizen_inventory WHERE citizen_id = ? AND amount > 0",
+            (citizen_id,),
+        ).fetchall():
+            note(str(row["material"]), f"carrying {float(row['amount']):g}")
+
+        at_seed_site = (
+            str(citizen["location_id"]) == "seed_site"
+            and location_anchor_distance(conn, citizen) <= 5.0
+        )
+        stored_here: dict[str, float] = {}
+        if at_seed_site:
+            for row in conn.execute(
+                "SELECT name, amount FROM resources WHERE amount >= 1 ORDER BY name"
+            ).fetchall():
+                if str(row["name"]) in STARTING_RESOURCES:
+                    continue
+                stored_here[str(row["name"])] = float(row["amount"])
+                note(str(row["name"]), f"{float(row['amount']):g} in Seed Site storage")
+
+        rows: list[dict[str, Any]] = []
+        for material in sorted(encountered):
+            history: dict[str, dict[str, Any]] = {}
+            for result in conn.execute(
+                """
+                SELECT method, outcome, COUNT(*) OVER (PARTITION BY method) AS runs
+                FROM experiment_results
+                WHERE citizen_id = ? AND material = ?
+                ORDER BY completed_minute, id
+                """,
+                (citizen_id, material),
+            ).fetchall():
+                history[str(result["method"])] = {
+                    "runs": int(result["runs"]),
+                    "last_outcome": str(result["outcome"]),
+                }
+            rows.append(
+                {
+                    "material": material,
+                    "encounters": encountered[material],
+                    "tried": history,
+                    "untried": [
+                        method_id
+                        for method_id in EXPERIMENT_METHODS
+                        if method_id not in history
+                    ],
+                    "sample_in_storage_here": material in stored_here,
                 }
             )
         return rows

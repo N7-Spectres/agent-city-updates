@@ -14,10 +14,12 @@ from .spatial_memory import nearby_spatial_context_for
 from .knowledge import known_properties_for
 from .provenance import knowledge_context_for as provenance_context_for
 from .simulation import (
+    EXPERIMENT_METHODS,
     autonomous_actions,
     daily_phase_label,
     local_maintenance_attention,
     local_resource_sustainability_attention,
+    material_testing_attention,
     start_action,
     voluntary_choice_context_key,
 )
@@ -66,25 +68,25 @@ PROMPT_DETAIL_LEVELS: list[dict[str, int]] = [
     {
         "deposits": 12, "properties": 12, "dialogues": 5, "provenance": 10,
         "social": 4, "local": 6, "maintenance_history": 4, "exploration": 4,
-        "causal": 6, "habits": 8, "place_evidence": 3, "customs": 4,
+        "causal": 6, "habits": 8, "place_evidence": 3, "customs": 4, "materials": 8,
         "line_chars": 360,
     },
     {
         "deposits": 8, "properties": 8, "dialogues": 4, "provenance": 7,
         "social": 3, "local": 4, "maintenance_history": 3, "exploration": 3,
-        "causal": 5, "habits": 5, "place_evidence": 2, "customs": 3,
+        "causal": 5, "habits": 5, "place_evidence": 2, "customs": 3, "materials": 6,
         "line_chars": 280,
     },
     {
         "deposits": 5, "properties": 5, "dialogues": 3, "provenance": 5,
         "social": 2, "local": 3, "maintenance_history": 2, "exploration": 2,
-        "causal": 4, "habits": 3, "place_evidence": 2, "customs": 2,
+        "causal": 4, "habits": 3, "place_evidence": 2, "customs": 2, "materials": 4,
         "line_chars": 220,
     },
     {
         "deposits": 3, "properties": 3, "dialogues": 2, "provenance": 3,
         "social": 1, "local": 2, "maintenance_history": 1, "exploration": 1,
-        "causal": 3, "habits": 2, "place_evidence": 1, "customs": 1,
+        "causal": 3, "habits": 2, "place_evidence": 1, "customs": 1, "materials": 3,
         "line_chars": 160,
     },
 ]
@@ -237,15 +239,62 @@ def citizen_context(
             replenishment_text = (
                 "no validated production process currently available to you"
             )
+        change = item.get("recent_change")
+        if change and change["change"] < 0:
+            change_text = (
+                f"; {-change['change']:g} used over the last {change['days']:g} day(s)"
+            )
+        elif change and change["change"] > 0:
+            change_text = (
+                f"; {change['change']:g} added over the last {change['days']:g} day(s)"
+            )
+        elif change:
+            change_text = f"; unchanged over the last {change['days']:g} day(s)"
+        else:
+            change_text = ""
         sustainability_lines.append(
             (
-                f"- {item['material']}: {item['stored']:g} units stored; "
+                f"- {item['material']}: {item['stored']:g} units stored{change_text}; "
                 f"{replenishment_text}"
             )
         )
     resource_sustainability_text = "\n".join(sustainability_lines) or (
         "- no exact Seed Site starter-stock sustainability state is directly observable here"
     )
+
+    outcome_words = {
+        "discovery": "revealed a new property",
+        "verified": "reproduced a property you already knew",
+        "inconclusive": "showed nothing new",
+    }
+    material_rows, older_materials = _newest(
+        material_testing_attention(citizen["id"]),
+        limits["materials"],
+    )
+    material_lines: list[str] = []
+    for item in material_rows:
+        tried_text = "; ".join(
+            f"{EXPERIMENT_METHODS[method]['label']} run {result['runs']}x, last run "
+            f"{outcome_words.get(result['last_outcome'], result['last_outcome'])}"
+            for method, result in item["tried"].items()
+            if method in EXPERIMENT_METHODS
+        ) or "none yet"
+        untried_text = ", ".join(
+            EXPERIMENT_METHODS[method]["label"] for method in item["untried"]
+        ) or "none"
+        material_lines.append(
+            (
+                f"- {item['material']} ({'; '.join(item['encounters'])}) | "
+                f"your tests: {tried_text} | never tried by you: {untried_text}"
+            )
+        )
+    material_testing_text = _clamp_lines(
+        "\n".join(material_lines)
+        or "- you have not personally handled or confirmed any raw material yet",
+        line_chars,
+    )
+    if older_materials:
+        material_testing_text += f"\n(+{older_materials} more encountered materials not listed)"
 
     nearby_exploration_memory = _clamp_lines(
         nearby_spatial_context_for(
@@ -392,12 +441,20 @@ CURRENT LOCALLY OBSERVABLE MAINTENANCE ATTENTION:
 CURRENT LOCALLY OBSERVABLE RESOURCE SUSTAINABILITY:
 {resource_sustainability_text}
 
+RAW MATERIALS YOU HAVE PERSONALLY ENCOUNTERED AND YOUR OWN TEST HISTORY:
+{material_testing_text}
+
 MAINTENANCE AND SUPPLY RULES:
 - The two sections above are authoritative local physical state you can assess here. They are not commands, assigned roles, or priority overrides. This is strategic context, not an assigned objective. Local stock counts are only supplied while you are physically at the Seed Site landmark.
 - A service action becomes legal only when its named supplies actually exist in storage. If service is already in progress, a second simultaneous repair is not needed.
-- Finished starter supplies are finite, but finite does not mean urgent. "No validated production process currently available to you" means only that you cannot presently make more through a known Simulation-supported process. "Validated replenishment process available" still requires its listed physical inputs, energy, and an operational structure.
+- Finished starter supplies are finite. Maintenance and construction draw them down, and any usage shown above is a real stock record from Seed Site. Whether and how to respond is your own choice. "No validated production process currently available to you" means only that you cannot presently make more through a known Simulation-supported process. "Validated replenishment process available" still requires its listed physical inputs, energy, and an operational structure.
 - Do not invent a source, conversion, fabrication recipe, or substitute for a missing named supply, and do not invent smelting, refining, machining, chemistry, recycling, or manufacturing steps outside your validated knowledge. A raw deposit is not automatically a source of Fasteners, Mechanical components, Battery cells, Lubricant, or any other finished part. Do not infer that a particular region, deposit, plant, stone, or raw material can replenish a finished part unless a validated process explicitly names that input.
 - Choose an action because of a shortage only when your knowledge genuinely connects that legal action to it. Travel, surveying, inspection, conversation, experiments, unrelated work, rest, and social activity are all allowed when legal; none is mandatory. A survey may reveal a real deposit or produce no new finding. Never state what you expect to find as fact.
+
+MATERIAL TESTING:
+- Thermal, electrical, and mechanical assays run at the Basic Workbench on a 1-unit sample held in Seed Site storage. A material you have never tested is an open question you are free to investigate; a test may reveal a property, reproduce one you know, or show nothing.
+- Your own test history above is a factual record. Repeating a test that showed nothing has the same physical method as before; an untried method or a different material is a genuinely new attempt.
+- Learning about the materials around you is as legitimate a use of time as maintenance, travel, conversation, or rest. Avoiding new work is not automatically the safer choice.
 
 SELECTED MEANINGFUL MAINTENANCE EXPERIENCES YOU PARTICIPATED IN:
 {maintenance_history}
