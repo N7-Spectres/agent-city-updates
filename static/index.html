@@ -255,6 +255,7 @@
         <section id="control-room" class="panel card control-room-panel records-control-room">
           <nav class="control-tabs" aria-label="Settlement record views">
             <button id="toggle-history" class="control-tab active">History</button>
+            <button id="toggle-timeline" class="control-tab">Timeline</button>
             <button id="toggle-resources" class="control-tab">Stores</button>
             <button id="toggle-structures" class="control-tab">Making</button>
             <button id="toggle-region" class="control-tab">Region</button>
@@ -296,6 +297,56 @@
 
               <div class="history-section-label making-section-label">MAINTENANCE HISTORY</div>
               <div id="maintenance-events" class="maintenance-event-list"></div>
+            </div>
+
+            <div id="detail-timeline" class="detail-view hidden">
+              <div class="timeline-toolbar">
+                <span id="timeline-status" class="muted">Loading the long view…</span>
+                <button id="refresh-timeline" type="button">Refresh</button>
+              </div>
+
+              <div id="timeline-totals" class="timeline-totals"></div>
+
+              <div class="history-section-label">WHAT THEY SPENT THEIR TIME ON</div>
+              <div class="timeline-chart-wrap">
+                <div id="timeline-legend" class="timeline-legend" aria-hidden="true"></div>
+                <div id="timeline-chart" class="timeline-chart" role="img" aria-label="Completed jobs per period, stacked by kind of work"></div>
+                <div id="timeline-tooltip" class="timeline-tooltip" hidden></div>
+              </div>
+              <details class="timeline-table-toggle">
+                <summary>Show as table</summary>
+                <div id="timeline-bucket-table"></div>
+              </details>
+
+              <div class="timeline-columns">
+                <section>
+                  <div class="history-section-label">STARTER STORES: THEN → NOW</div>
+                  <div id="timeline-stores" class="timeline-stores"></div>
+                </section>
+                <section>
+                  <div class="history-section-label">CITIZENS</div>
+                  <div id="timeline-citizens" class="timeline-citizens"></div>
+                </section>
+              </div>
+
+              <div class="timeline-milestone-head">
+                <div class="history-section-label">MILESTONES</div>
+                <label class="timeline-filter">
+                  <span>Show</span>
+                  <select id="timeline-milestone-filter">
+                    <option value="">Everything</option>
+                    <option value="build">Buildings</option>
+                    <option value="production">First production</option>
+                    <option value="equipment">Equipment</option>
+                    <option value="deposit">Deposits</option>
+                    <option value="knowledge">Validated knowledge</option>
+                    <option value="social">First meetings</option>
+                    <option value="plan">Plans</option>
+                    <option value="breakdown">Breakdowns</option>
+                  </select>
+                </label>
+              </div>
+              <div id="timeline-milestones" class="timeline-milestones"></div>
             </div>
 
             <div id="detail-history" class="detail-view">

@@ -292,3 +292,7 @@ jobs:
 
       - name: Run v1.1.7 log-rotation / backup-retention smoke
         run: python tests/smoke_v117_log_retention.py
+
+
+      - name: Run v1.1.8 planner health / timeline smoke
+        run: python tests/smoke_v118_planner_health_timeline.py
