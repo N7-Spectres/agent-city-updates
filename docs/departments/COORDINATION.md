@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v1.1.13 Iri 3D World Model published** from `release-v1.1.13@b3d3012a8097bbb4b5cde63916d523cc00cc21a2`; full CI `39539952774` PASS. PR #72 squash-merged.
+- [Assets/UI] Iri's approved rigged 3D body joins Cato in the Local world (Idle/Walk, faces her route); her sprite remains the fallback.
+
 - [Coordinator] **v1.1.11 Consistent Citizen Body Scale published** from `release-v1.1.11@938e498bfe432b16398e4a6d7d51f222c76f48a0`; full CI `39537485292` PASS. PR #69 squash-merged.
 - [Assets/UI] All Local citizen bodies (sprite and 3D) are sized from one presentation-height table at one shared scale; 3D Cato is centered and tallest. Night box around body markers removed.
 
