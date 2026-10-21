@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v1.1.10 Citizen Dialogue Prompt Budget published** from `release-v1.1.10@b66fb03990a3ff20057c09297e5d639b67d31826`; full CI `39536817767` PASS. PR #68 merged.
+- [Communication] Citizen dialogue and claim extraction moved from 4096/2048 windows to the planner's 8192 window with a budgeted prompt; older memory condenses, rules are never cut, and rule text repeated for both participants is stated once.
+
 - [Coordinator] **v1.1.9 Citizen 3D World Models published** from `release-v1.1.9@668d365627b14791b59c32cdf74a16d78ed56b47`; full CI `39535954079` PASS. PR #66 merged.
 - [Assets/UI] Planet Lab Local view draws rigged 3D citizen bodies (vendored three.js). Cato is first, playing Idle and Walk tied to his travel routes; sprites stay as the fallback.
 - [Assets] Other citizens gain 3D bodies by adding a GLB with Idle/Walk clips and a `model` entry in `CITIZEN_WORLD_VISUALS`.

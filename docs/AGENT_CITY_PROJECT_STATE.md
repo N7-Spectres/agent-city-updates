@@ -4,7 +4,7 @@ _Last updated: 2026-10-21_
 
 ## Current Release
 
-**v1.1.9 — Citizen 3D World Models**
+**v1.1.10 — Citizen Dialogue Prompt Budget**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,28 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v1.1.10 Published Patch — Citizen Dialogue Prompt Budget
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v1.1.10`
+- exact green head: `b66fb03990a3ff20057c09297e5d639b67d31826`
+- full CI: `39536817767` — PASS (rc1 CI `39536716234` — PASS)
+- published updater: `v1.1.10`
+- PR #68 merged
+
+Delivered:
+- citizen dialogue (`agent_city/comms.py`) context window 4096 → the planner's window (8192 default); claim extraction 2048 → the same window, so Ollama no longer reloads the model between planner, talk, and claims
+- optional `dialogue_num_ctx` setting overrides the talk window (clamped 4096–32768); otherwise talk follows `planner_num_ctx`
+- `build_dialogue_prompt` picks the richest of four memory detail levels that fits the budget, condensing both participants together; rules, personalities, vitals, and capabilities are never cut
+- rule lines repeated word for word in the second participant's packet point back to the first packet instead of repeating (~20% smaller prompt); no information moves between citizens
+- talk diagnostics record prompt estimate, window, detail level, and Ollama's real prompt count; `prompt_window_overflow` flags a full window; an oversized claim prompt is skipped (`claim_prompt_over_budget`) rather than cut
+- no Simulation authority, world-truth, or autonomy changes
+
+Validation:
+- complete historical regression matrix
+- `tests/smoke_v1110_dialogue_prompt_budget.py`
 
 ## v1.1.9 Published Patch — Citizen 3D World Models
 
