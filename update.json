@@ -1,6 +1,6 @@
 {
-  "version": "1.1.11",
-  "notes": "Consistent Citizen Body Scale: every citizen body in the Local world, sprite or 3D model, is now sized from one height table (Cato 2.10 m, Vale 2.00, Aris 1.85, Iri 1.78, Bex 1.60, Noma 1.60) at one shared scale, so Cato is the biggest and the others stand in proportion beside him. 3D Cato is centered on his spot and no longer drawn larger than everyone else. The box that appeared around citizen bodies at night is gone. Includes the v1.1.10 dialogue prompt budget fix. Presentation only: no Simulation authority, citizen behavior rules, world truth, or autonomy changes.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/938e498bfe432b16398e4a6d7d51f222c76f48a0",
+  "version": "1.1.12",
+  "notes": "Citizen Curiosity and Supply Trend: each citizen now sees the raw materials they have personally handled, with their own test history and the tests they have never tried, and at Seed Site they see how fast starter supplies like Fasteners are being used. The prompt no longer frames doing nothing as the safe choice. Thinking context only: no new actions, recipes, or Simulation authority; citizens still only know what reached them.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/b3fa19270156185a7c22fa70f1b7e25076546c0e",
   "sha256": ""
 }

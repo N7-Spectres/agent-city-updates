@@ -4,7 +4,7 @@ _Last updated: 2026-10-21_
 
 ## Current Release
 
-**v1.1.11 — Consistent Citizen Body Scale**
+**v1.1.12 — Citizen Curiosity and Supply Trend**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,26 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v1.1.12 Published Patch — Citizen Curiosity and Supply Trend
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v1.1.12` (from `release-v1.1.11`)
+- exact green head: `b3fa19270156185a7c22fa70f1b7e25076546c0e`
+- full CI: `39539284177` — PASS (rc1 CI `39539104204` — PASS)
+- published updater: `v1.1.12`
+- PR #70 squash-merged
+
+Delivered:
+- planner prompt lists raw materials the citizen personally encountered (own confirmed deposits, carried cargo, Seed Site storage while there) with their own assay history and never-tried methods; never reveals hidden properties (`material_testing_attention`)
+- `resource_stock_log` daily stock readings; Seed Site supply lines show use over the last 10 days
+- removed "finite does not mean urgent"; added a MATERIAL TESTING section; do-not-invent rules unchanged
+- no new actions, recipes, or Simulation authority
+
+Validation:
+- complete historical regression matrix
+- `tests/smoke_v1112_curiosity_and_stock_trend.py`
 
 ## v1.1.11 Published Patch — Consistent Citizen Body Scale
 
