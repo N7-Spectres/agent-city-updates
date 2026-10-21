@@ -156,6 +156,13 @@ def init_db() -> None:
                 amount REAL NOT NULL
             );
 
+            CREATE TABLE IF NOT EXISTS resource_stock_log (
+                sim_day INTEGER NOT NULL,
+                material TEXT NOT NULL,
+                amount REAL NOT NULL,
+                PRIMARY KEY(sim_day, material)
+            );
+
             CREATE TABLE IF NOT EXISTS history (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 sim_minute INTEGER NOT NULL,
