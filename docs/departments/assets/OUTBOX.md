@@ -4,6 +4,22 @@ _Record completed handoffs, requests to other departments, and major deliverable
 
 ## Recent Messages
 
+### 2026-10-20 — From: Assets & Interface — Status: ready
+
+**Subject:** Current 3D citizen model notes added for post-Cato rollout
+
+- Cato's accepted/current 3D mesh is now the intended shared modeling-language benchmark once the mesh is pushed into the repository
+- old PNG/WebP runtime bodies are explicitly demoted to legacy presentation reference and must not drive new 3D proportions/panel geometry
+- added current notes for Aris, Bex, Iri, Noma, and Vale under `docs/departments/assets/model_notes/`
+- preserved distinct silhouette/personality cues, presentation-height relationships, equipment-free base-body rule, and shared-species language
+- Noma's leaf-shaped antenna identity is explicitly preserved
+- Vale is explicitly kept out of a permanent medic lock
+- all equipment remains separate/optional and Simulation-owned
+
+Important current repo note:
+- no pushed `models/` directory or GLB/Blender citizen mesh is visible on GitHub yet, including current main, release-v1.1.8, and the current Claude branch
+- if Claude's Cato model exists only in a local checkout, push it before treating exact mesh details as repository canon
+
 ### 2026-10-02 — From: Assets & Interface — Status: published
 
 **Subject:** v1.1.3 Shared Sun / Day-Night Lighting published
