@@ -304,3 +304,7 @@ jobs:
 
       - name: Run v1.1.9 citizen world models smoke
         run: python tests/smoke_v119_citizen_world_models.py
+
+
+      - name: Run v1.1.10 dialogue prompt budget smoke
+        run: python tests/smoke_v1110_dialogue_prompt_budget.py
