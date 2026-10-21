@@ -1105,3 +1105,30 @@ Locked behavior:
 - lighting does not create weather, visibility rules, stealth, travel constraints, energy changes, discoveries, or resource facts
 
 The day/night cycle is presentation of existing Simulation time only.
+
+
+## Current 3D Citizen Model Source Priority
+
+For true 3D citizen modeling, the old pre-Blender PNG/WebP bodies are **not** the primary geometry source.
+
+Visual source order:
+1. current accepted 3D citizen model / mesh
+2. current 3D model notes in `docs/departments/assets/model_notes/`
+3. latest approved concept sheets for identity cues
+4. old runtime PNG/WebP bodies only as historical/legacy presentation reference
+
+The current Cato 3D model is the shared mechanical/material benchmark for the remaining citizens once its mesh is available in the repository.
+
+Important:
+- Cato defines the shared species/modeling language, not everyone's body proportions
+- preserve each citizen's distinctive silhouette/personality
+- equipment-free base bodies remain mandatory
+- old sprite-specific proportions/panel geometry must not silently become new 3D canon
+- when an accepted current 3D model conflicts with an old sprite, the current 3D model wins
+
+Current per-citizen notes:
+- `model_notes/ARIS.md`
+- `model_notes/BEX.md`
+- `model_notes/IRI.md`
+- `model_notes/NOMA.md`
+- `model_notes/VALE.md`
