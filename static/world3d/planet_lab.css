@@ -1061,3 +1061,27 @@ body[data-day-phase="night"] .structure-marker {
     animation: none !important;
   }
 }
+
+
+/* v1.1.9 — rigged citizen world models */
+/* The model canvas sits between the terrain and the DOM markers. It never takes
+   pointer input: orbiting still goes to #world-canvas and clicks to markers. */
+#citizen-model-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+/* When a citizen's 3D body is drawn, its sprite hides but the marker stays as
+   the click target, label, ground shadow, and selection ring. */
+.citizen-world-body.model-active .world-body-image {
+  visibility: hidden;
+  animation: none !important;
+}
+
+.citizen-world-body.model-active.route-traveling::after {
+  animation: none !important;
+}

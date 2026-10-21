@@ -26,7 +26,13 @@
     cato: Object.freeze({
       kind: "sprite_body",
       baseBody: "/static/assets/citizens/cato/world/front.webp",
-      futureModelSlot: "/static/assets/citizens/cato/world/model.glb",
+      // v1.1.9: rigged Blender body. Drawn by citizen_models.js when it loads;
+      // the sprite above stays as the fallback. Any citizen can gain a `model`.
+      model: Object.freeze({
+        src: "/static/assets/citizens/cato/world/model.glb",
+        clips: Object.freeze({ idle: "Idle", walk: "Walk" }),
+        spritePixelHeight: 116,
+      }),
       presentationScale: 1.0,
       minReadableScale: 0.58,
     }),
@@ -47,6 +53,10 @@
   function worldVisualFor(citizenId) {
     return CITIZEN_WORLD_VISUALS[String(citizenId)] || null;
   }
+
+  const CAMERA_FOV_Y = Math.PI / 3.2;
+  const CAMERA_NEAR = 0.02;
+  const CAMERA_FAR = 100;
 
 
   function prepareWorldBodyImage(img, visual) {
@@ -518,7 +528,7 @@
 
   function viewProjection() {
     const aspect = Math.max(0.1, canvas.clientWidth / Math.max(1, canvas.clientHeight));
-    const projection = mat4Perspective(Math.PI / 3.2, aspect, 0.02, 100);
+    const projection = mat4Perspective(CAMERA_FOV_Y, aspect, CAMERA_NEAR, CAMERA_FAR);
     const view = mat4LookAt(cameraEye(), camera.target, [0, 1, 0]);
     return mat4Multiply(projection, view);
   }
@@ -1120,6 +1130,42 @@
     ];
   }
 
+  // Presentation-only facing for 3D bodies: travel direction while on a route,
+  // otherwise the last direction they walked.
+  const citizenHeadings = new Map();
+
+  function citizenTravelFraction(citizen, now = performance.now()) {
+    const job = activeJobFor(citizen);
+    if (!job || String(job.action) !== "travel") return null;
+    const startMinute = finite(job.start_minute);
+    const endMinute = finite(job.end_minute);
+    if (startMinute == null || endMinute == null || endMinute <= startMinute) return null;
+    return (continuousSimMinute(now) - startMinute) / (endMinute - startMinute);
+  }
+
+  function citizenIsWalking(citizen, now = performance.now()) {
+    if (!state || state.paused) return false;
+    const fraction = citizenTravelFraction(citizen, now);
+    return fraction != null && fraction >= 0 && fraction < 1;
+  }
+
+  function citizenHeading(citizen) {
+    const id = String(citizen.id);
+    const job = activeJobFor(citizen);
+    if (job && String(job.action) === "travel") {
+      const from = locationById(citizen.location_id);
+      const to = locationById(job.target);
+      if (from && to) {
+        const [fx, fz] = localHorizontalWorld(from.x_m, from.y_m);
+        const [tx, tz] = localHorizontalWorld(to.x_m, to.y_m);
+        if (Math.hypot(tx - fx, tz - fz) > 1e-6) {
+          citizenHeadings.set(id, Math.atan2(tx - fx, tz - fz));
+        }
+      }
+    }
+    return citizenHeadings.has(id) ? citizenHeadings.get(id) : 0;
+  }
+
   function rebuildLocalRoutes() {
     const vertices = [];
     const byId = new Map(knownLocations().map(loc => [String(loc.id), loc]));
@@ -1600,6 +1646,7 @@
 
   function updateMarkers(matrix, now = performance.now()) {
     const eye = cameraEye();
+    const modelCitizens = [];
 
     for (const item of markerItems) {
       const world = markerWorld(item, now);
@@ -1636,7 +1683,41 @@
       item.element.style.setProperty("--marker-scale", displayScale.toFixed(3));
       item.element.style.left = projected.x + "px";
       item.element.style.top = projected.y + "px";
+
+      if (mode === "local" && visual?.model) {
+        const status = window.AgentCityModels ? window.AgentCityModels.status(item.id, visual.model) : "failed";
+        const modelActive = status === "ready";
+        item.element.classList.toggle("model-active", modelActive);
+        if (modelActive) {
+          modelCitizens.push({
+            id: String(item.id),
+            world,
+            heading: citizenHeading(item.data),
+            walking: citizenIsWalking(item.data, now),
+            pixelHeight: Number(visual.model.spritePixelHeight || 116) * displayScale,
+          });
+        }
+      }
     }
+
+    return modelCitizens;
+  }
+
+  function renderCitizenModels(modelCitizens, lighting) {
+    if (!window.AgentCityModels) return;
+    window.AgentCityModels.render({
+      active: mode === "local" && modelCitizens.length > 0,
+      eye: cameraEye(),
+      target: camera.target,
+      fovY: CAMERA_FOV_Y,
+      near: CAMERA_NEAR,
+      far: CAMERA_FAR,
+      width: Math.max(1, canvas.clientWidth),
+      height: Math.max(1, canvas.clientHeight),
+      pixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+      lighting,
+      citizens: modelCitizens,
+    });
   }
 
   function renderLocationList() {
@@ -1946,7 +2027,8 @@
       drawSphere(matrix, lighting);
     }
 
-    updateMarkers(matrix, now);
+    const modelCitizens = updateMarkers(matrix, now);
+    renderCitizenModels(modelCitizens, lighting);
     frameHandle = requestAnimationFrame(renderFrame);
   }
 

@@ -55,9 +55,10 @@ def main() -> None:
     assert "@keyframes cato-world-travel-bob" in css
     assert "prefers-reduced-motion" in css
 
-    # Blender handoff is planned but not loaded as if it already existed.
-    assert 'futureModelSlot: "/static/assets/citizens/cato/world/model.glb"' in js
-    assert not (ROOT / "static" / "assets" / "citizens" / "cato" / "world" / "model.glb").exists()
+    # v1.1.9 filled the reserved Blender slot with a rigged model; the sprite
+    # above remains its fallback (see smoke_v119_citizen_world_models.py).
+    assert 'src: "/static/assets/citizens/cato/world/model.glb"' in js
+    assert (ROOT / "static" / "assets" / "citizens" / "cato" / "world" / "model.glb").exists()
     assert "2.5D pre-Blender body pilot" in contract
 
     print("Agent City v0.9.12 Cato pre-Blender world-body smoke passed.")
