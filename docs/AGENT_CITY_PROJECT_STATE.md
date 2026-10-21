@@ -4,7 +4,7 @@ _Last updated: 2026-10-21_
 
 ## Current Release
 
-**v1.1.12 — Citizen Curiosity and Supply Trend**
+**v1.1.13 — Iri 3D World Model**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,26 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v1.1.13 Published Patch — Iri 3D World Model
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v1.1.13` (from `release-v1.1.12`)
+- exact green head: `b3d3012a8097bbb4b5cde63916d523cc00cc21a2`
+- full CI: `39539952774` — PASS (rc1 CI `39539847829` — PASS)
+- published updater: `v1.1.13`
+- PR #72 squash-merged
+
+Delivered:
+- Iri's N7-approved, concept-matched rigged GLB at `static/assets/citizens/iri/world/model.glb` (same 20-bone rig and Idle/Walk clips as Cato, 1.78 m with halo)
+- Iri's `CITIZEN_WORLD_VISUALS` entry declares the model; her cleaned sprite stays as the fallback
+- sized by the shared v1.1.11 height table; no loader or Simulation changes
+
+Validation:
+- complete historical regression matrix
+- `tests/smoke_v1113_iri_world_model.py`; `tests/smoke_v0918_iri_world_body.py` now expects the filled slot
+- headless Chromium: Iri's model loads and renders beside 3D Cato and the Aris sprite
 
 ## v1.1.12 Published Patch — Citizen Curiosity and Supply Trend
 

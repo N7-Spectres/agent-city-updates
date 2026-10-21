@@ -1,6 +1,6 @@
 {
-  "version": "1.1.12",
-  "notes": "Citizen Curiosity and Supply Trend: each citizen now sees the raw materials they have personally handled, with their own test history and the tests they have never tried, and at Seed Site they see how fast starter supplies like Fasteners are being used. The prompt no longer frames doing nothing as the safe choice. Thinking context only: no new actions, recipes, or Simulation authority; citizens still only know what reached them.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/b3fa19270156185a7c22fa70f1b7e25076546c0e",
+  "version": "1.1.13",
+  "notes": "Iri 3D World Model: Iri is the second citizen with a real rigged 3D body in the Local world. Her concept-matched Blender model plays an Idle loop when standing and a Walk loop while she travels a route, and she turns to face where she is going, just like Cato. She is sized from the shared height table, a little shorter than Aris and well under Cato. Her sprite remains the fallback if the model cannot load. Includes the v1.1.12 curiosity and supply-trend changes. Presentation only: no Simulation authority, citizen behavior rules, world truth, or autonomy changes.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/b3d3012a8097bbb4b5cde63916d523cc00cc21a2",
   "sha256": ""
 }
