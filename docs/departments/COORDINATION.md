@@ -1,6 +1,6 @@
 # Agent City — Department Coordination Board
 
-_Last updated: 2026-10-20_
+_Last updated: 2026-10-21_
 
 This file is the shared project task board.
 
@@ -31,6 +31,10 @@ _None._
 _None._
 
 ### DONE
+
+- [Coordinator] **v1.1.9 Citizen 3D World Models published** from `release-v1.1.9@668d365627b14791b59c32cdf74a16d78ed56b47`; full CI `39535954079` PASS. PR #66 merged.
+- [Assets/UI] Planet Lab Local view draws rigged 3D citizen bodies (vendored three.js). Cato is first, playing Idle and Walk tied to his travel routes; sprites stay as the fallback.
+- [Assets] Other citizens gain 3D bodies by adding a GLB with Idle/Walk clips and a `model` entry in `CITIZEN_WORLD_VISUALS`.
 
 - [Coordinator] **v1.1.8 Planner Health + Prompt Budget + Settlement Timeline published** from `release-v1.1.8@c02cc2fda7e1a3406c9e7e54256e4e244263c27f`; full CI `39532272218` PASS. PR #65 merged.
 - [Simulation/Planner] Planner context window 4096 → 8192 with an explicit prompt token budget; older memory condenses across four detail levels, while identity, rules, vitals, and legal actions are never cut. Confirmed-deposit and validated-property prompt lists are now bounded.
