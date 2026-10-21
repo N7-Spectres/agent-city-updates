@@ -1,6 +1,6 @@
 {
-  "version": "1.1.8",
-  "notes": "Planner Health + Prompt Budget + Settlement Timeline: citizen decision prompts are now built against an explicit token budget inside an 8192-token context window (previously 4096, which long-running cities could silently overflow). When the budget is tight, older memory lines are condensed; identity, rules, vitals, and legal actions are never cut. Confirmed-deposit and validated-property lists are now bounded. Every planning attempt is recorded (chosen, refused by Simulation, or lost to an Ollama/JSON/truncation failure) with the real prompt size, failures are written to the server log, and Admin System Health shows a Citizen decisions row. Records gains a read-only Timeline tab: totals, activity per period, starter stores then vs now, per-citizen totals, and filterable milestones from public records only. No Simulation authority, citizen behavior rules, world truth, or autonomy changes.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/c02cc2fda7e1a3406c9e7e54256e4e244263c27f",
+  "version": "1.1.9",
+  "notes": "Citizen 3D World Models: Planet Lab's Local view can now draw citizens as rigged 3D models instead of flat sprites. Cato is first: his Blender model plays an Idle loop when standing and a Walk loop while he travels a route (Idle when the sim is paused or he arrives), and turns to face where he is going. Models are presentation only; the Simulation still owns every position, and markers still handle names, clicks, and selection. If a model, WebGL, or three.js fails to load, that citizen keeps the sprite body. three.js is bundled locally so the world works offline. Other citizens gain a 3D body by adding their own model file. No Simulation authority, citizen behavior rules, world truth, or autonomy changes.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/668d365627b14791b59c32cdf74a16d78ed56b47",
   "sha256": ""
 }

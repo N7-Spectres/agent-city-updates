@@ -1,10 +1,10 @@
 # Agent City — Project State
 
-_Last updated: 2026-10-20_
+_Last updated: 2026-10-21_
 
 ## Current Release
 
-**v1.1.8 — Planner Health + Prompt Budget + Settlement Timeline**
+**v1.1.9 — Citizen 3D World Models**
 
 Agent City is a local-first autonomous mechanical civilization simulation. Six equal mechanical citizens live at Seed Site and act independently through validated simulation actions.
 
@@ -17,6 +17,33 @@ Information law:
 > **A citizen only knows what information could actually have reached them.**
 
 Human users such as N7 are **visitors**, not gods, rulers, or omniscient operators.
+
+## v1.1.9 Published Patch — Citizen 3D World Models
+
+**Status: published from the fully regression-tested release line**
+
+- branch: `release-v1.1.9`
+- exact green head: `668d365627b14791b59c32cdf74a16d78ed56b47`
+- full CI: `39535954079` — PASS (rc1 CI `39535858292` — PASS)
+- published updater: `v1.1.9`
+- PR #66 merged
+
+Delivered:
+- Planet Lab Local view draws rigged GLB citizen bodies via `static/world3d/citizen_models.js` (three.js r160, vendored under `static/vendor/three/`, MIT)
+- Cato's rigged Blender model (20 bones, Idle + Walk) fills `static/assets/citizens/cato/world/model.glb`
+- Walk plays while the citizen is on a travel route and the sim is running; Idle otherwise; the body faces its route direction
+- models are sized to the sprite's on-screen height so they stay readable at every zoom
+- DOM markers keep labels, clicks, selection ring and ground shadow; only the sprite image hides while a model shows
+- sprite body remains the fallback if three.js, WebGL, or a model fails; citizens without a model are unchanged
+- any citizen gains a body by adding a `model` entry (`src`, `clips.idle`, `clips.walk`, `spritePixelHeight`) to `CITIZEN_WORLD_VISUALS`
+- presentation only: no Simulation authority, citizen behavior rule, world-truth, or autonomy changes
+
+Validation:
+- complete historical regression matrix
+- Python compile
+- app, Planet Lab, and citizen-model JavaScript syntax
+- `tests/smoke_v119_citizen_world_models.py`; `tests/smoke_v0912_cato_world_body.py` updated now that the model slot is filled
+- headless Chromium against a live server: Cato loads upright at sprite scale and walks facing his route, no console errors
 
 ## v1.1.8 Published Patch — Planner Health + Prompt Budget + Settlement Timeline
 
