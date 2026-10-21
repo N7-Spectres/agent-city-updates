@@ -41,6 +41,8 @@ from agent_city.provenance import (
     knowledge_payload,
 )
 from agent_city.planner import planning_loop
+from agent_city.planner_health import ensure_planner_health_schema, planner_health_summary
+from agent_city.timeline import settlement_timeline
 from agent_city.shared_actions import (
     accept_proposal,
     ensure_shared_action_schema,
@@ -123,6 +125,7 @@ async def lifespan(app: FastAPI):
     ensure_information_schema()
     ensure_talk_diagnostic_schema()
     ensure_shared_action_schema()
+    ensure_planner_health_schema()
     cleanup_stale_update_staging()
     clock_task = asyncio.create_task(clock.run())
     planner_task = asyncio.create_task(planning_loop())
@@ -508,6 +511,11 @@ def get_records_history(
             "total_pages": chronology_pages,
         },
     }
+
+
+@app.get("/api/records/timeline")
+def get_records_timeline(bucket_days: int | None = None):
+    return settlement_timeline(bucket_days)
 
 
 @app.get("/api/knowledge/citizens/{citizen_id}")
@@ -990,6 +998,7 @@ async def _system_health_payload() -> dict[str, Any]:
             "status": launcher_status,
             "server_pid": server_pid,
         },
+        "planner": planner_health_summary(),
         "backups": backups,
         "updates": {
             "feed_configured": bool(settings.get("manifest_url")),

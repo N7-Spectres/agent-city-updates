@@ -283,12 +283,14 @@ const els = {
   toggleResources: document.getElementById("toggle-resources"),
   toggleStructures: document.getElementById("toggle-structures"),
   toggleHistory: document.getElementById("toggle-history"),
+  toggleTimeline: document.getElementById("toggle-timeline"),
   toggleUpdates: document.getElementById("toggle-updates"),
   detailViews: {
     region: document.getElementById("detail-region"),
     resources: document.getElementById("detail-resources"),
     structures: document.getElementById("detail-structures"),
     history: document.getElementById("detail-history"),
+    timeline: document.getElementById("detail-timeline"),
     updates: document.getElementById("detail-updates"),
   }
 };
@@ -3061,11 +3063,13 @@ function openControlRoomView(name, title, eyebrow = "DETAILS") {
     resources: els.toggleResources,
     structures: els.toggleStructures,
     history: els.toggleHistory,
+    timeline: els.toggleTimeline,
     updates: els.toggleUpdates,
   };
 
   if (activeMap[name]) activeMap[name].classList.add("active");
   if (name === "history") void loadHistoryRecords();
+  if (name === "timeline") void loadTimeline();
 }
 
 function updateMapZoomLabel() {
@@ -3517,6 +3521,7 @@ els.toggleRegion.addEventListener("click", () => openControlRoomView("region", "
 els.toggleResources.addEventListener("click", () => openControlRoomView("resources", "Seed Site stores", "STORES"));
 els.toggleStructures.addEventListener("click", () => openControlRoomView("structures", "Making & building", "PHYSICAL STATE"));
 els.toggleHistory.addEventListener("click", () => openControlRoomView("history", "Settlement history", "HISTORY"));
+els.toggleTimeline?.addEventListener("click", () => openControlRoomView("timeline", "The long view", "TIMELINE"));
 els.toggleUpdates.addEventListener("click", () => {
   openControlRoomView("updates", "Admin • Updates", "ADMIN");
   void refreshOperationsConsole();
@@ -3702,6 +3707,35 @@ function healthState(label, ok, detail = "") {
   `;
 }
 
+function plannerHealthState(planner) {
+  if (!planner || planner.available === false) {
+    return healthState("Citizen decisions", null, "no decision record yet");
+  }
+  const day = planner.last_24h || {};
+  const attempts = Number(day.attempts) || 0;
+  if (!attempts) {
+    return healthState("Citizen decisions", null, "no decisions in the last 24 hours");
+  }
+  const failures = Number(day.failures) || 0;
+  const rate = Number(day.failure_rate) || 0;
+  const parts = [
+    `${Number(day.chosen) || 0} chosen`,
+    `${Number(day.rejected_by_simulation) || 0} refused by Simulation`,
+    `${failures} lost turn${failures === 1 ? "" : "s"} (24h)`,
+  ];
+  if (day.prompt_tokens_max && planner.num_ctx) {
+    parts.push(`largest prompt ${day.prompt_tokens_max}/${planner.num_ctx} tokens`);
+  }
+  if (day.memory_trimmed_attempts) {
+    parts.push(`${day.memory_trimmed_attempts} with older memory condensed`);
+  }
+  if (failures && planner.last_failure) {
+    parts.push(`last: ${planner.last_failure.outcome}`);
+  }
+  const nearOverflow = Number(day.near_overflow_attempts) || 0;
+  return healthState("Citizen decisions", rate <= 0.1 && nearOverflow === 0, parts.join(" • "));
+}
+
 function renderSystemHealth(data) {
   if (!els.systemHealthSummary) return;
   const database = data?.database || {};
@@ -3731,6 +3765,7 @@ function renderSystemHealth(data) {
       String(launcherState).toLowerCase() === "running",
       `${launcherState}${launcher.server_pid ? ` • server PID ${launcher.server_pid}` : ""}`
     ),
+    plannerHealthState(data?.planner),
     healthState(
       "Backups",
       backups.count > 0,
@@ -4008,6 +4043,273 @@ els.installUpdate.addEventListener("click", async () => {
     els.installUpdate.disabled = false;
   }
 });
+
+// ---------------------------------------------------------------------------
+// Timeline: the long view of what the settlement has actually done.
+// ---------------------------------------------------------------------------
+
+const TIMELINE_FAMILIES = [
+  { key: "work", label: "Work & building", color: "#3987e5" },
+  { key: "explore", label: "Exploring & testing", color: "#d95926" },
+  { key: "social", label: "Social", color: "#199e70" },
+  { key: "upkeep", label: "Charging & repairs", color: "#c98500" },
+];
+
+const TIMELINE_KIND_LABELS = {
+  build: "Building",
+  production: "Production",
+  equipment: "Equipment",
+  deposit: "Deposit",
+  knowledge: "Knowledge",
+  social: "First meeting",
+  plan: "Plan",
+  breakdown: "Breakdown",
+};
+
+let timelineData = null;
+let timelineLoading = false;
+
+function timelineEl(id) {
+  return document.getElementById(id);
+}
+
+function formatCount(value) {
+  return Number(value || 0).toLocaleString();
+}
+
+function bucketLabel(bucket) {
+  return bucket.first_day === bucket.last_day
+    ? `Day ${bucket.first_day}`
+    : `Days ${bucket.first_day}–${bucket.last_day}`;
+}
+
+function bucketTotal(bucket) {
+  return TIMELINE_FAMILIES.reduce((sum, f) => sum + (Number(bucket.jobs?.[f.key]) || 0), 0);
+}
+
+function renderTimelineTotals(data) {
+  const t = data.totals || {};
+  const tiles = [
+    ["Days lived", data.now?.days_elapsed, data.now?.label],
+    ["Buildings completed", t.buildings_completed, `${formatCount(t.structures_standing)} structures standing`],
+    ["Production runs", t.production_runs, `${formatCount(t.processes_mastered)} different processes`],
+    ["Equipment made", t.equipment_made, "tools and packs"],
+    ["Discoveries", (Number(t.deposits_confirmed) || 0) + (Number(t.properties_validated) || 0), `${formatCount(t.deposits_confirmed)} deposits • ${formatCount(t.properties_validated)} properties`],
+    ["Conversations", t.conversations, `${formatCount(t.citizen_pairs_met)} of 15 pairs have talked`],
+  ];
+  timelineEl("timeline-totals").innerHTML = tiles.map(([label, value, note]) => `
+    <div class="timeline-tile">
+      <span>${escapeHtml(label)}</span>
+      <strong>${formatCount(value)}</strong>
+      <small>${escapeHtml(note || "")}</small>
+    </div>
+  `).join("");
+}
+
+function renderTimelineChart(data) {
+  const chart = timelineEl("timeline-chart");
+  const legend = timelineEl("timeline-legend");
+  const buckets = Array.isArray(data.buckets) ? data.buckets : [];
+  legend.innerHTML = TIMELINE_FAMILIES.map(f => `
+    <span class="timeline-legend-item"><i style="background:${f.color}"></i>${escapeHtml(f.label)}</span>
+  `).join("");
+
+  const max = Math.max(1, ...buckets.map(bucketTotal));
+  chart.style.setProperty("--timeline-bars", String(Math.max(buckets.length, 1)));
+  chart.innerHTML = buckets.map((bucket, index) => {
+    const total = bucketTotal(bucket);
+    const height = (total / max) * 100;
+    const segments = TIMELINE_FAMILIES
+      .map(f => {
+        const value = Number(bucket.jobs?.[f.key]) || 0;
+        if (!value) return "";
+        return `<span class="timeline-seg" style="flex-grow:${value};background:${f.color}"></span>`;
+      })
+      .join("");
+    return `
+      <div class="timeline-bar" data-index="${index}" tabindex="0" aria-label="${escapeHtml(bucketLabel(bucket))}: ${total} jobs">
+        <div class="timeline-bar-stack" style="height:${height}%">${segments}</div>
+      </div>
+    `;
+  }).join("");
+
+  const first = buckets[0];
+  const last = buckets[buckets.length - 1];
+  chart.dataset.startLabel = first ? `Day ${first.first_day}` : "";
+  chart.dataset.endLabel = last ? `Day ${last.last_day}` : "";
+  chart.dataset.maxLabel = `${formatCount(max)} jobs`;
+
+  const tooltip = timelineEl("timeline-tooltip");
+  const show = target => {
+    const bar = target.closest?.(".timeline-bar");
+    if (!bar) return;
+    const bucket = buckets[Number(bar.dataset.index)];
+    if (!bucket) return;
+    tooltip.innerHTML = `
+      <strong>${escapeHtml(bucketLabel(bucket))}</strong>
+      ${TIMELINE_FAMILIES.map(f => `
+        <div><i style="background:${f.color}"></i><span>${escapeHtml(f.label)}</span><b>${formatCount(bucket.jobs?.[f.key])}</b></div>
+      `).join("")}
+      <div class="timeline-tooltip-extra">
+        ${formatCount(bucket.builds)} built • ${formatCount(bucket.production_runs)} produced •
+        ${formatCount(bucket.discoveries)} discovered • ${formatCount(bucket.conversations)} talks
+      </div>
+    `;
+    tooltip.hidden = false;
+    const wrap = chart.parentElement.getBoundingClientRect();
+    const rect = bar.getBoundingClientRect();
+    const tipWidth = tooltip.offsetWidth || 220;
+    const barCenter = rect.left - wrap.left + rect.width / 2;
+    const stack = bar.querySelector(".timeline-bar-stack");
+    const stackHalf = Math.min(rect.width, 34) / 2;
+    let left = barCenter < wrap.width / 2
+      ? barCenter + stackHalf + 10
+      : barCenter - stackHalf - 10 - tipWidth;
+    left = Math.min(Math.max(left, 0), Math.max(0, wrap.width - tipWidth));
+    tooltip.style.left = `${left}px`;
+    const stackTop = (stack?.getBoundingClientRect().top ?? rect.top) - wrap.top - 8;
+    const maxTop = Math.max(0, wrap.height - tooltip.offsetHeight);
+    tooltip.style.top = `${Math.min(Math.max(0, stackTop), maxTop)}px`;
+    chart.querySelectorAll(".timeline-bar.active").forEach(el => el.classList.remove("active"));
+    bar.classList.add("active");
+  };
+  const hide = () => {
+    tooltip.hidden = true;
+    chart.querySelectorAll(".timeline-bar.active").forEach(el => el.classList.remove("active"));
+  };
+  chart.onmouseover = event => show(event.target);
+  chart.onfocusin = event => show(event.target);
+  chart.onmouseleave = hide;
+  chart.onfocusout = hide;
+
+  timelineEl("timeline-bucket-table").innerHTML = `
+    <table class="timeline-table">
+      <thead><tr><th>Period</th>${TIMELINE_FAMILIES.map(f => `<th>${escapeHtml(f.label)}</th>`).join("")}<th>Built</th><th>Produced</th><th>Discovered</th><th>Talks</th></tr></thead>
+      <tbody>
+        ${buckets.map(b => `
+          <tr>
+            <td>${escapeHtml(bucketLabel(b))}</td>
+            ${TIMELINE_FAMILIES.map(f => `<td>${formatCount(b.jobs?.[f.key])}</td>`).join("")}
+            <td>${formatCount(b.builds)}</td><td>${formatCount(b.production_runs)}</td>
+            <td>${formatCount(b.discoveries)}</td><td>${formatCount(b.conversations)}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+function renderTimelineStores(data) {
+  const stores = Array.isArray(data.stores) ? data.stores : [];
+  timelineEl("timeline-stores").innerHTML = stores.map(item => {
+    const start = Number(item.start) || 0;
+    const now = Number(item.now) || 0;
+    const scale = Math.max(start, now, 1);
+    const change = now - start;
+    const note = change === 0
+      ? "unchanged"
+      : change > 0
+        ? `${formatCount(change)} more than at the start`
+        : `${formatCount(-change)} used`;
+    return `
+      <div class="timeline-store">
+        <div class="timeline-store-head">
+          <span>${escapeHtml(item.material)}</span>
+          <strong>${formatCount(start)} → ${formatCount(now)}</strong>
+        </div>
+        <div class="timeline-store-track">
+          <span class="timeline-store-start" style="width:${(start / scale) * 100}%"></span>
+          <span class="timeline-store-now ${now <= 0 ? "empty" : ""}" style="width:${(now / scale) * 100}%"></span>
+        </div>
+        <small class="${now <= 0 ? "timeline-store-out" : ""}">${now <= 0 ? "Ran out" : escapeHtml(note)}</small>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderTimelineCitizens(data) {
+  const citizens = Array.isArray(data.citizens) ? data.citizens : [];
+  timelineEl("timeline-citizens").innerHTML = `
+    <table class="timeline-table">
+      <thead><tr><th>Citizen</th><th>Jobs</th><th>Work</th><th>Explore</th><th>Social</th><th>Built</th><th>Found</th><th>Most often</th></tr></thead>
+      <tbody>
+        ${citizens.map(c => `
+          <tr>
+            <td><strong>${escapeHtml(c.name)}</strong></td>
+            <td>${formatCount(c.jobs_completed)}</td>
+            <td>${formatCount(c.jobs?.work)}</td>
+            <td>${formatCount(c.jobs?.explore)}</td>
+            <td>${formatCount(c.jobs?.social)}</td>
+            <td>${formatCount(c.builds)}</td>
+            <td>${formatCount(c.discoveries)}</td>
+            <td>${escapeHtml((c.top_actions || []).map(a => a.action.replaceAll("_", " ")).slice(0, 2).join(", ") || "—")}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+function renderTimelineMilestones() {
+  const list = timelineEl("timeline-milestones");
+  if (!timelineData) return;
+  const filter = timelineEl("timeline-milestone-filter")?.value || "";
+  const items = (timelineData.milestones || [])
+    .filter(m => !filter || m.kind === filter)
+    .slice()
+    .reverse();
+  if (!items.length) {
+    list.innerHTML = '<div class="muted">Nothing recorded here yet.</div>';
+    return;
+  }
+  let lastDay = null;
+  list.innerHTML = items.map(m => {
+    const dayHead = m.day !== lastDay ? `<div class="timeline-day">Day ${formatCount(m.day)}</div>` : "";
+    lastDay = m.day;
+    return `
+      ${dayHead}
+      <div class="timeline-milestone kind-${escapeHtml(m.kind)}">
+        <span class="timeline-kind">${escapeHtml(TIMELINE_KIND_LABELS[m.kind] || m.kind)}</span>
+        <div>
+          <strong>${escapeHtml(m.title)}</strong>
+          <small>${escapeHtml(m.label)}${m.citizen ? ` • ${escapeHtml(m.citizen)}` : ""}</small>
+        </div>
+      </div>
+    `;
+  }).join("");
+  const total = Number(timelineData.milestones_total) || 0;
+  if (total > (timelineData.milestones || []).length) {
+    list.insertAdjacentHTML("beforeend", `<div class="muted timeline-more">Showing the latest ${formatCount(timelineData.milestones.length)} of ${formatCount(total)} milestones.</div>`);
+  }
+}
+
+async function loadTimeline() {
+  if (timelineLoading || !timelineEl("detail-timeline")) return;
+  timelineLoading = true;
+  const status = timelineEl("timeline-status");
+  const button = timelineEl("refresh-timeline");
+  button && (button.disabled = true);
+  try {
+    const response = await fetch("/api/records/timeline", { cache: "no-store" });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Could not load the timeline.");
+    timelineData = data;
+    status.textContent = `${data.now?.label || ""} • each bar is ${data.bucket_days} day${data.bucket_days === 1 ? "" : "s"}`;
+    renderTimelineTotals(data);
+    renderTimelineChart(data);
+    renderTimelineStores(data);
+    renderTimelineCitizens(data);
+    renderTimelineMilestones();
+  } catch (error) {
+    status.textContent = `Timeline unavailable: ${error.message}`;
+  } finally {
+    timelineLoading = false;
+    button && (button.disabled = false);
+  }
+}
+
+timelineEl("refresh-timeline")?.addEventListener("click", () => void loadTimeline());
+timelineEl("timeline-milestone-filter")?.addEventListener("change", renderTimelineMilestones);
 
 bindViewNavigation();
 loadState();
