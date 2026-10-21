@@ -296,3 +296,11 @@ jobs:
 
       - name: Run v1.1.8 planner health / timeline smoke
         run: python tests/smoke_v118_planner_health_timeline.py
+
+
+      - name: Check citizen model JavaScript syntax
+        run: node --check static/world3d/citizen_models.js
+
+
+      - name: Run v1.1.9 citizen world models smoke
+        run: python tests/smoke_v119_citizen_world_models.py
