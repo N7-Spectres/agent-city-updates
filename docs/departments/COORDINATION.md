@@ -32,6 +32,9 @@ _None._
 
 ### DONE
 
+- [Coordinator] **v1.1.11 Consistent Citizen Body Scale published** from `release-v1.1.11@938e498bfe432b16398e4a6d7d51f222c76f48a0`; full CI `39537485292` PASS. PR #69 squash-merged.
+- [Assets/UI] All Local citizen bodies (sprite and 3D) are sized from one presentation-height table at one shared scale; 3D Cato is centered and tallest. Night box around body markers removed.
+
 - [Coordinator] **v1.1.10 Citizen Dialogue Prompt Budget published** from `release-v1.1.10@b66fb03990a3ff20057c09297e5d639b67d31826`; full CI `39536817767` PASS. PR #68 merged.
 - [Communication] Citizen dialogue and claim extraction moved from 4096/2048 windows to the planner's 8192 window with a budgeted prompt; older memory condenses, rules are never cut, and rule text repeated for both participants is stated once.
 
