@@ -60,7 +60,11 @@
     iri: Object.freeze({
       kind: "sprite_body",
       baseBody: "/static/assets/citizens/iri/full.webp",
-      futureModelSlot: "/static/assets/citizens/iri/world/model.glb",
+      // v1.1.13: rigged Blender body, same 20-bone rig and clips as Cato.
+      model: Object.freeze({
+        src: "/static/assets/citizens/iri/world/model.glb",
+        clips: Object.freeze({ idle: "Idle", walk: "Walk" }),
+      }),
       presentationScale: spritePresentationScale("iri", 98),
       removeConnectedBackdrop: true,
       backdropTolerance: 72,
