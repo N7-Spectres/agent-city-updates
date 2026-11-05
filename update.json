@@ -1,6 +1,6 @@
 {
-  "version": "1.1.13",
-  "notes": "Iri 3D World Model: Iri is the second citizen with a real rigged 3D body in the Local world. Her concept-matched Blender model plays an Idle loop when standing and a Walk loop while she travels a route, and she turns to face where she is going, just like Cato. She is sized from the shared height table, a little shorter than Aris and well under Cato. Her sprite remains the fallback if the model cannot load. Includes the v1.1.12 curiosity and supply-trend changes. Presentation only: no Simulation authority, citizen behavior rules, world truth, or autonomy changes.",
-  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/b3d3012a8097bbb4b5cde63916d523cc00cc21a2",
+  "version": "2.0.0",
+  "notes": "Agent City v2: a fresh start. A new seeded planet with hidden resources, one curved white facility called Seed Station (2 repair stations with room for 2 more, storage, a work station and a round meeting table), and the six founding citizens as division directors with their memories wiped. You walk the world as a visitor with the arrow keys (Shift to jog). Citizen minds are not switched on yet: that comes in a later update. Your v1 save (data/agent_city.db) is kept untouched and backed up; v2 saves to data/world.db.",
+  "package_url": "https://codeload.github.com/N7-Spectres/agent-city-updates/zip/9034c1e619ae3da3c7936a73dfdcc26c166ad4e1",
   "sha256": ""
 }
