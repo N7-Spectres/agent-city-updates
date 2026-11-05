@@ -45,5 +45,5 @@ Run the tests: `python -m unittest discover -s tests -t .`
 ## Releases
 
 `update.json` on `main` tells installed copies which exact commit to update to.
-It still points at v1.1.13 until v2.0.0 is ready, so merging v2 work into `main`
-does not change anyone's install.
+Merging code into `main` does not change anyone's install. To publish, bump
+`VERSION`, merge, then point `update.json` at that exact merge commit.
