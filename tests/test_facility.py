@@ -43,11 +43,28 @@ class FacilityTests(unittest.TestCase):
                 self.assertFalse(blocked(s.x_m, s.y_m), f"nobody can stand at {s.id}")
 
     def test_the_door_is_open_and_the_walls_are_not(self):
-        self.assertFalse(blocked(0.0, -11.0))       # through the door
-        self.assertTrue(blocked(6.0, -11.0))        # south wall beside it
-        self.assertTrue(blocked(0.0, 11.0))         # north wall
+        self.assertFalse(blocked(0.0, -12.0))       # through the door
+        self.assertTrue(blocked(6.0, -12.0))        # south wall beside it
+        self.assertTrue(blocked(0.0, 12.0))         # north wall
+        self.assertTrue(blocked(18.0, 0.0))         # east wall
+        r = 6.0  # a point on the rounded north-east corner
+        self.assertTrue(blocked(12.0 + r * 0.7071, 6.0 + r * 0.7071))
         self.assertFalse(blocked(*VISITOR_SPAWN[:2]))
 
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ShellTests(unittest.TestCase):
+    def test_everything_inside_fits_within_the_curved_shell(self):
+        from agent_city.world.facility import _walls
+        walls = _walls()
+        for s in starting_facility():
+            if s.kind in ("wall", "floor", "door"):
+                continue
+            for dx in (-1, 1):
+                for dy in (-1, 1):
+                    x = s.x_m + dx * s.width_m / 2
+                    y = s.y_m + dy * s.depth_m / 2
+                    self.assertFalse(any(w.contains(x, y) for w in walls), f"{s.id} pokes into the wall")

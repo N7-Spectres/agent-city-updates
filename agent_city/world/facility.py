@@ -16,11 +16,12 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 
-BUILDING_WIDTH_M = 32.0   # east-west
-BUILDING_DEPTH_M = 22.0   # north-south
+BUILDING_WIDTH_M = 36.0   # east-west
+BUILDING_DEPTH_M = 24.0   # north-south
+CORNER_RADIUS_M = 6.0     # rounded corners: the station is one smooth shell
 WALL_THICKNESS_M = 0.4
-WALL_HEIGHT_M = 4.5
-DOOR_WIDTH_M = 3.2
+WALL_HEIGHT_M = 5.0
+DOOR_WIDTH_M = 3.6
 
 MEETING_TABLE_CENTER = (0.0, 2.5)
 MEETING_TABLE_RADIUS_M = 2.0
@@ -65,17 +66,53 @@ class Structure:
         }
 
 
+def wall_path(step_m: float = 1.0) -> list[tuple[float, float]]:
+    """Points around the middle of the wall, counter-clockwise from the door's east edge.
+
+    The outline is a rounded rectangle. The browser draws the curved shell
+    from the same points, so what you see is what you bump into.
+    """
+    hw, hd, r = BUILDING_WIDTH_M / 2.0, BUILDING_DEPTH_M / 2.0, CORNER_RADIUS_M
+    pts: list[tuple[float, float]] = []
+
+    def line(x0, y0, x1, y1):
+        n = max(1, int(math.ceil(math.hypot(x1 - x0, y1 - y0) / step_m)))
+        for i in range(n):
+            t = i / n
+            pts.append((x0 + (x1 - x0) * t, y0 + (y1 - y0) * t))
+
+    def arc(cx, cy, a0, a1):
+        n = max(2, int(math.ceil(abs(a1 - a0) * r / step_m)))
+        for i in range(n):
+            a = a0 + (a1 - a0) * i / n
+            pts.append((cx + r * math.cos(a), cy + r * math.sin(a)))
+
+    half_door = DOOR_WIDTH_M / 2.0
+    line(half_door, -hd, hw - r, -hd)
+    arc(hw - r, -hd + r, -math.pi / 2, 0)
+    line(hw, -hd + r, hw, hd - r)
+    arc(hw - r, hd - r, 0, math.pi / 2)
+    line(hw - r, hd, -hw + r, hd)
+    arc(-hw + r, hd - r, math.pi / 2, math.pi)
+    line(-hw, hd - r, -hw, -hd + r)
+    arc(-hw + r, -hd + r, math.pi, 3 * math.pi / 2)
+    line(-hw + r, -hd, -half_door, -hd)
+    pts.append((-half_door, -hd))
+    return [(round(x, 3), round(y, 3)) for x, y in pts]
+
+
 def _walls() -> list[Structure]:
-    w, d, t, h = BUILDING_WIDTH_M, BUILDING_DEPTH_M, WALL_THICKNESS_M, WALL_HEIGHT_M
-    half_w, half_d = w / 2.0, d / 2.0
-    side_len = (w - DOOR_WIDTH_M) / 2.0
-    return [
-        Structure("wall-north", "wall", "North wall", 0.0, half_d, w, t, h, True),
-        Structure("wall-west", "wall", "West wall", -half_w, 0.0, t, d, h, True),
-        Structure("wall-east", "wall", "East wall", half_w, 0.0, t, d, h, True),
-        Structure("wall-south-west", "wall", "South wall", -(DOOR_WIDTH_M / 2.0 + side_len / 2.0), -half_d, side_len, t, h, True),
-        Structure("wall-south-east", "wall", "South wall", DOOR_WIDTH_M / 2.0 + side_len / 2.0, -half_d, side_len, t, h, True),
-    ]
+    """The shell as short solid pieces that follow the curved outline."""
+    pts = wall_path(1.0)
+    t, h = WALL_THICKNESS_M, WALL_HEIGHT_M
+    pieces = []
+    for i, ((x0, y0), (x1, y1)) in enumerate(zip(pts, pts[1:])):
+        pieces.append(Structure(
+            f"wall-{i:03d}", "wall", "Station wall",
+            round((x0 + x1) / 2, 3), round((y0 + y1) / 2, 3),
+            round(abs(x1 - x0) + t, 3), round(abs(y1 - y0) + t, 3), h, True,
+        ))
+    return pieces
 
 
 def starting_facility() -> list[Structure]:
@@ -84,15 +121,15 @@ def starting_facility() -> list[Structure]:
         *_walls(),
         Structure("door-south", "door", "Main door", 0.0, -BUILDING_DEPTH_M / 2.0, DOOR_WIDTH_M, WALL_THICKNESS_M, 3.4, False),
         # Repair bay: four bays down the west side, two of them equipped.
-        Structure("repair-1", "repair_station", "Repair station 1", -12.5, 7.0, 3.0, 3.0, 2.6, False),
-        Structure("repair-2", "repair_station", "Repair station 2", -12.5, 2.5, 3.0, 3.0, 2.6, False),
-        Structure("repair-bay-3", "expansion_bay", "Empty repair bay", -12.5, -2.0, 3.0, 3.0, 0.05, False, status="empty"),
-        Structure("repair-bay-4", "expansion_bay", "Empty repair bay", -12.5, -6.5, 3.0, 3.0, 0.05, False, status="empty"),
-        # Storage center: racks along the east wall with a counter in front.
-        Structure("storage-racks", "storage", "Storage center", 13.4, 4.5, 3.6, 9.0, 3.2, True),
-        Structure("storage-counter", "storage_counter", "Storage counter", 10.2, 4.5, 1.0, 5.0, 1.05, True),
-        # Work station: a fabrication bench.
-        Structure("work-station", "work_station", "Work station", 10.5, -6.5, 5.0, 2.0, 1.0, True),
+        Structure("repair-1", "repair_station", "Repair station 1", -14.5, 6.5, 3.0, 3.0, 2.8, False),
+        Structure("repair-2", "repair_station", "Repair station 2", -14.5, 2.0, 3.0, 3.0, 2.8, False),
+        Structure("repair-bay-3", "expansion_bay", "Empty repair bay", -14.5, -2.5, 3.0, 3.0, 0.05, False, status="empty"),
+        Structure("repair-bay-4", "expansion_bay", "Empty repair bay", -14.5, -7.0, 3.0, 3.0, 0.05, False, status="empty"),
+        # Storage center: a curved wall of storage along the east side.
+        Structure("storage-racks", "storage", "Storage center", 15.6, 2.5, 3.2, 9.0, 3.4, True),
+        Structure("storage-counter", "storage_counter", "Storage counter", 12.6, 2.5, 1.1, 5.0, 1.05, True),
+        # Work station: a fabrication desk.
+        Structure("work-station", "work_station", "Work station", 12.0, -7.5, 5.0, 2.0, 1.0, True),
         # Meeting table in the middle of the hall.
         Structure(
             "meeting-table", "meeting_table", "Meeting table",
@@ -117,7 +154,7 @@ def meeting_seats(count: int = 6) -> list[tuple[float, float, float]]:
     return seats
 
 
-VISITOR_SPAWN = (0.0, -20.0, math.pi / 2.0)  # outside the door, facing it
+VISITOR_SPAWN = (0.0, -21.0, math.pi / 2.0)  # outside the door, facing it
 
 
 def solid_structures(structures: list[Structure] | None = None) -> list[Structure]:

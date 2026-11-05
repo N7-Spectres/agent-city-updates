@@ -29,6 +29,7 @@ from agent_city.updater import (
     fetch_manifest, load_settings, make_backup, save_settings, stage_update,
 )
 from agent_city.visitor import move_visitor, visitor_state
+from agent_city.world import facility
 from agent_city.world.planet import Planet
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -97,11 +98,24 @@ def get_state(visitor: str = "N7"):
         structures = load_structures(conn)
     return {
         "version": current_version(),
-        "world": {"seed": seed, "facility": "Seed Station"},
+        "world": {"seed": seed, "facility": "Seed Station", "shell": _shell()},
         "time": {**clock.describe(seconds), "paused": paused, "time_scale": scale},
         "citizens": citizens,
         "structures": structures,
         "visitor": visitor_state(visitor[:40] or "N7"),
+    }
+
+
+def _shell() -> dict:
+    """The station's curved outline, for drawing. Collision uses the wall pieces."""
+    return {
+        "path": facility.wall_path(0.5),
+        "width_m": facility.BUILDING_WIDTH_M,
+        "depth_m": facility.BUILDING_DEPTH_M,
+        "corner_radius_m": facility.CORNER_RADIUS_M,
+        "wall_thickness_m": facility.WALL_THICKNESS_M,
+        "wall_height_m": facility.WALL_HEIGHT_M,
+        "door_width_m": facility.DOOR_WIDTH_M,
     }
 
 

@@ -31,6 +31,8 @@ const canvas = document.getElementById("world");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -121,120 +123,279 @@ function buildTerrain(data) {
 }
 
 // --- facility -----------------------------------------------------------------
+// Seed Station: one smooth white shell with soft light lines, after N7's
+// references. The server sends the wall outline; the shell is drawn from it.
 const solids = []; // boxes the visitor cannot walk through
 const placeZones = [];
 const spinners = []; // small moving parts so the station feels alive
 
+const GLOW = 0x4cc6ff;
 const mats = {
-  floor: new THREE.MeshStandardMaterial({ color: 0x4b5258, roughness: 0.8 }),
-  wall: new THREE.MeshStandardMaterial({ color: 0xd9d4c7, roughness: 0.7 }),
+  shell: new THREE.MeshStandardMaterial({ color: 0xf3f5f7, roughness: 0.42, metalness: 0.05, side: THREE.DoubleSide }),
+  floor: new THREE.MeshStandardMaterial({ color: 0xd9dee3, roughness: 0.28, metalness: 0.08 }),
+  plinth: new THREE.MeshStandardMaterial({ color: 0xc9d0d6, roughness: 0.6 }),
+  white: new THREE.MeshStandardMaterial({ color: 0xf7f8fa, roughness: 0.35, metalness: 0.05 }),
+  soft: new THREE.MeshStandardMaterial({ color: 0xdfe4e8, roughness: 0.5 }),
+  dark: new THREE.MeshStandardMaterial({ color: 0x1d2730, roughness: 0.3, metalness: 0.4 }),
+  glow: new THREE.MeshStandardMaterial({ color: 0x9fe2ff, emissive: GLOW, emissiveIntensity: 1.5, toneMapped: false }),
   trim: new THREE.MeshStandardMaterial({ color: 0x2f353a, roughness: 0.5, metalness: 0.4 }),
-  metal: new THREE.MeshStandardMaterial({ color: 0x8a949c, roughness: 0.4, metalness: 0.7 }),
-  glow: new THREE.MeshStandardMaterial({ color: 0x5fd0ff, emissive: 0x2aa8e0, emissiveIntensity: 1.4 }),
-  wood: new THREE.MeshStandardMaterial({ color: 0x6b5643, roughness: 0.6 }),
-  crate: new THREE.MeshStandardMaterial({ color: 0xb08a4f, roughness: 0.8 }),
-  marking: new THREE.MeshBasicMaterial({ color: 0xf2a541 }),
+  glowSoft: new THREE.MeshBasicMaterial({ color: 0x8fdcff, transparent: true, opacity: 0.55, toneMapped: false }),
+  screen: new THREE.MeshStandardMaterial({ color: 0x0c2433, emissive: 0x1a6f9e, emissiveIntensity: 0.9, roughness: 0.2 }),
+  leaf: new THREE.MeshStandardMaterial({ color: 0x4e8a46, roughness: 0.8, flatShading: true }),
+  leafLight: new THREE.MeshStandardMaterial({ color: 0x74ad5c, roughness: 0.8, flatShading: true }),
 };
 
-function box(w, h, d, mat, x, y, base, parent = scene) {
-  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
-  m.position.copy(toScene(x, y, base + h / 2));
-  m.castShadow = true;
-  m.receiveShadow = true;
-  parent.add(m);
-  return m;
+function add(mesh, shadows = true) {
+  mesh.castShadow = shadows;
+  mesh.receiveShadow = true;
+  scene.add(mesh);
+  return mesh;
 }
 
-function outlineBay(s, base) {
-  const t = 0.12;
-  const { x_m: x, y_m: y, width_m: w, depth_m: d } = s;
-  box(w, 0.02, t, mats.marking, x, y + d / 2, base);
-  box(w, 0.02, t, mats.marking, x, y - d / 2, base);
-  box(t, 0.02, d, mats.marking, x + w / 2, y, base);
-  box(t, 0.02, d, mats.marking, x - w / 2, y, base);
+// A rounded rectangle in planet space (x east, y north) as a three.js Shape.
+function roundedRectShape(w, d, r) {
+  const s = new THREE.Shape();
+  const hw = w / 2, hd = d / 2;
+  r = Math.min(r, hw, hd);
+  s.moveTo(-hw + r, -hd);
+  s.lineTo(hw - r, -hd); s.absarc(hw - r, -hd + r, r, -Math.PI / 2, 0, false);
+  s.lineTo(hw, hd - r); s.absarc(hw - r, hd - r, r, 0, Math.PI / 2, false);
+  s.lineTo(-hw + r, hd); s.absarc(-hw + r, hd - r, r, Math.PI / 2, Math.PI, false);
+  s.lineTo(-hw, -hd + r); s.absarc(-hw + r, -hd + r, r, Math.PI, Math.PI * 1.5, false);
+  return s;
 }
 
-function buildFacility(structures, base) {
+// A soft-edged block: rounded corners seen from above, bevelled edges.
+function roundedBlock(w, h, d, r, mat, x, y, base) {
+  const bevel = Math.min(0.08, h / 4);
+  const geo = new THREE.ExtrudeGeometry(roundedRectShape(w - bevel * 2, d - bevel * 2, r), {
+    depth: h - bevel * 2, bevelEnabled: true, bevelSize: bevel, bevelThickness: bevel, bevelSegments: 3, curveSegments: 16,
+  });
+  geo.rotateX(-Math.PI / 2); // shape x/y -> scene x/-z, extrusion -> up
+  const m = new THREE.Mesh(geo, mat);
+  m.position.copy(toScene(x, y, base + bevel));
+  return add(m);
+}
+
+// A glowing line along points given in planet space at a height.
+function lightLine(points2d, height, radius = 0.035, mat = mats.glow, closed = false) {
+  const curve = new THREE.CatmullRomCurve3(points2d.map(([x, y]) => toScene(x, y, height)), closed, "centripetal");
+  const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(16, points2d.length * 4), radius, 6, closed), mat);
+  scene.add(tube);
+  return tube;
+}
+
+function offsetPath(points, dist) {
+  // Outward normal of a counter-clockwise outline is (dy, -dx).
+  return points.map((p, i) => {
+    const a = points[Math.max(0, i - 1)], b = points[Math.min(points.length - 1, i + 1)];
+    const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1;
+    return [p[0] + (dy / len) * dist, p[1] - (dx / len) * dist];
+  });
+}
+
+// The curved wall: a ribbon with inner face, outer face and a rounded top.
+function buildShell(shell, base) {
+  const pts = shell.path;
+  const t = shell.wall_thickness_m, h = shell.wall_height_m;
+  const outer = offsetPath(pts, t / 2), inner = offsetPath(pts, -t / 2);
+  const pos = [], idx = [];
+  const ring = [[outer, 0], [outer, h], [inner, h], [inner, 0]];
+  for (let i = 0; i < pts.length; i++) {
+    for (const [line, z] of ring) pos.push(line[i][0], base + z, -line[i][1]);
+  }
+  for (let i = 0; i < pts.length - 1; i++) {
+    for (let k = 0; k < 3; k++) {
+      const a = i * 4 + k, b = a + 1, c = (i + 1) * 4 + k, d = c + 1;
+      idx.push(a, c, b, b, c, d);
+    }
+  }
+  // Close the two wall ends at the doorway.
+  for (const i of [0, pts.length - 1]) idx.push(i * 4, i * 4 + 1, i * 4 + 2, i * 4, i * 4 + 2, i * 4 + 3);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  geo.setIndex(idx);
+  geo.computeVertexNormals();
+  add(new THREE.Mesh(geo, mats.shell));
+
+  // Ceiling cove: a white band reaching in from the top of the wall, open in
+  // the middle like a skylight, with two light lines along its edge.
+  const coveDepth = 3.2;
+  const coveOuter = offsetPath(pts, -t / 2), coveInner = offsetPath(pts, -t / 2 - coveDepth);
+  const cpos = [], cidx = [];
+  for (let i = 0; i < pts.length; i++) {
+    cpos.push(coveOuter[i][0], base + h - 0.05, -coveOuter[i][1]);
+    cpos.push(coveInner[i][0], base + h - 0.45, -coveInner[i][1]);
+  }
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = i * 2, b = a + 1, c = a + 2, d = a + 3;
+    cidx.push(a, c, b, b, c, d);
+  }
+  const cgeo = new THREE.BufferGeometry();
+  cgeo.setAttribute("position", new THREE.Float32BufferAttribute(cpos, 3));
+  cgeo.setIndex(cidx);
+  cgeo.computeVertexNormals();
+  add(new THREE.Mesh(cgeo, mats.shell), false);
+  lightLine(offsetPath(pts, -t / 2 - coveDepth + 0.05), base + h - 0.5, 0.045);
+  lightLine(offsetPath(pts, -t / 2 - coveDepth * 0.45), base + h - 0.3, 0.03);
+  // A low cove light where the wall meets the floor, inside and out.
+  lightLine(offsetPath(pts, -t / 2 - 0.06), base + 0.22, 0.03);
+  lightLine(offsetPath(pts, t / 2 + 0.06), base + 0.12, 0.04);
+  // A soft rounded lip along the top of the wall.
+  const lip = new THREE.CatmullRomCurve3(pts.map(([x, y]) => toScene(x, y, base + h)), false, "centripetal");
+  add(new THREE.Mesh(new THREE.TubeGeometry(lip, pts.length * 3, t * 0.6, 10, false), mats.shell), false);
+
+  // The doorway: a rounded portal with a light along its inner edge.
+  const hd = shell.door_width_m / 2, y = -shell.depth_m / 2, top = 3.6;
+  const arch = [];
+  for (let i = 0; i <= 24; i++) {
+    const a = Math.PI * (i / 24);
+    arch.push(toScene(Math.cos(a) * hd, y, base + (top - hd) + Math.sin(a) * hd));
+  }
+  arch.unshift(toScene(hd, y, base)); arch.push(toScene(-hd, y, base));
+  const archCurve = new THREE.CatmullRomCurve3(arch, false, "centripetal");
+  add(new THREE.Mesh(new THREE.TubeGeometry(archCurve, 64, 0.32, 12, false), mats.white));
+  scene.add(new THREE.Mesh(new THREE.TubeGeometry(archCurve, 64, 0.05, 8, false), mats.glow));
+
+  // Name over the door.
+  const c = document.createElement("canvas");
+  c.width = 1024; c.height = 160;
+  const g = c.getContext("2d");
+  g.fillStyle = "#8fdcff"; g.font = "600 92px system-ui, sans-serif"; g.textAlign = "center";
+  g.fillText("SEED  STATION", 512, 112);
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+  const sign = new THREE.Mesh(new THREE.PlaneGeometry(6, 0.95), new THREE.MeshBasicMaterial({ map: tex, transparent: true, toneMapped: false }));
+  sign.position.copy(toScene(0, y - t / 2 - 0.02, base + 4.35));
+  // A plane faces +z (south) by default: toward arriving visitors.
+  scene.add(sign);
+}
+
+function buildFloor(shell, base) {
+  const plinth = new THREE.Mesh(new THREE.ExtrudeGeometry(roundedRectShape(shell.width_m + 3, shell.depth_m + 3, shell.corner_radius_m + 1.5), { depth: 0.4, bevelEnabled: true, bevelSize: 0.15, bevelThickness: 0.15, bevelSegments: 3, curveSegments: 24 }), mats.plinth);
+  plinth.geometry.rotateX(-Math.PI / 2);
+  plinth.position.copy(toScene(0, 0, base - 0.45));
+  add(plinth, false);
+  const floor = new THREE.Mesh(new THREE.ShapeGeometry(roundedRectShape(shell.width_m, shell.depth_m, shell.corner_radius_m), 24), mats.floor);
+  floor.geometry.rotateX(-Math.PI / 2);
+  floor.position.copy(toScene(0, 0, base + 0.15));
+  floor.receiveShadow = true;
+  scene.add(floor);
+
+  // Light lines set into the floor, flowing from the door to each area.
+  const f = base + 0.165;
+  const flat = (pts, r = 0.022) => { const m = lightLine(pts, f, r); m.scale.y = 0.25; m.position.y = f * 0.75; return m; };
+  flat([[0.6, -13.5], [0.8, -9], [2.6, -5], [3.4, -1.8], [2.2, 0.4]]);
+  flat([[-0.6, -13.5], [-1.2, -8.5], [-5, -5.2], [-10, -4.6], [-12.4, -4.6]]);
+  flat([[1.6, -9.5], [6, -8.4], [9.2, -6.2], [10.2, -5.6]]);
+  flat([[3.6, -1.6], [7.5, -0.2], [10.2, 0.8], [11.6, 1.2]]);
+  flat([[-12.4, -4.6], [-12.6, 0], [-12.6, 4.5], [-12.4, 8.6]]);
+}
+
+function planter(x, y, base, size = 1) {
+  const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.45 * size, 0.36 * size, 0.85 * size, 24), mats.white);
+  pot.position.copy(toScene(x, y, base + 0.15 + 0.425 * size));
+  add(pot);
+  const leafGeo = new THREE.IcosahedronGeometry(0.32 * size, 0);
+  for (let k = 0; k < 9; k++) {
+    const leaf = new THREE.Mesh(leafGeo, k % 3 ? mats.leaf : mats.leafLight);
+    const a = k * 2.39, r = 0.18 * size * (k % 4);
+    leaf.position.copy(toScene(x + Math.cos(a) * r, y + Math.sin(a) * r, base + (1.0 + 0.16 * (k % 5)) * size));
+    leaf.scale.set(1, 0.8 + (k % 3) * 0.3, 1);
+    leaf.rotation.set(k, k * 1.7, 0);
+    add(leaf);
+  }
+}
+
+function buildFacility(structures, shell, base) {
+  if (shell) { buildFloor(shell, base); buildShell(shell, base); }
+  const b = base + 0.15; // standing height on the station floor
   for (const s of structures) {
     const { x_m: x, y_m: y, width_m: w, depth_m: d, height_m: h } = s;
     if (s.solid) solids.push(s);
     switch (s.kind) {
-      case "floor":
-        box(w + 1, 0.3, d + 1, mats.trim, x, y, base - 0.3);
-        box(w, h, d, mats.floor, x, y, base);
-        break;
-      case "wall":
-        box(w, h, d, mats.wall, x, y, base);
-        box(w + 0.05, 0.25, d + 0.05, mats.trim, x, y, base + h);
-        break;
-      case "door": {
-        box(0.3, h, 0.6, mats.trim, x - w / 2, y, base);
-        box(0.3, h, 0.6, mats.trim, x + w / 2, y, base);
-        box(w + 0.3, 0.4, 0.6, mats.trim, x, y, base + h);
-        break;
-      }
+      case "floor": case "wall": case "door":
+        break; // drawn by buildShell / buildFloor
       case "repair_station": {
-        box(w, 0.2, d, mats.metal, x, y, base + 0.15);
-        box(w - 0.4, 0.04, d - 0.4, mats.glow, x, y, base + 0.35);
-        box(0.25, h, 0.25, mats.trim, x - w / 2 + 0.2, y + d / 2 - 0.2, base);
-        box(0.25, h, 0.25, mats.trim, x + w / 2 - 0.2, y + d / 2 - 0.2, base);
-        box(w, 0.3, 0.3, mats.trim, x, y + d / 2 - 0.2, base + h);
-        spinners.push(box(0.15, 0.15, d * 0.6, mats.metal, x, y + 0.2, base + h - 0.2));
+        const pad = new THREE.Mesh(new THREE.CylinderGeometry(1.35, 1.45, 0.22, 40), mats.white);
+        pad.position.copy(toScene(x, y, b + 0.11)); add(pad);
+        const disc = new THREE.Mesh(new THREE.CircleGeometry(1.05, 40), mats.glowSoft);
+        disc.rotation.x = -Math.PI / 2; disc.position.copy(toScene(x, y, b + 0.23)); scene.add(disc);
+        const rim = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.03, 8, 64), mats.glow);
+        rim.rotation.x = Math.PI / 2; rim.position.copy(toScene(x, y, b + 0.24)); scene.add(rim);
+        // A white arch over the pad, open toward the hall (east).
+        const arch = new THREE.Mesh(new THREE.TorusGeometry(1.35, 0.16, 16, 48, Math.PI), mats.white);
+        arch.position.copy(toScene(x - 0.9, y, b + 0.2)); arch.scale.set(1, 1.75, 1); arch.rotation.y = Math.PI / 2;
+        add(arch);
+        const archGlow = new THREE.Mesh(new THREE.TorusGeometry(1.18, 0.025, 8, 48, Math.PI), mats.glow);
+        archGlow.position.copy(arch.position); archGlow.scale.copy(arch.scale); archGlow.rotation.copy(arch.rotation);
+        scene.add(archGlow);
+        const halo = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.035, 8, 48), mats.glow);
+        halo.rotation.x = Math.PI / 2; halo.position.copy(toScene(x, y, b + h)); scene.add(halo);
+        spinners.push(halo);
         placeZones.push({ name: s.name, s });
         break;
       }
-      case "expansion_bay":
-        outlineBay(s, base + 0.16);
+      case "expansion_bay": {
+        const ring = new THREE.Mesh(new THREE.RingGeometry(1.15, 1.22, 48), mats.glowSoft);
+        ring.rotation.x = -Math.PI / 2; ring.position.copy(toScene(x, y, b + 0.02)); scene.add(ring);
         placeZones.push({ name: "Empty repair bay (room to grow)", s });
         break;
+      }
       case "storage": {
-        for (let level = 0; level < 4; level++) {
-          box(w, 0.08, d, mats.metal, x, y, base + 0.15 + level * 0.9);
-          for (let k = 0; k < 4; k++) {
-            if ((level + k) % 3 === 0) continue;
-            box(0.8, 0.6, 0.9, mats.crate, x - 0.6 + (k % 2) * 1.1, y - d / 2 + 1 + k * 2.2, base + 0.23 + level * 0.9);
+        roundedBlock(w, h, d, 0.6, mats.white, x, y, b);
+        for (let row = 0; row < 3; row++) {
+          for (let col = 0; col < 3; col++) {
+            const cy = y - d / 2 + 1.5 + col * 3;
+            const bay = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.8, 2.4), mats.soft);
+            bay.position.copy(toScene(x - w / 2 - 0.01, cy, b + 0.7 + row * 1.0)); scene.add(bay);
           }
+          const strip = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.03, d - 0.8), mats.glow);
+          strip.position.copy(toScene(x - w / 2 - 0.03, y, b + 0.25 + row * 1.0)); scene.add(strip);
         }
-        for (const dx of [-w / 2, w / 2]) for (const dy of [-d / 2, d / 2]) box(0.1, h, 0.1, mats.trim, x + dx, y + dy, base);
         placeZones.push({ name: "Storage center", s });
         break;
       }
       case "storage_counter":
-        box(w, h, d, mats.trim, x, y, base);
+        roundedBlock(w, h, d, 0.45, mats.white, x, y, b);
+        lightLine([[x - w / 2 - 0.02, y - d / 2 + 0.3], [x - w / 2 - 0.02, y + d / 2 - 0.3]], b + 0.12, 0.025);
         break;
       case "work_station": {
-        box(w, 0.1, d, mats.wood, x, y, base + h - 0.1);
-        box(w - 0.2, h - 0.1, 0.1, mats.trim, x, y + d / 2 - 0.1, base);
-        box(0.1, h - 0.1, d, mats.trim, x - w / 2 + 0.1, y, base);
-        box(0.1, h - 0.1, d, mats.trim, x + w / 2 - 0.1, y, base);
-        box(0.6, 0.35, 0.5, mats.metal, x - 1.4, y, base + h);
-        box(1.2, 0.6, 0.06, mats.glow, x + 0.8, y + d / 2 - 0.2, base + h + 0.3);
+        roundedBlock(w, 0.12, d, 0.5, mats.white, x, y, b + h - 0.12);
+        roundedBlock(w * 0.55, h - 0.12, d * 0.6, 0.35, mats.soft, x, y + 0.1, b);
+        lightLine([[x - w / 2 + 0.3, y - d / 2 + 0.05], [x + w / 2 - 0.3, y - d / 2 + 0.05]], b + h - 0.14, 0.025);
+        const screen = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, 0.75, 32, 1, true, -0.45, 0.9), mats.screen);
+        screen.material.side = THREE.DoubleSide;
+        screen.position.copy(toScene(x, y - 1.4, b + h + 0.55)); scene.add(screen);
         placeZones.push({ name: "Work station", s });
         break;
       }
       case "meeting_table": {
         const r = w / 2;
-        const top = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 0.08, 48), mats.wood);
-        top.position.copy(toScene(x, y, base + h));
-        top.castShadow = top.receiveShadow = true;
-        scene.add(top);
-        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.5, h, 16), mats.trim);
-        stem.position.copy(toScene(x, y, base + h / 2));
-        scene.add(stem);
-        const holo = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 0.02, 32), mats.glow);
-        holo.position.copy(toScene(x, y, base + h + 0.06));
-        scene.add(holo);
+        const top = new THREE.Mesh(new THREE.CylinderGeometry(r, r * 0.96, 0.12, 64), mats.white);
+        top.position.copy(toScene(x, y, b + h)); add(top);
+        const edge = new THREE.Mesh(new THREE.TorusGeometry(r * 0.97, 0.025, 8, 96), mats.glow);
+        edge.rotation.x = Math.PI / 2; edge.position.copy(toScene(x, y, b + h - 0.07)); scene.add(edge);
+        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.9, h - 0.06, 32), mats.white);
+        stem.position.copy(toScene(x, y, b + (h - 0.06) / 2)); add(stem);
+        const holo = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 0.02, 48), mats.glowSoft);
+        holo.position.copy(toScene(x, y, b + h + 0.08)); scene.add(holo);
+        const standRing = new THREE.Mesh(new THREE.RingGeometry(2.95, 3.0, 96), mats.glowSoft);
+        standRing.rotation.x = -Math.PI / 2; standRing.position.copy(toScene(x, y, b + 0.02)); scene.add(standRing);
         placeZones.push({ name: "Meeting table", s, radius: r + 2.5 });
         break;
       }
       default:
-        box(w, h, d, mats.metal, x, y, base);
+        roundedBlock(w, h, d, 0.3, mats.white, x, y, b);
     }
   }
-  // A light panel over the hall so the inside reads at night too.
-  const lamp = new THREE.PointLight(0xfff0d8, 30, 40, 1.6);
-  lamp.position.copy(toScene(0, 0, base + 6));
-  scene.add(lamp);
+  for (const [px, py, size] of [[-3.4, -10.6, 1], [3.4, -10.6, 1], [-6, 10.4, 1.3], [6, 10.4, 1.3], [16, -9.2, 1.1], [-16.2, 9.6, 0.9]]) planter(px, py, base, size);
+
+  // Cool white light inside, so the white reads at night too.
+  for (const [lx, ly] of [[-9, 0], [0, 3], [9, 0]]) {
+    const lamp = new THREE.PointLight(0xeaf6ff, 9, 24, 1.6);
+    lamp.position.copy(toScene(lx, ly, base + 4.4));
+    scene.add(lamp);
+  }
 }
 
 function blocked(x, y) {
@@ -254,7 +415,7 @@ function placeName(x, y) {
     if (z.radius ? Math.hypot(x - s.x_m, y - s.y_m) < z.radius
       : Math.abs(x - s.x_m) < s.width_m / 2 + 1.2 && Math.abs(y - s.y_m) < s.depth_m / 2 + 1.2) return z.name;
   }
-  if (Math.abs(x) < 16 && Math.abs(y) < 11) return "Inside Seed Station";
+  if (Math.abs(x) < 18 && Math.abs(y) < 12) return "Inside Seed Station";
   return "Outside, on the planet surface";
 }
 
@@ -475,7 +636,7 @@ async function start() {
   ]);
   buildTerrain(terrainData);
   const base = terrain.origin + 0.0;
-  buildFacility(state.structures, base);
+  buildFacility(state.structures, state.world.shell, base);
   for (const c of state.citizens) addCitizen(c, base);
   visitor.x = state.visitor.x_m; visitor.y = state.visitor.y_m; visitor.heading = state.visitor.heading;
   await refreshState();
@@ -497,7 +658,7 @@ function loop() {
     sendPosition();
   }
   const ground = heightAt(visitor.x, visitor.y);
-  const floorLift = Math.abs(visitor.x) < 16 && Math.abs(visitor.y) < 11 ? 0.15 : 0;
+  const floorLift = Math.abs(visitor.x) < 18.5 && Math.abs(visitor.y) < 12.5 ? 0.15 : 0;
   visitor.group.position.copy(toScene(visitor.x, visitor.y, ground + floorLift));
   visitor.group.rotation.y = visitor.heading - Math.PI / 2;
 
@@ -506,11 +667,11 @@ function loop() {
   const target = toScene(visitor.x + Math.cos(visitor.heading) * 3, visitor.y + Math.sin(visitor.heading) * 3, ground + 1.2);
   // Pull the camera in if a wall would come between it and the visitor.
   // Inside, the outer walls also bound the camera so it never ends up outside.
-  const inside = Math.abs(visitor.x) < 15.8 && Math.abs(visitor.y) < 10.8;
+  const inside = Math.abs(visitor.x) < 17.8 && Math.abs(visitor.y) < 11.8;
   let dist = back;
   for (let d = 0.6; d <= back; d += 0.3) {
     const px = visitor.x - Math.cos(visitor.heading) * d, py = visitor.y - Math.sin(visitor.heading) * d;
-    if (inside && (Math.abs(px) > 15.4 || Math.abs(py) > 10.4)) { dist = Math.max(0.8, d - 0.3); break; }
+    if (inside && (Math.abs(px) > 17.2 || Math.abs(py) > 11.2)) { dist = Math.max(0.8, d - 0.3); break; }
     if (wallAt(visitor.x - Math.cos(visitor.heading) * d, visitor.y - Math.sin(visitor.heading) * d)) { dist = Math.max(0.8, d - 0.6); break; }
   }
   const camX = visitor.x - Math.cos(visitor.heading) * dist;

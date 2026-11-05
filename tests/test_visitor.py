@@ -19,24 +19,24 @@ class VisitorTests(FreshWorldTest):
         return move_visitor("N7", x, y, 1.57, now=self.t)
 
     def test_normal_walking_is_accepted(self):
-        r = self.step(0.0, -19.5)
+        r = self.step(0.0, -20.5)
         self.assertTrue(r["accepted"])
-        self.assertEqual(visitor_state("N7")["y_m"], -19.5)
+        self.assertEqual(visitor_state("N7")["y_m"], -20.5)
 
     def test_no_teleporting(self):
         r = self.step(0.0, 0.0)
         self.assertFalse(r["accepted"])
         self.assertEqual(r["reason"], "too far in one step")
-        self.assertEqual(visitor_state("N7")["y_m"], -20.0)
+        self.assertEqual(visitor_state("N7")["y_m"], -21.0)
 
     def test_cannot_walk_through_a_wall(self):
         # Walk to just outside the south wall, beside the door.
-        y = -20.0
+        y = -21.0
         x = 0.0
         for _ in range(8):
             x += 0.75
             self.assertTrue(self.step(x, y)["accepted"])
-        while y < -12.0:
+        while y < -13.5:
             y += 1.0
             self.assertTrue(self.step(x, y)["accepted"])
         r = self.step(x, y + 1.5)
@@ -44,7 +44,7 @@ class VisitorTests(FreshWorldTest):
         self.assertEqual(r["reason"], "something solid is in the way")
 
     def test_can_walk_in_through_the_door(self):
-        y = -20.0
+        y = -21.0
         while y < -5.0:
             y += 1.0
             self.assertTrue(self.step(0.0, y)["accepted"], f"blocked at y={y}")
