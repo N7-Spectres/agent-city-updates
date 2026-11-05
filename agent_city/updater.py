@@ -4,7 +4,9 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
+import sqlite3
 import tempfile
+import time
 import urllib.parse
 import zipfile
 from datetime import datetime
@@ -18,7 +20,10 @@ DATA_DIR = PROJECT_ROOT / "data"
 BACKUP_DIR = PROJECT_ROOT / "backups"
 STAGING_DIR = PROJECT_ROOT / "update_staging"
 SETTINGS_PATH = DATA_DIR / "update_settings.json"
+MAINTENANCE_SETTINGS_PATH = DATA_DIR / "maintenance_settings.json"
 VERSION_PATH = PROJECT_ROOT / "VERSION"
+
+BACKUP_RETENTION_OPTIONS = {0, 10, 20, 50, 100}
 
 PRESERVE_NAMES = {
     ".venv",
@@ -73,17 +78,118 @@ def save_settings(manifest_url: str) -> None:
     )
 
 
+def load_maintenance_settings() -> dict[str, Any]:
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    if not MAINTENANCE_SETTINGS_PATH.exists():
+        return {"backup_retention": 0}
+    try:
+        data = json.loads(MAINTENANCE_SETTINGS_PATH.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            return {"backup_retention": 0}
+        retention = int(data.get("backup_retention", 0) or 0)
+        if retention not in BACKUP_RETENTION_OPTIONS:
+            retention = 0
+        return {"backup_retention": retention}
+    except Exception:
+        return {"backup_retention": 0}
+
+
+def save_backup_retention(limit: int) -> int:
+    retention = int(limit)
+    if retention not in BACKUP_RETENTION_OPTIONS:
+        raise ValueError(
+            "Backup retention must be Keep all (0), 10, 20, 50, or 100."
+        )
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    MAINTENANCE_SETTINGS_PATH.write_text(
+        json.dumps({"backup_retention": retention}, indent=2),
+        encoding="utf-8",
+    )
+    return retention
+
+
 def _validate_https_url(url: str) -> None:
     parsed = urllib.parse.urlparse(url)
     if parsed.scheme != "https" or not parsed.netloc:
         raise ValueError("Update URLs must use HTTPS.")
 
 
+def _github_contents_manifest_url(manifest_url: str) -> str | None:
+    parsed = urllib.parse.urlsplit(manifest_url)
+    if parsed.scheme != "https" or parsed.netloc.lower() != "raw.githubusercontent.com":
+        return None
+
+    parts = [urllib.parse.unquote(part) for part in parsed.path.strip("/").split("/") if part]
+    if len(parts) < 4:
+        return None
+
+    owner, repo = parts[0], parts[1]
+    if len(parts) >= 6 and parts[2:4] == ["refs", "heads"]:
+        ref = parts[4]
+        file_parts = parts[5:]
+    else:
+        ref = parts[2]
+        file_parts = parts[3:]
+
+    if not owner or not repo or not ref or not file_parts:
+        return None
+
+    encoded_owner = urllib.parse.quote(owner, safe="")
+    encoded_repo = urllib.parse.quote(repo, safe="")
+    encoded_path = "/".join(urllib.parse.quote(part, safe="") for part in file_parts)
+    query = urllib.parse.urlencode({"ref": ref})
+    return (
+        f"https://api.github.com/repos/{encoded_owner}/{encoded_repo}/"
+        f"contents/{encoded_path}?{query}"
+    )
+
+
 async def fetch_manifest(manifest_url: str) -> dict[str, Any]:
     _validate_https_url(manifest_url)
+
+    # Prefer GitHub's repository contents API for raw.githubusercontent.com
+    # branch feeds. This resolves the requested branch/file from repository
+    # state instead of relying on raw-CDN freshness.
+    api_url = _github_contents_manifest_url(manifest_url)
+    api_headers = {
+        "Accept": "application/vnd.github.raw+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "User-Agent": "Agent-City-Updater",
+        "Cache-Control": "no-cache, no-store, max-age=0",
+        "Pragma": "no-cache",
+    }
+
+    # Keep the cache-busted raw request as a fallback for non-GitHub feeds and
+    # for temporary GitHub API failures/rate limits.
+    parsed = urllib.parse.urlsplit(manifest_url)
+    query = urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
+    query.append(("_agent_city_check", str(int(time.time() * 1000))))
+    fresh_url = urllib.parse.urlunsplit((
+        parsed.scheme,
+        parsed.netloc,
+        parsed.path,
+        urllib.parse.urlencode(query),
+        parsed.fragment,
+    ))
+    fallback_headers = {
+        "User-Agent": "Agent-City-Updater",
+        "Cache-Control": "no-cache, no-store, max-age=0",
+        "Pragma": "no-cache",
+    }
+
     async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
-        response = await client.get(manifest_url)
-        response.raise_for_status()
+        response = None
+        if api_url:
+            try:
+                response = await client.get(api_url, headers=api_headers)
+                response.raise_for_status()
+            except httpx.HTTPError:
+                response = None
+
+        if response is None:
+            response = await client.get(fresh_url, headers=fallback_headers)
+            response.raise_for_status()
+
         manifest = response.json()
 
     if not isinstance(manifest, dict):
@@ -161,15 +267,192 @@ def _find_package_root(extracted: Path) -> Path:
     raise ValueError("Update package does not contain main.py at its root.")
 
 
-def make_backup() -> Path:
+def _backup_paths() -> list[Path]:
     BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+    return sorted(
+        (p for p in BACKUP_DIR.iterdir() if p.is_dir()),
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
+
+
+def _backup_metadata(path: Path) -> dict[str, Any]:
+    info_path = path / "backup_info.json"
+    info: dict[str, Any] = {}
+    if info_path.exists():
+        try:
+            parsed = json.loads(info_path.read_text(encoding="utf-8"))
+            if isinstance(parsed, dict):
+                info = parsed
+        except Exception:
+            info = {}
+
+    total_size = 0
+    file_count = 0
+    try:
+        for child in path.rglob("*"):
+            if child.is_file():
+                file_count += 1
+                total_size += int(child.stat().st_size)
+    except OSError:
+        pass
+
+    created_at = str(info.get("created_at") or "").strip()
+    if not created_at:
+        created_at = datetime.fromtimestamp(path.stat().st_mtime).isoformat(timespec="seconds")
+
+    return {
+        "name": path.name,
+        "created_at": created_at,
+        "version": str(info.get("version") or "unknown"),
+        "kind": str(info.get("kind") or ("manual" if path.name.startswith("manual_") else "before_update")),
+        "size_bytes": total_size,
+        "file_count": file_count,
+        "has_database": (path / "data" / "agent_city.db").exists(),
+        "has_program_archive": (path / "program_files.zip").exists(),
+    }
+
+
+def list_backups(limit: int = 30) -> list[dict[str, Any]]:
+    max_items = max(1, min(int(limit), 100))
+    return [
+        _backup_metadata(path)
+        for path in _backup_paths()[:max_items]
+    ]
+
+
+def backup_summary() -> dict[str, Any]:
+    paths = _backup_paths()
+    total_size = 0
+    for path in paths:
+        try:
+            total_size += sum(
+                int(child.stat().st_size)
+                for child in path.rglob("*")
+                if child.is_file()
+            )
+        except OSError:
+            continue
+
+    return {
+        "count": len(paths),
+        "total_size_bytes": total_size,
+        "latest": _backup_metadata(paths[0]) if paths else None,
+        "retention": int(load_maintenance_settings()["backup_retention"]),
+    }
+
+
+def apply_backup_retention() -> dict[str, Any]:
+    limit = int(load_maintenance_settings()["backup_retention"])
+    paths = _backup_paths()
+    if limit <= 0 or len(paths) <= limit:
+        return {
+            "retention": limit,
+            "removed": [],
+            "errors": [],
+        }
+
+    removed: list[str] = []
+    errors: list[dict[str, str]] = []
+    for path in paths[limit:]:
+        try:
+            shutil.rmtree(path)
+            removed.append(path.name)
+        except FileNotFoundError:
+            pass
+        except Exception as exc:
+            errors.append({"name": path.name, "error": str(exc)})
+
+    return {
+        "retention": limit,
+        "removed": removed,
+        "errors": errors,
+    }
+
+ACTIVE_STAGING_HANDOFF_NAMES = {
+    "launcher_exit_for_update.flag",
+    "update_job.json",
+}
+
+
+def cleanup_stale_update_staging() -> dict[str, Any]:
+    """
+    Remove completed/abandoned update payloads while never touching an active
+    updater handoff.
+
+    An active handoff is represented by either update_job.json or the launcher
+    exit flag. When either exists, cleanup is skipped entirely.
+    """
+    STAGING_DIR.mkdir(parents=True, exist_ok=True)
+    handoff_paths = [
+        STAGING_DIR / name
+        for name in ACTIVE_STAGING_HANDOFF_NAMES
+    ]
+    if any(path.exists() for path in handoff_paths):
+        return {
+            "skipped": True,
+            "reason": "active_update_handoff",
+            "removed": [],
+            "errors": [],
+        }
+
+    removed: list[str] = []
+    errors: list[dict[str, str]] = []
+
+    for entry in list(STAGING_DIR.iterdir()):
+        if entry.name in ACTIVE_STAGING_HANDOFF_NAMES:
+            continue
+        try:
+            if entry.is_dir():
+                shutil.rmtree(entry)
+            else:
+                entry.unlink()
+            removed.append(entry.name)
+        except FileNotFoundError:
+            pass
+        except Exception as exc:
+            errors.append({
+                "name": entry.name,
+                "error": str(exc),
+            })
+
+    return {
+        "skipped": False,
+        "reason": "",
+        "removed": removed,
+        "errors": errors,
+    }
+
+
+def make_backup(*, prefix: str = "before_update") -> Path:
+    BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+    safe_prefix = "".join(
+        ch for ch in str(prefix or "backup")
+        if ch.isalnum() or ch in {"-", "_"}
+    ).strip("-_") or "backup"
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    backup = BACKUP_DIR / f"before_update_{stamp}"
+    backup = BACKUP_DIR / f"{safe_prefix}_{stamp}"
     backup.mkdir(parents=True, exist_ok=True)
 
-    # Always copy persistent world data.
+    # Copy persistent local data, then replace the primary SQLite file with an
+    # online SQLite backup. This produces a transactionally consistent database
+    # even while Agent City is still running.
+    backup_data = backup / "data"
     if DATA_DIR.exists():
-        shutil.copytree(DATA_DIR, backup / "data", dirs_exist_ok=True)
+        shutil.copytree(DATA_DIR, backup_data, dirs_exist_ok=True)
+
+    # agent_city.db is the v1 city (kept untouched by v2); world.db is v2.
+    for db_name in ("agent_city.db", "world.db"):
+        source_db = DATA_DIR / db_name
+        backup_db = backup_data / db_name
+        if not source_db.exists():
+            continue
+        backup_data.mkdir(parents=True, exist_ok=True)
+        if backup_db.exists():
+            backup_db.unlink()
+        with sqlite3.connect(source_db) as source_conn:
+            with sqlite3.connect(backup_db) as backup_conn:
+                source_conn.backup(backup_conn)
 
     # Create a lightweight source-code backup for rollback/debugging.
     code_zip = backup / "program_files.zip"
@@ -182,10 +465,27 @@ def make_backup() -> Path:
                 continue
             z.write(path, rel)
 
+    (backup / "backup_info.json").write_text(
+        json.dumps(
+            {
+                "created_at": datetime.now().isoformat(timespec="seconds"),
+                "version": current_version(),
+                "kind": safe_prefix,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    apply_backup_retention()
     return backup
 
 
 async def stage_update(manifest: dict[str, Any]) -> dict[str, str]:
+    # Clear debris from earlier completed/abandoned update downloads before
+    # allocating the new version workspace. Active handoffs are protected.
+    cleanup_stale_update_staging()
+
     version = manifest["version"]
     package_url = manifest["package_url"]
     expected_sha = manifest.get("sha256", "")
