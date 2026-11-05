@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Agent City application icon source</title>
+  <desc id="desc">A compact city skyline beneath a cyan network arch on a dark rounded tile.</desc>
+  <rect x="14" y="14" width="228" height="228" rx="56" fill="#0C1218"/>
+  <path d="M47 108 A84 80 0 0 1 209 108" fill="none" stroke="#64DDEC" stroke-width="14" stroke-linecap="butt"/>
+  <path d="M61 179 H195" stroke="#64DDEC" stroke-width="10"/>
+  <rect x="73" y="118" width="30" height="61" rx="6" fill="#EBF2F5"/>
+  <rect x="110" y="77" width="36" height="102" rx="6" fill="#D5A65B"/>
+  <rect x="153" y="102" width="30" height="77" rx="6" fill="#EBF2F5"/>
+  <circle cx="128" cy="59" r="10" fill="#64DDEC"/>
+  <path d="M128 69 V77" stroke="#64DDEC" stroke-width="7"/>
+  <path d="M128 179 V192" stroke="#D5A65B" stroke-width="6"/>
+  <circle cx="128" cy="201" r="8" fill="#D5A65B"/>
+</svg>

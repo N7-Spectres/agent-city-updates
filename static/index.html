@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent City</title>
+  <link rel="icon" href="/static/assets/app/agent-city.ico">
+  <link rel="stylesheet" href="/static/style.css">
+  <script type="importmap">
+    {"imports": {
+      "three": "/static/vendor/three/three.module.min.js",
+      "three/addons/": "/static/vendor/three/addons/"
+    }}
+  </script>
+</head>
+<body>
+  <canvas id="world"></canvas>
+
+  <header class="hud hud-top">
+    <div class="brand">
+      <img src="/static/assets/app/agent-city-source.svg" alt="">
+      <div>
+        <strong>Seed Station</strong>
+        <span id="seed-label">Planet seed …</span>
+      </div>
+    </div>
+    <div class="clock">
+      <span id="time-label">…</span>
+      <button id="pause-button" type="button">Pause</button>
+    </div>
+  </header>
+
+  <aside class="hud nearby" id="nearby" hidden>
+    <img id="nearby-token" alt="">
+    <div>
+      <strong id="nearby-name"></strong>
+      <span id="nearby-division"></span>
+      <em id="nearby-activity"></em>
+    </div>
+  </aside>
+
+  <footer class="hud hud-bottom">
+    <span><kbd>↑</kbd><kbd>↓</kbd> walk &nbsp; <kbd>←</kbd><kbd>→</kbd> turn &nbsp; <kbd>Shift</kbd> jog</span>
+    <span id="place-label"></span>
+  </footer>
+
+  <div class="loading" id="loading">Loading the planet…</div>
+
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>
